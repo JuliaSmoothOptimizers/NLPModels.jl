@@ -20,7 +20,7 @@ script:
   - which cmake
   - cmake --version
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'Pkg.clone("https://github.com/dpo/AmplNLReader.jl.git"); Pkg.build("AmplNLReader")'
+  - julia -e 'Pkg.clone("https://github.com/dpo/AmplNLReader.jl.git"); Pkg.checkout("AmplNLReader", "develop"); Pkg.build("AmplNLReader")'
   - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("NLPModels"); Pkg.test("NLPModels"; coverage=true)'
 
 after_success:
