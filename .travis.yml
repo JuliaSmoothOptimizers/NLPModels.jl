@@ -1,13 +1,27 @@
 language: julia
-os:
-  - linux
-  - osx
+
+# os:
+#   - linux
+#   - osx
+
 julia:
   - release
   - nightly
+
 notifications:
   email: false
-# uncomment the following lines to override the default test script
-#script:
-#  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-#  - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("NLPModel"); Pkg.test("NLPModel"; coverage=true)'
+
+script:
+  - if [ `uname` == "Linux" ]; then
+    wget http://www.cmake.org/files/v3.2/cmake-3.2.1-Linux-x86_64.tar.gz;
+    tar -xzf cmake-3.2.1-Linux-x86_64.tar.gz;
+    sudo cp -fR cmake-3.2.1-Linux-x86_64/* /usr;
+    export PATH=`pwd`/cmake-3.2.1-Linux-x86_64/bin:$PATH; fi
+  - which cmake
+  - cmake --version
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - julia -e 'Pkg.clone("https://github.com/dpo/AmplNLReader.jl.git"); Pkg.build("AmplNLReader")'
+  - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("NLPModels"); Pkg.test("NLPModels"; coverage=true)'
+
+after_success:
+  - julia -e 'cd(Pkg.dir("NLPModels")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'

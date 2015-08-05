@@ -1,5 +1,6 @@
-using NLPModel
+using NLPModels
+using JuMP
+import AmplNLReader
 using Base.Test
 
-# write your own tests here
-@test 1 == 1
+include("jump_vs_ampl.jl")
