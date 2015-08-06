@@ -1,40 +1,69 @@
-rtol = 1.0e-8
+function jump_vs_ampl_helper(nlp_jump, nlp_ampl; nloops=100, rtol=1.0e-10)
 
-# Create a NLPModel from a JuMP model.
-include("genrose.jl")
-genrose_jump = NLPModel(genrose)
+  n = nlp_ampl.meta.nvar
+  m = nlp_ampl.meta.ncon
 
-# Load corresponding AMPL model.
-genrose_ampl = AmplNLReader.AmplModel("genrose.nl")
+  for k = 1 : nloops
+    x = 10 * (rand(n) - 0.5)
 
-x0_ampl = genrose_ampl.meta.x0
-x0_jump = genrose_jump.model.colVal
-dx0 = norm(x0_ampl - x0_jump)
-@printf("Initial points differ by %7.1e\n", dx0)
-@assert(dx0 <= rtol * norm(x0_ampl))
+    f_jump = obj(nlp_jump, x)
+    f_ampl = AmplNLReader.obj(nlp_ampl, x)
+    @assert(abs(f_jump - f_ampl) <= rtol * max(abs(f_ampl), 1.0))
 
-f0_ampl = AmplNLReader.obj(genrose_ampl, x0_ampl)
-f0_jump = obj(genrose_jump, x0_jump)
-df0 = abs(f0_ampl - f0_jump)
-@printf("Objective values at initial point differ by %7.1e\n", df0)
-@assert(df0 <= rtol * abs(f0_ampl))
+    g_jump = grad(nlp_jump, x)
+    g_ampl = AmplNLReader.grad(nlp_ampl, x)
+    @assert(norm(g_jump - g_ampl) <= rtol * max(norm(g_ampl), 1.0))
 
-g0_ampl = AmplNLReader.grad(genrose_ampl, x0_ampl)
-g0_jump = grad(genrose_jump, x0_jump)
-dg0 = norm(g0_ampl - g0_jump)
-@printf("Objective gradients at initial point differ by %7.1e\n", dg0)
-@assert(dg0 <= rtol * norm(g0_ampl))
+    # JuMP returns the lower triangle. AMPL returns the upper triangle.
+    H_jump = hess(nlp_jump, x)
+    H_ampl = AmplNLReader.hess(nlp_ampl, x)
+    @assert(vecnorm(H_jump - H_ampl') <= rtol * max(vecnorm(H_ampl), 1.0))
 
-# JuMP returns the lower triangle. AMPL returns the upper triangle.
-H0_ampl = AmplNLReader.hess(genrose_ampl, x0_ampl)
-H0_jump = hess(genrose_jump, x0_jump)
-dH0 = vecnorm(H0_ampl' - H0_jump)
-@printf("Objective Hessians at initial point differ by %7.1e\n", dH0)
-@assert(dH0 <= rtol * vecnorm(H0_ampl))
+    v = 10 * (rand(n) - 0.5)
+    Hv_jump = hprod(nlp_jump, x, v)
+    Hv_ampl = AmplNLReader.hprod(nlp_ampl, x, v)
+    @assert(norm(Hv_jump - Hv_ampl) <= rtol * max(norm(Hv_ampl), 1.0))
 
-v = ones(genrose_ampl.meta.nvar)
-hv0_ampl = AmplNLReader.hprod(genrose_ampl, x0_ampl, v)
-hv0_jump = hprod(genrose_jump, x0_jump, v)
-dhv0 = norm(hv0_ampl - hv0_jump)
-@printf("Objective Hessian-vector products at initial point differ by %7.1e\n", dhv0)
-@assert(dhv0 <= rtol * norm(hv0_ampl))
+    if m > 0
+      c_jump = cons(nlp_jump, x)
+      c_ampl = AmplNLReader.cons(nlp_ampl, x)
+      @assert(norm(c_jump - c_ampl) <= rtol * max(norm(c_ampl), 1.0))
+
+      J_jump = jac(nlp_jump, x)
+      J_ampl = AmplNLReader.jac(nlp_ampl, x)
+      @assert(vecnorm(J_jump - J_ampl) <= rtol * max(vecnorm(J_ampl), 1.0))
+
+      y = 10 * (rand(m) - 0.5)
+
+      # JuMP returns the lower triangle. AMPL returns the upper triangle.
+      # MPB sets the Lagrangian to f + Σᵢ yᵢ cᵢ
+      # AmplNLReader sets it to    f - Σᵢ yᵢ cᵢ
+      H_jump = hess(nlp_jump, x, -y)
+      H_ampl = AmplNLReader.hess(nlp_ampl, x, y=y)
+      @assert(vecnorm(H_jump - H_ampl') <= rtol * max(vecnorm(H_ampl), 1.0))
+
+      Hv_jump = hprod(nlp_jump, x, -y, v)
+      Hv_ampl = AmplNLReader.hprod(nlp_ampl, x, v, y=y)
+      @assert(norm(Hv_jump - Hv_ampl) <= rtol * max(norm(Hv_ampl), 1.0))
+    end
+  end
+  
+end
+
+function jump_vs_ampl(problem :: Symbol; nloops=100, rtol=1.0e-10)
+
+  problem_s = string(problem)
+  @printf("Checking problem %-15s\t", problem_s)
+  include("$problem_s.jl")
+  problem_f = eval(problem)
+  nlp_jump = NLPModel(problem_f())
+  nlp_ampl = AmplNLReader.AmplModel("$problem_s.nl")
+  jump_vs_ampl_helper(nlp_jump, nlp_ampl, nloops=nloops, rtol=rtol)
+  @printf("[Ok]\n")
+  AmplNLReader.amplmodel_finalize(nlp_ampl)
+end
+
+problems = [:genrose, :hs006]
+for problem in problems
+  jump_vs_ampl(problem)
+end

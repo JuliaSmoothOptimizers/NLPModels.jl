@@ -36,21 +36,20 @@
 #
 # D. Orban, Montreal, 08/2015.
 
-# Parameters
+"Generalized Rosenbrock model in size `n`"
+function genrose(n :: Int=100)
 
-n = 100  # Number of variables
+  n < 2 && error("genrose: number of variables must be ≥ 2")
 
-# Model definition
+  nlp = Model()
 
-n < 2 && error("genrose: number of variables must be ≥ 2")
+  @defVar(nlp, x[i=1:n], start=(i/(n+1)))
 
-genrose = Model()
+  @setNLObjective(
+    nlp,
+    Min,
+    1.0 + 100 * sum{(x[i+1] - x[i]^2)^2, i=1:n-1} + sum{(x[i] - 1.0)^2, i=1:n-1}
+  )
 
-@defVar(genrose, x[i=1:n], start=(i/(n+1)))
-
-@setNLObjective(
-  genrose,
-  Min,
-  1.0 + 100 * sum{(x[i+1] - x[i]^2)^2, i=1:n-1} + sum{(x[i] - 1.0)^2, i=1:n-1}
-)
-
+  return nlp
+end
