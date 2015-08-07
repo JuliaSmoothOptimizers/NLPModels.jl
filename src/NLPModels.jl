@@ -7,7 +7,7 @@ require(Pkg.dir("MathProgBase", "src", "NLP", "NLP.jl"))
 using NLP  # Defines NLPModelMeta.
 
 export NLPModel,
-       obj, grad,
+       obj, grad, grad!,
        cons, cons!, jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
        hess_coord, hess, hprod, hprod!
 
