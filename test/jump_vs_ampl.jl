@@ -27,6 +27,14 @@ function jump_vs_ampl_helper(nlp_jump, nlp_ampl; nloops=100, rtol=1.0e-10)
     if m > 0
       c_jump = cons(nlp_jump, x)
       c_ampl = AmplNLReader.cons(nlp_ampl, x)
+      # JuMP subtracts the lhs or rhs of one-sided
+      # nonlinear inequality and nonlinear equality constraints
+      nln_low = ∩(nlp_ampl.meta.nln, nlp_ampl.meta.jlow)
+      c_ampl[nln_low] -= nlp_ampl.meta.lcon[nln_low]
+      nln_upp = ∩(nlp_ampl.meta.nln, nlp_ampl.meta.jupp)
+      c_ampl[nln_upp] -= nlp_ampl.meta.ucon[nln_upp]
+      nln_fix = ∩(nlp_ampl.meta.nln, nlp_ampl.meta.jfix)
+      c_ampl[nln_fix] -= nlp_ampl.meta.lcon[nln_fix]
       @assert(norm(c_jump - c_ampl) <= rtol * max(norm(c_ampl), 1.0))
 
       J_jump = jac(nlp_jump, x)
