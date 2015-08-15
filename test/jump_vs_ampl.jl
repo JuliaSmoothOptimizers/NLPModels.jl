@@ -67,7 +67,7 @@ function jump_vs_ampl(problem :: Symbol; nloops=100, rtol=1.0e-10)
   nlp_jump = NLPModel(problem_f())
   nlp_ampl = AmplNLReader.AmplModel("$problem_s.nl")
   jump_vs_ampl_helper(nlp_jump, nlp_ampl, nloops=nloops, rtol=rtol)
-  @printf("[Ok]\n")
+  @printf("✓\n")
   AmplNLReader.amplmodel_finalize(nlp_ampl)
 end
 
