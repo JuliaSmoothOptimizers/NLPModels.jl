@@ -14,10 +14,9 @@ function jump_vs_ampl_helper(nlp_jump, nlp_ampl; nloops=100, rtol=1.0e-10)
     g_ampl = AmplNLReader.grad(nlp_ampl, x)
     @assert(norm(g_jump - g_ampl) <= rtol * max(norm(g_ampl), 1.0))
 
-    # JuMP returns the lower triangle. AMPL returns the upper triangle.
     H_jump = hess(nlp_jump, x)
     H_ampl = AmplNLReader.hess(nlp_ampl, x)
-    @assert(vecnorm(H_jump - H_ampl') <= rtol * max(vecnorm(H_ampl), 1.0))
+    @assert(vecnorm(H_jump - H_ampl) <= rtol * max(vecnorm(H_ampl), 1.0))
 
     v = 10 * (rand(n) - 0.5)
     Hv_jump = hprod(nlp_jump, x, v)
@@ -43,12 +42,11 @@ function jump_vs_ampl_helper(nlp_jump, nlp_ampl; nloops=100, rtol=1.0e-10)
 
       y = 10 * (rand(m) - 0.5)
 
-      # JuMP returns the lower triangle. AMPL returns the upper triangle.
       # MPB sets the Lagrangian to f + Σᵢ yᵢ cᵢ
       # AmplNLReader sets it to    f - Σᵢ yᵢ cᵢ
       H_jump = hess(nlp_jump, x, -y)
       H_ampl = AmplNLReader.hess(nlp_ampl, x, y=y)
-      @assert(vecnorm(H_jump - H_ampl') <= rtol * max(vecnorm(H_ampl), 1.0))
+      @assert(vecnorm(H_jump - H_ampl) <= rtol * max(vecnorm(H_ampl), 1.0))
 
       Hv_jump = hprod(nlp_jump, x, -y, v)
       Hv_ampl = AmplNLReader.hprod(nlp_ampl, x, v, y=y)
