@@ -6,7 +6,7 @@ using MathProgBase
 require(Pkg.dir("MathProgBase", "src", "NLP", "NLP.jl"))
 using NLP  # Defines NLPModelMeta.
 
-export NLPModel,
+export AbstractNLPModel, NLPModel,
        obj, grad, grad!,
        cons, cons!, jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
        hess_coord, hess, hprod, hprod!
@@ -66,7 +66,9 @@ MathProgBase.status(m :: MathProgModel) = m.status
 MathProgBase.getsolution(m :: MathProgModel) = m.x
 MathProgBase.getobjval(m :: MathProgModel) = MathProgBase.eval_f(m.eval, m.x)
 
-type NLPModel
+abstract AbstractNLPModel
+
+type NLPModel <: AbstractNLPModel
   meta :: NLPModelMeta
   jmodel :: Model          # JuMP Model
   mpmodel :: MathProgModel
