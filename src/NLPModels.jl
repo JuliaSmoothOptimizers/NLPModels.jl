@@ -174,9 +174,7 @@ end
 
 "Evaluate the constraints Jacobian at `x` as a sparse matrix"
 function jac(nlp :: NLPModel, x :: Array{Float64})
-  nvar = MathProgBase.numvar(nlp.jmodel)  # TODO: store in NLPModel.meta
-  ncon = MathProgBase.numconstr(nlp.jmodel)
-  return sparse(jac_coord(nlp, x)..., ncon, nvar)
+  return sparse(jac_coord(nlp, x)..., nlp.meta.ncon, nlp.meta.nvar)
 end
 
 "Evaluate the Jacobian-vector product at `x`"
@@ -213,20 +211,17 @@ end
 
 "Evaluate the objective Hessian at `x` in sparse coordinate format"
 function hess_coord(nlp :: NLPModel, x :: Array{Float64})
-  ncon = MathProgBase.numconstr(nlp.jmodel)  # TODO: store in NLPModel.meta
-  return hess_coord(nlp, x, zeros(ncon))
+  return hess_coord(nlp, x, zeros(nlp.meta.ncon))
 end
 
 "Evaluate the Lagrangian Hessian at `(x,y)` as a sparse matrix"
 function hess(nlp :: NLPModel, x :: Array{Float64}, y :: Array{Float64})
-  nvar = MathProgBase.numvar(nlp.jmodel)
-  return sparse(hess_coord(nlp, x, y)..., nvar, nvar)
+  return sparse(hess_coord(nlp, x, y)..., nlp.meta.nvar, nlp.meta.nvar)
 end
 
 "Evaluate the objective Hessian at `x` as a sparse matrix"
 function hess(nlp :: NLPModel, x :: Array{Float64})
-  nvar = MathProgBase.numvar(nlp.jmodel)
-  return sparse(hess_coord(nlp, x)..., nvar, nvar)
+  return sparse(hess_coord(nlp, x)..., nlp.meta.nvar, nlp.meta.nvar)
 end
 
 # TODO: Move hv out of NLPModel
@@ -244,14 +239,12 @@ end
 
 "Evaluate the objective Hessian-vector product at `(x,y)`"
 function hprod(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64})
-  ncon = MathProgBase.numconstr(nlp.jmodel)  # TODO: store in NLPModel.meta
-  return hprod(nlp, x, zeros(ncon), v)
+  return hprod(nlp, x, zeros(nlp.meta.ncon), v)
 end
 
 "Evaluate the objective Hessian-vector product at `(x,y)` in place"
 function hprod!(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64}, hv :: Array{Float64})
-  ncon = MathProgBase.numconstr(nlp.jmodel)  # TODO: store in NLPModel.meta
-  return hprod!(nlp, x, zeros(ncon), v, hv)
+  return hprod!(nlp, x, zeros(nlp.meta.ncon), v, hv)
 end
 
 end # module
