@@ -15,7 +15,7 @@ type ModelReader <: MathProgBase.AbstractMathProgSolver
 end
 
 type MathProgModel <: MathProgBase.AbstractMathProgModel
-  eval
+  eval :: Union(JuMPNLPEvaluator, Nothing)
   numVar :: Int
   numConstr :: Int
   x :: Vector{Float64}
@@ -73,13 +73,23 @@ type NLPModel <: AbstractNLPModel
   jmodel :: Model          # JuMP Model
   mpmodel :: MathProgModel
 
-  g :: Array{Float64}      # Room for the objective gradient. 
-  hvals :: Array{Float64}  # Room for the Lagrangian Hessian.
-  hv :: Array{Float64}     # Room for a Hessian-vector product.
-  c :: Array{Float64}      # Room for the constraints value.
-  jvals :: Array{Float64}  # Room for the constraints Jacobian.
-  jv :: Array{Float64}     # Room for a Jacobian-vector product.
-  jtv :: Array{Float64}    # Room for a transposed-Jacobian-vector product.
+  neval_obj :: Int          # Number of objective evaluations.
+  neval_grad :: Int         # Number of objective gradient evaluations.
+  neval_cons :: Int         # Number of constraint vector evaluations.
+  neval_icon :: Int         # Number of individual constraints evaluations.
+  neval_jac :: Int          # Number of constraint Jacobian evaluations.
+  neval_jprod :: Int        # Number of Jacobian-vector products.
+  neval_jtprod :: Int       # Number of transposed Jacobian-vector products.
+  neval_hess :: Int         # Number of Lagrangian/objective Hessian evaluations.
+  neval_hprod :: Int        # Number of Lagrangian/objective Hessian-vector products.
+
+  g :: Vector{Float64}      # Room for the objective gradient.
+  hvals :: Vector{Float64}  # Room for the Lagrangian Hessian.
+  hv :: Vector{Float64}     # Room for a Hessian-vector product.
+  c :: Vector{Float64}      # Room for the constraints value.
+  jvals :: Vector{Float64}  # Room for the constraints Jacobian.
+  jv :: Vector{Float64}     # Room for a Jacobian-vector product.
+  jtv :: Vector{Float64}    # Room for a transposed-Jacobian-vector product.
 end
 
 "Construct an `NLPModel` from a JuMP `Model`"
@@ -124,6 +134,7 @@ function NLPModel(jmodel :: Model)
   return NLPModel(meta,
                   jmodel,
                   mpmodel,
+                  0, 0, 0, 0, 0, 0, 0, 0, 0,  # evaluation counters
                   zeros(nvar),  # g
                   zeros(nnzh),  # hvals
                   zeros(nvar),  # hv
@@ -137,20 +148,36 @@ end
 import Base.show
 show(nlp :: NLPModel) = show(nlp.jmodel)
 
+function reset!(nlp :: NLPModel)
+  nlp.neval_obj = 0
+  nlp.neval_grad = 0
+  nlp.neval_cons = 0
+  nlp.neval_icon = 0
+  nlp.neval_jac = 0
+  nlp.neval_jprod = 0
+  nlp.neval_jtprod = 0
+  nlp.neval_hess = 0
+  nlp.neval_hprod = 0
+  return nlp
+end
+
 "Evaluate the objective function of `nlp` at `x`"
 function obj(nlp :: NLPModel, x :: Array{Float64})
+  nlp.neval_obj += 1
   return MathProgBase.eval_f(nlp.mpmodel.eval, x)
 end
 
 # TODO: Move g out of NLPModel?
 "Evaluate the gradient of the objective function at `x`"
 function grad(nlp :: NLPModel, x :: Array{Float64})
+  nlp.neval_grad += 1
   MathProgBase.eval_grad_f(nlp.mpmodel.eval, nlp.g, x)
   return nlp.g
 end
 
 "Evaluate the gradient of the objective function at `x` in place"
 function grad!(nlp :: NLPModel, x :: Array{Float64}, g :: Array{Float64})
+  nlp.neval_grad += 1
   MathProgBase.eval_grad_f(nlp.mpmodel.eval, g, x)
   return g
 end
@@ -158,18 +185,21 @@ end
 # TODO: Move c out of NLPModel?
 "Evaluate the constraints at `x`"
 function cons(nlp :: NLPModel, x :: Array{Float64})
+  nlp.neval_cons += 1
   MathProgBase.eval_g(nlp.mpmodel.eval, nlp.c, x)
   return nlp.c
 end
 
 "Evaluate the constraints at `x` in place"
 function cons!(nlp :: NLPModel, x :: Array{Float64}, c :: Array{Float64})
+  nlp.neval_cons += 1
   MathProgBase.eval_g(nlp.mpmodel.eval, c, x)
   return c
 end
 
 "Evaluate the constraints Jacobian at `x` in sparse coordinate format"
 function jac_coord(nlp :: NLPModel, x :: Array{Float64})
+  nlp.neval_jac += 1
   MathProgBase.eval_jac_g(nlp.mpmodel.eval, nlp.jvals, x)
   return (nlp.mpmodel.eval.jac_I, nlp.mpmodel.eval.jac_J, nlp.jvals)
 end
@@ -181,6 +211,7 @@ end
 
 "Evaluate the Jacobian-vector product at `x`"
 function jprod(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64})
+  nlp.neval_jprod += 1
   MathProgBase.eval_jac_prod(nlp.mpmodel.eval, nlp.jv, x, v)
   return nlp.jv
 end
@@ -188,12 +219,14 @@ end
 "Evaluate the Jacobian-vector product at `x` in place"
 function jprod!(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64}, jv ::
   Array{Float64})
+  nlp.neval_jprod += 1
   MathProgBase.eval_jac_prod(nlp.mpmodel.eval, jv, x, v)
   return jv
 end
 
 "Evaluate the transposed-Jacobian-vector product at `x`"
 function jtprod(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64})
+  nlp.neval_jtprod += 1
   MathProgBase.eval_jac_prod_t(nlp.mpmodel.eval, nlp.jtv, x, v)
   return nlp.jtv
 end
@@ -201,12 +234,14 @@ end
 "Evaluate the transposed-Jacobian-vector product at `x` in place"
 function jtprod!(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64}, jtv ::
   Array{Float64})
+  nlp.neval_jtprod += 1
   MathProgBase.eval_jac_prod_t(nlp.mpmodel.eval, jtv, x, v)
   return jtv
 end
 
 "Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format"
 function hess_coord(nlp :: NLPModel, x :: Array{Float64}, y :: Array{Float64})
+  nlp.neval_hess += 1
   MathProgBase.eval_hesslag(nlp.mpmodel.eval, nlp.hvals, x, 1.0, y)
   return (nlp.mpmodel.eval.hess_I, nlp.mpmodel.eval.hess_J, nlp.hvals)
 end
@@ -229,12 +264,14 @@ end
 # TODO: Move hv out of NLPModel
 "Evaluate the Lagrangian Hessian-vector product at `(x,y)`"
 function hprod(nlp :: NLPModel, x :: Array{Float64}, y :: Array{Float64}, v :: Array{Float64})
+  nlp.neval_hprod += 1
   MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, nlp.hv, x, v, 1.0, y)
   return nlp.hv
 end
 
 "Evaluate the Lagrangian Hessian-vector product at `(x,y)` in place"
 function hprod!(nlp :: NLPModel, x :: Array{Float64}, y :: Array{Float64}, v :: Array{Float64}, hv :: Array{Float64})
+  nlp.neval_hprod += 1
   MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, hv, x, v, 1.0, y)
   return hv
 end
