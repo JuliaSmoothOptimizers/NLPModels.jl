@@ -93,7 +93,7 @@ type NLPModel <: AbstractNLPModel
   jtv :: Vector{Float64}    # Room for a transposed-Jacobian-vector product.
 end
 
-"Construct an `NLPModel` from a JuMP `Model`"
+"Construct an `NLPModel` from a JuMP `Model`."
 function NLPModel(jmodel :: Model)
 
   setSolver(jmodel, ModelReader())
@@ -149,6 +149,7 @@ end
 import Base.show
 show(nlp :: NLPModel) = show(nlp.jmodel)
 
+"Reset evaluation counters in `nlp`"
 function reset!(nlp :: NLPModel)
   nlp.neval_obj = 0
   nlp.neval_grad = 0
@@ -162,21 +163,21 @@ function reset!(nlp :: NLPModel)
   return nlp
 end
 
-"Evaluate the objective function of `nlp` at `x`"
+"Evaluate the objective function of `nlp` at `x`."
 function obj(nlp :: NLPModel, x :: Array{Float64})
   nlp.neval_obj += 1
   return MathProgBase.eval_f(nlp.mpmodel.eval, x)
 end
 
 # TODO: Move g out of NLPModel?
-"Evaluate the gradient of the objective function at `x`"
+"Evaluate the gradient of the objective function at `x`."
 function grad(nlp :: NLPModel, x :: Array{Float64})
   nlp.neval_grad += 1
   MathProgBase.eval_grad_f(nlp.mpmodel.eval, nlp.g, x)
   return nlp.g
 end
 
-"Evaluate the gradient of the objective function at `x` in place"
+"Evaluate the gradient of the objective function at `x` in place."
 function grad!(nlp :: NLPModel, x :: Array{Float64}, g :: Array{Float64})
   nlp.neval_grad += 1
   MathProgBase.eval_grad_f(nlp.mpmodel.eval, g, x)
@@ -184,40 +185,40 @@ function grad!(nlp :: NLPModel, x :: Array{Float64}, g :: Array{Float64})
 end
 
 # TODO: Move c out of NLPModel?
-"Evaluate the constraints at `x`"
+"Evaluate the constraints at `x`."
 function cons(nlp :: NLPModel, x :: Array{Float64})
   nlp.neval_cons += 1
   MathProgBase.eval_g(nlp.mpmodel.eval, nlp.c, x)
   return nlp.c
 end
 
-"Evaluate the constraints at `x` in place"
+"Evaluate the constraints at `x` in place."
 function cons!(nlp :: NLPModel, x :: Array{Float64}, c :: Array{Float64})
   nlp.neval_cons += 1
   MathProgBase.eval_g(nlp.mpmodel.eval, c, x)
   return c
 end
 
-"Evaluate the constraints Jacobian at `x` in sparse coordinate format"
+"Evaluate the constraints Jacobian at `x` in sparse coordinate format."
 function jac_coord(nlp :: NLPModel, x :: Array{Float64})
   nlp.neval_jac += 1
   MathProgBase.eval_jac_g(nlp.mpmodel.eval, nlp.jvals, x)
   return (nlp.mpmodel.eval.jac_I, nlp.mpmodel.eval.jac_J, nlp.jvals)
 end
 
-"Evaluate the constraints Jacobian at `x` as a sparse matrix"
+"Evaluate the constraints Jacobian at `x` as a sparse matrix."
 function jac(nlp :: NLPModel, x :: Array{Float64})
   return sparse(jac_coord(nlp, x)..., nlp.meta.ncon, nlp.meta.nvar)
 end
 
-"Evaluate the Jacobian-vector product at `x`"
+"Evaluate the Jacobian-vector product at `x`."
 function jprod(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64})
   nlp.neval_jprod += 1
   MathProgBase.eval_jac_prod(nlp.mpmodel.eval, nlp.jv, x, v)
   return nlp.jv
 end
 
-"Evaluate the Jacobian-vector product at `x` in place"
+"Evaluate the Jacobian-vector product at `x` in place."
 function jprod!(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64}, jv ::
   Array{Float64})
   nlp.neval_jprod += 1
@@ -225,14 +226,14 @@ function jprod!(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64}, jv ::
   return jv
 end
 
-"Evaluate the transposed-Jacobian-vector product at `x`"
+"Evaluate the transposed-Jacobian-vector product at `x`."
 function jtprod(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64})
   nlp.neval_jtprod += 1
   MathProgBase.eval_jac_prod_t(nlp.mpmodel.eval, nlp.jtv, x, v)
   return nlp.jtv
 end
 
-"Evaluate the transposed-Jacobian-vector product at `x` in place"
+"Evaluate the transposed-Jacobian-vector product at `x` in place."
 function jtprod!(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64}, jtv ::
   Array{Float64})
   nlp.neval_jtprod += 1
@@ -240,49 +241,57 @@ function jtprod!(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64}, jtv 
   return jtv
 end
 
-"Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format"
+"""Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format.
+Only the lower triangle is returned.
+"""
 function hess_coord(nlp :: NLPModel, x :: Array{Float64}, y :: Array{Float64})
   nlp.neval_hess += 1
   MathProgBase.eval_hesslag(nlp.mpmodel.eval, nlp.hvals, x, 1.0, y)
   return (nlp.mpmodel.eval.hess_I, nlp.mpmodel.eval.hess_J, nlp.hvals)
 end
 
-"Evaluate the objective Hessian at `x` in sparse coordinate format"
+"""Evaluate the objective Hessian at `x` in sparse coordinate format.
+Only the lower triangle is returned.
+"""
 function hess_coord(nlp :: NLPModel, x :: Array{Float64})
   return hess_coord(nlp, x, zeros(nlp.meta.ncon))
 end
 
-"Evaluate the Lagrangian Hessian at `(x,y)` as a sparse matrix"
+"""Evaluate the Lagrangian Hessian at `(x,y)` as a sparse matrix.
+Only the lower triangle is returned.
+"""
 function hess(nlp :: NLPModel, x :: Array{Float64}, y :: Array{Float64})
   return sparse(hess_coord(nlp, x, y)..., nlp.meta.nvar, nlp.meta.nvar)
 end
 
-"Evaluate the objective Hessian at `x` as a sparse matrix"
+"""Evaluate the objective Hessian at `x` as a sparse matrix.
+Only the lower triangle is returned.
+"""
 function hess(nlp :: NLPModel, x :: Array{Float64})
   return sparse(hess_coord(nlp, x)..., nlp.meta.nvar, nlp.meta.nvar)
 end
 
 # TODO: Move hv out of NLPModel
-"Evaluate the Lagrangian Hessian-vector product at `(x,y)`"
+"Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v`."
 function hprod(nlp :: NLPModel, x :: Array{Float64}, y :: Array{Float64}, v :: Array{Float64})
   nlp.neval_hprod += 1
   MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, nlp.hv, x, v, 1.0, y)
   return nlp.hv
 end
 
-"Evaluate the Lagrangian Hessian-vector product at `(x,y)` in place"
+"Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in place."
 function hprod!(nlp :: NLPModel, x :: Array{Float64}, y :: Array{Float64}, v :: Array{Float64}, hv :: Array{Float64})
   nlp.neval_hprod += 1
   MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, hv, x, v, 1.0, y)
   return hv
 end
 
-"Evaluate the objective Hessian-vector product at `(x,y)`"
+"Evaluate the product of the objective Hessian at `(x,y)` with the vector `v`."
 function hprod(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64})
   return hprod(nlp, x, zeros(nlp.meta.ncon), v)
 end
 
-"Evaluate the objective Hessian-vector product at `(x,y)` in place"
+"Evaluate the product of the objective Hessian at `(x,y)` with the vector `v` in place."
 function hprod!(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64}, hv :: Array{Float64})
   return hprod!(nlp, x, zeros(nlp.meta.ncon), v, hv)
 end
