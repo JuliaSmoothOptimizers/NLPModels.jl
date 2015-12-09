@@ -8,5 +8,5 @@ This package provides an interface to evaluate functions and derivatives in
 optimization problems modeled using the
 [`JuMP`](https://github.com/JuliaOpt/JuMP.jl) modeling language. The
 interface is consistent with those of
-[`AmplNLReader.jl`](https://github.com/dpo/AmplNLReader.jl) and
-[`CUTEst.jl`](https://github.com/optimizers/CUTEst.jl).
+[`AmplNLReader.jl`](https://github.com/JuliaOptimizers/AmplNLReader.jl) and
+[`CUTEst.jl`](https://github.com/JuliaOptimizers/CUTEst.jl).
