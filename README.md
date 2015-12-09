@@ -1,10 +1,8 @@
 # NLPModels
 
-[![Build Status](https://travis-ci.org/dpo/NLPModels.jl.svg?branch=master)](https://travis-ci.org/dpo/NLPModels.jl)
-[![Build
-status](https://ci.appveyor.com/api/projects/status/l1rs9ajxkyc0cer9/branch/master?svg=true)](https://ci.appveyor.com/project/dpo/nlpmodels-jl/branch/master)
-[![Coverage
-Status](https://coveralls.io/repos/dpo/NLPModels.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/dpo/NLPModels.jl?branch=master)
+[![Build Status](https://travis-ci.org/JuliaOptimizers/NLPModels.jl.svg?branch=master)](https://travis-ci.org/JuliaOptimizers/NLPModels.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/l1rs9ajxkyc0cer9?svg=true)](https://ci.appveyor.com/project/dpo/nlpmodels-jl)
+[![Coverage Status](https://coveralls.io/repos/JuliaOptimizers/NLPModels.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/JuliaOptimizers/NLPModels.jl?branch=master)
 
 This package provides an interface to evaluate functions and derivatives in
 optimization problems modeled using the
