@@ -1,10 +1,11 @@
 module NLPModels
 
+using Compat
 using JuMP
 using MathProgBase
 
-require(Pkg.dir("MathProgBase", "src", "NLP", "NLP.jl"))
-using NLP  # Defines NLPModelMeta.
+include(Pkg.dir("MathProgBase", "src", "NLP", "NLP.jl"))
+using .NLP  # Defines NLPModelMeta.
 
 export AbstractNLPModel, NLPModel,
        reset!,
@@ -16,7 +17,7 @@ type ModelReader <: MathProgBase.AbstractMathProgSolver
 end
 
 type MathProgModel <: MathProgBase.AbstractMathProgModel
-  eval :: Union(JuMPNLPEvaluator, Nothing)
+  eval :: @compat Union{JuMPNLPEvaluator, Void}
   numVar :: Int
   numConstr :: Int
   x :: Vector{Float64}
