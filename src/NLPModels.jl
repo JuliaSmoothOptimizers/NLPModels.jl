@@ -3,7 +3,7 @@ module NLPModels
 using JuMP
 using MathProgBase
 
-require(Pkg.dir("MathProgBase", "src", "NLP", "NLP.jl"))
+include(Pkg.dir("MathProgBase", "src", "NLP", "NLP.jl"))
 using NLP  # Defines NLPModelMeta.
 
 export AbstractNLPModel, NLPModel,
@@ -16,7 +16,7 @@ type ModelReader <: MathProgBase.AbstractMathProgSolver
 end
 
 type MathProgModel <: MathProgBase.AbstractMathProgModel
-  eval :: Union(JuMPNLPEvaluator, Nothing)
+  eval :: Union{JuMPNLPEvaluator, Void} # JPD 0.4.2
   numVar :: Int
   numConstr :: Int
   x :: Vector{Float64}
@@ -29,7 +29,8 @@ type MathProgModel <: MathProgBase.AbstractMathProgModel
   status :: Symbol
 end
 
-MathProgBase.model(solver :: ModelReader) = MathProgModel(nothing,
+#JPD 0.4.2
+MathProgBase.NonlinearModel(solver :: ModelReader) = MathProgModel(nothing,
                                                           0,
                                                           0,
                                                           Float64[],
@@ -41,7 +42,7 @@ MathProgBase.model(solver :: ModelReader) = MathProgModel(nothing,
                                                           :Min,
                                                           :Uninitialized);
 
-function MathProgBase.loadnonlinearproblem!(m :: MathProgModel,
+function MathProgBase.loadproblem!(m :: MathProgModel,
                                             numVar, numConstr,
                                             l, u, lb, ub,
                                             sense,
@@ -49,6 +50,7 @@ function MathProgBase.loadnonlinearproblem!(m :: MathProgModel,
 
   # TODO: :JacVec is not yet available.
   # [:Grad, :Jac, :JacVec, :Hess, :HessVec, :ExprGraph]
+  # JPD MathProgBase.initialize(eval, [:Grad, :Jac, :Hess, :HessVec, :ExprGraph])
   MathProgBase.initialize(eval, [:Grad, :Jac, :Hess, :HessVec, :ExprGraph])
   m.numVar = numVar
   m.numConstr = numConstr
@@ -113,6 +115,7 @@ function NLPModel(jmodel :: Model)
 
   jrows, jcols = MathProgBase.jac_structure(mpmodel.eval)
   hrows, hcols = MathProgBase.hesslag_structure(mpmodel.eval)
+  #hrows, hcols = 0,0 #  JPD MathProgBase.hesslag_structure(mpmodel.eval)
   nnzj = length(jrows)
   nnzh = length(hrows)
 
@@ -126,8 +129,8 @@ function NLPModel(jmodel :: Model)
                       ucon=ucon,
                       nnzj=nnzj,
                       nnzh=nnzh,
-                      lin=[1:nlin],              # linear constraints appear first in JuMP
-                      nln=[nlin+1:ncon],
+                      lin=collect(1:nlin),              # linear constraints appear first in JuMP   JPD 0.4.2
+                      nln=collect(nlin+1:ncon),
                       minimize=(mpmodel.sense == :Min),
                       islp=MathProgBase.isobjlinear(mpmodel.eval) & (nlin == ncon),
                       )
@@ -275,6 +278,7 @@ end
 "Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v`."
 function hprod(nlp :: NLPModel, x :: Array{Float64}, y :: Array{Float64}, v :: Array{Float64})
   nlp.neval_hprod += 1
+  nlp.hv = zeros(size(x)) # JPD workaround 
   MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, nlp.hv, x, v, 1.0, y)
   return nlp.hv
 end
@@ -282,6 +286,7 @@ end
 "Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in place."
 function hprod!(nlp :: NLPModel, x :: Array{Float64}, y :: Array{Float64}, v :: Array{Float64}, hv :: Array{Float64})
   nlp.neval_hprod += 1
+  hv = zeros(size(x)) # JPD workaround 
   MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, hv, x, v, 1.0, y)
   return hv
 end
