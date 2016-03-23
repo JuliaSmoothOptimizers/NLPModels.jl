@@ -5,7 +5,7 @@ using JuMP
 using MathProgBase
 
 include(Pkg.dir("MathProgBase", "src", "NLP", "NLP.jl"))
-using NLP  # Defines NLPModelMeta.
+using .NLP  # Defines NLPModelMeta.
 
 export AbstractNLPModel, NLPModel,
        reset!,
