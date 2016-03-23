@@ -5,7 +5,7 @@ using JuMP
 using MathProgBase
 
 include(Pkg.dir("MathProgBase", "src", "NLP", "NLP.jl"))
-using .NLP  # Defines NLPModelMeta.
+using NLP  # Defines NLPModelMeta.
 
 export AbstractNLPModel, NLPModel,
        reset!,
@@ -30,23 +30,23 @@ type MathProgModel <: MathProgBase.AbstractMathProgModel
   status :: Symbol
 end
 
-MathProgBase.model(solver :: ModelReader) = MathProgModel(nothing,
-                                                          0,
-                                                          0,
-                                                          Float64[],
-                                                          Float64[],
-                                                          Float64[],
-                                                          Float64[],
-                                                          Float64[],
-                                                          Float64[],
-                                                          :Min,
-                                                          :Uninitialized);
+MathProgBase.NonlinearModel(solver :: ModelReader) = MathProgModel(nothing,
+                                                                   0,
+                                                                   0,
+                                                                   Float64[],
+                                                                   Float64[],
+                                                                   Float64[],
+                                                                   Float64[],
+                                                                   Float64[],
+                                                                   Float64[],
+                                                                   :Min,
+                                                                   :Uninitialized);
 
-function MathProgBase.loadnonlinearproblem!(m :: MathProgModel,
-                                            numVar, numConstr,
-                                            l, u, lb, ub,
-                                            sense,
-                                            eval :: MathProgBase.AbstractNLPEvaluator)
+function MathProgBase.loadproblem!(m :: MathProgModel,
+                                   numVar, numConstr,
+                                   l, u, lb, ub,
+                                   sense,
+                                   eval :: MathProgBase.AbstractNLPEvaluator)
 
   # TODO: :JacVec is not yet available.
   # [:Grad, :Jac, :JacVec, :Hess, :HessVec, :ExprGraph]
@@ -114,6 +114,7 @@ function NLPModel(jmodel :: Model)
 
   jrows, jcols = MathProgBase.jac_structure(mpmodel.eval)
   hrows, hcols = MathProgBase.hesslag_structure(mpmodel.eval)
+  # hrows, hcols = 0,0 # MathProgBase.hesslag_structure(mpmodel.eval)
   nnzj = length(jrows)
   nnzh = length(hrows)
 
@@ -127,8 +128,8 @@ function NLPModel(jmodel :: Model)
                       ucon=ucon,
                       nnzj=nnzj,
                       nnzh=nnzh,
-                      lin=[1:nlin],              # linear constraints appear first in JuMP
-                      nln=[nlin+1:ncon],
+                      lin=collect(1:nlin),  # linear constraints appear first in JuMP
+                      nln=collect(nlin+1:ncon),
                       minimize=(mpmodel.sense == :Min),
                       islp=MathProgBase.isobjlinear(mpmodel.eval) & (nlin == ncon),
                       )
