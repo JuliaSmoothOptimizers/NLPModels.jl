@@ -1,6 +1,6 @@
 using NLPModels
 using JuMP
-import AmplNLReader
+using AmplNLReader
 using Base.Test
 
 @printf("For tests to pass, the JuMP and AMPL models must have been written identically.\n")
