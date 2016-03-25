@@ -64,17 +64,23 @@ MathProgBase.getobjval(m :: MathProgModel) = MathProgBase.eval_f(m.eval, m.x)
 
 type JuMPNLPModel <: AbstractNLPModel
   meta :: NLPModelMeta
-  jmodel :: Model          # JuMP internal model
+  jmodel :: Model           # JuMP internal model.
   mpmodel :: MathProgModel
-
   counters :: Counters      # Evaluation counters.
+
   g :: Vector{Float64}      # Room for the objective gradient.
-  hvals :: Vector{Float64}  # Room for the Lagrangian Hessian.
-  hv :: Vector{Float64}     # Room for a Hessian-vector product.
   c :: Vector{Float64}      # Room for the constraints value.
+
+  jrows :: Vector{Int}      # Jacobian sparsity pattern.
+  jcols :: Vector{Int}
   jvals :: Vector{Float64}  # Room for the constraints Jacobian.
   jv :: Vector{Float64}     # Room for a Jacobian-vector product.
   jtv :: Vector{Float64}    # Room for a transposed-Jacobian-vector product.
+
+  hrows :: Vector{Int}      # Hessian sparsity pattern.
+  hcols :: Vector{Int}
+  hvals :: Vector{Float64}  # Room for the Lagrangian Hessian.
+  hv :: Vector{Float64}     # Room for a Hessian-vector product.
 end
 
 "Construct a `JuMPNLPModel` from a JuMP `Model`."
@@ -117,17 +123,21 @@ function JuMPNLPModel(jmodel :: Model)
                       )
 
   return JuMPNLPModel(meta,
-                   jmodel,
-                   mpmodel,
-                   Counters(),
-                   zeros(nvar),  # g
-                   zeros(nnzh),  # hvals
-                   zeros(nvar),  # hv
-                   zeros(ncon),  # c
-                   zeros(nnzj),  # jvals
-                   zeros(ncon),  # jv
-                   zeros(nvar),  # jtv
-                   )
+                      jmodel,
+                      mpmodel,
+                      Counters(),
+                      zeros(nvar),  # g
+                      zeros(ncon),  # c
+                      jrows,
+                      jcols,
+                      zeros(nnzj),  # jvals
+                      zeros(ncon),  # jv
+                      zeros(nvar),  # jtv
+                      hrows,
+                      hcols,
+                      zeros(nnzh),  # hvals
+                      zeros(nvar),  # hv
+                      )
 end
 
 import Base.show
@@ -179,7 +189,7 @@ end
 function jac_coord(nlp :: JuMPNLPModel, x :: Array{Float64})
   nlp.counters.neval_jac += 1
   MathProgBase.eval_jac_g(nlp.mpmodel.eval, nlp.jvals, x)
-  return (nlp.mpmodel.eval.jac_I, nlp.mpmodel.eval.jac_J, nlp.jvals)
+  return (nlp.jrows, nlp.jcols, nlp.jvals)
 end
 
 "Evaluate the constraints Jacobian at `x` as a sparse matrix."
@@ -223,7 +233,7 @@ Only the lower triangle is returned.
 function hess_coord(nlp :: JuMPNLPModel, x :: Array{Float64}, y :: Array{Float64})
   nlp.counters.neval_hess += 1
   MathProgBase.eval_hesslag(nlp.mpmodel.eval, nlp.hvals, x, 1.0, y)
-  return (nlp.mpmodel.eval.hess_I, nlp.mpmodel.eval.hess_J, nlp.hvals)
+  return (nlp.hrows, nlp.hcols, nlp.hvals)
 end
 
 """Evaluate the objective Hessian at `x` in sparse coordinate format.
