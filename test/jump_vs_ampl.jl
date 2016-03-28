@@ -44,11 +44,11 @@ function jump_vs_ampl_helper(nlp_jump, nlp_ampl; nloops=100, rtol=1.0e-10)
 
       # MPB sets the Lagrangian to f + Σᵢ yᵢ cᵢ
       # AmplNLReader sets it to    f - Σᵢ yᵢ cᵢ
-      H_jump = hess(nlp_jump, x, -y)
+      H_jump = hess(nlp_jump, x, y=-y)
       H_ampl = hess(nlp_ampl, x, y=y)
       @assert(vecnorm(H_jump - H_ampl) <= rtol * max(vecnorm(H_ampl), 1.0))
 
-      Hv_jump = hprod(nlp_jump, x, -y, v)
+      Hv_jump = hprod(nlp_jump, x, v, y=-y)
       Hv_ampl = hprod(nlp_ampl, x, v, y=y)
       @assert(norm(Hv_jump - Hv_ampl) <= rtol * max(norm(Hv_ampl), 1.0))
     end
