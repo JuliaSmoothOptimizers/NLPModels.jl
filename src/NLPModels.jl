@@ -82,5 +82,6 @@ conscale(nlp :: AbstractNLPModel, args...; kwargs...) = error("conscale() not im
 if Pkg.installed("JuMP") != nothing
   include("jump_model.jl")
 end
+include("simple_model.jl")
 
 end # module
