@@ -4,6 +4,8 @@ export SimpleNLPModel, obj, grad, grad!, cons, cons!, jac_coord, jac, jprod,
 type SimpleNLPModel <: AbstractNLPModel
   meta :: NLPModelMeta
 
+  counters :: Counters
+
   # Functions
   f :: Function
   g :: Function
@@ -49,7 +51,7 @@ function SimpleNLPModel(x0; y0 = [], lvar = [], uvar = [], lcon = [], ucon = [],
     lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=nnzh, lin=lin, nln=nln, minimize=true,
     islp=false)
 
-  return SimpleNLPModel(meta, obj, grad, grad!, hess, cons, cons!, jac)
+  return SimpleNLPModel(meta, Counters(), obj, grad, grad!, hess, cons, cons!, jac)
 end
 
 function obj(nlp :: SimpleNLPModel, x)
