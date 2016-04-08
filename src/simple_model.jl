@@ -100,20 +100,62 @@ function obj(nlp :: SimpleNLPModel, x :: Vector)
 end
 
 function grad(nlp :: SimpleNLPModel, x :: Vector)
-  return nlp.g(x)
+  try
+    return nlp.g(x)
+  catch e
+    if isa(e, NotImplementedError)
+      g = zeros(x)
+      nlp.g!(x, g)
+      return g
+    else
+      throw(e)
+    end
+  end
 end
 
 function grad!(nlp :: SimpleNLPModel, x :: Vector, g :: Vector)
-  nlp.g!(x, g)
+  try
+    nlp.g!(x, g)
+  catch e
+    if isa(e, NotImplementedError)
+      gp = nlp.g(x)
+      for i = 1:nlp.meta.nvar
+        g[i] = gp[i]
+      end
+    else
+      throw(e)
+    end
+  end
   return g
 end
 
 function cons(nlp :: SimpleNLPModel, x :: Vector)
-  return nlp.c(x)
+  try
+    return nlp.c(x)
+  catch e
+    if isa(e, NotImplementedError)
+      c = zeros(nlp.meta.ncon)
+      nlp.c!(x, c)
+      return c
+    else
+      throw(e)
+    end
+  end
 end
 
 function cons!(nlp :: SimpleNLPModel, x :: Vector, c :: Vector)
-  nlp.c!(x, c)
+  try
+    nlp.c!(x, c)
+  catch e
+    if isa(e, NotImplementedError)
+      cp = nlp.c(x)
+      for i = 1:nlp.meta.ncon
+        c[i] = cp[i]
+      end
+    else
+      throw(e)
+    end
+  end
   return c
 end
 
