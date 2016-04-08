@@ -22,7 +22,7 @@ type SimpleNLPModel <: AbstractNLPModel
   Jtprod! :: Function
 end
 
-function SimpleNLPModel(x0::Vector, obj::Function; y0::Vector = [],
+function SimpleNLPModel(x0::Vector, obj::Function; y0::Vector = [], ncon = 0,
     lvar::Vector = [], uvar::Vector = [], lcon::Vector = [], ucon::Vector = [],
     nnzj::Int = 0, nnzh::Int = 0,
     grad::Function = (args...)->throw(NotImplementedError("grad")),
@@ -37,12 +37,27 @@ function SimpleNLPModel(x0::Vector, obj::Function; y0::Vector = [],
     jprod!::Function = (args...)->throw(NotImplementedError("jprod!")),
     jtprod::Function = (args...)->throw(NotImplementedError("jtprod")),
     jtprod!::Function = (args...)->throw(NotImplementedError("jtprod!")))
+  if ncon == 0
+    ncon = length(y0)
+  else
+    if length(y0) == 0
+      y0 = zeros(ncon)
+    else
+      if length(y0) != ncon
+        error("Passed ncon=$ncon and y0 with size $(length(y0))")
+      end
+    end
+  end
   nvar = length(x0)
   length(lvar) == 0 && (lvar = -1e20*ones(nvar))
   length(uvar) == 0 && (uvar =  1e20*ones(nvar))
   if nnzh == 0
     try
-      A = hess(x0)
+      if ncon == 0
+        A = hess(x0)
+      else
+        A = hess(x0,y0)
+      end
       nnzh = typeof(A) <: SparseMatrixCSC ? nnz(A) : length(A)
     catch e
       if isa(e, NotImplementedError)
@@ -53,7 +68,6 @@ function SimpleNLPModel(x0::Vector, obj::Function; y0::Vector = [],
     end
   end
 
-  ncon = length(y0)
   if ncon > 0
     length(lcon) == 0 && (lcon = -1e20*ones(ncon))
     length(ucon) == 0 && (ucon =  1e20*ones(ncon))
@@ -172,28 +186,60 @@ function jtprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Jtv :: Vector)
   end
 end
 
-function hess(nlp :: SimpleNLPModel, x :: Vector)
-  return nlp.H(x)
+function hess(nlp :: SimpleNLPModel, x :: Vector; y :: Vector = [])
+  if length(y) == 0
+    try
+      nlp.H(x)
+    catch
+      nlp.H(x,zeros(nlp.meta.ncon))
+    end
+  else
+    return nlp.H(x,y)
+  end
 end
 
-function hprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector)
+function hess(nlp :: SimpleNLPModel, x :: Vector, y :: Vector)
+  return nlp.H(x,y)
+end
+
+function hprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector; y :: Vector = [])
   try
-    return nlp.Hprod(x, v)
+    if length(y) == 0
+      try
+        return nlp.Hprod(x, v)
+      catch
+        return nlp.Hprod(x, zeros(nlp.meta.ncon), v)
+      end
+    else
+      return nlp.Hprod(x, y, v)
+    end
   catch e
     if isa(e, NotImplementedError)
-      return nlp.H(x)*v
+      return hess(nlp, x, y=y)*v
     else
       throw(e)
     end
   end
 end
 
-function hprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Hv :: Vector)
+hprod(nlp :: SimpleNLPModel, x :: Vector, y :: Vector, v :: Vector) =
+  hprod(nlp, x, v, y=y)
+
+function hprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Hv :: Vector;
+    y = [])
   try
-    return nlp.Hprod(x, v)
+    if length(y) == 0
+      try
+        return nlp.Hprod!(x, y, v, Hv)
+      catch
+        return nlp.Hprod!(x, zeros(nlp.meta.ncon), v, Hv)
+      end
+    else
+      return nlp.Hprod!(x, y, v, Hv)
+    end
   catch e
     if isa(e, NotImplementedError)
-      w = nlp.H(x)*v
+      w = hess(nlp, x, v, y=y)*v
       nw = length(w)
       for i = 1:nw
         Hv[i] = w[i]
@@ -205,3 +251,5 @@ function hprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Hv :: Vector)
   end
 end
 
+hprod!(nlp :: SimpleNLPModel, x :: Vector, y :: Vector, v :: Vector,
+  Hv :: Vector) = hprod!(nlp, x, v, Hv, y=y)

@@ -1,6 +1,6 @@
 # Generalized Rosenbrock function.
 #
-#   Source: 
+#   Source:
 #   Y.-W. Shang and Y.-H. Qiu,
 #   A note on the extended Rosenbrock function,
 #   Evolutionary Computation, 14(1):119–126, 2006.
@@ -31,7 +31,7 @@
 #   the Extended Rosenbrock Function,
 #   Evolutionary Computation 17, 2009.
 #   https://dx.doi.org/10.1162%2Fevco.2009.17.3.437
-# 
+#
 #   classification SUR2-AN-V-0
 #
 # D. Orban, Montreal, 08/2015.
@@ -52,4 +52,19 @@ function genrose(n :: Int=100)
   )
 
   return nlp
+end
+
+function genrose_simple(n :: Int=100)
+
+  n < 2 && error("genrose: number of variables must be ≥ 2")
+
+  x0 = [i/(n+1) for i = 1:n]
+  f(x) = 1.0 + 100 * sum( (x[2:n] - x[1:n-1].^2).^2) + sum( (x[1:n-1] - 1).^2)
+  g(x) = [2(x[1:n-1]-1); 0.0] + [0.0; 200*(x[2:n]-x[1:n-1].^2)] -
+    [400*x[1:n-1].*(x[2:n]-x[1:n-1].^2); 0.0]
+  H(x) = spdiagm(1200*x[1:n-1] - 400*x[2:n].^2 + 2, 0, n, n) +
+    200*spdiagm([0.0; ones(n-1)], 0, n, n) +
+    spdiagm((-400*x[1:n-1],-400*x[1:n-1]), (-1,1), n, n)
+
+  return SimpleNLPModel(x0, f, grad=g, hess=H)
 end
