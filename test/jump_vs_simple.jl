@@ -5,7 +5,6 @@ function jump_vs_simple_helper(nlp_jump, nlp_simple; nloops=100, rtol=1.0e-10)
 
   for k = 1 : nloops
     x = 10 * (rand(n) - 0.5)
-    x = ones(n)
 
     f_jump = obj(nlp_jump, x)
     f_simple = obj(nlp_simple, x)
