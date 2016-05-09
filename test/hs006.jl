@@ -3,17 +3,17 @@ function hs006()
 
   nlp = Model()
 
-  @defVar(nlp, x[1:2])
-  setValue(x[1], -1.2)
-  setValue(x[2],  1.0)
+  @variable(nlp, x[1:2])
+  setvalue(x[1], -1.2)
+  setvalue(x[2],  1.0)
 
-  @setNLObjective(
+  @NLobjective(
     nlp,
     Min,
     (1 - x[1])^2
   )
 
-  @addNLConstraint(
+  @NLconstraint(
     nlp,
     10 * (x[2] - x[1]^2) == 0
   )

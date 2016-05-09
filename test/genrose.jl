@@ -1,6 +1,6 @@
 # Generalized Rosenbrock function.
 #
-#   Source: 
+#   Source:
 #   Y.-W. Shang and Y.-H. Qiu,
 #   A note on the extended Rosenbrock function,
 #   Evolutionary Computation, 14(1):119–126, 2006.
@@ -31,7 +31,7 @@
 #   the Extended Rosenbrock Function,
 #   Evolutionary Computation 17, 2009.
 #   https://dx.doi.org/10.1162%2Fevco.2009.17.3.437
-# 
+#
 #   classification SUR2-AN-V-0
 #
 # D. Orban, Montreal, 08/2015.
@@ -43,9 +43,9 @@ function genrose(n :: Int=100)
 
   nlp = Model()
 
-  @defVar(nlp, x[i=1:n], start=(i/(n+1)))
+  @variable(nlp, x[i=1:n], start=(i/(n+1)))
 
-  @setNLObjective(
+  @NLobjective(
     nlp,
     Min,
     1.0 + 100 * sum{(x[i+1] - x[i]^2)^2, i=1:n-1} + sum{(x[i] - 1.0)^2, i=1:n-1}

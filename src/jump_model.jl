@@ -11,7 +11,7 @@ type ModelReader <: MathProgBase.AbstractMathProgSolver
 end
 
 type MathProgModel <: MathProgBase.AbstractMathProgModel
-  eval :: @compat Union{JuMPNLPEvaluator, Void}
+  eval :: @compat Union{JuMP.NLPEvaluator, Void}
   numVar :: Int
   numConstr :: Int
   x :: Vector{Float64}
@@ -86,9 +86,9 @@ end
 "Construct a `JuMPNLPModel` from a JuMP `Model`."
 function JuMPNLPModel(jmodel :: Model)
 
-  setSolver(jmodel, ModelReader())
-  buildInternalModel(jmodel)
-  mpmodel = getInternalModel(jmodel)
+  setsolver(jmodel, ModelReader())
+  JuMP.build(jmodel)
+  mpmodel = internalmodel(jmodel)
 
   nvar = mpmodel.numVar
   lvar = mpmodel.lvar
