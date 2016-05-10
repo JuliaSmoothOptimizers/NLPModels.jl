@@ -205,8 +205,7 @@ function jprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
 end
 
 "Evaluate the Jacobian-vector product at `x` in place."
-function jprod!(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64}, jv ::
-  Array{Float64})
+function jprod!(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64}, jv :: Array{Float64})
   nlp.counters.neval_jprod += 1
   MathProgBase.eval_jac_prod(nlp.mpmodel.eval, jv, x, v)
   return jv
@@ -220,8 +219,7 @@ function jtprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
 end
 
 "Evaluate the transposed-Jacobian-vector product at `x` in place."
-function jtprod!(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64}, jtv ::
-  Array{Float64})
+function jtprod!(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64}, jtv :: Array{Float64})
   nlp.counters.neval_jtprod += 1
   MathProgBase.eval_jac_prod_t(nlp.mpmodel.eval, jtv, x, v)
   return jtv
