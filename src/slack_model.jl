@@ -1,7 +1,7 @@
 export SlackModel,
        reset!,
        obj, grad, grad!,
-       cons, cons!, jac_coord, jac, jprod, jprod!, #jtprod, jtprod!,
+       cons, cons!, jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
        hess_coord, hess, hprod, hprod!
 
 
@@ -145,8 +145,6 @@ end
 
 "Evaluate the Jacobian-vector product at `x`."
 function jprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64})
-  # J(X) V = [J(x)  -I] [vₓ] = J(x) vₓ - vₛ
-  #                     [vₛ]
   jv = zeros(nlp.ncon)
   jprod!(nlp, x, v, jv)
   return jv
@@ -154,6 +152,8 @@ end
 
 "Evaluate the Jacobian-vector product at `x` in place."
 function jprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}, jv :: Array{Float64})
+  # J(X) V = [J(x)  -I] [vₓ] = J(x) vₓ - vₛ
+  #                     [vₛ]
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   jprod!(nlp.model, x[1:n], v[1:n], jv)
@@ -172,6 +172,28 @@ function jprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}, jv 
     k += 1
   end
   return jv
+end
+
+"Evaluate the transposed-Jacobian-vector product at `x`."
+function jtprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64})
+  jtv = zeros(nlp.nvar)
+  jtprod!(nlp, x, v, jtv)
+  return jtv
+end
+
+"Evaluate the transposed-Jacobian-vector product at `x` in place."
+function jtprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}, jtv :: Array{Float64})
+  # J(X)ᵀ v = [J(x)ᵀ] v = [J(x)ᵀ v]
+  #           [ -I  ]     [  -v   ]
+  n = nlp.model.meta.nvar
+  nlow = length(nlp.model.meta.jlow)
+  nupp = length(nlp.model.meta.jupp)
+  nrng = length(nlp.model.meta.jrng)
+  jtprod!(nlp.model, x[1:n], v, jtv)
+  jtv[n+1:n+nlow] = -v[nlp.model.meta.jlow]
+  jtv[n+nlow+1:n+nlow+nupp] = -v[nlp.model.meta.jupp]
+  jtv[n+nlow+nupp:nlp.nvar] = -v[nlp.model.meta.jrng]
+  return jtv
 end
 
 """Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format.
