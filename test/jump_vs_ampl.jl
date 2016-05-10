@@ -74,7 +74,7 @@ function jump_vs_ampl(problem :: Symbol; nloops=100, rtol=1.0e-10)
   amplmodel_finalize(nlp_ampl)
 end
 
-problems = [:genrose, :hs006]
+problems = [:genrose, :hs005, :hs006, :hs010, :hs011, :hs014]
 for problem in problems
   jump_vs_ampl(problem)
 end
