@@ -15,9 +15,11 @@ obj(model, model.meta.x0)
 reset!(model)
 @assert model.counters.neval_obj == 0
 
-@test_throws(ErrorException, jth_con(model))
+@test_throws(NotImplementedError, jth_con(model))
 
 @printf("For tests to pass, the JuMP and AMPL models must have been written identically.\n")
 @printf("Constraints, if any, must have been declared in the same order.\n")
 @printf("In addition, the AMPL model must have been decoded with preprocessing disabled.\n")
 include("jump_vs_ampl.jl")
+
+include("jump_vs_simple.jl")
