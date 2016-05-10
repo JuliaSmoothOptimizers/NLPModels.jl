@@ -89,17 +89,16 @@ end
 
 "Evaluate the gradient of the objective function at `x`."
 function grad(nlp :: SlackModel, x :: Array{Float64})
-  # ∇f(X) = [∇f(x) ; 0]
-  n = nlp.model.meta.nvar
-  ns = nlp.meta.nvar - n
-  return [grad(nlp.model, x[1:n]) ; zeros(ns)]
+  g = zeros(nlp.meta.nvar)
+  return grad!(nlp, x, g)
 end
 
 "Evaluate the gradient of the objective function at `x` in place."
 function grad!(nlp :: SlackModel, x :: Array{Float64}, g :: Array{Float64})
+  # ∇f(X) = [∇f(x) ; 0]
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
-  grad!(nlp.model, x[1:nlp.model.meta.nvar], g[1:n])
+  grad!(nlp.model, x[1:nlp.model.meta.nvar], g)
   g[n+1:n+ns] = 0
   return g
 end
@@ -107,7 +106,7 @@ end
 "Evaluate the constraints at `x`."
 function cons(nlp :: SlackModel, x :: Array{Float64})
   c = zeros(nlp.meta.ncon)
-  cons!(nlp, x, c)
+  return cons!(nlp, x, c)
 end
 
 "Evaluate the constraints at `x` in place."
@@ -146,8 +145,7 @@ end
 "Evaluate the Jacobian-vector product at `x`."
 function jprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64})
   jv = zeros(nlp.ncon)
-  jprod!(nlp, x, v, jv)
-  return jv
+  return jprod!(nlp, x, v, jv)
 end
 
 "Evaluate the Jacobian-vector product at `x` in place."
@@ -177,8 +175,7 @@ end
 "Evaluate the transposed-Jacobian-vector product at `x`."
 function jtprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64})
   jtv = zeros(nlp.nvar)
-  jtprod!(nlp, x, v, jtv)
-  return jtv
+  return jtprod!(nlp, x, v, jtv)
 end
 
 "Evaluate the transposed-Jacobian-vector product at `x` in place."
@@ -220,8 +217,7 @@ function hprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}; σ :
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   hv = zeros(nlp.meta.nvar)
-  hprod!(nlp, x, v, hv, σ=σ, y=y)
-  return hv
+  return hprod!(nlp, x, v, hv, σ=σ, y=y)
 end
 
 "Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in place."
