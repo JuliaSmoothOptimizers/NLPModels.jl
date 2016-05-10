@@ -83,4 +83,6 @@ if Pkg.installed("JuMP") != nothing
   include("jump_model.jl")
 end
 
+include("slack_model.jl")
+
 end # module
