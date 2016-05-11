@@ -8,6 +8,10 @@ julia:
   - release
   - nightly
 
+addons:
+  apt_packages:
+    - gfortran  # for Ipopt
+
 notifications:
   email: false
 
