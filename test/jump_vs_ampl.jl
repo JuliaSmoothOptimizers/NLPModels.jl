@@ -34,13 +34,18 @@ function jump_vs_ampl_helper(nlp_jump, nlp_ampl; nloops=100, rtol=1.0e-10)
       c_ampl[nln_upp] -= nlp_ampl.meta.ucon[nln_upp]
       nln_fix = ∩(nlp_ampl.meta.nln, nlp_ampl.meta.jfix)
       c_ampl[nln_fix] -= nlp_ampl.meta.lcon[nln_fix]
-      @assert(norm(c_jump - c_ampl) <= rtol * max(norm(c_ampl), 1.0))
+
+      # compare the norms instead of comparing the vectors
+      # because constraint ordering may differ
+      @assert(abs(norm(c_jump) - norm(c_ampl)) <= rtol * max(norm(c_ampl), 1.0))
 
       J_jump = jac(nlp_jump, x)
       J_ampl = jac(nlp_ampl, x)
-      @assert(vecnorm(J_jump - J_ampl) <= rtol * max(vecnorm(J_ampl), 1.0))
+      @assert(abs(vecnorm(J_jump) - vecnorm(J_ampl)) <= rtol * max(vecnorm(J_ampl), 1.0))
 
-      y = 10 * (rand(m) - 0.5)
+      # must choose all multipliers equal because
+      # we don't control constraint ordering
+      y = (rand() - 0.5) * ones(m)
 
       # MPB sets the Lagrangian to f + Σᵢ yᵢ cᵢ
       # AmplNLReader sets it to    f - Σᵢ yᵢ cᵢ
@@ -69,7 +74,7 @@ function jump_vs_ampl(problem :: Symbol; nloops=100, rtol=1.0e-10)
   amplmodel_finalize(nlp_ampl)
 end
 
-problems = [:genrose, :hs006]
+problems = [:genrose, :hs005, :hs006, :hs010, :hs011, :hs014]
 for problem in problems
   jump_vs_ampl(problem)
 end
