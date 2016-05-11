@@ -3,6 +3,16 @@ using JuMP
 using AmplNLReader
 using Base.Test
 
+type DummyNLPModel <: AbstractNLPModel
+end
+
+# Initially, no method is implemented.
+model = DummyNLPModel()
+for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
+  meth = eval(meth)
+  @test_throws(ErrorException, meth(model))
+end
+
 include("genrose.jl")
 model = JuMPNLPModel(genrose())
 for f in fieldnames(model.counters)
