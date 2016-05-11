@@ -23,3 +23,5 @@ include("test_slack_model.jl")
 @printf("Constraints, if any, must have been declared in the same order.\n")
 @printf("In addition, the AMPL model must have been decoded with preprocessing disabled.\n")
 include("jump_vs_ampl.jl")
+
+include("test_mpb.jl")

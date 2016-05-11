@@ -5,7 +5,8 @@ export JuMPNLPModel,
        reset!,
        obj, grad, grad!,
        cons, cons!, jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
-       hess_coord, hess, hprod, hprod!
+       hess_coord, hess, hprod, hprod!,
+       NLPtoMPB
 
 type ModelReader <: MathProgBase.AbstractMathProgSolver
 end
@@ -254,4 +255,15 @@ function hprod!(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64}, h
   nlp.counters.neval_hprod += 1
   MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, hv, x, v, σ, y)
   return hv
+end
+
+"""Return a `MathProgBase` model corresponding to a `JuMPNLPModel`.
+
+The second argument should be a solver instance, e.g., `IpoptSolver()`.
+Currently, all models are treated as nonlinear models.
+"""
+function NLPtoMPB(nlp :: JuMPNLPModel, solver :: MathProgBase.AbstractMathProgSolver)
+  setsolver(nlp.jmodel, solver)
+  nlp.jmodel.internalModelLoaded || JuMP.build(nlp.jmodel)
+  return nlp.jmodel.internalModel
 end
