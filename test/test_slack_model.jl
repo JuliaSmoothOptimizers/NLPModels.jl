@@ -84,6 +84,8 @@ function check_slack_model(smodel)
   end
   @assert all(i -> (i == 0), K)
 
+  reset!(smodel)
+
   # Test jprod and jtprod when SimpleNLPModel is available.
   # Currently, AmplModel and JuMPNLPModel do not implement them.
 end
