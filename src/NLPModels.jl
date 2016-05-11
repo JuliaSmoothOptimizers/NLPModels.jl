@@ -12,7 +12,8 @@ export AbstractNLPModel, Counters,
        jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
        jth_hprod, jth_hprod!, ghjvprod, ghjvprod!,
        hess_coord, hess, hprod, hprod!,
-       varscale, lagscale, conscale
+       varscale, lagscale, conscale,
+       NLPtoMPB
 
 
 abstract AbstractNLPModel
@@ -78,6 +79,8 @@ hprod!(nlp :: AbstractNLPModel, args...; kwargs...) = error("hprod!() not implem
 varscale(nlp :: AbstractNLPModel, args...; kwargs...) = error("varscale() not implemented")
 lagscale(nlp :: AbstractNLPModel, args...; kwargs...) = error("lagscale() not implemented")
 conscale(nlp :: AbstractNLPModel, args...; kwargs...) = error("conscale() not implemented")
+
+NLPtoMPB(nlp :: AbstractNLPModel, args...; kwargs...) = error("NLPtoMPB() not implemented")
 
 if Pkg.installed("JuMP") != nothing
   include("jump_model.jl")
