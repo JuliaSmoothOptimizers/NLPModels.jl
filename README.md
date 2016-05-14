@@ -40,6 +40,60 @@ The `NLPModelMeta` data structure focuses on continuous problems written in the 
 
 where `f` is the objective function, `c` is the (vector-valued) constraint function, `l` and `u` are vectors of lower and upper bounds on the variables, and `L` and `U` are vectors of lower and upper bounds on the general constraints.
 
+## Main Methods
+
+If `model` is an instance of an appropriate subtype of `AbstractNLPModel`, the following methods are normally defined:
+
+* `obj(model, x)`: evaluate *f(x)*, the objective at `x`
+* `cons(model x)`: evaluate *c(x)*, the vector of general constraints at `x`
+
+The following methods are defined if first-order derivatives are available:
+
+* `grad(model, x)`: evaluate *∇f(x)*, the objective gradient at `x`
+* `jac(model, x)`: evaluate *J(x)*, the Jacobian of *c* at `x` as a sparse matrix
+
+If Jacobian-vector products can be computed more efficiently than by evaluating the Jacobian explicitly, the following methods may be implemented:
+
+* `jprod(model, x, v)`: evaluate the result of the matrix-vector product *J(x)⋅v*
+* `jtprod(model, x, u)`: evaluate the result of the matrix-vector product *J(x)ᵀ⋅u*
+
+The following method is defined if second-order derivatives are available:
+
+* `hess(model, x, y)`: evaluate *∇²L(x,y)*, the Hessian of the Lagrangian at `x` and `y`
+
+If Hessian-vector products can be computed more efficiently than by evaluating the Hessian explicitly, the following method may be implemented:
+
+* `hprod(model, x, v, y)`: evaluate the result of the matrix-vector product *∇²L(x,y)⋅v*
+
+Several in-place variants of the methods above may also be implemented.
+
+The complete list of methods that an interface may implement is as follows:
+
+* `reset!()`,
+* `write_sol()`,
+* `varscale()`,
+* `lagscale()`,
+* `conscale()`,
+* `obj()`,
+* `grad()`,
+* `grad!()`,
+* `cons()`,
+* `cons!()`,
+* `jth_con()`,
+* `jth_congrad()`,
+* `jth_congrad!()`,
+* `jth_sparse_congrad()`,
+* `jac_coord()`,
+* `jac()`,
+* `jth_hprod()`,
+* `jth_hprod!()`,
+* `ghjvprod()`,
+* `ghjvprod!()`,
+* `hess_coord()`,
+* `hess()`,
+* `hprod()`,
+* `hprod!`
+
 ## Attributes
 
 `NLPModelMeta` objects have the following attributes:
