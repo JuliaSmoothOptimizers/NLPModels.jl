@@ -3,6 +3,9 @@ using JuMP
 using AmplNLReader
 using Base.Test
 
+# A problem with zero variables doesn't make sense.
+@test_throws(ErrorException, NLPModelMeta(0))
+
 type DummyNLPModel <: AbstractNLPModel
 end
 
