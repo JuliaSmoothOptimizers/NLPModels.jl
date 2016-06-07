@@ -16,16 +16,20 @@ notifications:
   email: false
 
 script:
-  - if [ `uname` == "Linux" ]; then
-    wget --no-check-certificate http://www.cmake.org/files/v3.2/cmake-3.2.1-Linux-x86_64.tar.gz;
-    tar -xzf cmake-3.2.1-Linux-x86_64.tar.gz;
-    sudo cp -fR cmake-3.2.1-Linux-x86_64/* /usr;
-    export PATH=`pwd`/cmake-3.2.1-Linux-x86_64/bin:$PATH; fi
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+    wget --no-check-certificate http://www.cmake.org/files/v3.3/cmake-3.3.2-Darwin-x86_64.tar.gz;
+    tar -zxf cmake-3.3.2-Darwin-x86_64.tar.gz;
+    export PATH=`pwd`/cmake-3.3.2-Darwin-x86_64/CMake.app/Contents/bin:$PATH; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    wget --no-check-certificate http://www.cmake.org/files/v3.3/cmake-3.3.2-Linux-x86_64.tar.gz;
+    tar -xzf cmake-3.3.2-Linux-x86_64.tar.gz;
+    sudo cp -fR cmake-3.3.2-Linux-x86_64/* /usr;
+    export PATH=`pwd`/cmake-3.3.2-Linux-x86_64/bin:$PATH; fi
   - which cmake
   - cmake --version
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia -e 'Pkg.clone("MathProgBase"); Pkg.clone("JuMP")'
-  - julia -e 'Pkg.clone("https://github.com/dpo/AmplNLReader.jl.git"); Pkg.checkout("AmplNLReader", "develop"); Pkg.build("AmplNLReader")'
+  - julia -e 'Pkg.clone("https://github.com/JuliaOptimizers/AmplNLReader.jl.git"); Pkg.checkout("AmplNLReader", "develop"); Pkg.build("AmplNLReader")'
   - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("NLPModels"); Pkg.test("NLPModels"; coverage=true)'
 
 after_success:
