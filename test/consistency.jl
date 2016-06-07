@@ -17,6 +17,10 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-10)
   n = nlps[1].meta.nvar
   m = nlps[1].meta.ncon
 
+  tmp_n = zeros(n)
+  tmp_m = zeros(m)
+  tmp_nn = zeros(n,n)
+
   for k = 1 : nloops
     x = 10 * (rand(n) - 0.5)
 
@@ -30,10 +34,12 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-10)
 
     gs = Any[grad(nlp, x) for nlp in nlps]
     gmin = minimum(map(norm, gs))
-    for i = 1:N-1
+    for i = 1:N
       for j = i+1:N
         @assert norm(gs[i] - gs[j]) <= rtol * max(gmin, 1.0)
       end
+      grad!(nlps[i], x, tmp_n)
+      @assert norm(gs[i] - tmp_n) <= rtol * max(gmin, 1.0)
     end
 
     Hs = Any[hess(nlp, x) for nlp in nlps]
@@ -47,10 +53,12 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-10)
     v = 10 * (rand(n) - 0.5)
     Hvs = Any[hprod(nlp, x, v) for nlp in nlps]
     Hvmin = minimum(map(norm, Hvs))
-    for i = 1:N-1
+    for i = 1:N
       for j = i+1:N
         @assert norm(Hvs[i] - Hvs[j]) <= rtol * max(Hvmin, 1.0)
       end
+      hprod!(nlps[i], x, v, tmp_n)
+      @assert norm(Hvs[i] - tmp_n) <= rtol * max(Hvmin, 1.0)
     end
 
     if m > 0
@@ -58,7 +66,9 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-10)
       cls = [nlp.meta.lcon for nlp in nlps]
       cus = [nlp.meta.ucon for nlp in nlps]
       cmin = minimum(map(norm, cs))
-      for i = 1:N-1
+      for i = 1:N
+        cons!(nlps[i], x, tmp_m)
+        @assert norm(cs[i] - tmp_m) <= rtol * max(cmin, 1.0)
         ci, li, ui = copy(cs[i]), cls[i], cus[i]
         for k = 1:m
           if li[k] > -Inf
@@ -85,27 +95,31 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-10)
       for i = 1:N-1
         vi = vecnorm(Js[i])
         for j = i+1:N
-          @assert(abs(vi - vecnorm(Js[j])) <= rtol * max(Jmin, 1.0))
+          @assert abs(vi - vecnorm(Js[j])) <= rtol * max(Jmin, 1.0)
         end
       end
 
       Jps = Any[jprod(nlp, x, v) for nlp in nlps]
       Jpmin = minimum(map(norm, Jps))
-      for i = 1:N-1
+      for i = 1:N
         vi = norm(Jps[i])
         for j = i+1:N
-          @assert(abs(vi - norm(Jps[j])) <= rtol * max(Jmin, 1.0))
+          @assert abs(vi - norm(Jps[j])) <= rtol * max(Jmin, 1.0)
         end
+        jprod!(nlps[i], x, v, tmp_m)
+        @assert norm(Jps[i] - tmp_m) <= rtol * max(Jmin, 1.0)
       end
 
       w = 10 * (rand() - 0.5) * ones(m)
       Jtps = Any[jtprod(nlp, x, w) for nlp in nlps]
       Jtpmin = minimum(map(norm, Jps))
-      for i = 1:N-1
+      for i = 1:N
         vi = norm(Jtps[i])
         for j = i+1:N
-          @assert(abs(vi - norm(Jtps[j])) <= rtol * max(Jmin, 1.0))
+          @assert abs(vi - norm(Jtps[j])) <= rtol * max(Jmin, 1.0)
         end
+        jtprod!(nlps[i], x, w, tmp_n)
+        @assert norm(Jtps[i] - tmp_n) <= rtol * max(Jmin, 1.0)
       end
 
       y = (rand() - 0.5) * ones(m)
@@ -113,7 +127,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-10)
       Lmin = minimum(map(vecnorm, Ls))
       for i = 1:N-1
         for j = i+1:N
-          @assert(vecnorm(Ls[i] - Ls[j]) <= rtol * max(Lmin, 1.0))
+          @assert vecnorm(Ls[i] - Ls[j]) <= rtol * max(Lmin, 1.0)
         end
       end
 
@@ -121,7 +135,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-10)
       Lpmin = minimum(map(norm, Lps))
       for i = 1:N-1
         for j = i+1:N
-          @assert(norm(Lps[i] - Lps[j]) <= rtol * max(Lpmin, 1.0))
+          @assert norm(Lps[i] - Lps[j]) <= rtol * max(Lpmin, 1.0)
         end
       end
     end
