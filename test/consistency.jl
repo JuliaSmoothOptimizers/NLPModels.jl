@@ -89,6 +89,25 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-10)
         end
       end
 
+      Jps = Any[jprod(nlp, x, v) for nlp in nlps]
+      Jpmin = minimum(map(norm, Jps))
+      for i = 1:N-1
+        vi = norm(Jps[i])
+        for j = i+1:N
+          @assert(abs(vi - norm(Jps[j])) <= rtol * max(Jmin, 1.0))
+        end
+      end
+
+      w = 10 * (rand() - 0.5) * ones(m)
+      Jtps = Any[jtprod(nlp, x, w) for nlp in nlps]
+      Jtpmin = minimum(map(norm, Jps))
+      for i = 1:N-1
+        vi = norm(Jtps[i])
+        for j = i+1:N
+          @assert(abs(vi - norm(Jtps[j])) <= rtol * max(Jmin, 1.0))
+        end
+      end
+
       y = (rand() - 0.5) * ones(m)
       Ls = Any[hess(nlp, x, y=y) for nlp in nlps]
       Lmin = minimum(map(vecnorm, Ls))

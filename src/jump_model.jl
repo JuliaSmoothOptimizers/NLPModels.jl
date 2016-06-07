@@ -198,6 +198,44 @@ function jac(nlp :: JuMPNLPModel, x :: Array{Float64})
   return sparse(jac_coord(nlp, x)..., nlp.meta.ncon, nlp.meta.nvar)
 end
 
+"""
+Evaluate the Jacobian-vector product at `x`.
+Warning: Currently building the Jacobian for this.
+"""
+function jprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
+  return jac(nlp, x) * v
+end
+
+"""
+Evaluate the Jacobian-vector product at `x` in place.
+Warning: Currently building the Jacobian for this.
+"""
+function jprod!(nlp :: JuMPNLPModel,
+                x :: Array{Float64},
+                v :: Array{Float64},
+                Jv :: Array{Float64})
+  Jv[:] = jac(nlp, x) * v
+end
+
+"""
+Evaluate the transposed-Jacobian-vector product at `x`.
+Warning: Currently building the Jacobian for this.
+"""
+function jtprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
+  return jac(nlp, x)' * v
+end
+
+"""
+Evaluate the transposed-Jacobian-vector product at `x` in place.
+Warning: Currently building the Jacobian for this.
+"""
+function jtprod!(nlp :: JuMPNLPModel,
+                x :: Array{Float64},
+                v :: Array{Float64},
+                Jtv :: Array{Float64})
+  Jtv[:] = jac(nlp, x)' * v
+end
+
 # Uncomment if/when :JacVec becomes available in MPB.
 # "Evaluate the Jacobian-vector product at `x`."
 # function jprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
