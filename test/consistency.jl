@@ -119,6 +119,13 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-10)
   nlp_jump = JuMPNLPModel(problem_f())
   nlp_ampl = AmplModel(joinpath(path, "$problem_s.nl"))
   nlps = [nlp_jump; nlp_ampl]
+
+  if nlp_ampl.meta.ncon == length(nlp_ampl.meta.jfix)
+    nlp_slack_from_jump = SlackModel(nlp_jump)
+    nlp_slack_from_ampl = SlackModel(nlp_ampl)
+    append!(nlps, [nlp_slack_from_jump; nlp_slack_from_ampl])
+  end
+
   consistent_meta(nlps, nloops=nloops, rtol=rtol)
   consistent_functions(nlps, nloops=nloops, rtol=rtol)
   @printf("✓\n")
