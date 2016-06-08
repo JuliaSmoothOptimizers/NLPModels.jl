@@ -48,6 +48,9 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-10)
       for j = i+1:N
         @assert vecnorm(Hs[i] - Hs[j]) <= rtol * max(Hmin, 1.0)
       end
+      σ = rand() - 0.5
+      tmp_nn = hess(nlps[i], x, obj_weight=σ)
+      @assert vecnorm(σ*Hs[i] - tmp_nn) <= rtol * max(Hmin, 1.0)
     end
 
     v = 10 * (rand(n) - 0.5)
@@ -129,6 +132,9 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-10)
         for j = i+1:N
           @assert vecnorm(Ls[i] - Ls[j]) <= rtol * max(Lmin, 1.0)
         end
+        σ = rand() - 0.5
+        tmp_nn = hess(nlps[i], x, obj_weight=σ, y=σ*y)
+        @assert vecnorm(σ*Ls[i] - tmp_nn) <= rtol * max(Hmin, 1.0)
       end
 
       Lps = Any[hprod(nlp, x, v, y=y) for nlp in nlps]

@@ -268,31 +268,36 @@ end
 """Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format.
 Only the lower triangle is returned.
 """
-function hess_coord(nlp :: JuMPNLPModel, x :: Array{Float64}; σ :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+function hess_coord(nlp :: JuMPNLPModel, x :: Array{Float64};
+    obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   nlp.counters.neval_hess += 1
-  MathProgBase.eval_hesslag(nlp.mpmodel.eval, nlp.hvals, x, σ, y)
+  MathProgBase.eval_hesslag(nlp.mpmodel.eval, nlp.hvals, x, obj_weight, y)
   return (nlp.hrows, nlp.hcols, nlp.hvals)
 end
 
 """Evaluate the Lagrangian Hessian at `(x,y)` as a sparse matrix.
 Only the lower triangle is returned.
 """
-function hess(nlp :: JuMPNLPModel, x :: Array{Float64}; σ :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
-  return sparse(hess_coord(nlp, x, y=y, σ=σ)..., nlp.meta.nvar, nlp.meta.nvar)
+function hess(nlp :: JuMPNLPModel, x :: Array{Float64};
+    obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+  return sparse(hess_coord(nlp, x, y=y, obj_weight=obj_weight)..., nlp.meta.nvar, nlp.meta.nvar)
 end
 
 # TODO: Move hv out of JuMPNLPModel
 "Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v`."
-function hprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64}; σ :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+function hprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64};
+    obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   nlp.counters.neval_hprod += 1
-  MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, nlp.hv, x, v, σ, y)
+  MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, nlp.hv, x, v, obj_weight, y)
   return nlp.hv
 end
 
 "Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in place."
-function hprod!(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64}, hv :: Array{Float64}; σ :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+function hprod!(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64},
+    hv :: Array{Float64};
+    obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   nlp.counters.neval_hprod += 1
-  MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, hv, x, v, σ, y)
+  MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, hv, x, v, obj_weight, y)
   return hv
 end
 
