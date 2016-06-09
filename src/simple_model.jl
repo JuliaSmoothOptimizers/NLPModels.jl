@@ -47,7 +47,8 @@ function SimpleNLPModel(x0::Vector, obj::Function; y0::Vector = [],
       if ncon == 0
         A = hess(x0)
       else
-        A = hess(x0, y0)
+        w = [(-1)^i for i = 0:ncon-1]
+        A = hess(x0, w)
       end
       nnzh = typeof(A) <: SparseMatrixCSC ? nnz(A) : length(A)
     end
