@@ -6,11 +6,8 @@ using Base.Test
 # A problem with zero variables doesn't make sense.
 @test_throws(ErrorException, NLPModelMeta(0))
 
-type DummyNLPModel <: AbstractNLPModel
-end
-
-# Initially, no method is implemented.
-model = DummyNLPModel()
+# SimpleNLPModel with no functions
+model = SimpleNLPModel(zeros(2), x->dot(x,x))
 for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
   meth = eval(meth)
   @test_throws(NotImplementedError, meth(model))
@@ -38,3 +35,6 @@ include("test_slack_model.jl")
 include("consistency.jl")
 
 include("test_mpb.jl")
+
+include("test_simple_model.jl")
+

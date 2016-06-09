@@ -37,51 +37,30 @@ function SimpleNLPModel(x0::Vector, obj::Function; y0::Vector = [],
     jprod!::Function = (args...)->throw(NotImplementedError("jprod!")),
     jtprod::Function = (args...)->throw(NotImplementedError("jtprod")),
     jtprod!::Function = (args...)->throw(NotImplementedError("jtprod!")))
-  ncon = length(lcon)
-  if ncon == 0
-    ncon = length(y0)
-  else
-    if length(y0) == 0
-      y0 = zeros(ncon)
-    else
-      if length(y0) != ncon
-        error("Passed ncon=$ncon and y0 with size $(length(y0))")
-      end
-    end
-  end
+
   nvar = length(x0)
   length(lvar) == 0 && (lvar = -Inf*ones(nvar))
   length(uvar) == 0 && (uvar =  Inf*ones(nvar))
+  ncon = maximum([length(lcon); length(ucon); length(y0)])
   if nnzh == 0
     try
       if ncon == 0
         A = hess(x0)
       else
-        A = hess(x0,y0)
+        A = hess(x0, y0)
       end
       nnzh = typeof(A) <: SparseMatrixCSC ? nnz(A) : length(A)
-    catch e
-      if isa(e, NotImplementedError)
-        nnzh = nvar^2
-      else
-        throw(e)
-      end
     end
   end
 
   if ncon > 0
     length(lcon) == 0 && (lcon = -Inf*ones(ncon))
     length(ucon) == 0 && (ucon =  Inf*ones(ncon))
+    length(y0) == 0   && (y0 = zeros(ncon))
     if nnzj == 0
       try
         A = jac(x0)
         nnzj = typeof(A) <: SparseMatrixCSC ? nnz(A) : length(A)
-      catch e
-        if isa(e, NotImplementedError)
-          nnzj = nvar*ncon
-        else
-          throw(e)
-        end
       end
     end
   end
