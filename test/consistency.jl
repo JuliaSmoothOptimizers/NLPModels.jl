@@ -6,6 +6,9 @@ function consistent_meta(nlps; nloops=100, rtol=1.0e-10)
     for i = 1:N-1
       fi = getfield(nlps[i].meta, field)
       fj = getfield(nlps[i+1].meta, field)
+      if fi != fj
+        println("$field $i $fi $fj")
+      end
       @assert fi == fj
     end
   end
@@ -25,7 +28,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-10)
     x = 10 * (rand(n) - 0.5)
 
     fs = [obj(nlp, x) for nlp in nlps]
-    fmin = minimum(abs(fs))
+    fmin = minimum(map(abs, fs))
     for i = 1:N-1
       for j = i+1:N
         @assert abs(fs[i] - fs[j]) <= rtol * max(fmin, 1.0)
@@ -128,7 +131,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-10)
       y = (rand() - 0.5) * ones(m)
       Ls = Any[hess(nlp, x, y=y) for nlp in nlps]
       Lmin = minimum(map(vecnorm, Ls))
-      for i = 1:N-1
+      for i = 1:N
         for j = i+1:N
           @assert vecnorm(Ls[i] - Ls[j]) <= rtol * max(Lmin, 1.0)
         end
@@ -157,12 +160,15 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-10)
   problem_f = eval(problem)
   nlp_jump = JuMPNLPModel(problem_f())
   nlp_ampl = AmplModel(joinpath(path, "$problem_s.nl"))
-  nlps = [nlp_jump; nlp_ampl]
+  nlp_simple = eval(parse("$(problem)_simple"))()
+  nlps = [nlp_jump; nlp_ampl; nlp_simple]
 
   if nlp_ampl.meta.ncon == length(nlp_ampl.meta.jfix)
     nlp_slack_from_jump = SlackModel(nlp_jump)
     nlp_slack_from_ampl = SlackModel(nlp_ampl)
-    append!(nlps, [nlp_slack_from_jump; nlp_slack_from_ampl])
+    nlp_slack_from_simple = SlackModel(nlp_simple)
+    append!(nlps, [nlp_slack_from_jump; nlp_slack_from_ampl;
+      nlp_slack_from_simple])
   end
 
   consistent_meta(nlps, nloops=nloops, rtol=rtol)
