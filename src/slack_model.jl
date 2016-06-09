@@ -196,36 +196,41 @@ end
 """Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format.
 Only the lower triangle is returned.
 """
-function hess_coord(nlp :: SlackModel, x :: Array{Float64}; σ :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+function hess_coord(nlp :: SlackModel, x :: Array{Float64};
+    obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   # ∇²f(X) = [∇²f(x)  0]
   #          [0       0]
   n = nlp.model.meta.nvar
-  return hess_coord(nlp.model, x[1:n], σ=σ, y=y)
+  return hess_coord(nlp.model, x[1:n], obj_weight=obj_weight, y=y)
 end
 
 """Evaluate the Lagrangian Hessian at `(x,y)` as a sparse matrix.
 Only the lower triangle is returned.
 """
-function hess(nlp :: SlackModel, x :: Array{Float64}; σ :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
-  return sparse(hess_coord(nlp, x, y=y, σ=σ)..., nlp.meta.nvar, nlp.meta.nvar)
+function hess(nlp :: SlackModel, x :: Array{Float64};
+    obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+  return sparse(hess_coord(nlp, x, y=y, obj_weight=obj_weight)..., nlp.meta.nvar, nlp.meta.nvar)
 end
 
 "Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v`."
-function hprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}; σ :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+function hprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64};
+    obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   # ∇²f(X) V = [∇²f(x)  0] [vₓ ] = [∇²f(x) vₓ]
   #            [0       0] [vₛ]   [    0    ]
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   hv = zeros(nlp.meta.nvar)
-  return hprod!(nlp, x, v, hv, σ=σ, y=y)
+  return hprod!(nlp, x, v, hv, obj_weight=obj_weight, y=y)
 end
 
 "Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in place."
-function hprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}, hv :: Array{Float64}; σ :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+function hprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64},
+    hv :: Array{Float64};
+    obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   # using hv[1:n] doesn't seem to work here
-  hprod!(nlp.model, x[1:n], v[1:n], hv, σ=σ, y=y)
+  hprod!(nlp.model, x[1:n], v[1:n], hv, obj_weight=obj_weight, y=y)
   hv[n+1:nlp.meta.nvar] = 0
   return hv
 end
