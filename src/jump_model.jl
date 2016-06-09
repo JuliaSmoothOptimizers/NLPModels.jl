@@ -203,7 +203,8 @@ Evaluate the Jacobian-vector product at `x`.
 Warning: Currently building the Jacobian for this.
 """
 function jprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
-  return jac(nlp, x) * v
+  Jv = zeros(nlp.meta.ncon)
+  return jprod!(nlp, x, v, Jv)
 end
 
 """
@@ -215,6 +216,7 @@ function jprod!(nlp :: JuMPNLPModel,
                 v :: Array{Float64},
                 Jv :: Array{Float64})
   Jv[:] = jac(nlp, x) * v
+  return Jv
 end
 
 """
@@ -222,7 +224,8 @@ Evaluate the transposed-Jacobian-vector product at `x`.
 Warning: Currently building the Jacobian for this.
 """
 function jtprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
-  return jac(nlp, x)' * v
+  Jtv = zeros(nlp.meta.nvar)
+  return jtprod!(nlp, x, v, Jtv)
 end
 
 """
@@ -234,6 +237,7 @@ function jtprod!(nlp :: JuMPNLPModel,
                 v :: Array{Float64},
                 Jtv :: Array{Float64})
   Jtv[:] = jac(nlp, x)' * v
+  return Jtv
 end
 
 # Uncomment if/when :JacVec becomes available in MPB.
