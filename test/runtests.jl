@@ -6,14 +6,11 @@ using Base.Test
 # A problem with zero variables doesn't make sense.
 @test_throws(ErrorException, NLPModelMeta(0))
 
-type DummyNLPModel <: AbstractNLPModel
-end
-
-# Initially, no method is implemented.
-model = DummyNLPModel()
+# SimpleNLPModel with no functions
+model = SimpleNLPModel(zeros(2), x->dot(x,x))
 for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
   meth = eval(meth)
-  @test_throws(ErrorException, meth(model))
+  @test_throws(NotImplementedError, meth(model))
 end
 
 include("genrose.jl")
@@ -28,7 +25,7 @@ obj(model, model.meta.x0)
 reset!(model)
 @assert model.counters.neval_obj == 0
 
-@test_throws(ErrorException, jth_con(model))
+@test_throws(NotImplementedError, jth_con(model))
 
 include("test_slack_model.jl")
 
@@ -38,3 +35,6 @@ include("test_slack_model.jl")
 include("consistency.jl")
 
 include("test_mpb.jl")
+
+include("test_simple_model.jl")
+
