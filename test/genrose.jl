@@ -37,7 +37,7 @@
 # D. Orban, Montreal, 08/2015.
 
 "Generalized Rosenbrock model in size `n`"
-function genrose(n :: Int=100)
+function genrose(n :: Int=500)
 
   n < 2 && error("genrose: number of variables must be ≥ 2")
 
@@ -54,12 +54,20 @@ function genrose(n :: Int=100)
   return nlp
 end
 
-function genrose_simple(n :: Int=100)
+function genrose_simple(n :: Int=500)
 
   n < 2 && error("genrose: number of variables must be ≥ 2")
 
   x0 = [i/(n+1) for i = 1:n]
-  f(x::Vector) = 1.0 + 100 * sum( (x[2:n] - x[1:n-1].^2).^2) + sum( (x[1:n-1] - 1).^2)
+  f(x::Vector) = begin
+    s = 1.0
+    for i = 1:n-1
+      s += 100 * (x[i+1]-x[i]^2)^2 + (x[i]-1)^2
+    end
+    return s
+  end
 
   return SimpleNLPModel(x0, f)
 end
+
+cutest_problem_name = "GENROSE"

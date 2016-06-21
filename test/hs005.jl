@@ -26,3 +26,4 @@ function hs005_simple()
   return SimpleNLPModel(x0, f, lvar=l, uvar=u)
 
 end
+cutest_problem_name = "HS5"

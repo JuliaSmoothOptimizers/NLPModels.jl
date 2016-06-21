@@ -15,7 +15,7 @@ function hs011()
 
   @NLconstraint(
     nlp,
-    x[1]^2 <= x[2]
+    -x[1]^2 + x[2] >= 0
   )
 
   return nlp
@@ -25,10 +25,11 @@ function hs011_simple()
 
   x0 = [4.9; 0.1]
   f(x) = (x[1] - 5)^2 + x[2]^2 - 25
-  c(x) = [x[1]^2 - x[2]]
+  c(x) = [-x[1]^2 + x[2]]
   lcon = [-Inf]
   ucon = [0.0]
 
   return SimpleNLPModel(x0, f, c=c, lcon=lcon, ucon=ucon)
 
 end
+cutest_problem_name = "HS11"

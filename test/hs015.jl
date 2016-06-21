@@ -30,3 +30,4 @@ function hs015()
 
   return nlp
 end
+cutest_problem_name = "HS15"

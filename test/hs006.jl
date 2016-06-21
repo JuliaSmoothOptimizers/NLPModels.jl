@@ -31,3 +31,4 @@ function hs006_simple()
 
   return SimpleNLPModel(x0, f, c=c, lcon=lcon, ucon=ucon)
 end
+cutest_problem_name = "HS6"

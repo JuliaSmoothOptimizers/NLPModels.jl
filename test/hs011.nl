@@ -9,6 +9,7 @@ g3 0 1 0	# problem hs011
  0 0	# max name lengths: constraints, variables
  0 0 0 0 0	# common exprs: b,c,o,c1,o1
 C0
+o16
 o5
 v0
 n2
@@ -28,7 +29,7 @@ x2
 0 4.9
 1 0.1
 r
-1 0
+2 0
 b
 3
 3
@@ -36,7 +37,7 @@ k1
 1
 J0 2
 0 0
-1 -1
+1 1
 G0 2
 0 0
 1 0
