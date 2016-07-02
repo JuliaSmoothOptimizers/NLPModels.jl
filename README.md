@@ -2,9 +2,9 @@
 
 **OSX/Linux:**
 master
-[![Master Build Status](https://travis-ci.org/JuliaOptimizers/NLPModels.jl.svg?branch=master)](https://travis-ci.org/JuliaOptimizers/NLPModels.jl)
+[![Master Build Status](https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl.svg?branch=master)](https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl)
 develop
-[![Develop Build Status](https://travis-ci.org/JuliaOptimizers/NLPModels.jl.svg?branch=develop)](https://travis-ci.org/JuliaOptimizers/NLPModels.jl)
+[![Develop Build Status](https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl.svg?branch=develop)](https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl)
 
 **Windows:**
 master
@@ -14,9 +14,9 @@ develop
 
 **Coverage:**
 master
-[![Master Coverage Status](https://coveralls.io/repos/JuliaOptimizers/NLPModels.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/JuliaOptimizers/NLPModels.jl?branch=master)
+[![Master Coverage Status](https://coveralls.io/repos/JuliaSmoothOptimizers/NLPModels.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/JuliaSmoothOptimizers/NLPModels.jl?branch=master)
 develop
-[![Develop Coverage Status](https://coveralls.io/repos/JuliaOptimizers/NLPModels.jl/badge.svg?branch=develop&service=github)](https://coveralls.io/github/JuliaOptimizers/NLPModels.jl?branch=develop)
+[![Develop Coverage Status](https://coveralls.io/repos/JuliaSmoothOptimizers/NLPModels.jl/badge.svg?branch=develop&service=github)](https://coveralls.io/github/JuliaSmoothOptimizers/NLPModels.jl?branch=develop)
 
 ## Objective
 
@@ -32,7 +32,7 @@ Such instances are composed of
 
 If the [`JuMP`](https://github.com/JuliaOpt/JuMP.jl) modeling language is available, this package provides the `JuMPNLPModel` type.
 
-Corresponding interfaces are defined in [`AmplNLReader.jl`](https://github.com/JuliaOptimizers/AmplNLReader.jl) for problems modeled using [AMPL](http://www.ampl.com), and in  [`CUTEst.jl`](https://github.com/JuliaOptimizers/CUTEst.jl) for problems from [CUTEst](https://ccpforge.cse.rl.ac.uk/gf/project/cutest/wiki).
+Corresponding interfaces are defined in [`AmplNLReader.jl`](https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl) for problems modeled using [AMPL](http://www.ampl.com), and in  [`CUTEst.jl`](https://github.com/JuliaSmoothOptimizers/CUTEst.jl) for problems from [CUTEst](https://ccpforge.cse.rl.ac.uk/gf/project/cutest/wiki).
 
 The `NLPModelMeta` data structure focuses on continuous problems written in the form
 
