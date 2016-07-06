@@ -12,6 +12,9 @@ addons:
   apt_packages:
     - gfortran  # for Ipopt
 
+git:
+  depth: 9999
+
 notifications:
   email: false
 
