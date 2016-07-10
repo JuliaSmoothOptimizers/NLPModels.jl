@@ -95,27 +95,30 @@ function jtprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Jtv :: Vector)
 end
 
 function hess(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
-  Hx = ForwardDiff.hessian(nlp.f, x) * obj_weight
+  Hx = obj_weight == 0.0 ? spzeros(nlp.meta.nvar, nlp.meta.nvar) :
+       ForwardDiff.hessian(nlp.f, x) * obj_weight
   for i = 1:length(y)
-    Hx += ForwardDiff.hessian(x->nlp.c(x)[i], x) * y[i]
+    if y[i] != 0.0
+      Hx += ForwardDiff.hessian(x->nlp.c(x)[i], x) * y[i]
+    end
   end
   return tril(Hx)
 end
 
 function hprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector;
     obj_weight = 1.0, y :: Vector = [])
-  Hv = ForwardDiff.hessian(nlp.f, x) * v * obj_weight
-  for i = 1:length(y)
-    Hv += ForwardDiff.hessian(x->nlp.c(x)[i], x) * v * y[i]
-  end
-  return Hv
+  Hv = zeros(nlp.meta.nvar)
+  return hprod!(nlp, x, v, Hv, obj_weight=obj_weight, y=y)
 end
 
 function hprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Hv :: Vector;
     obj_weight = 1.0, y :: Vector = [])
-  Hv[:] = ForwardDiff.hessian(nlp.f, x) * v * obj_weight
+  Hv[:] = obj_weight == 0.0 ? zeros(nlp.meta.nvar) :
+          ForwardDiff.hessian(nlp.f, x) * v * obj_weight
   for i = 1:length(y)
-    Hv[:] += ForwardDiff.hessian(x->nlp.c(x)[i], x) * v * y[i]
+    if y[i] != 0.0
+      Hv[:] += ForwardDiff.hessian(x->nlp.c(x)[i], x) * v * y[i]
+    end
   end
   return Hv
 end
