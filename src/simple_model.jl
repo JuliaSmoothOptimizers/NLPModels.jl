@@ -47,54 +47,66 @@ function SimpleNLPModel(x0::Vector, f::Function; y0::Vector = [],
 end
 
 function obj(nlp :: SimpleNLPModel, x :: Vector)
+  nlp.counters.neval_obj += 1
   return nlp.f(x)
 end
 
 function grad(nlp :: SimpleNLPModel, x :: Vector)
+  nlp.counters.neval_grad += 1
   return ForwardDiff.gradient(nlp.f, x)
 end
 
 function grad!(nlp :: SimpleNLPModel, x :: Vector, g :: Vector)
+  nlp.counters.neval_grad += 1
   return ForwardDiff.gradient!(g, nlp.f, x)
 end
 
 function cons(nlp :: SimpleNLPModel, x :: Vector)
+  nlp.counters.neval_cons += 1
   return nlp.c(x)
 end
 
 function cons!(nlp :: SimpleNLPModel, x :: Vector, c :: Vector)
+  nlp.counters.neval_cons += 1
   c[:] = nlp.c(x)
   return c
 end
 
 function jac_coord(nlp :: SimpleNLPModel, x :: Vector)
+  nlp.counters.neval_jac += 1
   J = ForwardDiff.jacobian(nlp.c, x)
   return typeof(J) <: Matrix ? findnz(sparse(J)) : findnz(J)
 end
 
 function jac(nlp :: SimpleNLPModel, x :: Vector)
+  nlp.counters.neval_jac += 1
   return ForwardDiff.jacobian(nlp.c, x)
 end
 
 function jprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector)
+  nlp.counters.neval_jprod += 1
   return ForwardDiff.jacobian(nlp.c, x) * v
 end
 
 function jprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Jv :: Vector)
+  nlp.counters.neval_jprod += 1
   Jv[:] = ForwardDiff.jacobian(nlp.c, x) * v
   return Jv
 end
 
 function jtprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector)
+  nlp.counters.neval_jtprod += 1
   return ForwardDiff.jacobian(nlp.c, x)' * v
 end
 
 function jtprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Jtv :: Vector)
+  nlp.counters.neval_jtprod += 1
   Jtv[:] = ForwardDiff.jacobian(nlp.c, x)' * v
   return Jtv
 end
 
 function hess(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
+  nlp.counters.neval_hess += 1
   Hx = obj_weight == 0.0 ? spzeros(nlp.meta.nvar, nlp.meta.nvar) :
        ForwardDiff.hessian(nlp.f, x) * obj_weight
   for i = 1:length(y)
@@ -113,6 +125,7 @@ end
 
 function hprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Hv :: Vector;
     obj_weight = 1.0, y :: Vector = [])
+  nlp.counters.neval_hprod += 1
   Hv[:] = obj_weight == 0.0 ? zeros(nlp.meta.nvar) :
           ForwardDiff.hessian(nlp.f, x) * v * obj_weight
   for i = 1:length(y)

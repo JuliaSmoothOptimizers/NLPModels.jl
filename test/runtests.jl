@@ -11,6 +11,7 @@ using Base.Test
 # SimpleNLPModel with no functions
 model = SimpleNLPModel(zeros(2), x->dot(x,x))
 for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
+  meth == :reset! && continue
   meth = eval(meth)
   @test_throws(NotImplementedError, meth(model))
 end

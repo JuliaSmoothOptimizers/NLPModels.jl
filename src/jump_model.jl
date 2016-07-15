@@ -144,12 +144,6 @@ end
 import Base.show
 show(nlp :: JuMPNLPModel) = show(nlp.jmodel)
 
-"Reset evaluation counters in `nlp`"
-function reset!(nlp :: JuMPNLPModel)
-  reset!(nlp.counters)
-  return nlp
-end
-
 "Evaluate the objective function of `nlp` at `x`."
 function obj(nlp :: JuMPNLPModel, x :: Array{Float64})
   nlp.counters.neval_obj += 1

@@ -1,4 +1,5 @@
 using Base.Test
+
 function consistent_meta(nlps; rtol=1.0e-8)
   fields = [:nvar, :x0, :lvar, :uvar, :ifix, :ilow, :iupp, :irng, :ifree, :ncon,
     :y0]
@@ -9,6 +10,22 @@ function consistent_meta(nlps; rtol=1.0e-8)
       fj = getfield(nlps[i+1].meta, field)
       @test_approx_eq_eps fi fj rtol
     end
+  end
+end
+
+function consistent_counters(nlps)
+  N = length(nlps)
+  jac_group = [:neval_jac, :neval_jprod, :neval_jtprod]
+  V = zeros(Int, N)
+  for field in jac_group
+    V += [getfield(nlp.counters, field) for nlp in nlps]
+  end
+  @test all(V .== V[1])
+
+  for field in fieldnames(Counters)
+    field in jac_group && continue
+    V = [getfield(nlp.counters, field) for nlp in nlps]
+    @test all(V .== V[1])
   end
 end
 
@@ -45,7 +62,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
 
     Hs = Any[hess(nlp, x) for nlp in nlps]
     Hmin = minimum(map(vecnorm, Hs))
-    for i = 1:N-1
+    for i = 1:N
       for j = i+1:N
         @test_approx_eq_eps Hs[i] Hs[j] rtol * max(Hmin, 1.0)
       end
@@ -168,8 +185,15 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
     end
   end
 
+  consistent_counters(nlps)
   consistent_meta(nlps, rtol=rtol)
   consistent_functions(nlps, nloops=nloops, rtol=rtol)
+  consistent_counters(nlps)
+  for nlp in nlps
+    reset!(nlp)
+  end
+  consistent_counters(nlps)
+
   @printf("✓\n")
   amplmodel_finalize(nlp_ampl)
   cutest_finalize(nlp_cutest)
