@@ -1,5 +1,5 @@
 "Problem 10 in the Hock-Schittkowski suite"
-function hs010()
+function hs10()
 
   nlp = Model()
 
@@ -21,7 +21,7 @@ function hs010()
   return nlp
 end
 
-function hs010_simple()
+function hs10_simple()
 
   x0 = [-10.0; 10.0]
   f(x) = x[1] - x[2]
@@ -31,4 +31,3 @@ function hs010_simple()
 
   return SimpleNLPModel(x0, f, c=c, lcon=lcon, ucon=ucon)
 end
-cutest_problem_name = "HS10"

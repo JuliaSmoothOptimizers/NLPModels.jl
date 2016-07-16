@@ -1,5 +1,5 @@
 "Problem 14 in the Hock-Schittkowski suite"
-function hs014()
+function hs14()
 
   nlp = Model()
 
@@ -26,7 +26,7 @@ function hs014()
   return nlp
 end
 
-function hs014_simple()
+function hs14_simple()
 
   x0 = [2.0; 2.0]
   f(x) = (x[1] - 2)^2 + (x[2] - 1)^2
@@ -36,4 +36,3 @@ function hs014_simple()
 
   return SimpleNLPModel(x0, f, c=c, lcon=lcon, ucon=ucon)
 end
-cutest_problem_name = "HS14"

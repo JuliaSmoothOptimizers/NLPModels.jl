@@ -38,5 +38,3 @@ function brownden_simple()
 
   return SimpleNLPModel(x0, f)
 end
-
-cutest_problem_name = "BROWNDEN"

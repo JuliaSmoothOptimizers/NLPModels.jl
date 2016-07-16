@@ -1,5 +1,5 @@
 "Problem 15 in the Hock-Schittkowski suite"
-function hs015()
+function hs15()
 
   nlp = Model()
 
@@ -30,4 +30,3 @@ function hs015()
 
   return nlp
 end
-cutest_problem_name = "HS15"

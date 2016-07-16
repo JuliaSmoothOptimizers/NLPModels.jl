@@ -157,7 +157,7 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
   include("$problem_s.jl")
   problem_f = eval(problem)
   nlp_ampl = AmplModel(joinpath(path, "$problem_s.nl"))
-  nlp_cutest = CUTEstModel(cutest_problem_name) # Variable defined in .jl
+  nlp_cutest = CUTEstModel(uppercase(problem_s)) # Variable defined in .jl
   nlp_jump = JuMPNLPModel(problem_f())
   nlp_simple = eval(parse("$(problem)_simple"))()
   nlps = [nlp_ampl; nlp_cutest; nlp_jump; nlp_simple]
@@ -175,7 +175,7 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
   cutest_finalize(nlp_cutest)
 end
 
-problems = [:brownden, :hs005, :hs006, :hs010, :hs011, :hs014]
+problems = [:brownden, :hs5, :hs6, :hs10, :hs11, :hs14]
 for problem in problems
   consistency(problem)
 end

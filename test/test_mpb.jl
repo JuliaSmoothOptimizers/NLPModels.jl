@@ -2,10 +2,10 @@ using Ipopt
 using MathProgBase
 using JuMP
 
-include("hs006.jl")
+include("hs6.jl")
 
 # pass an AmplModel to IPOPT
-nlp = JuMPNLPModel(hs006())
+nlp = JuMPNLPModel(hs6())
 show(nlp.meta)
 print(nlp.meta)
 model = NLPtoMPB(nlp, IpoptSolver())

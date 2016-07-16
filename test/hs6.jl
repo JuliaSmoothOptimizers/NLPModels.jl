@@ -1,5 +1,5 @@
 "Problem 6 in the Hock-Schittkowski suite"
-function hs006()
+function hs6()
 
   nlp = Model()
 
@@ -21,7 +21,7 @@ function hs006()
   return nlp
 end
 
-function hs006_simple()
+function hs6_simple()
 
   x0 = [-1.2; 1.0]
   f(x) = (1 - x[1])^2
@@ -31,4 +31,3 @@ function hs006_simple()
 
   return SimpleNLPModel(x0, f, c=c, lcon=lcon, ucon=ucon)
 end
-cutest_problem_name = "HS6"

@@ -1,5 +1,5 @@
 "Problem 5 in the Hock-Schittkowski suite"
-function hs005()
+function hs5()
 
   nlp = Model()
 
@@ -16,7 +16,7 @@ function hs005()
   return nlp
 end
 
-function hs005_simple()
+function hs5_simple()
 
   x0 = [0.0; 0.0]
   f(x) = sin(x[1] + x[2]) + (x[1] - x[2])^2 - 1.5 * x[1] + 2.5 * x[2] + 1
@@ -26,4 +26,3 @@ function hs005_simple()
   return SimpleNLPModel(x0, f, lvar=l, uvar=u)
 
 end
-cutest_problem_name = "HS5"

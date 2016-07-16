@@ -69,5 +69,3 @@ function genrose_simple(n :: Int=500)
 
   return SimpleNLPModel(x0, f)
 end
-
-cutest_problem_name = "GENROSE"

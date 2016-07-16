@@ -1,5 +1,5 @@
 "Problem 11 in the Hock-Schittkowski suite"
-function hs011()
+function hs11()
 
   nlp = Model()
 
@@ -21,7 +21,7 @@ function hs011()
   return nlp
 end
 
-function hs011_simple()
+function hs11_simple()
 
   x0 = [4.9; 0.1]
   f(x) = (x[1] - 5)^2 + x[2]^2 - 25
@@ -32,4 +32,3 @@ function hs011_simple()
   return SimpleNLPModel(x0, f, c=c, lcon=lcon, ucon=ucon)
 
 end
-cutest_problem_name = "HS11"
