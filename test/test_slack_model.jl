@@ -7,17 +7,17 @@ smodel = SlackModel(model)
 @printf("✓\n")
 
 # a bound-constrained problem should be returned unchanged
-@printf("Checking slack formulation of hs005\t")
-include("hs005.jl")
-model = JuMPNLPModel(hs005())
+@printf("Checking slack formulation of hs5\t")
+include("hs5.jl")
+model = JuMPNLPModel(hs5())
 smodel = SlackModel(model)
 @assert smodel == model
 @printf("✓\n")
 
 # an equality-constrained problem should be returned unchanged
-@printf("Checking slack formulation of hs006\t")
-include("hs006.jl")
-model = JuMPNLPModel(hs006())
+@printf("Checking slack formulation of hs6\t")
+include("hs6.jl")
+model = JuMPNLPModel(hs6())
 smodel = SlackModel(model)
 @assert smodel == model
 @printf("✓\n")
@@ -90,7 +90,7 @@ function check_slack_model(smodel)
   # Currently, AmplModel and JuMPNLPModel do not implement them.
 end
 
-for problem in [:hs010, :hs011, :hs014, :hs015]
+for problem in [:hs10, :hs11, :hs14, :hs15]
   problem_s = string(problem)
   @printf("Checking slack formulation of %-8s\t", problem_s)
   include("$problem_s.jl")

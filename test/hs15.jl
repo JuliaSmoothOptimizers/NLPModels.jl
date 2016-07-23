@@ -1,5 +1,5 @@
 "Problem 15 in the Hock-Schittkowski suite"
-function hs015()
+function hs15()
 
   nlp = Model()
 

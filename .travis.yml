@@ -8,9 +8,7 @@ julia:
   - release
   - nightly
 
-addons:
-  apt_packages:
-    - gfortran  # for Ipopt
+sudo: required
 
 git:
   depth: 9999
@@ -18,7 +16,9 @@ git:
 notifications:
   email: false
 
-script:
+before_install:
+  - if [ `uname` == "Linux" ]; then unset DYLD_LIBRARY_PATH; bash travisCI/setup_travis_linux.sh; fi
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     wget --no-check-certificate http://www.cmake.org/files/v3.3/cmake-3.3.2-Darwin-x86_64.tar.gz;
     tar -zxf cmake-3.3.2-Darwin-x86_64.tar.gz;
@@ -28,11 +28,11 @@ script:
     tar -xzf cmake-3.3.2-Linux-x86_64.tar.gz;
     sudo cp -fR cmake-3.3.2-Linux-x86_64/* /usr;
     export PATH=`pwd`/cmake-3.3.2-Linux-x86_64/bin:$PATH; fi
-  - which cmake
-  - cmake --version
-  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+
+script:
   - julia -e 'Pkg.clone("MathProgBase"); Pkg.clone("JuMP")'
   - julia -e 'Pkg.clone("https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl.git"); Pkg.checkout("AmplNLReader", "develop"); Pkg.build("AmplNLReader")'
+  - julia -e 'Pkg.clone("https://github.com/JuliaSmoothOptimizers/CUTEst.jl.git"); Pkg.checkout("CUTEst", "develop"); Pkg.build("CUTEst")'
   - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("NLPModels"); Pkg.test("NLPModels"; coverage=true)'
 
 after_success:
