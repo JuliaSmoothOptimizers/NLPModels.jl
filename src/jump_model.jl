@@ -69,19 +69,13 @@ type JuMPNLPModel <: AbstractNLPModel
   mpmodel :: MathProgModel
   counters :: Counters      # Evaluation counters.
 
-  g :: Vector{Float64}      # Room for the objective gradient.
-  c :: Vector{Float64}      # Room for the constraints value.
-
   jrows :: Vector{Int}      # Jacobian sparsity pattern.
   jcols :: Vector{Int}
   jvals :: Vector{Float64}  # Room for the constraints Jacobian.
-  jv :: Vector{Float64}     # Room for a Jacobian-vector product.
-  jtv :: Vector{Float64}    # Room for a transposed-Jacobian-vector product.
 
   hrows :: Vector{Int}      # Hessian sparsity pattern.
   hcols :: Vector{Int}
   hvals :: Vector{Float64}  # Room for the Lagrangian Hessian.
-  hv :: Vector{Float64}     # Room for a Hessian-vector product.
 end
 
 "Construct a `JuMPNLPModel` from a JuMP `Model`."
@@ -127,17 +121,12 @@ function JuMPNLPModel(jmodel :: Model)
                       jmodel,
                       mpmodel,
                       Counters(),
-                      zeros(nvar),  # g
-                      zeros(ncon),  # c
                       jrows,
                       jcols,
                       zeros(nnzj),  # jvals
-                      zeros(ncon),  # jv
-                      zeros(nvar),  # jtv
                       hrows,
                       hcols,
                       zeros(nnzh),  # hvals
-                      zeros(nvar),  # hv
                       )
 end
 
@@ -150,12 +139,10 @@ function obj(nlp :: JuMPNLPModel, x :: Array{Float64})
   return MathProgBase.eval_f(nlp.mpmodel.eval, x)
 end
 
-# TODO: Move g out of JuMPNLPModel?
 "Evaluate the gradient of the objective function at `x`."
 function grad(nlp :: JuMPNLPModel, x :: Array{Float64})
-  nlp.counters.neval_grad += 1
-  MathProgBase.eval_grad_f(nlp.mpmodel.eval, nlp.g, x)
-  return nlp.g
+  g = zeros(nlp.meta.nvar)
+  return grad!(nlp, x, g)
 end
 
 "Evaluate the gradient of the objective function at `x` in place."
@@ -165,12 +152,10 @@ function grad!(nlp :: JuMPNLPModel, x :: Array{Float64}, g :: Array{Float64})
   return g
 end
 
-# TODO: Move c out of JuMPNLPModel?
 "Evaluate the constraints at `x`."
 function cons(nlp :: JuMPNLPModel, x :: Array{Float64})
-  nlp.counters.neval_cons += 1
-  MathProgBase.eval_g(nlp.mpmodel.eval, nlp.c, x)
-  return nlp.c
+  c = zeros(nlp.meta.ncon)
+  return cons!(nlp, x, c)
 end
 
 "Evaluate the constraints at `x` in place."
@@ -241,9 +226,8 @@ end
 # Uncomment if/when :JacVec becomes available in MPB.
 # "Evaluate the Jacobian-vector product at `x`."
 # function jprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
-#   nlp.counters.neval_jprod += 1
-#   MathProgBase.eval_jac_prod(nlp.mpmodel.eval, nlp.jv, x, v)
-#   return nlp.jv
+#   jv = zeros(nlp.meta.ncon)
+#   return jprod!(nlp, x, v, jv)
 # end
 #
 # "Evaluate the Jacobian-vector product at `x` in place."
@@ -255,9 +239,8 @@ end
 #
 # "Evaluate the transposed-Jacobian-vector product at `x`."
 # function jtprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
-#   nlp.counters.neval_jtprod += 1
-#   MathProgBase.eval_jac_prod_t(nlp.mpmodel.eval, nlp.jtv, x, v)
-#   return nlp.jtv
+#   jtv = zeros(nlp.meta.nvar)
+#   return jtprod!(nlp, x, v, jtv)
 # end
 #
 # "Evaluate the transposed-Jacobian-vector product at `x` in place."
@@ -285,13 +268,11 @@ function hess(nlp :: JuMPNLPModel, x :: Array{Float64};
   return sparse(hess_coord(nlp, x, y=y, obj_weight=obj_weight)..., nlp.meta.nvar, nlp.meta.nvar)
 end
 
-# TODO: Move hv out of JuMPNLPModel
 "Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v`."
 function hprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
-  nlp.counters.neval_hprod += 1
-  MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, nlp.hv, x, v, obj_weight, y)
-  return nlp.hv
+  hv = zeros(nlp.meta.nvar)
+  return hprod!(nlp, x, v, hv, obj_weight=obj_weight, y=y)
 end
 
 "Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in place."
