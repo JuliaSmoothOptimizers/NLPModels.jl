@@ -15,15 +15,8 @@ end
 
 function consistent_counters(nlps)
   N = length(nlps)
-  jac_group = [:neval_jac, :neval_jprod, :neval_jtprod]
   V = zeros(Int, N)
-  for field in jac_group
-    V += [getfield(nlp.counters, field) for nlp in nlps]
-  end
-  @test all(V .== V[1])
-
   for field in fieldnames(Counters)
-    field in jac_group && continue
     V = [getfield(nlp.counters, field) for nlp in nlps]
     @test all(V .== V[1])
   end
