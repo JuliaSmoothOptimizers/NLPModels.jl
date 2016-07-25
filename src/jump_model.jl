@@ -144,12 +144,6 @@ end
 import Base.show
 show(nlp :: JuMPNLPModel) = show(nlp.jmodel)
 
-"Reset evaluation counters in `nlp`"
-function reset!(nlp :: JuMPNLPModel)
-  reset!(nlp.counters)
-  return nlp
-end
-
 "Evaluate the objective function of `nlp` at `x`."
 function obj(nlp :: JuMPNLPModel, x :: Array{Float64})
   nlp.counters.neval_obj += 1
@@ -215,6 +209,8 @@ function jprod!(nlp :: JuMPNLPModel,
                 x :: Array{Float64},
                 v :: Array{Float64},
                 Jv :: Array{Float64})
+  nlp.counters.neval_jac -= 1
+  nlp.counters.neval_jprod += 1
   Jv[:] = jac(nlp, x) * v
   return Jv
 end
@@ -236,6 +232,8 @@ function jtprod!(nlp :: JuMPNLPModel,
                 x :: Array{Float64},
                 v :: Array{Float64},
                 Jtv :: Array{Float64})
+  nlp.counters.neval_jac -= 1
+  nlp.counters.neval_jtprod += 1
   Jtv[:] = jac(nlp, x)' * v
   return Jtv
 end

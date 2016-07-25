@@ -31,8 +31,13 @@ function reset!(counters :: Counters)
   return counters
 end
 
+"Reset evaluation count in `nlp`"
+function reset!(nlp :: AbstractNLPModel)
+  reset!(nlp.counters)
+  return nlp
+end
+
 # Methods to be overridden in other packages.
-reset!(nlp :: AbstractNLPModel) = throw(NotImplementedError("reset!"))
 obj(nlp :: AbstractNLPModel, args...; kwargs...) =
   throw(NotImplementedError("obj"))
 grad(nlp :: AbstractNLPModel, args...; kwargs...) =
