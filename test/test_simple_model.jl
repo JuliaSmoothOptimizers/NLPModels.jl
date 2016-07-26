@@ -4,7 +4,7 @@ function test_simple_model()
   nlp = SimpleNLPModel(x0, f)
 
   c(x) = [sum(x) - 1]
-  nlp = SimpleNLPModel(x0, f, c=c)
+  nlp = SimpleNLPModel(x0, f, c=c, lcon=[0], ucon=[0])
 end
 
 test_simple_model()
