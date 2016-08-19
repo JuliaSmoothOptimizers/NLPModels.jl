@@ -75,25 +75,21 @@ import Base.show
 # TODO: improve this!
 # show(nlp :: SlackModel) = show(nlp.model)
 
-"Reset evaluation counters in `nlp`"
 function reset!(nlp :: SlackModel)
   reset!(nlp.model.counters)
   return nlp
 end
 
-"Evaluate the objective function of `nlp` at `x`."
 function obj(nlp :: SlackModel, x :: Array{Float64})
   # f(X) = f(x)
   return obj(nlp.model, x[1:nlp.model.meta.nvar])
 end
 
-"Evaluate the gradient of the objective function at `x`."
 function grad(nlp :: SlackModel, x :: Array{Float64})
   g = zeros(nlp.meta.nvar)
   return grad!(nlp, x, g)
 end
 
-"Evaluate the gradient of the objective function at `x` in place."
 function grad!(nlp :: SlackModel, x :: Array{Float64}, g :: Array{Float64})
   # ∇f(X) = [∇f(x) ; 0]
   n = nlp.model.meta.nvar
@@ -103,13 +99,11 @@ function grad!(nlp :: SlackModel, x :: Array{Float64}, g :: Array{Float64})
   return g
 end
 
-"Evaluate the constraints at `x`."
 function cons(nlp :: SlackModel, x :: Array{Float64})
   c = zeros(nlp.meta.ncon)
   return cons!(nlp, x, c)
 end
 
-"Evaluate the constraints at `x` in place."
 function cons!(nlp :: SlackModel, x :: Array{Float64}, c :: Array{Float64})
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
@@ -123,7 +117,6 @@ function cons!(nlp :: SlackModel, x :: Array{Float64}, c :: Array{Float64})
   return c
 end
 
-"Evaluate the constraints Jacobian at `x` in sparse coordinate format."
 function jac_coord(nlp :: SlackModel, x :: Array{Float64})
   # J(X) = [J(x)  -I]
   n = nlp.model.meta.nvar
@@ -137,18 +130,15 @@ function jac_coord(nlp :: SlackModel, x :: Array{Float64})
           collect([jvals ; -ones(ns)]))
 end
 
-"Evaluate the constraints Jacobian at `x` as a sparse matrix."
 function jac(nlp :: SlackModel, x :: Array{Float64})
   return sparse(jac_coord(nlp, x)..., nlp.meta.ncon, nlp.meta.nvar)
 end
 
-"Evaluate the Jacobian-vector product at `x`."
 function jprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64})
   jv = zeros(nlp.ncon)
   return jprod!(nlp, x, v, jv)
 end
 
-"Evaluate the Jacobian-vector product at `x` in place."
 function jprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}, jv :: Array{Float64})
   # J(X) V = [J(x)  -I] [vₓ] = J(x) vₓ - vₛ
   #                     [vₛ]
@@ -172,13 +162,11 @@ function jprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}, jv 
   return jv
 end
 
-"Evaluate the transposed-Jacobian-vector product at `x`."
 function jtprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64})
   jtv = zeros(nlp.nvar)
   return jtprod!(nlp, x, v, jtv)
 end
 
-"Evaluate the transposed-Jacobian-vector product at `x` in place."
 function jtprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}, jtv :: Array{Float64})
   # J(X)ᵀ v = [J(x)ᵀ] v = [J(x)ᵀ v]
   #           [ -I  ]     [  -v   ]
@@ -193,9 +181,6 @@ function jtprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}, jt
   return jtv
 end
 
-"""Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format.
-Only the lower triangle is returned.
-"""
 function hess_coord(nlp :: SlackModel, x :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   # ∇²f(X) = [∇²f(x)  0]
@@ -204,15 +189,11 @@ function hess_coord(nlp :: SlackModel, x :: Array{Float64};
   return hess_coord(nlp.model, x[1:n], obj_weight=obj_weight, y=y)
 end
 
-"""Evaluate the Lagrangian Hessian at `(x,y)` as a sparse matrix.
-Only the lower triangle is returned.
-"""
 function hess(nlp :: SlackModel, x :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   return sparse(hess_coord(nlp, x, y=y, obj_weight=obj_weight)..., nlp.meta.nvar, nlp.meta.nvar)
 end
 
-"Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v`."
 function hprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   # ∇²f(X) V = [∇²f(x)  0] [vₓ ] = [∇²f(x) vₓ]
@@ -223,7 +204,6 @@ function hprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64};
   return hprod!(nlp, x, v, hv, obj_weight=obj_weight, y=y)
 end
 
-"Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in place."
 function hprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64},
     hv :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))

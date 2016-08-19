@@ -133,61 +133,48 @@ end
 import Base.show
 show(nlp :: JuMPNLPModel) = show(nlp.jmodel)
 
-"Evaluate the objective function of `nlp` at `x`."
 function obj(nlp :: JuMPNLPModel, x :: Array{Float64})
   nlp.counters.neval_obj += 1
   return MathProgBase.eval_f(nlp.mpmodel.eval, x)
 end
 
-"Evaluate the gradient of the objective function at `x`."
 function grad(nlp :: JuMPNLPModel, x :: Array{Float64})
   g = zeros(nlp.meta.nvar)
   return grad!(nlp, x, g)
 end
 
-"Evaluate the gradient of the objective function at `x` in place."
 function grad!(nlp :: JuMPNLPModel, x :: Array{Float64}, g :: Array{Float64})
   nlp.counters.neval_grad += 1
   MathProgBase.eval_grad_f(nlp.mpmodel.eval, g, x)
   return g
 end
 
-"Evaluate the constraints at `x`."
 function cons(nlp :: JuMPNLPModel, x :: Array{Float64})
   c = zeros(nlp.meta.ncon)
   return cons!(nlp, x, c)
 end
 
-"Evaluate the constraints at `x` in place."
 function cons!(nlp :: JuMPNLPModel, x :: Array{Float64}, c :: Array{Float64})
   nlp.counters.neval_cons += 1
   MathProgBase.eval_g(nlp.mpmodel.eval, c, x)
   return c
 end
 
-"Evaluate the constraints Jacobian at `x` in sparse coordinate format."
 function jac_coord(nlp :: JuMPNLPModel, x :: Array{Float64})
   nlp.counters.neval_jac += 1
   MathProgBase.eval_jac_g(nlp.mpmodel.eval, nlp.jvals, x)
   return (nlp.jrows, nlp.jcols, nlp.jvals)
 end
 
-"Evaluate the constraints Jacobian at `x` as a sparse matrix."
 function jac(nlp :: JuMPNLPModel, x :: Array{Float64})
   return sparse(jac_coord(nlp, x)..., nlp.meta.ncon, nlp.meta.nvar)
 end
 
-"""Evaluate the Jacobian-vector product at `x`.
-Warning: Currently building the Jacobian for this.
-"""
 function jprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
   Jv = zeros(nlp.meta.ncon)
   return jprod!(nlp, x, v, Jv)
 end
 
-"""Evaluate the Jacobian-vector product at `x` in place.
-Warning: Currently building the Jacobian for this.
-"""
 function jprod!(nlp :: JuMPNLPModel,
                 x :: Array{Float64},
                 v :: Array{Float64},
@@ -198,17 +185,11 @@ function jprod!(nlp :: JuMPNLPModel,
   return Jv
 end
 
-"""Evaluate the transposed-Jacobian-vector product at `x`.
-Warning: Currently building the Jacobian for this.
-"""
 function jtprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
   Jtv = zeros(nlp.meta.nvar)
   return jtprod!(nlp, x, v, Jtv)
 end
 
-"""Evaluate the transposed-Jacobian-vector product at `x` in place.
-Warning: Currently building the Jacobian for this.
-"""
 function jtprod!(nlp :: JuMPNLPModel,
                 x :: Array{Float64},
                 v :: Array{Float64},
@@ -246,9 +227,6 @@ end
 #   return jtv
 # end
 
-"""Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format.
-Only the lower triangle is returned.
-"""
 function hess_coord(nlp :: JuMPNLPModel, x :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   nlp.counters.neval_hess += 1
@@ -256,22 +234,17 @@ function hess_coord(nlp :: JuMPNLPModel, x :: Array{Float64};
   return (nlp.hrows, nlp.hcols, nlp.hvals)
 end
 
-"""Evaluate the Lagrangian Hessian at `(x,y)` as a sparse matrix.
-Only the lower triangle is returned.
-"""
 function hess(nlp :: JuMPNLPModel, x :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   return sparse(hess_coord(nlp, x, y=y, obj_weight=obj_weight)..., nlp.meta.nvar, nlp.meta.nvar)
 end
 
-"Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v`."
 function hprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   hv = zeros(nlp.meta.nvar)
   return hprod!(nlp, x, v, hv, obj_weight=obj_weight, y=y)
 end
 
-"Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in place."
 function hprod!(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64},
     hv :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
@@ -280,11 +253,6 @@ function hprod!(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64},
   return hv
 end
 
-"""Return a `MathProgBase` model corresponding to a `JuMPNLPModel`.
-
-The second argument should be a solver instance, e.g., `IpoptSolver()`.
-Currently, all models are treated as nonlinear models.
-"""
 function NLPtoMPB(nlp :: JuMPNLPModel, solver :: MathProgBase.AbstractMathProgSolver)
   setsolver(nlp.jmodel, solver)
   nlp.jmodel.internalModelLoaded || JuMP.build(nlp.jmodel)

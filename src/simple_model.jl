@@ -3,6 +3,8 @@ using ForwardDiff
 export SimpleNLPModel, obj, grad, grad!, cons, cons!, jac_coord, jac, jprod,
        jprod!, jtprod, jtprod!, hess, hprod, hprod!
 
+"""SimpleNLPModel is an AbstractNLPModel using ForwardDiff to computer the
+derivatives."""
 type SimpleNLPModel <: AbstractNLPModel
   meta :: NLPModelMeta
 

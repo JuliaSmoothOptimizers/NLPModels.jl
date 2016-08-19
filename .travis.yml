@@ -36,4 +36,6 @@ script:
   - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("NLPModels"); Pkg.test("NLPModels"; coverage=true)'
 
 after_success:
+  - julia -e 'Pkg.add("Documenter")'
+  - julia -e 'cd(Pkg.dir("NLPModels")); include(joinpath("docs", "make.jl"))'
   - julia -e 'cd(Pkg.dir("NLPModels")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
