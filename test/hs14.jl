@@ -34,5 +34,5 @@ function hs14_simple()
   lcon = [0.0; 0.0]
   ucon = [Inf; 0.0]
 
-  return SimpleNLPModel(x0, f, c=c, lcon=lcon, ucon=ucon)
+  return SimpleNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon)
 end

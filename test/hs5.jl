@@ -23,6 +23,6 @@ function hs5_simple()
   l = [-1.5; -3.0]
   u = [4.0; 3.0]
 
-  return SimpleNLPModel(x0, f, lvar=l, uvar=u)
+  return SimpleNLPModel(f, x0, lvar=l, uvar=u)
 
 end

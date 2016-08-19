@@ -9,7 +9,7 @@ using Base.Test
 @test_throws(ErrorException, NLPModelMeta(0))
 
 # SimpleNLPModel with no functions
-model = SimpleNLPModel(zeros(2), x->dot(x,x))
+model = SimpleNLPModel(x->dot(x,x), zeros(2))
 for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
   meth == :reset! && continue
   meth = eval(meth)

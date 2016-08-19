@@ -67,5 +67,5 @@ function genrose_simple(n :: Int=500)
     return s
   end
 
-  return SimpleNLPModel(x0, f)
+  return SimpleNLPModel(f, x0)
 end

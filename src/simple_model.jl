@@ -13,7 +13,35 @@ type SimpleNLPModel <: AbstractNLPModel
   c :: Function
 end
 
-function SimpleNLPModel(x0::Vector, f::Function; y0::Vector = [],
+"""````
+SimpleNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,
+  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞])
+````
+
+  - `f :: Function` - The objective function;
+  - `x0 :: Vector` - The initial point of the problem;
+  - `lvar :: Vector` - Lower bound of the variables;
+  - `uvar :: Vector` - Upper bound of the variables;
+  - `c :: Function` - The constraints function;
+  - `y0 :: Vector` - The initial value of the Lagrangian estimates;
+  - `lcon :: Vector` - Lower bounds of the constraints function;
+  - `ucon :: Vector` - Upper bounds of the constraints function.
+
+The functions follow the same restrictions of ForwardDiff functions, summarised
+here:
+
+  - The function can only be composed of generic Julia functions;
+  - The function must accept only one argument;
+  - The function's argument must accept a subtype of Vector;
+  - The function should be type-stable.
+
+For contrained problems, the function `c`:Rⁿ→Rᵐ is required, and it must return
+an array even when m = 1.
+Also `lcon` and `ucon` should be passed, otherwise the problem is ill-formed.
+For equality constraints, the corresponding index of lcon and ucon should be the
+same.
+"""
+function SimpleNLPModel(f::Function, x0::Vector; y0::Vector = [],
     lvar::Vector = [], uvar::Vector = [], lcon::Vector = [], ucon::Vector = [],
     c::Function = (args...)->throw(NotImplementedError("cons")))
 
