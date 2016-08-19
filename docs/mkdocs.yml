@@ -1,7 +1,7 @@
 site_name:        NLPModels.jl
-repo_url:         https://github.com/abelsiqueira/NLPModels.jl
+repo_url:         https://github.com/JuliaSmoothOptimizers/NLPModels.jl
 site_description: Nonlinear Programming Models
-site_author:      abelsiqueira
+site_author:      JuliaSmoothOptimizers
 
 theme: readthedocs
 

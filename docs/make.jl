@@ -5,7 +5,7 @@ makedocs(
 )
 
 deploydocs(deps = Deps.pip("mkdocs", "python-markdown-math"),
-  repo = "github.com/abelsiqueira/NLPModels.jl.git",
+  repo = "github.com/JuliaSmoothOptimizers/NLPModels.jl.git",
   julia = "release",
-  latest = "docs"
+  latest = "develop"
 )
