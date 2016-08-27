@@ -36,5 +36,5 @@ function brownden_simple()
     return s
   end
 
-  return SimpleNLPModel(x0, f)
+  return SimpleNLPModel(f, x0)
 end

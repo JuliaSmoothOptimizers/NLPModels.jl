@@ -29,5 +29,5 @@ function hs10_simple()
   lcon = [-1.0]
   ucon = [Inf]
 
-  return SimpleNLPModel(x0, f, c=c, lcon=lcon, ucon=ucon)
+  return SimpleNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon)
 end

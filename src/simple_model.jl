@@ -3,6 +3,42 @@ using ForwardDiff
 export SimpleNLPModel, obj, grad, grad!, cons, cons!, jac_coord, jac, jprod,
        jprod!, jtprod, jtprod!, hess, hprod, hprod!
 
+"""SimpleNLPModel is an AbstractNLPModel using ForwardDiff to computer the
+derivatives.
+In this interface, the objective function \$f\$ and an initial estimate are
+required. If there are constraints, the function
+\$c:\\mathbb{R}^n\\rightarrow\\mathbb{R}^m\$  and the vectors
+\$c_L\$ and \$c_U\$ also need to be passed. Bounds on the variables and an
+inital estimate to the Lagrangian multipliers can also be provided.
+
+````
+SimpleNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,
+  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞])
+````
+
+  - `f :: Function` - The objective function \$f\$;
+  - `x0 :: Vector` - The initial point of the problem;
+  - `lvar :: Vector` - \$\\ell\$, the lower bound of the variables;
+  - `uvar :: Vector` - \$u\$, the upper bound of the variables;
+  - `c :: Function` - The constraints function \$c\$;
+  - `y0 :: Vector` - The initial value of the Lagrangian estimates;
+  - `lcon :: Vector` - \$c_L\$, the lower bounds of the constraints function;
+  - `ucon :: Vector` - \$c_U\$, the upper bounds of the constraints function.
+
+The functions follow the same restrictions of ForwardDiff functions, summarised
+here:
+
+  - The function can only be composed of generic Julia functions;
+  - The function must accept only one argument;
+  - The function's argument must accept a subtype of Vector;
+  - The function should be type-stable.
+
+For contrained problems, the function \$c\$ is required, and it must return
+an array even when m = 1,
+and \$c_L\$ and \$c_U\$ should be passed, otherwise the problem is ill-formed.
+For equality constraints, the corresponding index of \$c_L\$ and \$c_U\$ should be the
+same.
+"""
 type SimpleNLPModel <: AbstractNLPModel
   meta :: NLPModelMeta
 
@@ -13,7 +49,7 @@ type SimpleNLPModel <: AbstractNLPModel
   c :: Function
 end
 
-function SimpleNLPModel(x0::Vector, f::Function; y0::Vector = [],
+function SimpleNLPModel(f::Function, x0::Vector; y0::Vector = [],
     lvar::Vector = [], uvar::Vector = [], lcon::Vector = [], ucon::Vector = [],
     c::Function = (args...)->throw(NotImplementedError("cons")))
 
