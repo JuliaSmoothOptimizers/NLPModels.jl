@@ -12,22 +12,25 @@ introduced so as to convert linear and nonlinear inequality constraints to
 equality constraints and bounds. More precisely, if the original model has the
 form
 
-    min f(x)  s.t.  cₗ ≤ c(x) ≤ cᵤ and l ≤ x ≤ u,
+\\\\[ \\min f(x)  \\mbox{ s. t. }  c_L \\leq c(x) \\leq c_U \\mbox{ and }
+\\ell \\leq x \\leq u, \\\\]
 
 the new model appears to the user as
 
-    min f(X)  s.t.  g(X) = 0 and L ≤ X ≤ U.
+\\\\[ \\min f(X)  \\mbox{ s. t. }  g(X) = 0 \\mbox{ and } L \\leq X \\leq U. \\\\]
 
-The unknowns X = (x, s) contain the original variables and slack variables s.
-The latter are such that the new model has the general form
+The unknowns \$X = (x, s)\$ contain the original variables and slack variables
+\$s\$. The latter are such that the new model has the general form
 
-    min f(x)  s.t.  c(x) - s = 0, cₗ ≤ s ≤ cᵤ and l ≤ x ≤ u
+\\\\[ \\min f(x)  \\mbox{ s. t. }  c(x) - s = 0, c_L \\leq s \\leq c_U \\mbox{ and }
+\\ell \\leq x \\leq u, \\\\]
 
 although no slack variables are introduced for equality constraints.
 
 The slack variables are implicitly ordered as [s(low), s(upp), s(rng)], where
 `low`, `upp` and `rng` represent the indices of the constraints of the form
-cₗ ≤ c(x) < ∞, -∞ < c(x) ≤ cᵤ and cₗ ≤ c(x) ≤ cᵤ, respectively.
+\$c_L \\leq c(x) < \\infty\$, \$-\\infty < c(x) \\leq c_U\$ and
+\$c_L \\leq c(x) \\leq c_U\$, respectively.
 """
 type SlackModel <: AbstractNLPModel
   meta :: NLPModelMeta

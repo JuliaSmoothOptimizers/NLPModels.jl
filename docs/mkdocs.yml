@@ -3,13 +3,21 @@ repo_url:         https://github.com/JuliaSmoothOptimizers/NLPModels.jl
 site_description: Nonlinear Programming Models
 site_author:      JuliaSmoothOptimizers
 
-theme: readthedocs
+theme: material
+
+extra:
+  palette:
+    primary: 'light blue'
+    accent: 'indigo'
+  author:
+    github: JuliaSmoothOptimizers
 
 extra_css:
   - assets/Documenter.css
+  - assets/style.css
 
 extra_javascript:
-  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML
   - assets/mathjaxhelper.js
 
 markdown_extensions:
