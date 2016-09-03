@@ -12,7 +12,6 @@ install:
 build_script:
 # Need to convert from shallow to complete for Pkg.clone to work
   - IF EXIST .git\shallow (git fetch --unshallow)
-  - C:\projects\julia\bin\julia -e "versioninfo(); Pkg.init(); Pkg.clone(\"https://github.com/dpo/AmplNLReader.jl.git\"); Pkg.checkout(\"AmplNLReader\", \"develop\"); Pkg.build(\"AmplNLReader\");"
   - C:\projects\julia\bin\julia -e "versioninfo(); Pkg.init(); Pkg.clone(pwd(), \"NLPModels\"); Pkg.build(\"NLPModels\");"
 
 test_script:

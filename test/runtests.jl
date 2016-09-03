@@ -1,5 +1,5 @@
 using AmplNLReader
-using CUTEst
+@unix_only using CUTEst
 using JuMP
 using NLPModels
 

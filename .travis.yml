@@ -30,8 +30,6 @@ before_install:
     export PATH=`pwd`/cmake-3.3.2-Linux-x86_64/bin:$PATH; fi
 
 script:
-  - julia -e 'Pkg.clone("https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl.git"); Pkg.checkout("AmplNLReader", "develop"); Pkg.build("AmplNLReader")'
-  - julia -e 'Pkg.clone("https://github.com/JuliaSmoothOptimizers/CUTEst.jl.git"); Pkg.checkout("CUTEst", "develop"); Pkg.build("CUTEst")'
   - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("NLPModels"); Pkg.test("NLPModels"; coverage=true)'
 
 after_success:
