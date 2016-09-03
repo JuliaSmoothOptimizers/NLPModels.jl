@@ -13,7 +13,7 @@ inital estimate to the Lagrangian multipliers can also be provided.
 
 ````
 SimpleNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,
-  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞])
+  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = "Generic")
 ````
 
   - `f :: Function` - The objective function \$f\$;
@@ -23,7 +23,8 @@ SimpleNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,
   - `c :: Function` - The constraints function \$c\$;
   - `y0 :: Vector` - The initial value of the Lagrangian estimates;
   - `lcon :: Vector` - \$c_L\$, the lower bounds of the constraints function;
-  - `ucon :: Vector` - \$c_U\$, the upper bounds of the constraints function.
+  - `ucon :: Vector` - \$c_U\$, the upper bounds of the constraints function;
+  - `name :: AbstractString` - A name for the model.
 
 The functions follow the same restrictions of ForwardDiff functions, summarised
 here:
