@@ -258,7 +258,7 @@
 <strong><code>NLPModels.SimpleNLPModel</code></strong> &mdash; <em>Type</em>.</p>
 <p>SimpleNLPModel is an AbstractNLPModel using ForwardDiff to computer the derivatives. In this interface, the objective function $f$ and an initial estimate are required. If there are constraints, the function $c:\mathbb{R}^n\rightarrow\mathbb{R}^m$  and the vectors $c_L$ and $c_U$ also need to be passed. Bounds on the variables and an inital estimate to the Lagrangian multipliers can also be provided.</p>
 <pre><code>SimpleNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,
-  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞])
+  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = &quot;Generic&quot;)
 </code></pre>
 
 <ul>
@@ -269,7 +269,8 @@
 <li><code>c :: Function</code> - The constraints function $c$;</li>
 <li><code>y0 :: Vector</code> - The initial value of the Lagrangian estimates;</li>
 <li><code>lcon :: Vector</code> - $c_L$, the lower bounds of the constraints function;</li>
-<li><code>ucon :: Vector</code> - $c_U$, the upper bounds of the constraints function.</li>
+<li><code>ucon :: Vector</code> - $c_U$, the upper bounds of the constraints function;</li>
+<li><code>name :: AbstractString</code> - A name for the model.</li>
 </ul>
 <p>The functions follow the same restrictions of ForwardDiff functions, summarised here:</p>
 <ul>
