@@ -9,7 +9,8 @@ using Base.Test
 @test_throws(ErrorException, NLPModelMeta(0))
 
 # SimpleNLPModel with no functions
-model = SimpleNLPModel(zeros(2), x->dot(x,x))
+model = SimpleNLPModel(zeros(2), x->dot(x,x), name="square")
+@assert model.meta.name == "square"
 for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
   meth == :reset! && continue
   meth = eval(meth)
@@ -17,7 +18,8 @@ for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
 end
 
 include("genrose.jl")
-model = JuMPNLPModel(genrose())
+model = JuMPNLPModel(genrose(), name="genrose")
+@assert model.meta.name == "genrose"
 for f in fieldnames(model.counters)
   @assert getfield(model.counters, f) == 0
 end
@@ -40,4 +42,3 @@ include("consistency.jl")
 include("test_mpb.jl")
 
 include("test_simple_model.jl")
-
