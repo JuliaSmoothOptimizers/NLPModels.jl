@@ -18,6 +18,11 @@ master
 develop
 [![Develop Coverage Status](https://coveralls.io/repos/JuliaSmoothOptimizers/NLPModels.jl/badge.svg?branch=develop&service=github)](https://coveralls.io/github/JuliaSmoothOptimizers/NLPModels.jl?branch=develop)
 
+**Documentation:**
+develop
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/latest)
+
+
 ## Objective
 
 This package provides general guidelines to represent optimization problems in Julia and a standardized API to evaluate the functions and their derivatives.
