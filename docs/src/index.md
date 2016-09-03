@@ -26,6 +26,12 @@ For computational reasons, we write
 & \ell \leq x \leq u,
 \end{align*}
 defining $c_{L_i} = c_{U_i}$ for all $i \in E$.
+The Lagrangian of this problem is defined as
+\begin{align*}
+L(x,\lambda,z^L,z^U;\sigma) = \sigma f(x) + c(x)^T\lambda  + \sum_{i=1}^n z_i^L(x_i-l_i)
++ \sum_{i=1}^nz_i^U(u_i-x_i),
+\end{align*}
+where $\sigma$ is a scaling parameter included for computational reasons.
 
 Optimization problems are represented by an instance/subtype of `AbstractNLPModel`.
 Such instances are composed of
