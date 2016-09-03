@@ -15,7 +15,8 @@ end
 
 function SimpleNLPModel(x0::Vector, f::Function; y0::Vector = [],
     lvar::Vector = [], uvar::Vector = [], lcon::Vector = [], ucon::Vector = [],
-    c::Function = (args...)->throw(NotImplementedError("cons")))
+    c::Function = (args...)->throw(NotImplementedError("cons")),
+    name::AbstractString = "Generic")
 
   nvar = length(x0)
   length(lvar) == 0 && (lvar = -Inf*ones(nvar))
@@ -41,7 +42,7 @@ function SimpleNLPModel(x0::Vector, f::Function; y0::Vector = [],
 
   meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0,
     lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=nnzh, lin=lin, nln=nln, minimize=true,
-    islp=false)
+    islp=false, name=name)
 
   return SimpleNLPModel(meta, Counters(), f, c)
 end
