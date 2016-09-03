@@ -79,7 +79,7 @@ type JuMPNLPModel <: AbstractNLPModel
 end
 
 "Construct a `JuMPNLPModel` from a JuMP `Model`."
-function JuMPNLPModel(jmodel :: Model)
+function JuMPNLPModel(jmodel :: Model; name :: AbstractString="Generic")
 
   setsolver(jmodel, ModelReader())
   JuMP.build(jmodel)
@@ -115,6 +115,7 @@ function JuMPNLPModel(jmodel :: Model)
                       nln=collect(nlin+1:ncon),
                       minimize=(mpmodel.sense == :Min),
                       islp=MathProgBase.isobjlinear(mpmodel.eval) & (nlin == ncon),
+                      name=name,
                       )
 
   return JuMPNLPModel(meta,
