@@ -66,10 +66,12 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
 
     v = 10 * (rand(n) - 0.5)
     Hvs = Any[hprod(nlp, x, v) for nlp in nlps]
+    Hopvs = Any[hess_op(nlp, x) * v for nlp in nlps]
     Hvmin = minimum(map(norm, Hvs))
     for i = 1:N
       for j = i+1:N
         @test_approx_eq_eps Hvs[i] Hvs[j] rtol * max(Hvmin, 1.0)
+        @test_approx_eq_eps Hvs[i] Hopvs[j] rtol * max(Hvmin, 1.0)
       end
       hprod!(nlps[i], x, v, tmp_n)
       @test_approx_eq_eps Hvs[i] tmp_n rtol * max(Hvmin, 1.0)
@@ -149,10 +151,12 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
       end
 
       Lps = Any[hprod(nlp, x, v, y=y) for nlp in nlps]
+      Hopvs = Any[hess_op(nlp, x, y=y) * v for nlp in nlps]
       Lpmin = minimum(map(norm, Lps))
       for i = 1:N-1
         for j = i+1:N
           @test_approx_eq_eps Lps[i] Lps[j] rtol * max(Lpmin, 1.0)
+          @test_approx_eq_eps Lps[i] Hopvs[j] rtol * max(Lpmin, 1.0)
         end
       end
     end

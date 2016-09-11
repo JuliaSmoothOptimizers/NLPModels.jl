@@ -1,6 +1,7 @@
 module NLPModels
 
 using Compat
+using LinearOperators
 
 export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters
 export reset!,
@@ -8,7 +9,7 @@ export reset!,
        cons, cons!, jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad,
        jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
        jth_hprod, jth_hprod!, ghjvprod, ghjvprod!,
-       hess_coord, hess, hprod, hprod!,
+       hess_coord, hess, hprod, hprod!, hess_op,
        varscale, lagscale, conscale,
        NLPtoMPB, NotImplementedError
 
@@ -188,6 +189,21 @@ with σ = obj_weight.
 """
 hprod!(nlp :: AbstractNLPModel, args...; kwargs...) =
   throw(NotImplementedError("hprod!"))
+
+"""`H = hess_op(nlp, x; obj_weight=1.0, y=zeros)`
+
+Return the Lagrangian Hessian at `(x,y)` with objective function scaled by
+`obj_weight` as a linear operator. The resulting object may be used as if it were a
+matrix, e.g., `H * v`. The linear operator H represents
+
+\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
+
+with σ = obj_weight.
+"""
+function hess_op(nlp :: AbstractNLPModel, x :: Vector{Float64};
+                 obj_weight :: Float64=1.0, y :: Vector{Float64}=zeros(nlp.meta.ncon))
+  return LinearOperator(nlp.meta.nvar, Float64, v -> hprod(nlp, x, v; obj_weight=obj_weight, y=y))
+end
 
 varscale(nlp :: AbstractNLPModel, args...; kwargs...) =
   throw(NotImplementedError("varscale"))
