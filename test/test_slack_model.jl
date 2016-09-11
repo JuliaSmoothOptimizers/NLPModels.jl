@@ -44,11 +44,13 @@ function check_slack_model(smodel)
 
   # slack variables do not influence objective value
   @assert obj(model, x[1:n]) == obj(smodel, x)
+  @assert neval_obj(model) == 2
 
   g = grad(model, x[1:n])
   G = grad(smodel, x)
   @assert all(g == G[1:n])
   @assert all(i -> (i == 0), G[n+1:N])
+  @assert neval_grad(model) == 2
 
   h = hess(model, x[1:n], y=y)
   H = hess(smodel, x, y=y)
@@ -56,12 +58,14 @@ function check_slack_model(smodel)
   @assert all(i -> (i == 0), H[1:n, n+1:N])
   @assert all(i -> (i == 0), H[n+1:N, 1:n])
   @assert all(i -> (i == 0), H[n+1:N, n+1:N])
+  @assert neval_hess(model) == 2
 
   v = rand(N)
   hv = hprod(model, x[1:n], v[1:n], y=y)
   HV = hprod(smodel, x, v, y=y)
   @assert all(HV[1:n] == hv)
   @assert all(i -> (i == 0), HV[n+1:N])
+  @assert neval_hprod(model) == 2
 
   c = cons(model, x[1:n])
   C = cons(smodel, x)
@@ -71,6 +75,7 @@ function check_slack_model(smodel)
   @assert all(C[jlow] == c[jlow] - s[1:nlow])
   @assert all(C[jupp] == c[jupp] - s[nlow+1:nlow+nupp])
   @assert all(C[jrng] == c[jrng] - s[nlow+nupp+1:nlow+nupp+nrng])
+  @assert neval_cons(model) == 2
 
   j = jac(model, x[1:n])
   J = jac(smodel, x)
@@ -83,6 +88,7 @@ function check_slack_model(smodel)
     k += 1
   end
   @assert all(i -> (i == 0), K)
+  @assert neval_jac(model) == 2
 
   reset!(smodel)
 

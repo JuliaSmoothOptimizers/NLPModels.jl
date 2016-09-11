@@ -24,6 +24,15 @@ end
 Base.showerror(io::IO, e::NotImplementedError) = print(io, e.name,
   " not implemented")
 
+
+# simple default API for retrieving counters
+for counter in fieldnames(Counters)
+  @eval begin
+    $counter(nlp :: AbstractNLPModel) = nlp.counters.$counter
+    export $counter
+  end
+end
+
 """`reset!(counters)`
 
 Reset evaluation counters
