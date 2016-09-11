@@ -12,7 +12,7 @@ using Base.Test
 model = SimpleNLPModel(x->dot(x,x), zeros(2), name="square")
 @assert model.meta.name == "square"
 for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
-  meth == :reset! && continue
+  meth in (:reset!, :hess_op) && continue
   meth = eval(meth)
   @test_throws(NotImplementedError, meth(model))
 end
