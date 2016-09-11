@@ -78,6 +78,14 @@ import Base.show
 # TODO: improve this!
 # show(nlp :: SlackModel) = show(nlp.model)
 
+# retrieve counters from underlying model
+for counter in fieldnames(Counters)
+  @eval begin
+    $counter(nlp :: SlackModel) = $counter(nlp.model)
+    export $counter
+  end
+end
+
 function reset!(nlp :: SlackModel)
   reset!(nlp.model.counters)
   return nlp

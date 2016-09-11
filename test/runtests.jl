@@ -13,6 +13,7 @@ model = SimpleNLPModel(x->dot(x,x), zeros(2), name="square")
 @assert model.meta.name == "square"
 for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
   meth in (:reset!, :hess_op) && continue
+  meth in fieldnames(model.counters) && continue
   meth = eval(meth)
   @test_throws(NotImplementedError, meth(model))
 end
@@ -20,15 +21,15 @@ end
 include("genrose.jl")
 model = JuMPNLPModel(genrose(), name="genrose")
 @assert model.meta.name == "genrose"
-for f in fieldnames(model.counters)
-  @assert getfield(model.counters, f) == 0
+for counter in fieldnames(model.counters)
+  @eval @assert $counter(model) == 0
 end
 
 obj(model, model.meta.x0)
-@assert model.counters.neval_obj == 1
+@assert neval_obj(model) == 1
 
 reset!(model)
-@assert model.counters.neval_obj == 0
+@assert neval_obj(model) == 0
 
 @test_throws(NotImplementedError, jth_con(model))
 
