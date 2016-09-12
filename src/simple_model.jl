@@ -128,7 +128,7 @@ end
 
 function jprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Jv :: Vector)
   nlp.counters.neval_jprod += 1
-  Jv[:] = ForwardDiff.jacobian(nlp.c, x) * v
+  Jv[1:nlp.meta.ncon] = ForwardDiff.jacobian(nlp.c, x) * v
   return Jv
 end
 
@@ -139,7 +139,7 @@ end
 
 function jtprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Jtv :: Vector)
   nlp.counters.neval_jtprod += 1
-  Jtv[:] = ForwardDiff.jacobian(nlp.c, x)' * v
+  Jtv[1:nlp.meta.nvar] = ForwardDiff.jacobian(nlp.c, x)' * v
   return Jtv
 end
 
@@ -155,6 +155,17 @@ function hess(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0, y :: Vector 
   return tril(Hx)
 end
 
+function hess_coord(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
+  Hx = sparse(hess(nlp, x, obj_weight=obj_weight, y=y))
+  rows = rowvals(Hx)
+  vals = nonzeros(Hx)
+  cols = Int[]
+  for i = 1:nlp.meta.nvar
+    append!(cols, i*ones(Int, length(nzrange(Hx,i))))
+  end
+  return rows, cols, vals
+end
+
 function hprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector;
     obj_weight = 1.0, y :: Vector = [])
   Hv = zeros(nlp.meta.nvar)
@@ -164,11 +175,12 @@ end
 function hprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Hv :: Vector;
     obj_weight = 1.0, y :: Vector = [])
   nlp.counters.neval_hprod += 1
-  Hv[:] = obj_weight == 0.0 ? zeros(nlp.meta.nvar) :
+  n = nlp.meta.nvar
+  Hv[1:n] = obj_weight == 0.0 ? zeros(nlp.meta.nvar) :
           ForwardDiff.hessian(nlp.f, x) * v * obj_weight
   for i = 1:length(y)
     if y[i] != 0.0
-      Hv[:] += ForwardDiff.hessian(x->nlp.c(x)[i], x) * v * y[i]
+      Hv[1:n] += ForwardDiff.hessian(x->nlp.c(x)[i], x) * v * y[i]
     end
   end
   return Hv

@@ -10,7 +10,7 @@ g3 0 1 0	# problem hs010
  0 0 0 0 0	# common exprs: b,c,o,c1,o1
 C0
 o54
-3
+4
 o2
 n-3
 o5
@@ -25,13 +25,14 @@ o16
 o5
 v1
 n2
+n1
 O0 0
 n0
 x2
 0 -10
 1 10
 r
-2 -1
+2 0
 b
 3
 3

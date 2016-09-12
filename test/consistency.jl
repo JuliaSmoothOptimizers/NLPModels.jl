@@ -53,6 +53,22 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
       @test_approx_eq_eps gs[i] tmp_n rtol * max(gmin, 1.0)
     end
 
+    Hs = Array{Any}(N)
+    for i = 1:N
+      (I, J, V) = hess_coord(nlps[i], x)
+      Hs[i] = sparse(I, J, V, n, n)
+    end
+    Hmin = minimum(map(vecnorm, Hs))
+    for i = 1:N
+      for j = i+1:N
+        @test_approx_eq_eps Hs[i] Hs[j] rtol * max(Hmin, 1.0)
+      end
+      σ = rand() - 0.5
+      (I, J, V) = hess_coord(nlps[i], x, obj_weight=σ)
+      tmp_h = sparse(I, J, V, n, n)
+      @test_approx_eq_eps σ*Hs[i] tmp_h rtol * max(Hmin, 1.0)
+    end
+
     Hs = Any[hess(nlp, x) for nlp in nlps]
     Hmin = minimum(map(vecnorm, Hs))
     for i = 1:N
@@ -139,6 +155,23 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
       end
 
       y = (rand() - 0.5) * ones(m)
+
+      Ls = Array{Any}(N)
+      for i = 1:N
+        (I, J, V) = hess_coord(nlps[i], x, y=y)
+        Ls[i] = sparse(I, J, V, n, n)
+      end
+      Lmin = minimum(map(vecnorm, Ls))
+      for i = 1:N
+        for j = i+1:N
+          @test_approx_eq_eps Ls[i] Ls[j] rtol * max(Lmin, 1.0)
+        end
+        σ = rand() - 0.5
+        (I, J, V) = hess_coord(nlps[i], x, obj_weight=σ, y=σ*y)
+        tmp_h = sparse(I, J, V, n, n)
+        @test_approx_eq_eps σ*Ls[i] tmp_h rtol * max(Lmin, 1.0)
+      end
+
       Ls = Any[hess(nlp, x, y=y) for nlp in nlps]
       Lmin = minimum(map(vecnorm, Ls))
       for i = 1:N
@@ -167,7 +200,7 @@ end
 function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
   path = dirname(@__FILE__)
   problem_s = string(problem)
-  @printf("Checking problem %-15s\t", problem_s)
+  @printf("Checking problem %-15s%20s\t", problem_s, "")
   include("$problem_s.jl")
   problem_f = eval(problem)
   nlp_ampl = AmplModel(joinpath(path, "$problem_s.nl"))
@@ -179,12 +212,6 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
     push!(nlps, nlp_cutest)
   end
 
-  if nlp_ampl.meta.ncon == length(nlp_ampl.meta.jfix)
-    for nlp in nlps[:]
-      push!(nlps, SlackModel(nlp))
-    end
-  end
-
   consistent_counters(nlps)
   consistent_meta(nlps, rtol=rtol)
   consistent_functions(nlps, nloops=nloops, rtol=rtol)
@@ -193,8 +220,16 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
     reset!(nlp)
   end
   consistent_counters(nlps)
-
   @printf("✓\n")
+
+  # If there are inequalities, test the SlackModels of each of these models
+  if nlp_simple.meta.ncon > length(nlp_simple.meta.jfix)
+    @printf("Checking slack variation of problem %-15s\t", problem_s)
+    slack_nlps = [SlackModel(nlp) for nlp in nlps]
+    consistent_functions(slack_nlps)
+    @printf("✓\n")
+  end
+
   amplmodel_finalize(nlp_ampl)
   @unix_only cutest_finalize(nlp_cutest)
 end

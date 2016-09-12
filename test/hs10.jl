@@ -25,8 +25,8 @@ function hs10_simple()
 
   x0 = [-10.0; 10.0]
   f(x) = x[1] - x[2]
-  c(x) = [-3 * x[1]^2 + 2 * x[1] * x[2] - x[2]^2]
-  lcon = [-1.0]
+  c(x) = [-3 * x[1]^2 + 2 * x[1] * x[2] - x[2]^2 + 1.0]
+  lcon = [0.0]
   ucon = [Inf]
 
   return SimpleNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon)
