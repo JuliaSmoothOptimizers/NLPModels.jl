@@ -90,10 +90,19 @@ function check_slack_model(smodel)
   @assert all(i -> (i == 0), K)
   @assert neval_jac(model) == 2
 
-  reset!(smodel)
+  v = rand(N)
+  Jv = J * v
+  @assert all(jprod(smodel, x, v) == Jv)
+  jv = zeros(smodel.meta.ncon)
+  @assert all(jprod!(smodel, x, v, jv) == Jv)
 
-  # Test jprod and jtprod when SimpleNLPModel is available.
-  # Currently, AmplModel and JuMPNLPModel do not implement them.
+  u = rand(smodel.meta.ncon)
+  Jtu = J' * u
+  @assert all(jtprod(smodel, x, u) == Jtu)
+  jtu = zeros(N)
+  @assert all(jtprod!(smodel, x, u, jtu) == Jtu)
+
+  reset!(smodel)
 end
 
 for problem in [:hs10, :hs11, :hs14, :hs15]

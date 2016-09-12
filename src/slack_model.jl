@@ -146,7 +146,7 @@ function jac(nlp :: SlackModel, x :: Array{Float64})
 end
 
 function jprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64})
-  jv = zeros(nlp.ncon)
+  jv = zeros(nlp.meta.ncon)
   return jprod!(nlp, x, v, jv)
 end
 
@@ -174,7 +174,7 @@ function jprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}, jv 
 end
 
 function jtprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64})
-  jtv = zeros(nlp.nvar)
+  jtv = zeros(nlp.meta.nvar)
   return jtprod!(nlp, x, v, jtv)
 end
 
@@ -188,7 +188,7 @@ function jtprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}, jt
   jtprod!(nlp.model, x[1:n], v, jtv)
   jtv[n+1:n+nlow] = -v[nlp.model.meta.jlow]
   jtv[n+nlow+1:n+nlow+nupp] = -v[nlp.model.meta.jupp]
-  jtv[n+nlow+nupp:nlp.nvar] = -v[nlp.model.meta.jrng]
+  jtv[n+nlow+nupp+1:nlp.meta.nvar] = -v[nlp.model.meta.jrng]
   return jtv
 end
 
@@ -207,7 +207,7 @@ end
 
 function hprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
-  # ∇²f(X) V = [∇²f(x)  0] [vₓ ] = [∇²f(x) vₓ]
+  # ∇²f(X) V = [∇²f(x)  0] [vₓ] = [∇²f(x) vₓ]
   #            [0       0] [vₛ]   [    0    ]
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
