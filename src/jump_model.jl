@@ -197,7 +197,7 @@ function jtprod!(nlp :: JuMPNLPModel,
                 Jtv :: Array{Float64})
   nlp.counters.neval_jac -= 1
   nlp.counters.neval_jtprod += 1
-  Jtv[:] = jac(nlp, x)' * v
+  Jtv[1:nlp.meta.nvar] = jac(nlp, x)' * v
   return Jtv
 end
 
