@@ -99,9 +99,8 @@ function grad!(nlp :: SimpleNLPModel, x :: Vector, g :: Vector)
   if length(x) == length(g)
     return ForwardDiff.gradient!(g, nlp.f, x)
   else
-    gx = zeros(length(x))
+    gx = sub(g, 1:length(x))
     ForwardDiff.gradient!(gx, nlp.f, x)
-    g[1:length(x)] = gx
     return g
   end
 end
