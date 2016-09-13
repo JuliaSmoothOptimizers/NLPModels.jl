@@ -105,9 +105,7 @@ function grad!(nlp :: SlackModel, x :: Array{Float64}, g :: Array{Float64})
   # ∇f(X) = [∇f(x) ; 0]
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
-  gx = zeros(n)
-  grad!(nlp.model, x[1:n], gx)
-  g[1:n] = gx
+  grad!(nlp.model, x[1:n], g)
   g[n+1:n+ns] = 0
   return g
 end
