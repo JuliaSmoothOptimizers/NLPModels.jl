@@ -96,13 +96,7 @@ end
 
 function grad!(nlp :: SimpleNLPModel, x :: Vector, g :: Vector)
   nlp.counters.neval_grad += 1
-  if length(x) == length(g)
-    return ForwardDiff.gradient!(g, nlp.f, x)
-  else
-    gx = sub(g, 1:length(x))
-    ForwardDiff.gradient!(gx, nlp.f, x)
-    return g
-  end
+  ForwardDiff.gradient!(sub(g, 1:length(x)), nlp.f, x)
 end
 
 function cons(nlp :: SimpleNLPModel, x :: Vector)
