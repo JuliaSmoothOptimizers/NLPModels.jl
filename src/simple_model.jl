@@ -157,13 +157,7 @@ end
 
 function hess_coord(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
   Hx = sparse(hess(nlp, x, obj_weight=obj_weight, y=y))
-  rows = rowvals(Hx)
-  vals = nonzeros(Hx)
-  cols = Int[]
-  for i = 1:nlp.meta.nvar
-    append!(cols, i*ones(Int, length(nzrange(Hx,i))))
-  end
-  return rows, cols, vals
+  return findnz(Hx)
 end
 
 function hprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector;
