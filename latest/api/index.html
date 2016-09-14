@@ -386,7 +386,7 @@
 <script type="math/tex; mode=display"> \nabla^2L(x,y) = \sigma * \nabla^2 f(x) + \sum_{i=1}^m y_i\nabla^2 c_i(x), </script>
 </p>
 <p>with σ = obj_weight. Only the lower triangle is returned.</p>
-<p>Implemented by <a href="../models/#JuMPNLPModel">JuMPNLPModel</a>, <a href="../models/#SlackModel">SlackModel</a></p>
+<p>Implemented by <a href="../models/#SimpleNLPModel">SimpleNLPModel</a>, <a href="../models/#JuMPNLPModel">JuMPNLPModel</a>, <a href="../models/#SlackModel">SlackModel</a></p>
 <h3 id="hess">hess</h3>
 <p><code>Hx = hess(nlp, x; obj_weight=1.0, y=zeros)</code></p>
 <p>Evaluate the Lagrangian Hessian at <code>(x,y)</code> as a sparse matrix, with objective function scaled by <code>obj_weight</code>, i.e.,</p>
