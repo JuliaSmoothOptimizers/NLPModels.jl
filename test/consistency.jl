@@ -204,6 +204,9 @@ function consistent_nlps(nlps; nloops=100, rtol=1.0e-8)
     reset!(nlp)
   end
   consistent_counters(nlps)
+  for nlp in nlps
+    gradient_check(nlp)
+  end
   @printf("✓\n")
 
   # If there are inequalities, test the SlackModels of each of these models

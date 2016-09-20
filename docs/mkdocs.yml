@@ -29,7 +29,8 @@ markdown_extensions:
 docs_dir: 'build'
 
 pages:
-  - Home: index.md
+  - Home: home.md
   - Models: models.md
   - Tutorial: tutorial.md
   - API: api.md
+  - Index: index.md
