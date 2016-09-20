@@ -204,9 +204,10 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
   include("$problem_s.jl")
   problem_f = eval(problem)
   nlp_ampl = AmplModel(joinpath(path, "$problem_s.nl"))
+  nlp_autodiff = eval(parse("$(problem)_autodiff"))()
   nlp_jump = JuMPNLPModel(problem_f())
   nlp_simple = eval(parse("$(problem)_simple"))()
-  nlps = [nlp_ampl; nlp_jump; nlp_simple]
+  nlps = [nlp_ampl; nlp_autodiff; nlp_jump; nlp_simple]
   @unix_only begin
     nlp_cutest = CUTEstModel(uppercase(problem_s))
     push!(nlps, nlp_cutest)
@@ -223,7 +224,7 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
   @printf("✓\n")
 
   # If there are inequalities, test the SlackModels of each of these models
-  if nlp_simple.meta.ncon > length(nlp_simple.meta.jfix)
+  if nlp_autodiff.meta.ncon > length(nlp_autodiff.meta.jfix)
     @printf("Checking slack variation of problem %-15s\t", problem_s)
     slack_nlps = [SlackModel(nlp) for nlp in nlps]
     consistent_functions(slack_nlps)

@@ -54,7 +54,7 @@ function genrose(n :: Int=500)
   return nlp
 end
 
-function genrose_simple(n :: Int=500)
+function genrose_autodiff(n :: Int=500)
 
   n < 2 && error("genrose: number of variables must be ≥ 2")
 
@@ -67,5 +67,5 @@ function genrose_simple(n :: Int=500)
     return s
   end
 
-  return SimpleNLPModel(f, x0)
+  return ADNLPModel(f, x0)
 end
