@@ -5,6 +5,8 @@ Julia and a standardized API to evaluate the functions and their derivatives.
 The main objective is to be able to rely on that API when designing optimization
 solvers in Julia.
 
+## Introduction
+
 The general form of the optimization problem is
 \begin{align*}
 \min \quad & f(x) \\\\
@@ -40,13 +42,31 @@ Such instances are composed of
   including the number of variables, constraints, bounds on the variables, etc.
 - other data specific to the provenance of the problem.
 
+## Install
+
+The current usable version of NLPModels.jl is the development one.
+Install with the following commands.
+```
+Pkg.clone("https://github.com/JuliaSmoothOptimizers/NLPModels.jl")
+Pkg.build("NLPModels")
+```
+If you want the `ADNLPModel` or the `JumpNLPModel`, you also need the
+```
+Pkg.add("ForwardDiff")
+Pkg.add("JuMP")
+```
+respectively.
+
 ## Internal Interfaces
 
- - [`SimpleNLPModel`](@ref): Uses
+ - [`ADNLPModel`](@ref): Uses
    [`ForwardDiff`](http://github.com/JuliaDiff/ForwardDiff.jl) to compute the
-   derivatives. It has a very simple interface.
+   derivatives. It has a very simple interface, though it isn't very efficient
+   for larger problems.
  - [`JuMPNLPModel`](@ref): Uses a [`JuMP`](https://github.com/JuliaOpt/JuMP.jl) model.
-  - [`SlackModel`](@ref): Creates an equality constrained problem with bounds
+ - [`SimpleNLPModel`](@ref): Only uses user defined functions. For complete
+   control of the user.
+ - [`SlackModel`](@ref): Creates an equality constrained problem with bounds
     on the variables using an existing NLPModel.
 
 ## External Interfaces
