@@ -7,7 +7,7 @@ theme: material
 
 extra:
   palette:
-    primary: 'orange'
+    primary: 'deep orange'
     accent: 'indigo'
   author:
     github: JuliaSmoothOptimizers
@@ -31,4 +31,5 @@ docs_dir: 'build'
 pages:
   - Home: index.md
   - Models: models.md
+  - Tutorial: tutorial.md
   - API: api.md
