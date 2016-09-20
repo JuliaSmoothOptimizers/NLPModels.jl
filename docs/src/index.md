@@ -44,7 +44,7 @@ Such instances are composed of
 
 ## Install
 
-The current usable version of NLPModels.jl is the development one.
+The current usable version of NLPModels.jl is in the development branch.
 Install with the following commands.
 ```
 Pkg.clone("https://github.com/JuliaSmoothOptimizers/NLPModels.jl")
@@ -64,8 +64,7 @@ respectively.
    derivatives. It has a very simple interface, though it isn't very efficient
    for larger problems.
  - [`JuMPNLPModel`](@ref): Uses a [`JuMP`](https://github.com/JuliaOpt/JuMP.jl) model.
- - [`SimpleNLPModel`](@ref): Only uses user defined functions. For complete
-   control of the user.
+ - [`SimpleNLPModel`](@ref): Only uses user defined functions.
  - [`SlackModel`](@ref): Creates an equality constrained problem with bounds
     on the variables using an existing NLPModel.
 

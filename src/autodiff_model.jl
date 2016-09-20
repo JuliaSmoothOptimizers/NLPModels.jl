@@ -106,7 +106,7 @@ end
 
 function cons!(nlp :: ADNLPModel, x :: Vector, c :: Vector)
   nlp.counters.neval_cons += 1
-  c[:] = nlp.c(x)
+  c[1:nlp.meta.ncon] = nlp.c(x)
   return c
 end
 
