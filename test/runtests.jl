@@ -10,9 +10,11 @@ end
 
 # ADNLPModel with no functions
 model = ADNLPModel(x->dot(x,x), zeros(2), name="square")
+ignore_throw = [:reset!, :hess_op, :gradient_check, :hessian_check,
+    :jacobian_check, :hessian_check_from_grad]
 @assert model.meta.name == "square"
 for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
-  meth in (:reset!, :hess_op) && continue
+  meth in ignore_throw && continue
   meth in fieldnames(model.counters) && continue
   meth = eval(meth)
   @test_throws(NotImplementedError, meth(model))
@@ -36,7 +38,9 @@ include("test_slack_model.jl")
 
 @printf("For tests to pass, all models must have been written identically.\n")
 @printf("Constraints, if any, must have been declared in the same order.\n")
+
 include("consistency.jl")
+@printf("%24s\tConsistency   Derivative Check   Slack variant\n", " ")
 for problem in [:brownden, :hs5, :hs6, :hs10, :hs11, :hs14]
   consistency(problem)
 end
