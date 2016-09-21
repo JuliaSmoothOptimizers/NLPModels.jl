@@ -1,5 +1,56 @@
 # API
 
+As stated in the [home](home) page, we consider the nonlinear optimization
+problem in the following format:
+\begin{align*}
+\min \quad & f(x) \\\\
+& c_L \leq c(x) \leq c_U \\\\
+& \ell \leq x \leq u.
+\end{align*}
+To develop an optimization algorithm, we are usually worried not only with
+$f(x)$ and $c(x)$, but also with their derivatives.
+Namely,
+
+- $\nabla f(x)$, the gradient of $f$ at the point $x$;
+- $\nabla^2 f(x)$, the Hessian of $f$ at the point $x$;
+- $J(x) = \nabla c(x)$, the Jacobian of $c$ at the point $x$;
+- $\nabla^2 f(x) + \sum_{i=1}^m \lambda_i \nabla^2 c_i(x)$,
+  the Hessian of the Lagrangian function at the point $(x,\lambda)$.
+
+There are many ways to access some of these values, so here is a little
+reference guide.
+
+## Reference guide
+
+The following naming should be easy enough to follow.
+If not, click on the link and go to the description.
+
+- `!` means inplace;
+- `_coord` means coordinate format;
+- `prod` means matrix-vector product;
+- `_op` means operator (as in [LinearOperators.jl](https://github.com/JuliaSmoothOptimizers/LinearOperators.jl)).
+
+If there is some operator you feel should be default for every model, open an
+issue, so we can discuss.
+
+- $f(x)$ can only be accessed using [obj](api/#NLPModels.obj);
+- $\nabla f(x)$ can be accessed using [grad](api/#NLPModels.grad) and
+  [grad!](api/#NLPModels.grad!);
+- $\nabla^2 f(x)$ or $\nabla^2 f(x) + \sum_{i=1}^m \lambda_i \nabla^2 c_i(x)$,
+  can be access using [hess](api/#NLPModels.hess),
+  [hess_op](api/#NLPModels.hess_op),
+  [hess_coord](api/#NLPModels.hess_coord),
+  [hprod](api/#NLPModels.hprod), and
+  [hprod!](api/#NLPModels.hprod!);
+- $c(x)$ can be accessed using [cons](api/#NLPModels.cons) and 
+  [cons!](api/#NLPModels.cons!);
+- $J(x)$ can be accessed using [jac](api/#NLPModels.jac),
+  [jac_coord](api/#NLPModels.jac_coord),
+  [jprod](api/#NLPModels.jprod),
+  [jprod!](api/#NLPModels.jprod!),
+  [jtprod](api/#NLPModels.jtprod), and
+  [jtprod!](api/#NLPModels.jtprod!);
+
 ## AbstractNLPModel functions
 
 ```@docs

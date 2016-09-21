@@ -2,8 +2,8 @@
 
 This package provides general guidelines to represent optimization problems in
 Julia and a standardized API to evaluate the functions and their derivatives.
-The main objective is to be able to rely on that API when designing optimization
-solvers in Julia.
+The main objective is to be able to rely on that [API](api) when designing
+optimization solvers in Julia.
 
 ## Introduction
 
@@ -34,6 +34,7 @@ L(x,\lambda,z^L,z^U;\sigma) = \sigma f(x) + c(x)^T\lambda  + \sum_{i=1}^n z_i^L(
 + \sum_{i=1}^nz_i^U(u_i-x_i),
 \end{align*}
 where $\sigma$ is a scaling parameter included for computational reasons.
+Notice that, for the Hessian, the variables $z^L$ and $z^U$ are not used.
 
 Optimization problems are represented by an instance/subtype of `AbstractNLPModel`.
 Such instances are composed of
@@ -59,7 +60,7 @@ respectively.
 
 ## Usage
 
-See [Tutorial](tutorial).
+See the [Models](models), or the [Tutorial](tutorial), or the [API](api).
 
 ## Internal Interfaces
 
