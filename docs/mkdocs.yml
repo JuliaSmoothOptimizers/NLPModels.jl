@@ -30,8 +30,8 @@ markdown_extensions:
 docs_dir: 'build'
 
 pages:
-  - Home: home.md
+  - Home: index.md
   - Models: models.md
   - Tutorial: tutorial.md
   - API: api.md
-  - Index: index.md
+  - Remissive Index: remissive-index.md
