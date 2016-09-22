@@ -1,3 +1,8 @@
 .mi, .mo, .mn {
-  color: #03a9f4;
+  color: #ff5722;
+}
+
+.code pre {
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
 }

@@ -23,6 +23,7 @@ extra_javascript:
 markdown_extensions:
   - extra
   - tables
+  - codehilite(css_class=code, guess_lang=False)
   - fenced_code
   - mdx_math
 
