@@ -201,14 +201,13 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
   path = dirname(@__FILE__)
   problem_s = string(problem)
   @printf("Checking problem %-15s%20s\t", problem_s, "")
-  include("$problem_s.jl")
   problem_f = eval(problem)
   nlp_ampl = AmplModel(joinpath(path, "$problem_s.nl"))
   nlp_autodiff = eval(parse("$(problem)_autodiff"))()
   nlp_jump = JuMPNLPModel(problem_f())
   nlp_simple = eval(parse("$(problem)_simple"))()
   nlps = [nlp_ampl; nlp_autodiff; nlp_jump; nlp_simple]
-  @unix_only begin
+  @static if is_unix()
     nlp_cutest = CUTEstModel(uppercase(problem_s))
     push!(nlps, nlp_cutest)
   end
@@ -232,7 +231,9 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
   end
 
   amplmodel_finalize(nlp_ampl)
-  @unix_only cutest_finalize(nlp_cutest)
+  @static if is_unix()
+    cutest_finalize(nlp_cutest)
+  end
 end
 
 problems = [:brownden, :hs5, :hs6, :hs10, :hs11, :hs14]

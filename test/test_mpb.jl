@@ -2,8 +2,6 @@ using Ipopt
 using MathProgBase
 using JuMP
 
-include("hs6.jl")
-
 # pass an AmplModel to IPOPT
 nlp = JuMPNLPModel(hs6())
 show(nlp.meta)

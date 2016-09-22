@@ -1,9 +1,15 @@
 using AmplNLReader
-@unix_only using CUTEst
+using Compat
+@static if is_unix() using CUTEst; end
 using JuMP
 using NLPModels
 
 using Base.Test
+
+# Including problems so that they won't be multiply loaded
+for problem in [:brownden, :genrose, :hs5, :hs6, :hs10, :hs11, :hs14, :hs15]
+  include("$problem.jl")
+end
 
 # A problem with zero variables doesn't make sense.
 @test_throws(ErrorException, NLPModelMeta(0))
@@ -18,7 +24,6 @@ for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
   @test_throws(NotImplementedError, meth(model))
 end
 
-include("genrose.jl")
 model = JuMPNLPModel(genrose(), name="genrose")
 @assert model.meta.name == "genrose"
 for counter in fieldnames(model.counters)
