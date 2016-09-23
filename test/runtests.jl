@@ -42,7 +42,7 @@ for problem in [:brownden, :hs5, :hs6, :hs10, :hs11, :hs14]
   consistency(problem)
 end
 
-# include("test_mpb.jl")
+include("test_mpb.jl")
 
 include("test_autodiff_model.jl")
 include("test_simple_model.jl")
