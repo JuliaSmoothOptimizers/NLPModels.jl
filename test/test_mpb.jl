@@ -2,7 +2,6 @@ using Ipopt
 using MathProgBase
 using JuMP
 
-# pass an AmplModel to IPOPT
 nlp = JuMPNLPModel(hs6())
 show(nlp.meta)
 print(nlp.meta)

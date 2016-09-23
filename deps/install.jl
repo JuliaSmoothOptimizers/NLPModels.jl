@@ -1,9 +1,7 @@
 const home = "https://github.com/JuliaSmoothOptimizers"
-const deps = Dict{AbstractString, AbstractString}(
-              "AmplNLReader" => "develop")
+const deps = Dict{AbstractString, AbstractString}()
 
-const unix_deps = Dict{AbstractString, AbstractString}(
-              "CUTEst" => "develop")
+const unix_deps = Dict{AbstractString, AbstractString}()
 
 function dep_installed(dep)
   try

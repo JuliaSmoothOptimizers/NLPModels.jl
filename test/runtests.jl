@@ -1,6 +1,4 @@
-using AmplNLReader
 using Compat
-@static if is_unix() using CUTEst; end
 using JuMP
 using NLPModels
 
@@ -42,7 +40,6 @@ include("test_slack_model.jl")
 
 @printf("For tests to pass, all models must have been written identically.\n")
 @printf("Constraints, if any, must have been declared in the same order.\n")
-@printf("In addition, the AMPL model must have been decoded with preprocessing disabled.\n")
 include("consistency.jl")
 
 include("test_mpb.jl")

@@ -202,15 +202,10 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
   problem_s = string(problem)
   @printf("Checking problem %-15s%20s\t", problem_s, "")
   problem_f = eval(problem)
-  nlp_ampl = AmplModel(joinpath(path, "$problem_s.nl"))
   nlp_autodiff = eval(parse("$(problem)_autodiff"))()
   nlp_jump = JuMPNLPModel(problem_f())
   nlp_simple = eval(parse("$(problem)_simple"))()
-  nlps = [nlp_ampl; nlp_autodiff; nlp_jump; nlp_simple]
-  @static if is_unix()
-    nlp_cutest = CUTEstModel(uppercase(problem_s))
-    push!(nlps, nlp_cutest)
-  end
+  nlps = [nlp_autodiff; nlp_jump; nlp_simple]
 
   consistent_counters(nlps)
   consistent_meta(nlps, rtol=rtol)
@@ -228,11 +223,6 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
     slack_nlps = [SlackModel(nlp) for nlp in nlps]
     consistent_functions(slack_nlps)
     @printf("✓\n")
-  end
-
-  amplmodel_finalize(nlp_ampl)
-  @static if is_unix()
-    cutest_finalize(nlp_cutest)
   end
 end
 
