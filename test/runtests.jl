@@ -1,8 +1,4 @@
-using Compat
-using JuMP
-using NLPModels
-
-using Base.Test
+using Base.Test, Compat, Ipopt, JuMP, MathProgBase, NLPModels
 
 # Including problems so that they won't be multiply loaded
 for problem in [:brownden, :genrose, :hs5, :hs6, :hs10, :hs11, :hs14, :hs15]
@@ -41,6 +37,9 @@ include("test_slack_model.jl")
 @printf("For tests to pass, all models must have been written identically.\n")
 @printf("Constraints, if any, must have been declared in the same order.\n")
 include("consistency.jl")
+for problem in [:brownden, :hs5, :hs6, :hs10, :hs11, :hs14]
+  consistency(problem)
+end
 
 include("test_mpb.jl")
 
