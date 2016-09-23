@@ -1,18 +1,16 @@
-using JuMP
 using MathProgBase
 
-export JuMPNLPModel,
+export MathProgNLPModel,
        reset!,
        obj, grad, grad!,
        cons, cons!, jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
-       hess_coord, hess, hprod, hprod!,
-       NLPtoMPB
+       hess_coord, hess, hprod, hprod!
 
 type ModelReader <: MathProgBase.AbstractMathProgSolver
 end
 
 type MathProgModel <: MathProgBase.AbstractMathProgModel
-  eval :: @compat Union{JuMP.NLPEvaluator, Void}
+  eval :: @compat Union{MathProgBase.AbstractNLPEvaluator, Void}
   numVar :: Int
   numConstr :: Int
   x :: Vector{Float64}
@@ -35,7 +33,7 @@ MathProgBase.NonlinearModel(solver :: ModelReader) = MathProgModel(nothing,
                                                                    Float64[],
                                                                    Float64[],
                                                                    :Min,
-                                                                   :Uninitialized);
+                                                                   :Uninitialized)
 
 function MathProgBase.loadproblem!(m :: MathProgModel,
                                    numVar, numConstr,
@@ -63,9 +61,8 @@ MathProgBase.status(m :: MathProgModel) = m.status
 MathProgBase.getsolution(m :: MathProgModel) = m.x
 MathProgBase.getobjval(m :: MathProgModel) = MathProgBase.eval_f(m.eval, m.x)
 
-type JuMPNLPModel <: AbstractNLPModel
+type MathProgNLPModel <: AbstractNLPModel
   meta :: NLPModelMeta
-  jmodel :: Model           # JuMP internal model.
   mpmodel :: MathProgModel
   counters :: Counters      # Evaluation counters.
 
@@ -78,19 +75,15 @@ type JuMPNLPModel <: AbstractNLPModel
   hvals :: Vector{Float64}  # Room for the Lagrangian Hessian.
 end
 
-"Construct a `JuMPNLPModel` from a JuMP `Model`."
-function JuMPNLPModel(jmodel :: Model; name :: AbstractString="Generic")
-
-  setsolver(jmodel, ModelReader())
-  JuMP.build(jmodel)
-  mpmodel = internalmodel(jmodel)
+"Construct a `MathProgNLPModel` from a `MathProgModel`."
+function MathProgNLPModel(mpmodel :: MathProgModel; name :: AbstractString="Generic")
 
   nvar = mpmodel.numVar
   lvar = mpmodel.lvar
   uvar = mpmodel.uvar
 
-  nlin = MathProgBase.numlinconstr(jmodel)        # Number of linear constraints.
-  nquad = MathProgBase.numquadconstr(jmodel)      # Number of quadratic constraints.
+  nlin = MathProgBase.numlinconstr(mpmodel)       # Number of linear constraints.
+  nquad = MathProgBase.numquadconstr(mpmodel)     # Number of quadratic constraints.
   nnln = length(mpmodel.eval.m.nlpdata.nlconstr)  # Number of nonlinear constraints.
   ncon = mpmodel.numConstr                        # Total number of constraints.
   lcon = mpmodel.lcon
@@ -111,15 +104,14 @@ function JuMPNLPModel(jmodel :: Model; name :: AbstractString="Generic")
                       ucon=ucon,
                       nnzj=nnzj,
                       nnzh=nnzh,
-                      lin=collect(1:nlin),  # linear constraints appear first in JuMP
+                      lin=collect(1:nlin),  # linear constraints appear first in MPB
                       nln=collect(nlin+1:ncon),
                       minimize=(mpmodel.sense == :Min),
                       islp=MathProgBase.isobjlinear(mpmodel.eval) & (nlin == ncon),
                       name=name,
                       )
 
-  return JuMPNLPModel(meta,
-                      jmodel,
+  return MathProgNLPModel(meta,
                       mpmodel,
                       Counters(),
                       jrows,
@@ -132,51 +124,51 @@ function JuMPNLPModel(jmodel :: Model; name :: AbstractString="Generic")
 end
 
 import Base.show
-show(nlp :: JuMPNLPModel) = show(nlp.jmodel)
+show(nlp :: MathProgNLPModel) = show(nlp.mpmodel)
 
-function obj(nlp :: JuMPNLPModel, x :: Array{Float64})
+function obj(nlp :: MathProgNLPModel, x :: Array{Float64})
   nlp.counters.neval_obj += 1
   return MathProgBase.eval_f(nlp.mpmodel.eval, x)
 end
 
-function grad(nlp :: JuMPNLPModel, x :: Array{Float64})
+function grad(nlp :: MathProgNLPModel, x :: Array{Float64})
   g = zeros(nlp.meta.nvar)
   return grad!(nlp, x, g)
 end
 
-function grad!(nlp :: JuMPNLPModel, x :: Array{Float64}, g :: Array{Float64})
+function grad!(nlp :: MathProgNLPModel, x :: Array{Float64}, g :: Array{Float64})
   nlp.counters.neval_grad += 1
   MathProgBase.eval_grad_f(nlp.mpmodel.eval, g, x)
   return g
 end
 
-function cons(nlp :: JuMPNLPModel, x :: Array{Float64})
+function cons(nlp :: MathProgNLPModel, x :: Array{Float64})
   c = zeros(nlp.meta.ncon)
   return cons!(nlp, x, c)
 end
 
-function cons!(nlp :: JuMPNLPModel, x :: Array{Float64}, c :: Array{Float64})
+function cons!(nlp :: MathProgNLPModel, x :: Array{Float64}, c :: Array{Float64})
   nlp.counters.neval_cons += 1
   MathProgBase.eval_g(nlp.mpmodel.eval, c, x)
   return c
 end
 
-function jac_coord(nlp :: JuMPNLPModel, x :: Array{Float64})
+function jac_coord(nlp :: MathProgNLPModel, x :: Array{Float64})
   nlp.counters.neval_jac += 1
   MathProgBase.eval_jac_g(nlp.mpmodel.eval, nlp.jvals, x)
   return (nlp.jrows, nlp.jcols, nlp.jvals)
 end
 
-function jac(nlp :: JuMPNLPModel, x :: Array{Float64})
+function jac(nlp :: MathProgNLPModel, x :: Array{Float64})
   return sparse(jac_coord(nlp, x)..., nlp.meta.ncon, nlp.meta.nvar)
 end
 
-function jprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
+function jprod(nlp :: MathProgNLPModel, x :: Array{Float64}, v :: Array{Float64})
   Jv = zeros(nlp.meta.ncon)
   return jprod!(nlp, x, v, Jv)
 end
 
-function jprod!(nlp :: JuMPNLPModel,
+function jprod!(nlp :: MathProgNLPModel,
                 x :: Array{Float64},
                 v :: Array{Float64},
                 Jv :: Array{Float64})
@@ -186,12 +178,12 @@ function jprod!(nlp :: JuMPNLPModel,
   return Jv
 end
 
-function jtprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
+function jtprod(nlp :: MathProgNLPModel, x :: Array{Float64}, v :: Array{Float64})
   Jtv = zeros(nlp.meta.nvar)
   return jtprod!(nlp, x, v, Jtv)
 end
 
-function jtprod!(nlp :: JuMPNLPModel,
+function jtprod!(nlp :: MathProgNLPModel,
                 x :: Array{Float64},
                 v :: Array{Float64},
                 Jtv :: Array{Float64})
@@ -203,59 +195,53 @@ end
 
 # Uncomment if/when :JacVec becomes available in MPB.
 # "Evaluate the Jacobian-vector product at `x`."
-# function jprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
+# function jprod(nlp :: MathProgNLPModel, x :: Array{Float64}, v :: Array{Float64})
 #   jv = zeros(nlp.meta.ncon)
 #   return jprod!(nlp, x, v, jv)
 # end
 #
 # "Evaluate the Jacobian-vector product at `x` in place."
-# function jprod!(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64}, jv :: Array{Float64})
+# function jprod!(nlp :: MathProgNLPModel, x :: Array{Float64}, v :: Array{Float64}, jv :: Array{Float64})
 #   nlp.counters.neval_jprod += 1
 #   MathProgBase.eval_jac_prod(nlp.mpmodel.eval, jv, x, v)
 #   return jv
 # end
 #
 # "Evaluate the transposed-Jacobian-vector product at `x`."
-# function jtprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64})
+# function jtprod(nlp :: MathProgNLPModel, x :: Array{Float64}, v :: Array{Float64})
 #   jtv = zeros(nlp.meta.nvar)
 #   return jtprod!(nlp, x, v, jtv)
 # end
 #
 # "Evaluate the transposed-Jacobian-vector product at `x` in place."
-# function jtprod!(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64}, jtv :: Array{Float64})
+# function jtprod!(nlp :: MathProgNLPModel, x :: Array{Float64}, v :: Array{Float64}, jtv :: Array{Float64})
 #   nlp.counters.neval_jtprod += 1
 #   MathProgBase.eval_jac_prod_t(nlp.mpmodel.eval, jtv, x, v)
 #   return jtv
 # end
 
-function hess_coord(nlp :: JuMPNLPModel, x :: Array{Float64};
+function hess_coord(nlp :: MathProgNLPModel, x :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   nlp.counters.neval_hess += 1
   MathProgBase.eval_hesslag(nlp.mpmodel.eval, nlp.hvals, x, obj_weight, y)
   return (nlp.hrows, nlp.hcols, nlp.hvals)
 end
 
-function hess(nlp :: JuMPNLPModel, x :: Array{Float64};
+function hess(nlp :: MathProgNLPModel, x :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   return sparse(hess_coord(nlp, x, y=y, obj_weight=obj_weight)..., nlp.meta.nvar, nlp.meta.nvar)
 end
 
-function hprod(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64};
+function hprod(nlp :: MathProgNLPModel, x :: Array{Float64}, v :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   hv = zeros(nlp.meta.nvar)
   return hprod!(nlp, x, v, hv, obj_weight=obj_weight, y=y)
 end
 
-function hprod!(nlp :: JuMPNLPModel, x :: Array{Float64}, v :: Array{Float64},
+function hprod!(nlp :: MathProgNLPModel, x :: Array{Float64}, v :: Array{Float64},
     hv :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
   nlp.counters.neval_hprod += 1
   MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, hv, x, v, obj_weight, y)
   return hv
-end
-
-function NLPtoMPB(nlp :: JuMPNLPModel, solver :: MathProgBase.AbstractMathProgSolver)
-  setsolver(nlp.jmodel, solver)
-  nlp.jmodel.internalModelLoaded || JuMP.build(nlp.jmodel)
-  return nlp.jmodel.internalModel
 end
