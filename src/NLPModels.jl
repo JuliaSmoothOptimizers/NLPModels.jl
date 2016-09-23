@@ -232,6 +232,9 @@ Currently, all models are treated as nonlinear models.
 NLPtoMPB(nlp :: AbstractNLPModel, args...; kwargs...) =
   throw(NotImplementedError("NLPtoMPB"))
 
+if Pkg.installed("MathProgBase") != nothing
+  include("mpb_model.jl")
+end
 if Pkg.installed("JuMP") != nothing
   include("jump_model.jl")
 end
