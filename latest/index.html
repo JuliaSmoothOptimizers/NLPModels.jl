@@ -74,7 +74,7 @@
   
   
   
-  <body class="palette-primary-light-blue palette-accent-indigo">
+  <body class="palette-primary-orange palette-accent-indigo">
     
       
       
@@ -186,6 +186,18 @@
         <ul>
           
             <li class="anchor">
+              <a title="Introduction" href="#introduction">
+                Introduction
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Install" href="#install">
+                Install
+              </a>
+            </li>
+          
+            <li class="anchor">
               <a title="Internal Interfaces" href="#internal-interfaces">
                 Internal Interfaces
               </a>
@@ -248,6 +260,8 @@
           <p><a id='NLPModels.jl-documentation-1'></a></p>
 <h1 id="nlpmodelsjl-documentation">NLPModels.jl documentation</h1>
 <p>This package provides general guidelines to represent optimization problems in Julia and a standardized API to evaluate the functions and their derivatives. The main objective is to be able to rely on that API when designing optimization solvers in Julia.</p>
+<p><a id='Introduction-1'></a></p>
+<h2 id="introduction">Introduction</h2>
 <p>The general form of the optimization problem is <script type="math/tex; mode=display">\begin{align*} \min \quad & f(x) \\
 & c_i(x) = 0, \quad i \in E, \\
 & c_{L_i} \leq c_i(x) \leq c_{U_i}, \quad i \in I, \\
@@ -260,11 +274,25 @@
 <li>an instance of <code>NLPModelMeta</code>, which provides information about the problem,   including the number of variables, constraints, bounds on the variables, etc.</li>
 <li>other data specific to the provenance of the problem.</li>
 </ul>
+<p><a id='Install-1'></a></p>
+<h2 id="install">Install</h2>
+<p>The current usable version of NLPModels.jl is in the development branch. Install with the following commands.</p>
+<pre><code>Pkg.clone(&quot;https://github.com/JuliaSmoothOptimizers/NLPModels.jl&quot;)
+Pkg.build(&quot;NLPModels&quot;)
+</code></pre>
+
+<p>If you want the <code>ADNLPModel</code> or the <code>JumpNLPModel</code>, you also need the</p>
+<pre><code>Pkg.add(&quot;ForwardDiff&quot;)
+Pkg.add(&quot;JuMP&quot;)
+</code></pre>
+
+<p>respectively.</p>
 <p><a id='Internal-Interfaces-1'></a></p>
 <h2 id="internal-interfaces">Internal Interfaces</h2>
 <ul>
-<li><a href="models/#NLPModels.SimpleNLPModel"><code>SimpleNLPModel</code></a>: Uses    <a href="http://github.com/JuliaDiff/ForwardDiff.jl"><code>ForwardDiff</code></a> to compute the    derivatives. It has a very simple interface.</li>
+<li><a href="models/#NLPModels.ADNLPModel"><code>ADNLPModel</code></a>: Uses    <a href="http://github.com/JuliaDiff/ForwardDiff.jl"><code>ForwardDiff</code></a> to compute the    derivatives. It has a very simple interface, though it isn't very efficient    for larger problems.</li>
 <li><a href="models/#NLPModels.JuMPNLPModel"><code>JuMPNLPModel</code></a>: Uses a <a href="https://github.com/JuliaOpt/JuMP.jl"><code>JuMP</code></a> model.</li>
+<li><a href="models/#NLPModels.SimpleNLPModel"><code>SimpleNLPModel</code></a>: Only uses user defined functions.</li>
 <li><a href="models/#NLPModels.SlackModel"><code>SlackModel</code></a>: Creates an equality constrained problem with bounds     on the variables using an existing NLPModel.</li>
 </ul>
 <p><a id='External-Interfaces-1'></a></p>
