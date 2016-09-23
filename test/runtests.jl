@@ -8,8 +8,8 @@ using Base.Test
 # A problem with zero variables doesn't make sense.
 @test_throws(ErrorException, NLPModelMeta(0))
 
-# SimpleNLPModel with no functions
-model = SimpleNLPModel(x->dot(x,x), zeros(2), name="square")
+# ADNLPModel with no functions
+model = ADNLPModel(x->dot(x,x), zeros(2), name="square")
 @assert model.meta.name == "square"
 for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
   meth in (:reset!, :hess_op) && continue
@@ -42,4 +42,6 @@ include("consistency.jl")
 
 include("test_mpb.jl")
 
+include("test_autodiff_model.jl")
 include("test_simple_model.jl")
+

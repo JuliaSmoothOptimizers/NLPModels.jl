@@ -3,10 +3,10 @@
 There are currently three models implemented in this package, besides the
 external ones.
 
-## SimpleNLPModel
+## ADNLPModel
 
 ```@docs
-SimpleNLPModel
+NLPModels.ADNLPModel
 ```
 
 ### Example
@@ -15,7 +15,7 @@ SimpleNLPModel
 using NLPModels
 f(x) = sum(x.^4)
 x = [1.0; 0.5; 0.25; 0.125]
-nlp = SimpleNLPModel(f, x)
+nlp = ADNLPModel(f, x)
 grad(nlp, x)
 ```
 
@@ -23,11 +23,11 @@ grad(nlp, x)
 
 ```@eval
 using NLPModels
-open(joinpath(Pkg.dir("NLPModels"), "src", "simple_model.jl")) do f
+open(joinpath(Pkg.dir("NLPModels"), "src", "autodiff_model.jl")) do f
   fr = readall(f)
   sout = []
   for mtd in filter(x->contains(fr, "function $x"), names(NLPModels))
-    mtd == :SimpleNLPModel && continue
+    mtd == :ADNLPModel && continue
     push!(sout, "[$mtd](/api/#NLPModels.$mtd)")
   end
   join(sout, ", ")
@@ -37,7 +37,7 @@ end
 ## JuMPNLPModel
 
 ```@docs
-JuMPNLPModel
+NLPModels.JuMPNLPModel
 ```
 
 ### Example
@@ -67,10 +67,42 @@ open(joinpath(Pkg.dir("NLPModels"), "src", "jump_model.jl")) do f
 end
 ```
 
+## SimpleNLPModel
+
+```@docs
+NLPModels.SimpleNLPModel
+```
+
+### Example
+
+```@example
+using NLPModels
+f(x) = sum(x.^4)
+g(x) = 4*x.^3
+x = [1.0; 0.5; 0.25; 0.125]
+nlp = SimpleNLPModel(f, x, g=g)
+grad(nlp, x)
+```
+
+### List of implemented functions
+
+```@eval
+using NLPModels
+open(joinpath(Pkg.dir("NLPModels"), "src", "autodiff_model.jl")) do f
+  fr = readall(f)
+  sout = []
+  for mtd in filter(x->contains(fr, "function $x"), names(NLPModels))
+    mtd == :ADNLPModel && continue
+    push!(sout, "[$mtd](/api/#NLPModels.$mtd)")
+  end
+  join(sout, ", ")
+end
+```
+
 ## SlackModel
 
 ```@docs
-SlackModel
+NLPModels.SlackModel
 ```
 
 ### Example
@@ -80,7 +112,7 @@ using NLPModels
 f(x) = x[1]^2 + 4x[2]^2
 c(x) = [x[1]*x[2] - 1]
 x = [2.0; 2.0]
-nlp = SimpleNLPModel(f, x, c=c, lcon=[0.0])
+nlp = ADNLPModel(f, x, c=c, lcon=[0.0])
 nlp_slack = SlackModel(nlp)
 nlp_slack.meta.lvar
 ```

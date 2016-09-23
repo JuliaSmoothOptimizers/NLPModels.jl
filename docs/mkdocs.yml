@@ -7,7 +7,7 @@ theme: material
 
 extra:
   palette:
-    primary: 'light blue'
+    primary: 'orange'
     accent: 'indigo'
   author:
     github: JuliaSmoothOptimizers

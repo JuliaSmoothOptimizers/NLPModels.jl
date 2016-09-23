@@ -3,36 +3,93 @@ using ForwardDiff
 export SimpleNLPModel, obj, grad, grad!, cons, cons!, jac_coord, jac, jprod,
        jprod!, jtprod, jtprod!, hess, hprod, hprod!
 
-"""SimpleNLPModel is an AbstractNLPModel using ForwardDiff to computer the
-derivatives.
+"""SimpleNLPModel is an AbstractNLPModel that uses only user-defined functions.
 In this interface, the objective function \$f\$ and an initial estimate are
-required. If there are constraints, the function
+required. If the user wants to use derivatives, they need to be passed. The
+same goes for the Hessian and Hessian-Vector product.
+For constraints,
 \$c:\\mathbb{R}^n\\rightarrow\\mathbb{R}^m\$  and the vectors
 \$c_L\$ and \$c_U\$ also need to be passed. Bounds on the variables and an
 inital estimate to the Lagrangian multipliers can also be provided.
+The user can also pass the Jacobian and the Lagrangian Hessian and
+Hessian-Vector product.
 
 ````
 SimpleNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,
-  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = "Generic")
+  lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = "Generic",
+  [list of functions])
 ````
 
   - `f :: Function` - The objective function \$f\$;
   - `x0 :: Vector` - The initial point of the problem;
   - `lvar :: Vector` - \$\\ell\$, the lower bound of the variables;
   - `uvar :: Vector` - \$u\$, the upper bound of the variables;
-  - `c :: Function` - The constraints function \$c\$;
   - `y0 :: Vector` - The initial value of the Lagrangian estimates;
   - `lcon :: Vector` - \$c_L\$, the lower bounds of the constraints function;
   - `ucon :: Vector` - \$c_U\$, the upper bounds of the constraints function;
   - `name :: AbstractString` - A name for the model.
 
-The functions follow the same restrictions of ForwardDiff functions, summarised
-here:
+All functions passed have a direct correlation with a NLP function. You don't
+have to define any more than you need, but calling an undefined function will
+throw a `NotImplementedError`.
+The list is
 
-  - The function can only be composed of generic Julia functions;
-  - The function must accept only one argument;
-  - The function's argument must accept a subtype of Vector;
-  - The function should be type-stable.
+  - `g` and `g!`: \$\\nabla f(x)\$, the gradient of the objective function;
+    see [grad](api/#grad).
+
+    gx = g(x)
+    gx = g!(x, gx)
+
+  - `H`: The lower triangle of the Hessian of the objective function or of the
+    Lagrangian;
+    see [hess](api/#hess).
+
+    Hx = H(x; obj_weight=1.0) # if the problem is unconstrained
+    Hx = H(x; obj_weight=1.0, y=zeros) # if the problem is constrained
+
+  - `Hcoord` - The lower triangle of the Hessian of the objective function
+    or of the Lagrangian, in triplet format;
+    see [hess_coord](api/#hess_coord).
+
+    (rows,cols,vals) = Hcoord(x; obj_weight=1.0) # if the problem is unconstrained
+    (rows,cols,vals) = Hcoord(x; obj_weight=1.0, y=zeros) # if the problem is constrained
+
+  - `Hp` and `Hp!` - The product of the Hessian of the objective function or of
+    the Lagrangian by a vector;
+    see [hprod](api/#hprod).
+
+    Hv = Hp(x, v, obj_weight=1.0) # if the problem is unconstrained
+    Hv = Hp!(x, v, Hv, obj_weight=1.0) # if the problem is unconstrained
+    Hv = Hp(x, v, obj_weight=1.0, y=zeros) # if the problem is constrained
+    Hv = Hp!(x, v, Hv, obj_weight=1.0, y=zeros) # if the problem is constrained
+
+  - `c` and `c!` - \$c(x)\$, the constraints function;
+    see [cons](api/#cons).
+
+    cx = c(x)
+    cx = c!(x, cx)
+
+  - `J` - \$J(x)\$, the Jacobian of the constraints;
+    see [jac](api/#jac).
+
+    Jx = J(x)
+
+  - `Jcoord` - \$J(x)\$, the Jacobian of the constraints, in triplet format;
+    see [jac_coord](api/#jac_coord).
+
+    (rows,cols,vals) = Jcoord(x)
+
+  - `Jp` and `Jp!` - The Jacobian-vector product;
+    see [jprod](api/#jprod).
+
+    Jv = Jp(x, v)
+    Jv = Jp!(x, v, Jv)
+
+  - `Jtp` and `Jtp!` - The Jacobian-transposed-vector product;
+    see [jtprod](api/#jtprod).
+
+    Jtv = Jtp(x, v)
+    Jtv = Jtp!(x, v, Jtv)
 
 For contrained problems, the function \$c\$ is required, and it must return
 an array even when m = 1,
@@ -47,12 +104,41 @@ type SimpleNLPModel <: AbstractNLPModel
 
   # Functions
   f :: Function
+  g :: Function
+  g! :: Function
+  H :: Function
+  Hcoord :: Function
+  Hp :: Function
+  Hp! :: Function
   c :: Function
+  c! :: Function
+  J :: Function
+  Jcoord :: Function
+  Jp :: Function
+  Jp! :: Function
+  Jtp :: Function
+  Jtp! :: Function
 end
+
+NotImplemented(args...; kwargs...) = throw(NotImplementedError(""))
 
 function SimpleNLPModel(f::Function, x0::Vector; y0::Vector = [],
     lvar::Vector = [], uvar::Vector = [], lcon::Vector = [], ucon::Vector = [],
-    c::Function = (args...)->throw(NotImplementedError("cons")),
+    nnzh::Int = 0, nnzj::Int = 0,
+    g::Function = NotImplemented,
+    g!::Function = NotImplemented,
+    H::Function = NotImplemented,
+    Hcoord::Function = NotImplemented,
+    Hp::Function = NotImplemented,
+    Hp!::Function = NotImplemented,
+    c::Function = NotImplemented,
+    c!::Function = NotImplemented,
+    J::Function = NotImplemented,
+    Jcoord::Function = NotImplemented,
+    Jp::Function = NotImplemented,
+    Jp!::Function = NotImplemented,
+    Jtp::Function = NotImplemented,
+    Jtp!::Function = NotImplemented,
     name::AbstractString = "Generic")
 
   nvar = length(x0)
@@ -60,28 +146,17 @@ function SimpleNLPModel(f::Function, x0::Vector; y0::Vector = [],
   length(uvar) == 0 && (uvar =  Inf*ones(nvar))
   ncon = maximum([length(lcon); length(ucon); length(y0)])
 
-  A = ForwardDiff.hessian(f, x0)
-  for i = 1:ncon
-    A += ForwardDiff.hessian(x->c(x)[i], x0) * (-1)^i
-  end
-  nnzh = typeof(A) <: SparseMatrixCSC ? nnz(A) : length(A)
-  nnzj = 0
-
   if ncon > 0
     length(lcon) == 0 && (lcon = -Inf*ones(ncon))
     length(ucon) == 0 && (ucon =  Inf*ones(ncon))
     length(y0) == 0   && (y0 = zeros(ncon))
-    A = ForwardDiff.jacobian(c, x0)
-    nnzj = typeof(A) <: SparseMatrixCSC ? nnz(A) : length(A)
   end
-  lin = []
-  nln = collect(1:ncon)
 
   meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0,
-    lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=nnzh, lin=lin, nln=nln, minimize=true,
-    islp=false, name=name)
+    lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=nnzh, name=name)
 
-  return SimpleNLPModel(meta, Counters(), f, c)
+  return SimpleNLPModel(meta, Counters(), f, g, g!, H, Hcoord, Hp, Hp!, c, c!,
+      J, Jcoord, Jp, Jp!, Jtp, Jtp!)
 end
 
 function obj(nlp :: SimpleNLPModel, x :: Vector)
@@ -91,12 +166,12 @@ end
 
 function grad(nlp :: SimpleNLPModel, x :: Vector)
   nlp.counters.neval_grad += 1
-  return ForwardDiff.gradient(nlp.f, x)
+  return nlp.g(x)
 end
 
 function grad!(nlp :: SimpleNLPModel, x :: Vector, g :: Vector)
   nlp.counters.neval_grad += 1
-  ForwardDiff.gradient!(sub(g, 1:length(x)), nlp.f, x)
+  return nlp.g!(x, g)
 end
 
 function cons(nlp :: SimpleNLPModel, x :: Vector)
@@ -106,76 +181,75 @@ end
 
 function cons!(nlp :: SimpleNLPModel, x :: Vector, c :: Vector)
   nlp.counters.neval_cons += 1
-  c[:] = nlp.c(x)
-  return c
+  return nlp.c!(x, c)
 end
 
 function jac_coord(nlp :: SimpleNLPModel, x :: Vector)
   nlp.counters.neval_jac += 1
-  J = ForwardDiff.jacobian(nlp.c, x)
-  return typeof(J) <: Matrix ? findnz(sparse(J)) : findnz(J)
+  return nlp.Jcoord(x)
 end
 
 function jac(nlp :: SimpleNLPModel, x :: Vector)
   nlp.counters.neval_jac += 1
-  return ForwardDiff.jacobian(nlp.c, x)
+  return nlp.J(x)
 end
 
 function jprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector)
   nlp.counters.neval_jprod += 1
-  return ForwardDiff.jacobian(nlp.c, x) * v
+  return nlp.Jp(x, v)
 end
 
 function jprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Jv :: Vector)
   nlp.counters.neval_jprod += 1
-  Jv[1:nlp.meta.ncon] = ForwardDiff.jacobian(nlp.c, x) * v
-  return Jv
+  return nlp.Jp!(x, v, Jv)
 end
 
 function jtprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector)
   nlp.counters.neval_jtprod += 1
-  return ForwardDiff.jacobian(nlp.c, x)' * v
+  return nlp.Jtp(x, v)
 end
 
 function jtprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Jtv :: Vector)
   nlp.counters.neval_jtprod += 1
-  Jtv[1:nlp.meta.nvar] = ForwardDiff.jacobian(nlp.c, x)' * v
-  return Jtv
+  return nlp.Jtp!(x, v, Jtv)
 end
 
-function hess(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
+function hess(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0,
+      y :: Vector = zeros(nlp.meta.ncon))
   nlp.counters.neval_hess += 1
-  Hx = obj_weight == 0.0 ? spzeros(nlp.meta.nvar, nlp.meta.nvar) :
-       ForwardDiff.hessian(nlp.f, x) * obj_weight
-  for i = 1:length(y)
-    if y[i] != 0.0
-      Hx += ForwardDiff.hessian(x->nlp.c(x)[i], x) * y[i]
-    end
+  if nlp.meta.ncon > 0
+    return nlp.H(x, obj_weight=obj_weight, y=y)
+  else
+    return nlp.H(x, obj_weight=obj_weight)
   end
-  return tril(Hx)
 end
 
-function hess_coord(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
-  Hx = sparse(hess(nlp, x, obj_weight=obj_weight, y=y))
-  return findnz(Hx)
+function hess_coord(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0,
+      y :: Vector = zeros(nlp.meta.ncon))
+  nlp.counters.neval_hess += 1
+  if nlp.meta.ncon > 0
+    return nlp.Hcoord(x, obj_weight=obj_weight, y=y)
+  else
+    return nlp.Hcoord(x, obj_weight=obj_weight)
+  end
 end
 
 function hprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector;
-    obj_weight = 1.0, y :: Vector = [])
-  Hv = zeros(nlp.meta.nvar)
-  return hprod!(nlp, x, v, Hv, obj_weight=obj_weight, y=y)
+    obj_weight = 1.0, y :: Vector = zeros(nlp.meta.ncon))
+  nlp.counters.neval_hprod += 1
+  if nlp.meta.ncon > 0
+    return nlp.Hp(x, v, obj_weight=obj_weight, y=y)
+  else
+    return nlp.Hp(x, v; obj_weight=obj_weight)
+  end
 end
 
 function hprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Hv :: Vector;
-    obj_weight = 1.0, y :: Vector = [])
+    obj_weight = 1.0, y :: Vector = zeros(nlp.meta.ncon))
   nlp.counters.neval_hprod += 1
-  n = nlp.meta.nvar
-  Hv[1:n] = obj_weight == 0.0 ? zeros(nlp.meta.nvar) :
-          ForwardDiff.hessian(nlp.f, x) * v * obj_weight
-  for i = 1:length(y)
-    if y[i] != 0.0
-      Hv[1:n] += ForwardDiff.hessian(x->nlp.c(x)[i], x) * v * y[i]
-    end
+  if nlp.meta.ncon > 0
+    return nlp.Hp!(x, v, Hv, obj_weight=obj_weight, y=y)
+  else
+    return nlp.Hp!(x, v, Hv, obj_weight=obj_weight)
   end
-  return Hv
 end

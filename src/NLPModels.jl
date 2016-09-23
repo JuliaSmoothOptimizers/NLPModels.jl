@@ -233,8 +233,10 @@ NLPtoMPB(nlp :: AbstractNLPModel, args...; kwargs...) =
 if Pkg.installed("JuMP") != nothing
   include("jump_model.jl")
 end
+if Pkg.installed("ForwardDiff") != nothing
+  include("autodiff_model.jl")
+end
 include("simple_model.jl")
-
 include("slack_model.jl")
 
 end # module
