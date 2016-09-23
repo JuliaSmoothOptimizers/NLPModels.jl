@@ -82,8 +82,8 @@ function MathProgNLPModel(mpmodel :: MathProgModel; name :: AbstractString="Gene
   lvar = mpmodel.lvar
   uvar = mpmodel.uvar
 
-  nlin = MathProgBase.numlinconstr(mpmodel)       # Number of linear constraints.
-  nquad = MathProgBase.numquadconstr(mpmodel)     # Number of quadratic constraints.
+  nlin = length(mpmodel.eval.m.linconstr)         # Number of linear constraints.
+  nquad = length(mpmodel.eval.m.quadconstr)       # Number of quadratic constraints.
   nnln = length(mpmodel.eval.m.nlpdata.nlconstr)  # Number of nonlinear constraints.
   ncon = mpmodel.numConstr                        # Total number of constraints.
   lcon = mpmodel.lcon
