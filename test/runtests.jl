@@ -18,7 +18,8 @@ for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
   @test_throws(NotImplementedError, meth(model))
 end
 
-model = JuMPNLPModel(genrose(), name="genrose")
+include("genrose.jl")
+model = MathProgNLPModel(genrose(), name="genrose")
 @assert model.meta.name == "genrose"
 for counter in fieldnames(model.counters)
   @eval @assert $counter(model) == 0
@@ -45,4 +46,3 @@ include("test_mpb.jl")
 
 include("test_autodiff_model.jl")
 include("test_simple_model.jl")
-

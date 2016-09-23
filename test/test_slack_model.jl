@@ -1,20 +1,20 @@
 # an unconstrained problem should be returned unchanged
 @printf("Checking slack formulation of genrose\t")
-model = JuMPNLPModel(genrose())
+model = MathProgNLPModel(genrose())
 smodel = SlackModel(model)
 @assert smodel == model
 @printf("✓\n")
 
 # a bound-constrained problem should be returned unchanged
 @printf("Checking slack formulation of hs5\t")
-model = JuMPNLPModel(hs5())
+model = MathProgNLPModel(hs5())
 smodel = SlackModel(model)
 @assert smodel == model
 @printf("✓\n")
 
 # an equality-constrained problem should be returned unchanged
 @printf("Checking slack formulation of hs6\t")
-model = JuMPNLPModel(hs6())
+model = MathProgNLPModel(hs6())
 smodel = SlackModel(model)
 @assert smodel == model
 @printf("✓\n")
@@ -106,7 +106,7 @@ for problem in [:hs10, :hs11, :hs14, :hs15]
   problem_s = string(problem)
   @printf("Checking slack formulation of %-8s\t", problem_s)
   problem_f = eval(problem)
-  nlp_jump = JuMPNLPModel(problem_f())
+  nlp_jump = MathProgNLPModel(problem_f())
   slack_model = SlackModel(nlp_jump)
   check_slack_model(slack_model)
   @printf("✓\n")
