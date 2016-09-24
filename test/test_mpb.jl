@@ -1,4 +1,8 @@
-nlp = JuMPNLPModel(hs6())
+using Ipopt
+using JuMP
+
+# pass an AmplModel to IPOPT
+nlp = MathProgNLPModel(hs6())
 show(nlp.meta)
 print(nlp.meta)
 model = NLPtoMPB(nlp, IpoptSolver())

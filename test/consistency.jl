@@ -220,9 +220,9 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
   @printf("Checking problem %-15s%12s\t", problem_s, "")
   problem_f = eval(problem)
   nlp_autodiff = eval(parse("$(problem)_autodiff"))()
-  nlp_jump = JuMPNLPModel(problem_f())
+  nlp_mpb = MathProgNLPModel(problem_f())
   nlp_simple = eval(parse("$(problem)_simple"))()
-  nlps = [nlp_autodiff; nlp_jump; nlp_simple]
+  nlps = [nlp_autodiff; nlp_mpb; nlp_simple]
 
   consistent_nlps(nlps, nloops=nloops, rtol=rtol)
 end

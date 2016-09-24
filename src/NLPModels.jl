@@ -13,7 +13,7 @@ export reset!,
        jth_hprod, jth_hprod!, ghjvprod, ghjvprod!,
        hess_coord, hess, hprod, hprod!, hess_op,
        varscale, lagscale, conscale,
-       NLPtoMPB, NotImplementedError
+       NotImplementedError
 
 
 include("nlp_utils.jl");
@@ -223,15 +223,10 @@ lagscale(nlp :: AbstractNLPModel, args...; kwargs...) =
 conscale(nlp :: AbstractNLPModel, args...; kwargs...) =
   throw(NotImplementedError("conscale"))
 
-"""`mp = NLPtoMPB(nlp, solver)`
-
-Return a `MathProgBase` model corresponding to this model.
-`solver` should be a solver instance, e.g., `IpoptSolver()`.
-Currently, all models are treated as nonlinear models.
-"""
-NLPtoMPB(nlp :: AbstractNLPModel, args...; kwargs...) =
-  throw(NotImplementedError("NLPtoMPB"))
-
+if Pkg.installed("MathProgBase") != nothing
+  include("mpb_model.jl")
+  include("nlp_to_mpb.jl")
+end
 if Pkg.installed("JuMP") != nothing
   include("jump_model.jl")
 end
