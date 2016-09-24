@@ -82,35 +82,35 @@ $ f(x^k + \alpha_kd^k) < f(x^k) + \alpha_k\eta \nabla f(x^k)^Td^k $
 function steepest(nlp; itmax=100000, eta=1e-4, eps=1e-6, sigma=0.66)
   x = nlp.meta.x0
   fx = obj(nlp, x)
-  gx = grad(nlp, x)
-  slope = dot(gx, gx)
-  g_norm = sqrt(slope)
+  ∇fx = grad(nlp, x)
+  slope = dot(∇fx, ∇fx)
+  ∇f_norm = sqrt(slope)
   iter = 0
-  while g_norm > eps && iter < itmax
+  while ∇f_norm > eps && iter < itmax
     t = 1.0
-    x_trial = x - t * gx
+    x_trial = x - t * ∇fx
     f_trial = obj(nlp, x_trial)
-    while obj(nlp, x - t*gx) > fx - eta * t * slope
+    while obj(nlp, x - t*∇fx) > fx - eta * t * slope
       t *= sigma
-      x_trial = x - t * gx
+      x_trial = x - t * ∇fx
       f_trial = obj(nlp, x_trial)
     end
     x = x_trial
     fx = f_trial
-    gx = grad(nlp, x)
-    slope = dot(gx, gx)
-    g_norm = sqrt(slope)
+    ∇fx = grad(nlp, x)
+    slope = dot(∇fx, ∇fx)
+    ∇f_norm = sqrt(slope)
     iter += 1
   end
-  optimal = g_norm <= eps
-  return x, fx, g_norm, optimal, iter
+  optimal = ∇f_norm <= eps
+  return x, fx, ∇f_norm, optimal, iter
 end
 
-x, fx, ngx, ef, iter = steepest(nlp)
+x, fx, ngx, optimal, iter = steepest(nlp)
 println("x = $x")
 println("fx = $fx")
 println("ngx = $ngx")
-println("ef = $ef")
+println("optimal = $optimal")
 println("iter = $iter")
 ```
 
@@ -140,19 +140,19 @@ f(x) = (x[1]^2 + x[2]^2 - 4)^2 + (x[1]*x[2] - 1)^2
 x0 = [2.0; 1.0]
 nlp = ADNLPModel(f, x0)
 
-x, fx, ngx, ef, iter = steepest(nlp)
+x, fx, ngx, optimal, iter = steepest(nlp)
 ```
 
 Even using a different model.
 
 ```@example adnlp
-using OptimizationProblems
+using OptimizationProblems # Defines a lot of JuMP models
 
-nlp = JuMPNLPModel(woods())
-x, fx, ngx, ef, iter = steepest(nlp)
+nlp = MathProgNLPModel(woods())
+x, fx, ngx, optimal, iter = steepest(nlp)
 println("fx = $fx")
 println("ngx = $ngx")
-println("ef = $ef")
+println("optimal = $optimal")
 println("iter = $iter")
 ```
 

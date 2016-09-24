@@ -47,16 +47,20 @@ Such instances are composed of
 
 The current usable version of NLPModels.jl is in the development branch.
 Install with the following commands.
-```
+```julia
 Pkg.clone("https://github.com/JuliaSmoothOptimizers/NLPModels.jl")
 Pkg.build("NLPModels")
 ```
-If you want the `ADNLPModel` or the `JumpNLPModel`, you also need the
-```
+If you want the `ADNLPModel` or the `MathProgNLPModel`, you also need the
+```julia
 Pkg.add("ForwardDiff")
+Pkg.add("MathProgBase")
+```
+respectively. In addition, if you want to create a `MathProgNLPModel` from a
+`JuMP` model, you'll need
+```julia
 Pkg.add("JuMP")
 ```
-respectively.
 
 ## Usage
 
@@ -68,7 +72,10 @@ See the [Models](models), or the [Tutorial](tutorial), or the [API](api).
    [`ForwardDiff`](http://github.com/JuliaDiff/ForwardDiff.jl) to compute the
    derivatives. It has a very simple interface, though it isn't very efficient
    for larger problems.
- - [`JuMPNLPModel`](@ref): Uses a [`JuMP`](https://github.com/JuliaOpt/JuMP.jl) model.
+ - [`MathProgNLPModel`](@ref): Uses a `MathProgModel`, derived from a
+   [`AbstractMathProgModel`](https://github.com/JuliaOpt/MathProgBase.jl) model.
+   For instance, [`JuMP.jl`](https://github.com/JuliaOpt/JuMP.jl) models can be
+   used.
  - [`SimpleNLPModel`](@ref): Only uses user defined functions.
  - [`SlackModel`](@ref): Creates an equality constrained problem with bounds
     on the variables using an existing NLPModel.

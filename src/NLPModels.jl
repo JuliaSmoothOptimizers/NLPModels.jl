@@ -226,9 +226,9 @@ conscale(nlp :: AbstractNLPModel, args...; kwargs...) =
 if Pkg.installed("MathProgBase") != nothing
   include("mpb_model.jl")
   include("nlp_to_mpb.jl")
-end
-if Pkg.installed("JuMP") != nothing
-  include("jump_model.jl")
+  if Pkg.installed("JuMP") != nothing
+    include("jump_model.jl")
+  end
 end
 if Pkg.installed("ForwardDiff") != nothing
   include("autodiff_model.jl")

@@ -34,20 +34,20 @@ open(joinpath(Pkg.dir("NLPModels"), "src", "autodiff_model.jl")) do f
 end
 ```
 
-## JuMPNLPModel
+## MathProgNLPModel
 
 ```@docs
-NLPModels.JuMPNLPModel
+NLPModels.MathProgNLPModel
 ```
 
 ### Example
 
 ```@example
-using NLPModels, JuMP
+using NLPModels, MathProgBase, JuMP
 m = Model()
 @variable(m, x[1:4])
 @NLobjective(m, Min, sum{x[i]^4, i=1:4})
-nlp = JuMPNLPModel(m)
+nlp = MathProgNLPModel(m)
 x0 = [1.0; 0.5; 0.25; 0.125]
 grad(nlp, x0)
 ```
@@ -56,11 +56,11 @@ grad(nlp, x0)
 
 ```@eval
 using NLPModels
-open(joinpath(Pkg.dir("NLPModels"), "src", "jump_model.jl")) do f
+open(joinpath(Pkg.dir("NLPModels"), "src", "mpb_model.jl")) do f
   fr = readall(f)
   sout = []
   for mtd in filter(x->contains(fr, "function $x"), names(NLPModels))
-    mtd == :JuMPNLPModel && continue
+    mtd == :MathProgNLPModel && continue
     push!(sout, "[$mtd](/api/#NLPModels.$mtd)")
   end
   join(sout, ", ")
