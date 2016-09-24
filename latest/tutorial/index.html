@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Tutorial - NLPModels.jl</title>
+      
+      
+      
+      
+        <meta name="author" content="JuliaSmoothOptimizers">
+      
+    
+    <meta property="og:url" content="None">
+    <meta property="og:title" content="NLPModels.jl">
+    <meta property="og:image" content="None/../">
+    <meta name="apple-mobile-web-app-title" content="NLPModels.jl">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../assets/fonts/icon.eot?52m981');
+      	src: url('../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../assets/stylesheets/application-a422ff04cc.css">
+    
+      <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <style>
+        body, input {
+          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="../assets/Documenter.css">
+    
+      <link rel="stylesheet" href="../assets/style.css">
+    
+    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-deep-orange palette-accent-indigo">
+    
+      
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+          </span>
+        
+        Tutorial
+      </div>
+    </div>
+    
+    
+      
+      <div class="button button-github" role="button" aria-label="GitHub">
+        <a href="https://github.com/JuliaSmoothOptimizers" title="@JuliaSmoothOptimizers on GitHub" target="_blank" class="toggle-button icon icon-github"></a>
+      </div>
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl" class="project">
+    <div class="banner">
+      
+      <div class="name">
+        <strong>
+          NLPModels.jl
+          <span class="version">
+            
+          </span>
+        </strong>
+        
+          <br>
+          JuliaSmoothOptimizers/NLPModels.jl
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Models" href="../models/">
+      Models
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="current" title="Tutorial" href="./">
+      Tutorial
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="ADNLPModel Tutorial" href="#adnlpmodel-tutorial">
+                ADNLPModel Tutorial
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="API" href="../api/">
+      API
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Remissive Index" href="../remissive-index/">
+      Remissive Index
+    </a>
+    
+  </li>
+
+          
+        </ul>
+        
+          <hr>
+          <span class="section">The author</span>
+          <ul>
+            
+            
+              
+              <li>
+                <a href="https://github.com/JuliaSmoothOptimizers" target="_blank" title="@JuliaSmoothOptimizers on GitHub">
+                  @JuliaSmoothOptimizers on GitHub
+                </a>
+              </li>
+            
+          </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <p><a id='Tutorial-1'></a></p>
+<h1 id="tutorial">Tutorial</h1>
+<p>NLPModels.jl was created for two purposes:</p>
+<ul>
+<li>Allow users to access problem databases in an unified way.  Mainly, this means  <a href="https://github.com/JuliaSmoothOptimizers/CUTEst.jl">CUTEst.jl</a>,  but it also gives access to <a href="https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl">AMPL  problems</a>,  as well as JuMP defined problems (e.g. as in  <a href="https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl">OptimizationProblems.jl</a>).</li>
+<li>Allow users to create their own problems in the same way.  As a consequence, optimization methods designed according to the NLPModels API  will accept NLPModels of any provenance.  See, for instance,  <a href="https://github.com/JuliaSmoothOptimizers/Optimize.jl">Optimize.jl</a>.</li>
+</ul>
+<p>The main interfaces for user defined problems are</p>
+<ul>
+<li><a href="../models/#adnlpmodel">ADNLPModel</a>, which defines a model easily, using automatic   differentiation.</li>
+<li><a href="../models/#simplenlpmodel">SimpleNLPModel</a>, which allows users to handle all functions themselves,   giving</li>
+</ul>
+<p><a id='ADNLPModel-Tutorial-1'></a></p>
+<h2 id="adnlpmodel-tutorial">ADNLPModel Tutorial</h2>
+<p>ADNLPModel is simple to use and is useful for classrooms. It only needs the objective function $f$ and a starting point $x^0$ to be well-defined. For constrained problems, you'll also need the constraints function $c$, and the constraints vectors $c_L$ and $c_U$, such that $c_L \leq c(x) \leq c_U$. Equality constraints will be automatically identified as those indices $i$ for which $c_{L_i} = c_{U_i}$.</p>
+<p>Let's define the famous Rosenbrock function <script type="math/tex; mode=display">\begin{align*} f(x) = (x_1 - 1)^2 + 100(x_2 - x_1^2)^2, \end{align*}</script> with starting point $x^0 = (-1.2,1.0)$.</p>
+<p>```@example adnlp
+using NLPModels</p>
+<p>nlp = ADNLPModel(x-&gt;(x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2 , [-1.2; 1.0])</p>
+<div class="code"><pre><span></span>This is enough to define the model. Let&#39;s get the objective function value at $x^0$, using only `nlp`.
+
+
+```@example adnlp
+fx = obj(nlp, nlp.meta.x0)
+println(&quot;fx = $fx&quot;)
+</pre></div>
+
+
+<p>Done. Let's try the gradient and Hessian.</p>
+<p>```@example adnlp
+gx = grad(nlp, nlp.meta.x0)
+Hx = hess(nlp, nlp.meta.x0)
+println("gx = $gx")
+println("Hx = $Hx")</p>
+<div class="code"><pre><span></span>Notice how only the lower triangle of the Hessian is stored. Also notice that it is *dense*. This is a current limitation of this model. It doesn&#39;t return sparse matrices, so use it with care.
+
+
+Let&#39;s do something a little more complex here, defining a function to try to solve this problem through steepest descent method with Armijo search. Namely, the method
+
+
+1. Given $x^0$, $\varepsilon &gt; 0$, and $\eta \in (0,1)$. Set $k = 0$;
+2. If $\Vert \nabla f(x^k) \Vert &lt; \varepsilon$ STOP with $x^* = x^k$;
+3. Compute $d^k = -\nabla f(x^k)$;
+4. Compute $\alpha_k \in (0,1]$ such that $ f(x^k + \alpha_kd^k) &lt; f(x^k) + \alpha_k\eta \nabla f(x^k)^Td^k $
+5. Define $x^{k+1} = x^k + \alpha_kx^k$
+6. Update $k = k + 1$ and go to step 2.
+
+
+```@example adnlp
+function steepest(nlp; itmax=100000, eta=1e-4, eps=1e-6, sigma=0.66)
+  x = nlp.meta.x0
+  fx = obj(nlp, x)
+  ∇fx = grad(nlp, x)
+  slope = dot(∇fx, ∇fx)
+  ∇f_norm = sqrt(slope)
+  iter = 0
+  while ∇f_norm &gt; eps &amp;&amp; iter &lt; itmax
+    t = 1.0
+    x_trial = x - t * ∇fx
+    f_trial = obj(nlp, x_trial)
+    while obj(nlp, x - t*∇fx) &gt; fx - eta * t * slope
+      t *= sigma
+      x_trial = x - t * ∇fx
+      f_trial = obj(nlp, x_trial)
+    end
+    x = x_trial
+    fx = f_trial
+    ∇fx = grad(nlp, x)
+    slope = dot(∇fx, ∇fx)
+    ∇f_norm = sqrt(slope)
+    iter += 1
+  end
+  optimal = ∇f_norm &lt;= eps
+  return x, fx, ∇f_norm, optimal, iter
+end
+
+x, fx, ngx, optimal, iter = steepest(nlp)
+println(&quot;x = $x&quot;)
+println(&quot;fx = $fx&quot;)
+println(&quot;ngx = $ngx&quot;)
+println(&quot;optimal = $optimal&quot;)
+println(&quot;iter = $iter&quot;)
+</pre></div>
+
+
+<p>Maybe this code is too complicated? If you're in a class you just want to show a Newton step.</p>
+<p>```@example adnlp
+g(x) = grad(nlp, x)
+H(x) = hess(nlp, x) + triu(hess(nlp, x)', 1)
+x = nlp.meta.x0
+d = -H(x)\g(x)</p>
+<div class="code"><pre><span></span>or a few
+
+
+```@example adnlp
+for i = 1:5
+  x = x - H(x)\g(x)
+  println(&quot;x = $x&quot;)
+end
+</pre></div>
+
+
+<p>Also, notice how we can reuse the method.</p>
+<p>```@example adnlp
+f(x) = (x[1]^2 + x[2]^2 - 4)^2 + (x[1]*x[2] - 1)^2
+x0 = [2.0; 1.0]
+nlp = ADNLPModel(f, x0)</p>
+<p>x, fx, ngx, optimal, iter = steepest(nlp)</p>
+<div class="code"><pre><span></span>Even using a different model.
+
+
+```@example adnlp
+using OptimizationProblems # Defines a lot of JuMP models
+
+nlp = MathProgNLPModel(woods())
+x, fx, ngx, optimal, iter = steepest(nlp)
+println(&quot;fx = $fx&quot;)
+println(&quot;ngx = $ngx&quot;)
+println(&quot;optimal = $optimal&quot;)
+println(&quot;iter = $iter&quot;)
+</pre></div>
+
+
+<p>For constrained minimization, you need the constraints vector and bounds too. Bounds on the variables can be passed through a new vector.</p>
+<p>```@example adnlp2
+using NLPModels # hide
+f(x) = (x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2
+x0 = [-1.2; 1.0]
+lvar = [-Inf; 0.1]
+uvar = [0.5; 0.5]
+c(x) = [x[1] + x[2] - 2; x[1]^2 + x[2]^2]
+lcon = [0.0; -Inf]
+ucon = [Inf; 1.0]
+nlp = ADNLPModel(f, x0, c=c, lvar=lvar, uvar=uvar, lcon=lcon, ucon=ucon)</p>
+<p>println("cx = $(cons(nlp, nlp.meta.x0))")
+println("Jx = $(jac(nlp, nlp.meta.x0))")</p>
+<div class="code"><pre><span></span>&lt;a id=&#39;SimpleNLPModel-Tutorial-1&#39;&gt;&lt;/a&gt;
+
+## SimpleNLPModel Tutorial
+
+
+SimpleNLPModel allows you to pass every single function of the model. On the other hand, it doesn&#39;t handle anything else. Calling an undefined function will throw a `NotImplementedError`. Only the objective function is mandatory (if you don&#39;t need it, pass `x-&gt;0`).
+
+
+```julia
+using NLPModels
+
+f(x) = (x[1] - 1.0)^2 + 4*(x[2] - 1.0)^2
+x0 = zeros(2)
+nlp = SimpleNLPModel(f, x0)
+
+fx = obj(nlp, nlp.meta.x0)
+println(&quot;fx = $fx&quot;)
+
+# grad(nlp, nlp.meta.x0) # This is undefined
+</pre></div>
+
+
+<div class="code"><pre><span></span>fx = 5.0
+</pre></div>
+
+
+<div class="code"><pre><span></span><span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">);</span> <span class="mi">8</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)]</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">SimpleNLPModel</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">g</span><span class="o">=</span><span class="n">g</span><span class="p">)</span>
+
+<span class="n">grad</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">nlp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">x0</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="code"><pre><span></span>2-element Array{Float64,1}:
+ -2.0
+ -8.0
+</pre></div>
+
+
+<p>"But what's to stop me from defining <code>g</code> however I want?" Nothing. So you have to be careful on how you're defining it. You should probably check your derivatives. If the function is simply defined, you can try using automatic differentiation. Alternatively, you can use the <a href="../dercheck">derivative checker</a>.</p>
+<div class="code"><pre><span></span><span class="n">gradient_check</span><span class="p">(</span><span class="n">nlp</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="code"><pre><span></span>Dict{Int64,Float64} with 0 entries
+</pre></div>
+
+
+<div class="code"><pre><span></span><span class="n">gwrong</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">);</span> <span class="mi">8</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">]</span> <span class="c"># Find the error</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">SimpleNLPModel</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">g</span><span class="o">=</span><span class="n">gwrong</span><span class="p">)</span>
+<span class="n">gradient_check</span><span class="p">(</span><span class="n">nlp</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="code"><pre><span></span>Dict{Int64,Float64} with 1 entry:
+  2 =&gt; 6.999999999951384
+</pre></div>
+
+
+<p>For constrained problems, we still need the constraints function, <code>lcon</code> and <code>ucon</code>. Also, let's pass the Jacobian-vector product.</p>
+<div class="code"><pre><span></span><span class="n">c</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">^</span><span class="mi">2</span><span class="p">;</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">lcon</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">;</span> <span class="mf">0.0</span><span class="p">]</span>
+<span class="n">ucon</span> <span class="o">=</span> <span class="p">[</span><span class="mf">4.0</span><span class="p">;</span> <span class="mf">0.0</span><span class="p">]</span>
+<span class="n">Jacprod</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">SimpleNLPModel</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">lcon</span><span class="o">=</span><span class="n">lcon</span><span class="p">,</span> <span class="n">ucon</span><span class="o">=</span><span class="n">ucon</span><span class="p">,</span> <span class="n">g</span><span class="o">=</span><span class="n">g</span><span class="p">,</span> <span class="n">Jp</span><span class="o">=</span><span class="n">Jacprod</span><span class="p">)</span>
+<span class="n">jprod</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="code"><pre><span></span>2-element Array{Float64,1}:
+ 4.0
+ 2.0
+</pre></div>
+
+
+<p>Furthermore, NLPModels also works with inplace operations. Since some models do not take full advantage of this (like ADNLPModel), a user might want to define his/her own functions that do.</p>
+<div class="code"><pre><span></span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span>
+<span class="n">x0</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">g!</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">gx</span><span class="p">)</span> <span class="o">=</span> <span class="k">begin</span>
+  <span class="n">gx</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
+  <span class="n">gx</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">gx</span>
+<span class="k">end</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">SimpleNLPModel</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">g!</span> <span class="o">=</span><span class="n">g!</span><span class="p">)</span> <span class="c"># Watchout, g!=g! is interpreted as g != g!</span>
+<span class="n">gx</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">grad!</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">nlp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">gx</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="code"><pre><span></span>2-element Array{Float64,1}:
+ -2.0
+  8.0
+</pre></div>
+          <aside class="copyright" role="note">
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../models/" title="Models">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Models
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../api/" title="API">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                API
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '..';
+      var repo_id  = 'JuliaSmoothOptimizers/NLPModels.jl';
+    </script>
+    <script src="../assets/javascripts/application-997097ee0c.js"></script>
+    
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+    
+      <script src="../assets/mathjaxhelper.js"></script>
+    
+    
+  </body>
+</html>

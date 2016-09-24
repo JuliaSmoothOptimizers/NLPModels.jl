@@ -72,7 +72,7 @@
   
   
   
-  <body class="palette-primary-orange palette-accent-indigo">
+  <body class="palette-primary-deep-orange palette-accent-indigo">
     
       
       
@@ -199,12 +199,6 @@
             </li>
           
             <li class="anchor">
-              <a title="JuMPNLPModel" href="#jumpnlpmodel">
-                JuMPNLPModel
-              </a>
-            </li>
-          
-            <li class="anchor">
               <a title="SimpleNLPModel" href="#simplenlpmodel">
                 SimpleNLPModel
               </a>
@@ -224,8 +218,26 @@
           
             
   <li>
+    <a class="" title="Tutorial" href="../tutorial/">
+      Tutorial
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
     <a class="" title="API" href="../api/">
       API
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Remissive Index" href="../remissive-index/">
+      Remissive Index
     </a>
     
   </li>
@@ -260,86 +272,59 @@
 <p>There are currently three models implemented in this package, besides the external ones.</p>
 <p><a id='ADNLPModel-1'></a></p>
 <h2 id="adnlpmodel">ADNLPModel</h2>
-<p><a id='NLPModels.ADNLPModel' href='#NLPModels.ADNLPModel'>#</a>
-<strong><code>NLPModels.ADNLPModel</code></strong> &mdash; <em>Type</em>.</p>
-<p>ADNLPModel is an AbstractNLPModel using ForwardDiff to computer the derivatives. In this interface, the objective function $f$ and an initial estimate are required. If there are constraints, the function $c:\mathbb{R}^n\rightarrow\mathbb{R}^m$  and the vectors $c_L$ and $c_U$ also need to be passed. Bounds on the variables and an inital estimate to the Lagrangian multipliers can also be provided.</p>
-<pre><code>ADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,
-  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = &quot;Generic&quot;)
-</code></pre>
+<div class="code"><pre><span></span>NLPModels.ADNLPModel
+</pre></div>
 
-<ul>
-<li><code>f :: Function</code> - The objective function $f$;</li>
-<li><code>x0 :: Vector</code> - The initial point of the problem;</li>
-<li><code>lvar :: Vector</code> - $\ell$, the lower bound of the variables;</li>
-<li><code>uvar :: Vector</code> - $u$, the upper bound of the variables;</li>
-<li><code>c :: Function</code> - The constraints function $c$;</li>
-<li><code>y0 :: Vector</code> - The initial value of the Lagrangian estimates;</li>
-<li><code>lcon :: Vector</code> - $c_L$, the lower bounds of the constraints function;</li>
-<li><code>ucon :: Vector</code> - $c_U$, the upper bounds of the constraints function;</li>
-<li><code>name :: AbstractString</code> - A name for the model.</li>
-</ul>
-<p>The functions follow the same restrictions of ForwardDiff functions, summarised here:</p>
-<ul>
-<li>The function can only be composed of generic Julia functions;</li>
-<li>The function must accept only one argument;</li>
-<li>The function's argument must accept a subtype of Vector;</li>
-<li>The function should be type-stable.</li>
-</ul>
-<p>For contrained problems, the function $c$ is required, and it must return an array even when m = 1, and $c_L$ and $c_U$ should be passed, otherwise the problem is ill-formed. For equality constraints, the corresponding index of $c_L$ and $c_U$ should be the same.</p>
+
 <p><a id='Example-1'></a></p>
 <h3 id="example">Example</h3>
-<pre><code class="julia">using NLPModels
+<p>```@example
+using NLPModels
 f(x) = sum(x.^4)
 x = [1.0; 0.5; 0.25; 0.125]
 nlp = ADNLPModel(f, x)
-grad(nlp, x)
-</code></pre>
+grad(nlp, x)</p>
+<div class="code"><pre><span></span>&lt;a id=&#39;List-of-implemented-functions-1&#39;&gt;&lt;/a&gt;
 
-<pre><code>4-element Array{Float64,1}:
- 4.0
- 0.5
- 0.0625
- 0.0078125
-</code></pre>
+### List of implemented functions
 
-<p><a id='List-of-implemented-functions-1'></a></p>
-<h3 id="list-of-implemented-functions">List of implemented functions</h3>
-<p><a href="../api/#NLPModels.cons">cons</a>, <a href="../api/#NLPModels.cons!">cons!</a>, <a href="../api/#NLPModels.grad">grad</a>, <a href="../api/#NLPModels.grad!">grad!</a>, <a href="../api/#NLPModels.hess">hess</a>, <a href="../api/#NLPModels.hess_coord">hess_coord</a>, <a href="../api/#NLPModels.hprod">hprod</a>, <a href="../api/#NLPModels.hprod!">hprod!</a>, <a href="../api/#NLPModels.jac">jac</a>, <a href="../api/#NLPModels.jac_coord">jac_coord</a>, <a href="../api/#NLPModels.jprod">jprod</a>, <a href="../api/#NLPModels.jprod!">jprod!</a>, <a href="../api/#NLPModels.jtprod">jtprod</a>, <a href="../api/#NLPModels.jtprod!">jtprod!</a>, <a href="../api/#NLPModels.obj">obj</a>
-<a id='JuMPNLPModel-1'></a></p>
-<h2 id="jumpnlpmodel">JuMPNLPModel</h2>
-<p><a id='NLPModels.JuMPNLPModel' href='#NLPModels.JuMPNLPModel'>#</a>
-<strong><code>NLPModels.JuMPNLPModel</code></strong> &mdash; <em>Type</em>.</p>
-<p>Construct a <code>JuMPNLPModel</code> from a JuMP <code>Model</code>.</p>
-<p><a id='Example-2'></a></p>
-<h3 id="example_1">Example</h3>
-<pre><code class="julia">using NLPModels, JuMP
+[cons](/api/#NLPModels.cons), [cons!](/api/#NLPModels.cons!), [grad](/api/#NLPModels.grad), [grad!](/api/#NLPModels.grad!), [hess](/api/#NLPModels.hess), [hess_coord](/api/#NLPModels.hess_coord), [hprod](/api/#NLPModels.hprod), [hprod!](/api/#NLPModels.hprod!), [jac](/api/#NLPModels.jac), [jac_coord](/api/#NLPModels.jac_coord), [jprod](/api/#NLPModels.jprod), [jprod!](/api/#NLPModels.jprod!), [jtprod](/api/#NLPModels.jtprod), [jtprod!](/api/#NLPModels.jtprod!), [obj](/api/#NLPModels.obj)
+&lt;a id=&#39;MathProgNLPModel-1&#39;&gt;&lt;/a&gt;
+
+## MathProgNLPModel
+</pre></div>
+
+
+<p>NLPModels.MathProgNLPModel</p>
+<div class="code"><pre><span></span>&lt;a id=&#39;Example-2&#39;&gt;&lt;/a&gt;
+
+### Example
+
+
+```@example
+using NLPModels, MathProgBase, JuMP
 m = Model()
 @variable(m, x[1:4])
 @NLobjective(m, Min, sum{x[i]^4, i=1:4})
-nlp = JuMPNLPModel(m)
+nlp = MathProgNLPModel(m)
 x0 = [1.0; 0.5; 0.25; 0.125]
 grad(nlp, x0)
-</code></pre>
+</pre></div>
 
-<pre><code>4-element Array{Float64,1}:
- 4.0
- 0.5
- 0.0625
- 0.0078125
-</code></pre>
 
 <p><a id='List-of-implemented-functions-2'></a></p>
-<h3 id="list-of-implemented-functions_1">List of implemented functions</h3>
-<p><a href="../api/#NLPModels.NLPtoMPB">NLPtoMPB</a>, <a href="../api/#NLPModels.cons">cons</a>, <a href="../api/#NLPModels.cons!">cons!</a>, <a href="../api/#NLPModels.grad">grad</a>, <a href="../api/#NLPModels.grad!">grad!</a>, <a href="../api/#NLPModels.hess">hess</a>, <a href="../api/#NLPModels.hess_coord">hess_coord</a>, <a href="../api/#NLPModels.hprod">hprod</a>, <a href="../api/#NLPModels.hprod!">hprod!</a>, <a href="../api/#NLPModels.jac">jac</a>, <a href="../api/#NLPModels.jac_coord">jac_coord</a>, <a href="../api/#NLPModels.jprod">jprod</a>, <a href="../api/#NLPModels.jprod!">jprod!</a>, <a href="../api/#NLPModels.jtprod">jtprod</a>, <a href="../api/#NLPModels.jtprod!">jtprod!</a>, <a href="../api/#NLPModels.obj">obj</a>
+<h3 id="list-of-implemented-functions">List of implemented functions</h3>
+<p><a href="../api/#NLPModels.cons">cons</a>, <a href="../api/#NLPModels.cons!">cons!</a>, <a href="../api/#NLPModels.grad">grad</a>, <a href="../api/#NLPModels.grad!">grad!</a>, <a href="../api/#NLPModels.hess">hess</a>, <a href="../api/#NLPModels.hess_coord">hess_coord</a>, <a href="../api/#NLPModels.hprod">hprod</a>, <a href="../api/#NLPModels.hprod!">hprod!</a>, <a href="../api/#NLPModels.jac">jac</a>, <a href="../api/#NLPModels.jac_coord">jac_coord</a>, <a href="../api/#NLPModels.jprod">jprod</a>, <a href="../api/#NLPModels.jprod!">jprod!</a>, <a href="../api/#NLPModels.jtprod">jtprod</a>, <a href="../api/#NLPModels.jtprod!">jtprod!</a>, <a href="../api/#NLPModels.obj">obj</a>
 <a id='SimpleNLPModel-1'></a></p>
 <h2 id="simplenlpmodel">SimpleNLPModel</h2>
 <p><a id='NLPModels.SimpleNLPModel' href='#NLPModels.SimpleNLPModel'>#</a>
 <strong><code>NLPModels.SimpleNLPModel</code></strong> &mdash; <em>Type</em>.</p>
 <p>SimpleNLPModel is an AbstractNLPModel that uses only user-defined functions. In this interface, the objective function $f$ and an initial estimate are required. If the user wants to use derivatives, they need to be passed. The same goes for the Hessian and Hessian-Vector product. For constraints, $c:\mathbb{R}^n\rightarrow\mathbb{R}^m$  and the vectors $c_L$ and $c_U$ also need to be passed. Bounds on the variables and an inital estimate to the Lagrangian multipliers can also be provided. The user can also pass the Jacobian and the Lagrangian Hessian and Hessian-Vector product.</p>
-<pre><code>SimpleNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,
+<div class="code"><pre><span></span>SimpleNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,
   lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = &quot;Generic&quot;,
   [list of functions])
-</code></pre>
+</pre></div>
+
 
 <ul>
 <li><code>f :: Function</code> - The objective function $f$;</li>
@@ -355,86 +340,97 @@ grad(nlp, x0)
 <ul>
 <li><code>g</code> and <code>g!</code>: $\nabla f(x)$, the gradient of the objective function;     see <a href="../api/#grad">grad</a>.</li>
 </ul>
-<pre><code>gx = g(x)
+<div class="code"><pre><span></span>gx = g(x)
 gx = g!(x, gx)
-</code></pre>
+</pre></div>
+
 
 <ul>
 <li><code>H</code>: The lower triangle of the Hessian of the objective function or of the     Lagrangian;     see <a href="../api/#hess">hess</a>.</li>
 </ul>
-<pre><code>Hx = H(x; obj_weight=1.0) # if the problem is unconstrained
+<div class="code"><pre><span></span>Hx = H(x; obj_weight=1.0) # if the problem is unconstrained
 Hx = H(x; obj_weight=1.0, y=zeros) # if the problem is constrained
-</code></pre>
+</pre></div>
+
 
 <ul>
 <li><code>Hcoord</code> - The lower triangle of the Hessian of the objective function     or of the Lagrangian, in triplet format;     see <a href="../api/#hess_coord">hess_coord</a>.</li>
 </ul>
-<pre><code>(rows,cols,vals) = Hcoord(x; obj_weight=1.0) # if the problem is unconstrained
+<div class="code"><pre><span></span>(rows,cols,vals) = Hcoord(x; obj_weight=1.0) # if the problem is unconstrained
 (rows,cols,vals) = Hcoord(x; obj_weight=1.0, y=zeros) # if the problem is constrained
-</code></pre>
+</pre></div>
+
 
 <ul>
 <li><code>Hp</code> and <code>Hp!</code> - The product of the Hessian of the objective function or of     the Lagrangian by a vector;     see <a href="../api/#hprod">hprod</a>.</li>
 </ul>
-<pre><code>Hv = Hp(x, v, obj_weight=1.0) # if the problem is unconstrained
+<div class="code"><pre><span></span>Hv = Hp(x, v, obj_weight=1.0) # if the problem is unconstrained
 Hv = Hp!(x, v, Hv, obj_weight=1.0) # if the problem is unconstrained
 Hv = Hp(x, v, obj_weight=1.0, y=zeros) # if the problem is constrained
 Hv = Hp!(x, v, Hv, obj_weight=1.0, y=zeros) # if the problem is constrained
-</code></pre>
+</pre></div>
+
 
 <ul>
 <li><code>c</code> and <code>c!</code> - $c(x)$, the constraints function;     see <a href="../api/#cons">cons</a>.</li>
 </ul>
-<pre><code>cx = c(x)
+<div class="code"><pre><span></span>cx = c(x)
 cx = c!(x, cx)
-</code></pre>
+</pre></div>
+
 
 <ul>
 <li><code>J</code> - $J(x)$, the Jacobian of the constraints;     see <a href="../api/#jac">jac</a>.</li>
 </ul>
-<pre><code>Jx = J(x)
-</code></pre>
+<div class="code"><pre><span></span>Jx = J(x)
+</pre></div>
+
 
 <ul>
 <li><code>Jcoord</code> - $J(x)$, the Jacobian of the constraints, in triplet format;     see <a href="../api/#jac_coord">jac_coord</a>.</li>
 </ul>
-<pre><code>(rows,cols,vals) = Jcoord(x)
-</code></pre>
+<div class="code"><pre><span></span>(rows,cols,vals) = Jcoord(x)
+</pre></div>
+
 
 <ul>
 <li><code>Jp</code> and <code>Jp!</code> - The Jacobian-vector product;     see <a href="../api/#jprod">jprod</a>.</li>
 </ul>
-<pre><code>Jv = Jp(x, v)
+<div class="code"><pre><span></span>Jv = Jp(x, v)
 Jv = Jp!(x, v, Jv)
-</code></pre>
+</pre></div>
+
 
 <ul>
 <li><code>Jtp</code> and <code>Jtp!</code> - The Jacobian-transposed-vector product;     see <a href="../api/#jtprod">jtprod</a>.</li>
 </ul>
-<pre><code>Jtv = Jtp(x, v)
+<div class="code"><pre><span></span>Jtv = Jtp(x, v)
 Jtv = Jtp!(x, v, Jtv)
-</code></pre>
+</pre></div>
+
 
 <p>For contrained problems, the function $c$ is required, and it must return an array even when m = 1, and $c_L$ and $c_U$ should be passed, otherwise the problem is ill-formed. For equality constraints, the corresponding index of $c_L$ and $c_U$ should be the same.</p>
 <p><a id='Example-3'></a></p>
-<h3 id="example_2">Example</h3>
-<pre><code class="julia">using NLPModels
-f(x) = sum(x.^4)
-g(x) = 4*x.^3
-x = [1.0; 0.5; 0.25; 0.125]
-nlp = SimpleNLPModel(f, x, g=g)
-grad(nlp, x)
-</code></pre>
+<h3 id="example_1">Example</h3>
+<div class="code"><pre><span></span><span class="k">using</span> <span class="n">NLPModels</span>
+<span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">sum</span><span class="p">(</span><span class="n">x</span><span class="o">.^</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="n">x</span><span class="o">.^</span><span class="mi">3</span>
+<span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">;</span> <span class="mf">0.5</span><span class="p">;</span> <span class="mf">0.25</span><span class="p">;</span> <span class="mf">0.125</span><span class="p">]</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">SimpleNLPModel</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">g</span><span class="o">=</span><span class="n">g</span><span class="p">)</span>
+<span class="n">grad</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
 
-<pre><code>4-element Array{Float64,1}:
+
+<div class="code"><pre><span></span>4-element Array{Float64,1}:
  4.0
  0.5
  0.0625
  0.0078125
-</code></pre>
+</pre></div>
+
 
 <p><a id='List-of-implemented-functions-3'></a></p>
-<h3 id="list-of-implemented-functions_2">List of implemented functions</h3>
+<h3 id="list-of-implemented-functions_1">List of implemented functions</h3>
 <p><a href="../api/#NLPModels.cons">cons</a>, <a href="../api/#NLPModels.cons!">cons!</a>, <a href="../api/#NLPModels.grad">grad</a>, <a href="../api/#NLPModels.grad!">grad!</a>, <a href="../api/#NLPModels.hess">hess</a>, <a href="../api/#NLPModels.hess_coord">hess_coord</a>, <a href="../api/#NLPModels.hprod">hprod</a>, <a href="../api/#NLPModels.hprod!">hprod!</a>, <a href="../api/#NLPModels.jac">jac</a>, <a href="../api/#NLPModels.jac_coord">jac_coord</a>, <a href="../api/#NLPModels.jprod">jprod</a>, <a href="../api/#NLPModels.jprod!">jprod!</a>, <a href="../api/#NLPModels.jtprod">jtprod</a>, <a href="../api/#NLPModels.jtprod!">jtprod!</a>, <a href="../api/#NLPModels.obj">obj</a>
 <a id='SlackModel-1'></a></p>
 <h2 id="slackmodel">SlackModel</h2>
@@ -456,24 +452,17 @@ grad(nlp, x)
 <p>although no slack variables are introduced for equality constraints.</p>
 <p>The slack variables are implicitly ordered as [s(low), s(upp), s(rng)], where <code>low</code>, <code>upp</code> and <code>rng</code> represent the indices of the constraints of the form $c_L \leq c(x) &lt; \infty$, $-\infty &lt; c(x) \leq c_U$ and $c_L \leq c(x) \leq c_U$, respectively.</p>
 <p><a id='Example-4'></a></p>
-<h3 id="example_3">Example</h3>
-<pre><code class="julia">using NLPModels
+<h3 id="example_2">Example</h3>
+<p><code>@example
+using NLPModels
 f(x) = x[1]^2 + 4x[2]^2
 c(x) = [x[1]*x[2] - 1]
 x = [2.0; 2.0]
 nlp = ADNLPModel(f, x, c=c, lcon=[0.0])
 nlp_slack = SlackModel(nlp)
-nlp_slack.meta.lvar
-</code></pre>
-
-<pre><code>3-element Array{Float64,1}:
- -Inf
- -Inf
-    0.0
-</code></pre>
-
+nlp_slack.meta.lvar</code></p>
 <p><a id='List-of-implemented-functions-4'></a></p>
-<h3 id="list-of-implemented-functions_3">List of implemented functions</h3>
+<h3 id="list-of-implemented-functions_2">List of implemented functions</h3>
 <p><a href="../api/#NLPModels.cons">cons</a>, <a href="../api/#NLPModels.cons!">cons!</a>, <a href="../api/#NLPModels.grad">grad</a>, <a href="../api/#NLPModels.grad!">grad!</a>, <a href="../api/#NLPModels.hess">hess</a>, <a href="../api/#NLPModels.hess_coord">hess_coord</a>, <a href="../api/#NLPModels.hprod">hprod</a>, <a href="../api/#NLPModels.hprod!">hprod!</a>, <a href="../api/#NLPModels.jac">jac</a>, <a href="../api/#NLPModels.jac_coord">jac_coord</a>, <a href="../api/#NLPModels.jprod">jprod</a>, <a href="../api/#NLPModels.jprod!">jprod!</a>, <a href="../api/#NLPModels.jtprod">jtprod</a>, <a href="../api/#NLPModels.jtprod!">jtprod!</a>, <a href="../api/#NLPModels.obj">obj</a>, <a href="../api/#NLPModels.reset!">reset!</a></p>
           <aside class="copyright" role="note">
             
@@ -510,14 +499,14 @@ nlp_slack.meta.lvar
     </div>
     <div class="next">
       
-        <a href="../api/" title="API">
+        <a href="../tutorial/" title="Tutorial">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                API
+                Tutorial
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">

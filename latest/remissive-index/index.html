@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
       
-        <title>API - NLPModels.jl</title>
+        <title>Remissive Index - NLPModels.jl</title>
       
       
       
@@ -98,7 +98,7 @@
             
           </span>
         
-        API
+        Remissive Index
       </div>
     </div>
     
@@ -200,45 +200,23 @@
           
             
   <li>
-    <a class="current" title="API" href="./">
+    <a class="" title="API" href="../api/">
       API
     </a>
-    
-      
-        
-      
-      
-        <ul>
-          
-            <li class="anchor">
-              <a title="Reference guide" href="#reference-guide">
-                Reference guide
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="AbstractNLPModel functions" href="#abstractnlpmodel-functions">
-                AbstractNLPModel functions
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Derivative check" href="#derivative-check">
-                Derivative check
-              </a>
-            </li>
-          
-        </ul>
-      
     
   </li>
 
           
             
   <li>
-    <a class="" title="Remissive Index" href="../remissive-index/">
+    <a class="current" title="Remissive Index" href="./">
       Remissive Index
     </a>
+    
+      
+        
+      
+      
     
   </li>
 
@@ -267,125 +245,33 @@
       <article class="article">
         <div class="wrapper">
           
-          <p><a id='API-1'></a></p>
-<h1 id="api">API</h1>
-<p>As stated in the <a href="../home">home</a> page, we consider the nonlinear optimization problem in the following format: <script type="math/tex; mode=display">\begin{align*} \min \quad & f(x) \\
-& c_L \leq c(x) \leq c_U \\
-& \ell \leq x \leq u. \end{align*}</script> To develop an optimization algorithm, we are usually worried not only with $f(x)$ and $c(x)$, but also with their derivatives. Namely,</p>
+          <p><a id='Index-1'></a></p>
+<h1 id="index">Index</h1>
 <ul>
-<li>$\nabla f(x)$, the gradient of $f$ at the point $x$;</li>
-<li>$\nabla^2 f(x)$, the Hessian of $f$ at the point $x$;</li>
-<li>$J(x) = \nabla c(x)$, the Jacobian of $c$ at the point $x$;</li>
-<li>$\nabla^2 f(x) + \sum_{i=1}^m \lambda_i \nabla^2 c_i(x)$,   the Hessian of the Lagrangian function at the point $(x,\lambda)$.</li>
+<li><a href="../models/#NLPModels.SimpleNLPModel"><code>NLPModels.SimpleNLPModel</code></a></li>
+<li><a href="../models/#NLPModels.SlackModel"><code>NLPModels.SlackModel</code></a></li>
+<li><a href="../api/#NLPModels.cons"><code>NLPModels.cons</code></a></li>
+<li><a href="../api/#NLPModels.cons!"><code>NLPModels.cons!</code></a></li>
+<li><a href="../api/#NLPModels.grad"><code>NLPModels.grad</code></a></li>
+<li><a href="../api/#NLPModels.grad!"><code>NLPModels.grad!</code></a></li>
+<li><a href="../api/#NLPModels.gradient_check"><code>NLPModels.gradient_check</code></a></li>
+<li><a href="../api/#NLPModels.hess"><code>NLPModels.hess</code></a></li>
+<li><a href="../api/#NLPModels.hess_coord"><code>NLPModels.hess_coord</code></a></li>
+<li><a href="../api/#NLPModels.hess_op"><code>NLPModels.hess_op</code></a></li>
+<li><a href="../api/#NLPModels.hessian_check"><code>NLPModels.hessian_check</code></a></li>
+<li><a href="../api/#NLPModels.hessian_check_from_grad"><code>NLPModels.hessian_check_from_grad</code></a></li>
+<li><a href="../api/#NLPModels.hprod"><code>NLPModels.hprod</code></a></li>
+<li><a href="../api/#NLPModels.hprod!"><code>NLPModels.hprod!</code></a></li>
+<li><a href="../api/#NLPModels.jac"><code>NLPModels.jac</code></a></li>
+<li><a href="../api/#NLPModels.jac_coord"><code>NLPModels.jac_coord</code></a></li>
+<li><a href="../api/#NLPModels.jacobian_check"><code>NLPModels.jacobian_check</code></a></li>
+<li><a href="../api/#NLPModels.jprod"><code>NLPModels.jprod</code></a></li>
+<li><a href="../api/#NLPModels.jprod!"><code>NLPModels.jprod!</code></a></li>
+<li><a href="../api/#NLPModels.jtprod"><code>NLPModels.jtprod</code></a></li>
+<li><a href="../api/#NLPModels.jtprod!"><code>NLPModels.jtprod!</code></a></li>
+<li><a href="../api/#NLPModels.obj"><code>NLPModels.obj</code></a></li>
+<li><a href="../api/#NLPModels.reset!"><code>NLPModels.reset!</code></a></li>
 </ul>
-<p>There are many ways to access some of these values, so here is a little reference guide.</p>
-<p><a id='Reference-guide-1'></a></p>
-<h2 id="reference-guide">Reference guide</h2>
-<p>The following naming should be easy enough to follow. If not, click on the link and go to the description.</p>
-<ul>
-<li><code>!</code> means inplace;</li>
-<li><code>_coord</code> means coordinate format;</li>
-<li><code>prod</code> means matrix-vector product;</li>
-<li><code>_op</code> means operator (as in <a href="https://github.com/JuliaSmoothOptimizers/LinearOperators.jl">LinearOperators.jl</a>).</li>
-</ul>
-<p>Feel free to open an issue to suggest other methods that should apply to all NLPModels instances.</p>
-<table>
-<thead>
-<tr>
-<th align="right">Function</th>
-<th align="right">NLPModels function</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="right">$f(x)$</td>
-<td align="right"><a href="../api/#NLPModels.obj">obj</a></td>
-</tr>
-<tr>
-<td align="right">$\nabla f(x)$</td>
-<td align="right"><a href="../api/#NLPModels.grad">grad</a>, <a href="../api/#NLPModels.grad!">grad!</a></td>
-</tr>
-<tr>
-<td align="right">$\nabla^2 f(x)$</td>
-<td align="right"><a href="../api/#NLPModels.hess">hess</a>, <a href="../api/#NLPModels.hess_op">hess_op</a>, <a href="../api/#NLPModels.hess_coord">hess_coord</a>, <a href="../api/#NLPModels.hprod">hprod</a>, <a href="../api/#NLPModels.hprod!">hprod!</a></td>
-</tr>
-<tr>
-<td align="right">$c(x)$</td>
-<td align="right"><a href="../api/#NLPModels.cons">cons</a>, <a href="../api/#NLPModels.cons!">cons!</a></td>
-</tr>
-<tr>
-<td align="right">$J(x)$</td>
-<td align="right"><a href="../api/#NLPModels.jac">jac</a>, <a href="../api/#NLPModels.jac_coord">jac_coord</a>, <a href="../api/#NLPModels.jprod">jprod</a>, <a href="../api/#NLPModels.jprod!">jprod!</a>, <a href="../api/#NLPModels.jtprod">jtprod</a>, <a href="../api/#NLPModels.jtprod!">jtprod!</a></td>
-</tr>
-<tr>
-<td align="right">$\nabla^2 L(x,y)$</td>
-<td align="right"><a href="../api/#NLPModels.hess">hess</a>, <a href="../api/#NLPModels.hess_op">hess_op</a>, <a href="../api/#NLPModels.hess_coord">hess_coord</a>, <a href="../api/#NLPModels.hprod">hprod</a>, <a href="../api/#NLPModels.hprod!">hprod!</a></td>
-</tr>
-</tbody>
-</table>
-<p><a id='AbstractNLPModel-functions-1'></a></p>
-<h2 id="abstractnlpmodel-functions">AbstractNLPModel functions</h2>
-<div class="code"><pre><span></span>obj
-grad
-grad!
-cons
-cons!
-jac_coord
-jac
-jprod
-jprod!
-jtprod
-jtprod!
-hess_coord
-hess
-hess_op
-hprod
-hprod!
-NLPtoMPB
-reset!
-</pre></div>
-
-
-<p><a id='Derivative-check-1'></a></p>
-<h2 id="derivative-check">Derivative check</h2>
-<p><a id='NLPModels.gradient_check' href='#NLPModels.gradient_check'>#</a>
-<strong><code>NLPModels.gradient_check</code></strong> &mdash; <em>Function</em>.</p>
-<p>Check the first derivatives of the objective at <code>x</code> against centered finite differences.</p>
-<p>This function returns a dictionary indexed by components of the gradient for which the relative error exceeds <code>rtol</code>.</p>
-<p><a id='NLPModels.jacobian_check' href='#NLPModels.jacobian_check'>#</a>
-<strong><code>NLPModels.jacobian_check</code></strong> &mdash; <em>Function</em>.</p>
-<p>Check the first derivatives of the constraints at <code>x</code> against centered finite differences.</p>
-<p>This function returns a dictionary indexed by (j, i) tuples such that the relative error in the <code>i</code>-th partial derivative of the <code>j</code>-th constraint exceeds <code>rtol</code>.</p>
-<p><a id='NLPModels.hessian_check' href='#NLPModels.hessian_check'>#</a>
-<strong><code>NLPModels.hessian_check</code></strong> &mdash; <em>Function</em>.</p>
-<p>Check the second derivatives of the objective and each constraints at <code>x</code> against centered finite differences. This check does not rely on exactness of the first derivatives, only on objective and constraint values.</p>
-<p>The <code>sgn</code> arguments refers to the formulation of the Lagrangian in the problem. It should have a positive value if the Lagrangian is formulated as</p>
-<div class="code"><pre><span></span>L(x,y) = f(x) + ∑ yⱼ cⱼ(x)
-</pre></div>
-
-
-<p>e.g., as in <code>JuMPNLPModel</code>s, and a negative value if the Lagrangian is formulated as</p>
-<div class="code"><pre><span></span>L(x,y) = f(x) - ∑ yⱼ cⱼ(x)
-</pre></div>
-
-
-<p>e.g., as in <code>AmplModel</code>s. Only the sign of <code>sgn</code> is important.</p>
-<p>This function returns a dictionary indexed by functions. The 0-th function is the objective while the k-th function (for k &gt; 0) is the k-th constraint. The values of the dictionary are dictionaries indexed by tuples (i, j) such that the relative error in the second derivative ∂²fₖ/∂xᵢ∂xⱼ exceeds <code>rtol</code>.</p>
-<p><a id='NLPModels.hessian_check_from_grad' href='#NLPModels.hessian_check_from_grad'>#</a>
-<strong><code>NLPModels.hessian_check_from_grad</code></strong> &mdash; <em>Function</em>.</p>
-<p>Check the second derivatives of the objective and each constraints at <code>x</code> against centered finite differences. This check assumes exactness of the first derivatives.</p>
-<p>The <code>sgn</code> arguments refers to the formulation of the Lagrangian in the problem. It should have a positive value if the Lagrangian is formulated as</p>
-<div class="code"><pre><span></span>L(x,y) = f(x) + ∑ yⱼ cⱼ(x)
-</pre></div>
-
-
-<p>e.g., as in <code>JuMPNLPModel</code>s, and a negative value if the Lagrangian is formulated as</p>
-<div class="code"><pre><span></span>L(x,y) = f(x) - ∑ yⱼ cⱼ(x)
-</pre></div>
-
-
-<p>e.g., as in <code>AmplModel</code>s. Only the sign of <code>sgn</code> is important.</p>
-<p>This function returns a dictionary indexed by functions. The 0-th function is the objective while the k-th function (for k &gt; 0) is the k-th constraint. The values of the dictionary are dictionaries indexed by tuples (i, j) such that the relative error in the second derivative ∂²fₖ/∂xᵢ∂xⱼ exceeds <code>rtol</code>.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -402,7 +288,7 @@ reset!
   <nav class="pagination" aria-label="Footer">
     <div class="previous">
       
-        <a href="../tutorial/" title="Tutorial">
+        <a href="../api/" title="API">
           <span class="direction">
             Previous
           </span>
@@ -412,7 +298,7 @@ reset!
             </div>
             <div class="stretch">
               <div class="title">
-                Tutorial
+                API
               </div>
             </div>
           </div>
@@ -420,22 +306,6 @@ reset!
       
     </div>
     <div class="next">
-      
-        <a href="../remissive-index/" title="Remissive Index">
-          <span class="direction">
-            Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
-                Remissive Index
-              </div>
-            </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
-            </div>
-          </div>
-        </a>
       
     </div>
   </nav>
