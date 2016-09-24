@@ -18,7 +18,6 @@ for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
   @test_throws(NotImplementedError, meth(model))
 end
 
-include("genrose.jl")
 model = MathProgNLPModel(genrose(), name="genrose")
 @assert model.meta.name == "genrose"
 for counter in fieldnames(model.counters)
