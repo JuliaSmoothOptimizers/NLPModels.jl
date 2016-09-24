@@ -9,28 +9,28 @@ NLPModels.jl was created for two purposes:
  problems](https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl),
  as well as JuMP defined problems (e.g. as in
  [OptimizationProblems.jl](https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl)).
- - Allows users to create their own problems in the same way.
- This means that an optimization method designed for NLPModels is
- interchangeable between models.
+ - Allow users to create their own problems in the same way.
+ As a consequence, optimization methods designed according to the NLPModels API
+ will accept NLPModels of any provenance.
  See, for instance,
  [Optimize.jl](https://github.com/JuliaSmoothOptimizers/Optimize.jl).
 
 The main interfaces for user defined problems are
 
-- [ADNLPModel](models/#adnlpmodel), which defines a model very easily, using automatic
+- [ADNLPModel](models/#adnlpmodel), which defines a model easily, using automatic
   differentiation.
-- [SimpleNLPModel](models/#simplenlpmodel), which allows users to handle all functions himself,
+- [SimpleNLPModel](models/#simplenlpmodel), which allows users to handle all functions themselves,
   giving
 
 ## ADNLPModel Tutorial
 
-ADNLPModel is very simple to use and is very useful for classrooms, for
-instance.
+ADNLPModel is simple to use and is useful for classrooms.
 It only needs the objective function $f$ and a starting point $x^0$ to be
 well-defined.
 For constrained problems, you'll also need the constraints function $c$, and
 the constraints vectors $c_L$ and $c_U$, such that $c_L \leq c(x) \leq c_U$.
-Equality constraints are identified by $c_{L_i} = c_{U_i}$.
+Equality constraints will be automatically identified as those indices $i$ for
+which $c_{L_i} = c_{U_i}$.
 
 Let's define the famous Rosenbrock function
 \begin{align*}
@@ -41,9 +41,7 @@ with starting point $x^0 = (-1.2,1.0)$.
 ```@example adnlp
 using NLPModels
 
-f(x) = (x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2
-x0 = [-1.2; 1.0]
-nlp = ADNLPModel(f, x0)
+nlp = ADNLPModel(x->(x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2 , [-1.2; 1.0])
 ```
 
 This is enough to define the model.
@@ -69,45 +67,46 @@ Also notice that it is *dense*. This is a current limitation of this model. It
 doesn't return sparse matrices, so use it with care.
 
 Let's do something a little more complex here, defining a function to try to
-solve this problem through gradient method with Armijo search.
+solve this problem through steepest descent method with Armijo search.
 Namely, the method
 
 1. Given $x^0$, $\varepsilon > 0$, and $\eta \in (0,1)$. Set $k = 0$;
-2. Compute $d^k = -\nabla f(x^k)$;
-3. Compute $\alpha_k$ such that
+2. If $\Vert \nabla f(x^k) \Vert < \varepsilon$ STOP with $x^* = x^k$;
+3. Compute $d^k = -\nabla f(x^k)$;
+4. Compute $\alpha_k \in (0,1]$ such that
 $ f(x^k + \alpha_kd^k) < f(x^k) + \alpha_k\eta \nabla f(x^k)^Td^k $
-4. Define $x^{k+1} = x^k + \alpha_kx^k$
-5. Update $k = k + 1$
-6. If $\Vert \nabla f(x^k) \Vert < \varepsilon$ STOP with $x^* = x^k$,
-otherwise go to step 2.
+5. Define $x^{k+1} = x^k + \alpha_kx^k$
+6. Update $k = k + 1$ and go to step 2.
 
 ```@example adnlp
-function gradient(nlp; itmax=100000, eta=1e-2, eps=1e-6, sigma=0.9)
+function steepest(nlp; itmax=100000, eta=1e-4, eps=1e-6, sigma=0.66)
   x = nlp.meta.x0
   fx = obj(nlp, x)
   gx = grad(nlp, x)
-  gtg = dot(gx, gx)
-  ef = 0
+  slope = dot(gx, gx)
+  g_norm = sqrt(slope)
   iter = 0
-  while gtg > eps^2
+  while g_norm > eps && iter < itmax
     t = 1.0
-    while obj(nlp, x - t*gx) > fx - eta*t*gtg
+    x_trial = x - t * gx
+    f_trial = obj(nlp, x_trial)
+    while obj(nlp, x - t*gx) > fx - eta * t * slope
       t *= sigma
+      x_trial = x - t * gx
+      f_trial = obj(nlp, x_trial)
     end
-    x = x - t*gx
-    fx = obj(nlp, x)
+    x = x_trial
+    fx = f_trial
     gx = grad(nlp, x)
-    gtg = dot(gx, gx)
+    slope = dot(gx, gx)
+    g_norm = sqrt(slope)
     iter += 1
-    if iter >= itmax
-      ef = 1
-      break
-    end
   end
-  return x, fx, sqrt(gtg), ef, iter
+  optimal = g_norm <= eps
+  return x, fx, g_norm, optimal, iter
 end
 
-x, fx, ngx, ef, iter = gradient(nlp)
+x, fx, ngx, ef, iter = steepest(nlp)
 println("x = $x")
 println("fx = $fx")
 println("ngx = $ngx")
@@ -137,11 +136,11 @@ end
 Also, notice how we can reuse the method.
 
 ```@example adnlp
-f(x) = (x[1] + x[2] - 4)^2 + (x[1]*x[2] - 1)^2
+f(x) = (x[1]^2 + x[2]^2 - 4)^2 + (x[1]*x[2] - 1)^2
 x0 = [2.0; 1.0]
 nlp = ADNLPModel(f, x0)
 
-x, fx, ngx, ef, iter = gradient(nlp)
+x, fx, ngx, ef, iter = steepest(nlp)
 ```
 
 Even using a different model.
@@ -150,7 +149,7 @@ Even using a different model.
 using OptimizationProblems
 
 nlp = JuMPNLPModel(woods())
-x, fx, ngx, ef, iter = gradient(nlp)
+x, fx, ngx, ef, iter = steepest(nlp)
 println("fx = $fx")
 println("ngx = $ngx")
 println("ef = $ef")
@@ -160,7 +159,8 @@ println("iter = $iter")
 For constrained minimization, you need the constraints vector and bounds too.
 Bounds on the variables can be passed through a new vector.
 
-```@example adnlp
+```@example adnlp2
+using NLPModels # hide
 f(x) = (x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2
 x0 = [-1.2; 1.0]
 lvar = [-Inf; 0.1]
@@ -179,8 +179,7 @@ println("Jx = $(jac(nlp, nlp.meta.x0))")
 SimpleNLPModel allows you to pass every single function of the model.
 On the other hand, it doesn't handle anything else. Calling an undefined
 function will throw a `NotImplementedError`.
-Only the objective function is mandaroty (if don't need it, pass `x->0`,
-to quickly solve it).
+Only the objective function is mandatory (if you don't need it, pass `x->0`).
 
 ```@example slp
 using NLPModels
@@ -213,8 +212,8 @@ gradient_check(nlp)
 ```
 
 ```@example slp
-g(x) = [2*(x[1] - 1.0); 8*x[2] - 1.0] # Find the error
-nlp = SimpleNLPModel(f, x0, g=g)
+gwrong(x) = [2*(x[1] - 1.0); 8*x[2] - 1.0] # Find the error
+nlp = SimpleNLPModel(f, x0, g=gwrong)
 gradient_check(nlp)
 ```
 
@@ -232,9 +231,10 @@ jprod(nlp, ones(2), ones(2))
 
 Furthermore, NLPModels also works with inplace operations.
 Since some models do not take full advantage of this (like ADNLPModel),
-an user might want to define his own functions that do.
+a user might want to define his/her own functions that do.
 
-```@example slp
+```@example slp2
+using NLPModels # hide
 f(x) = (x[1] - 1.0)^2 + 4*(x[2] - 1.0)^2
 x0 = zeros(2)
 g!(x, gx) = begin

@@ -30,8 +30,8 @@ If not, click on the link and go to the description.
 - `prod` means matrix-vector product;
 - `_op` means operator (as in [LinearOperators.jl](https://github.com/JuliaSmoothOptimizers/LinearOperators.jl)).
 
-If there is some operator you feel should be default for every model, open an
-issue, so we can discuss.
+Feel free to open an issue to suggest other methods that should apply to all
+NLPModels instances.
 
 | Function          | NLPModels function                                                                                                                                                                                   |
 |-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
