@@ -91,7 +91,7 @@ immutable NLPModelMeta <: AbstractNLPModelMeta
   minimize :: Bool          # true if optimize == minimize
   nlo  :: Int               # number of nonlinear objectives
   islp :: Bool              # true if the problem is a linear program
-  name :: ASCIIString       # problem name
+  name :: String       # problem name
 
   function NLPModelMeta(nvar;
                         x0=zeros(nvar,),

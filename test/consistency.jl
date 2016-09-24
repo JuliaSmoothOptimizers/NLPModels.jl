@@ -1,5 +1,3 @@
-using Base.Test
-
 function consistent_meta(nlps; rtol=1.0e-8)
   fields = [:nvar, :x0, :lvar, :uvar, :ifix, :ilow, :iupp, :irng, :ifree, :ncon,
     :y0]
@@ -197,22 +195,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
 
 end
 
-function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
-  path = dirname(@__FILE__)
-  problem_s = string(problem)
-  @printf("Checking problem %-15s%20s\t", problem_s, "")
-  include("$problem_s.jl")
-  problem_f = eval(problem)
-  nlp_ampl = AmplModel(joinpath(path, "$problem_s.nl"))
-  nlp_autodiff = eval(parse("$(problem)_autodiff"))()
-  nlp_jump = JuMPNLPModel(problem_f())
-  nlp_simple = eval(parse("$(problem)_simple"))()
-  nlps = [nlp_ampl; nlp_autodiff; nlp_jump; nlp_simple]
-  @unix_only begin
-    nlp_cutest = CUTEstModel(uppercase(problem_s))
-    push!(nlps, nlp_cutest)
-  end
-
+function consistent_nlps(nlps; nloops=100, rtol=1.0e-8)
   consistent_counters(nlps)
   consistent_meta(nlps, rtol=rtol)
   consistent_functions(nlps, nloops=nloops, rtol=rtol)
@@ -224,18 +207,22 @@ function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
   @printf("✓\n")
 
   # If there are inequalities, test the SlackModels of each of these models
-  if nlp_autodiff.meta.ncon > length(nlp_autodiff.meta.jfix)
-    @printf("Checking slack variation of problem %-15s\t", problem_s)
+  if nlps[1].meta.ncon > length(nlps[1].meta.jfix)
+    @printf("  Checking slack variation %15s\t", "")
     slack_nlps = [SlackModel(nlp) for nlp in nlps]
     consistent_functions(slack_nlps)
     @printf("✓\n")
   end
-
-  amplmodel_finalize(nlp_ampl)
-  @unix_only cutest_finalize(nlp_cutest)
 end
 
-problems = [:brownden, :hs5, :hs6, :hs10, :hs11, :hs14]
-for problem in problems
-  consistency(problem)
+function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
+  problem_s = string(problem)
+  @printf("Checking problem %-15s%12s\t", problem_s, "")
+  problem_f = eval(problem)
+  nlp_autodiff = eval(parse("$(problem)_autodiff"))()
+  nlp_jump = JuMPNLPModel(problem_f())
+  nlp_simple = eval(parse("$(problem)_simple"))()
+  nlps = [nlp_autodiff; nlp_jump; nlp_simple]
+
+  consistent_nlps(nlps, nloops=nloops, rtol=rtol)
 end

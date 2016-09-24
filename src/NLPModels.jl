@@ -1,6 +1,8 @@
 module NLPModels
 
 using Compat
+import Compat.String
+
 using LinearOperators
 
 export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters
@@ -18,7 +20,7 @@ include("nlp_utils.jl");
 include("nlp_types.jl");
 
 type NotImplementedError <: Exception
-  name :: Union{Symbol,Function,ASCIIString}
+  name :: Union{Symbol,Function,String}
 end
 
 Base.showerror(io::IO, e::NotImplementedError) = print(io, e.name,

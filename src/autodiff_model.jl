@@ -96,7 +96,7 @@ end
 
 function grad!(nlp :: ADNLPModel, x :: Vector, g :: Vector)
   nlp.counters.neval_grad += 1
-  ForwardDiff.gradient!(sub(g, 1:length(x)), nlp.f, x)
+  ForwardDiff.gradient!(view(g, 1:length(x)), nlp.f, x)
 end
 
 function cons(nlp :: ADNLPModel, x :: Vector)
