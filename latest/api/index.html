@@ -325,27 +325,115 @@
 </table>
 <p><a id='AbstractNLPModel-functions-1'></a></p>
 <h2 id="abstractnlpmodel-functions">AbstractNLPModel functions</h2>
-<div class="code"><pre><span></span>obj
-grad
-grad!
-cons
-cons!
-jac_coord
-jac
-jprod
-jprod!
-jtprod
-jtprod!
-hess_coord
-hess
-hess_op
-hprod
-hprod!
-NLPtoMPB
-reset!
+<p><a id='NLPModels.obj' href='#NLPModels.obj'>#</a>
+<strong><code>NLPModels.obj</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>obj(nlp, x)</code></p>
+<p>Evaluate $f(x)$, the objective function of <code>nlp</code> at <code>x</code>.</p>
+<p><a id='NLPModels.grad' href='#NLPModels.grad'>#</a>
+<strong><code>NLPModels.grad</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>grad(nlp, x)</code></p>
+<p>Evaluate $\nabla f(x)$, the gradient of the objective function at <code>x</code>.</p>
+<p><a id='NLPModels.grad!' href='#NLPModels.grad!'>#</a>
+<strong><code>NLPModels.grad!</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>grad!(nlp, x, g)</code></p>
+<p>Evaluate $\nabla f(x)$, the gradient of the objective function at <code>x</code> in place.</p>
+<p><a id='NLPModels.cons' href='#NLPModels.cons'>#</a>
+<strong><code>NLPModels.cons</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>cons(nlp, x)</code></p>
+<p>Evaluate $c(x)$, the constraints at <code>x</code>.</p>
+<p><a id='NLPModels.cons!' href='#NLPModels.cons!'>#</a>
+<strong><code>NLPModels.cons!</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>cons!(nlp, x, c)</code></p>
+<p>Evaluate $c(x)$, the constraints at <code>x</code> in place.</p>
+<p><a id='NLPModels.jac_coord' href='#NLPModels.jac_coord'>#</a>
+<strong><code>NLPModels.jac_coord</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>(rows,cols,vals) = jac_coord(nlp, x)</code></p>
+<p>Evaluate $\nabla c(x)$, the constraint's Jacobian at <code>x</code> in sparse coordinate format.</p>
+<p><a id='NLPModels.jac' href='#NLPModels.jac'>#</a>
+<strong><code>NLPModels.jac</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>Jx = jac(nlp, x)</code></p>
+<p>Evaluate $\nabla c(x)$, the constraint's Jacobian at <code>x</code> as a sparse matrix.</p>
+<p><a id='NLPModels.jprod' href='#NLPModels.jprod'>#</a>
+<strong><code>NLPModels.jprod</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>Jv = jprod(nlp, x, v)</code></p>
+<p>Evaluate $\nabla c(x)v$, the Jacobian-vector product at <code>x</code>.</p>
+<p><a id='NLPModels.jprod!' href='#NLPModels.jprod!'>#</a>
+<strong><code>NLPModels.jprod!</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>Jv = jprod!(nlp, x, v, Jv)</code></p>
+<p>Evaluate $\nabla c(x)v$, the Jacobian-vector product at <code>x</code> in place.</p>
+<p><a id='NLPModels.jtprod' href='#NLPModels.jtprod'>#</a>
+<strong><code>NLPModels.jtprod</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>Jtv = jtprod(nlp, x, v, Jtv)</code></p>
+<p>Evaluate $\nabla c(x)^Tv$, the transposed-Jacobian-vector product at <code>x</code>.</p>
+<p><a id='NLPModels.jtprod!' href='#NLPModels.jtprod!'>#</a>
+<strong><code>NLPModels.jtprod!</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>Jtv = jtprod!(nlp, x, v, Jtv)</code></p>
+<p>Evaluate $\nabla c(x)^Tv$, the transposed-Jacobian-vector product at <code>x</code> in place.</p>
+<p><a id='NLPModels.hess_coord' href='#NLPModels.hess_coord'>#</a>
+<strong><code>NLPModels.hess_coord</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0, y=zeros)</code></p>
+<p>Evaluate the Lagrangian Hessian at <code>(x,y)</code> in sparse coordinate format, with objective function scaled by <code>obj_weight</code>, i.e.,</p>
+<p>
+<script type="math/tex; mode=display"> \nabla^2L(x,y) = \sigma * \nabla^2 f(x) + \sum_{i=1}^m y_i\nabla^2 c_i(x), </script>
+</p>
+<p>with σ = obj_weight. Only the lower triangle is returned.</p>
+<p><a id='NLPModels.hess' href='#NLPModels.hess'>#</a>
+<strong><code>NLPModels.hess</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>Hx = hess(nlp, x; obj_weight=1.0, y=zeros)</code></p>
+<p>Evaluate the Lagrangian Hessian at <code>(x,y)</code> as a sparse matrix, with objective function scaled by <code>obj_weight</code>, i.e.,</p>
+<p>
+<script type="math/tex; mode=display"> \nabla^2L(x,y) = \sigma * \nabla^2 f(x) + \sum_{i=1}^m y_i\nabla^2 c_i(x), </script>
+</p>
+<p>with σ = obj_weight. Only the lower triangle is returned.</p>
+<p><a id='NLPModels.hess_op' href='#NLPModels.hess_op'>#</a>
+<strong><code>NLPModels.hess_op</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>H = hess_op(nlp, x; obj_weight=1.0, y=zeros)</code></p>
+<p>Return the Lagrangian Hessian at <code>(x,y)</code> with objective function scaled by <code>obj_weight</code> as a linear operator. The resulting object may be used as if it were a matrix, e.g., <code>H * v</code>. The linear operator H represents</p>
+<p>
+<script type="math/tex; mode=display"> \nabla^2L(x,y) = \sigma * \nabla^2 f(x) + \sum_{i=1}^m y_i\nabla^2 c_i(x), </script>
+</p>
+<p>with σ = obj_weight.</p>
+<p><a id='NLPModels.hprod' href='#NLPModels.hprod'>#</a>
+<strong><code>NLPModels.hprod</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>Hv = hprod(nlp, x, v; obj_weight=1.0, y=zeros)</code></p>
+<p>Evaluate the product of the Lagrangian Hessian at <code>(x,y)</code> with the vector <code>v</code>, with objective function scaled by <code>obj_weight</code>, i.e.,</p>
+<p>
+<script type="math/tex; mode=display"> \nabla^2L(x,y) = \sigma * \nabla^2 f(x) + \sum_{i=1}^m y_i\nabla^2 c_i(x), </script>
+</p>
+<p>with σ = obj_weight.</p>
+<p><a id='NLPModels.hprod!' href='#NLPModels.hprod!'>#</a>
+<strong><code>NLPModels.hprod!</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0, y=zeros)</code></p>
+<p>Evaluate the product of the Lagrangian Hessian at <code>(x,y)</code> with the vector <code>v</code> in place, with objective function scaled by <code>obj_weight</code>, i.e.,</p>
+<p>
+<script type="math/tex; mode=display"> \nabla^2L(x,y) = \sigma * \nabla^2 f(x) + \sum_{i=1}^m y_i\nabla^2 c_i(x), </script>
+</p>
+<p>with σ = obj_weight.</p>
+<p><a id='NLPModels.NLPtoMPB' href='#NLPModels.NLPtoMPB'>#</a>
+<strong><code>NLPModels.NLPtoMPB</code></strong> &mdash; <em>Function</em>.</p>
+<div class="code"><pre><span></span>mp = NLPtoMPB(nlp, solver)
 </pre></div>
 
 
+<p>Return a <code>MathProgBase</code> model corresponding to an <code>AbstractNLPModel</code>.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>nlp::AbstractNLPModel</code></li>
+<li><code>solver::AbstractMathProgSolver</code> a solver instance, e.g., <code>IpoptSolver()</code></li>
+</ul>
+<p>Currently, all models are treated as nonlinear models.</p>
+<p><strong>Return values</strong></p>
+<p>The function returns a <code>MathProgBase</code> model <code>mpbmodel</code> such that it should be possible to call</p>
+<div class="code"><pre><span></span>MathProgBase.optimize!(mpbmodel)
+</pre></div>
+
+
+<p><a id='NLPModels.reset!' href='#NLPModels.reset!'>#</a>
+<strong><code>NLPModels.reset!</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>reset!(counters)</code></p>
+<p>Reset evaluation counters</p>
+<p>`reset!(nlp)</p>
+<p>Reset evaluation count in <code>nlp</code></p>
 <p><a id='Derivative-check-1'></a></p>
 <h2 id="derivative-check">Derivative check</h2>
 <p><a id='NLPModels.gradient_check' href='#NLPModels.gradient_check'>#</a>

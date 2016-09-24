@@ -329,8 +329,8 @@
 <p><a id='Internal-Interfaces-1'></a></p>
 <h2 id="internal-interfaces">Internal Interfaces</h2>
 <ul>
-<li><a href="./@ref"><code>ADNLPModel</code></a>: Uses    <a href="http://github.com/JuliaDiff/ForwardDiff.jl"><code>ForwardDiff</code></a> to compute the    derivatives. It has a very simple interface, though it isn't very efficient    for larger problems.</li>
-<li><a href="./@ref"><code>MathProgNLPModel</code></a>: Uses a <code>MathProgModel</code>, derived from a    <a href="https://github.com/JuliaOpt/MathProgBase.jl"><code>AbstractMathProgModel</code></a> model.    For instance, <a href="https://github.com/JuliaOpt/JuMP.jl"><code>JuMP.jl</code></a> models can be    used.</li>
+<li><a href="models/#NLPModels.ADNLPModel"><code>ADNLPModel</code></a>: Uses    <a href="http://github.com/JuliaDiff/ForwardDiff.jl"><code>ForwardDiff</code></a> to compute the    derivatives. It has a very simple interface, though it isn't very efficient    for larger problems.</li>
+<li><a href="models/#NLPModels.MathProgNLPModel"><code>MathProgNLPModel</code></a>: Uses a <code>MathProgModel</code>, derived from a    <a href="https://github.com/JuliaOpt/MathProgBase.jl"><code>AbstractMathProgModel</code></a> model.    For instance, <a href="https://github.com/JuliaOpt/JuMP.jl"><code>JuMP.jl</code></a> models can be    used.</li>
 <li><a href="models/#NLPModels.SimpleNLPModel"><code>SimpleNLPModel</code></a>: Only uses user defined functions.</li>
 <li><a href="models/#NLPModels.SlackModel"><code>SlackModel</code></a>: Creates an equality constrained problem with bounds     on the variables using an existing NLPModel.</li>
 </ul>

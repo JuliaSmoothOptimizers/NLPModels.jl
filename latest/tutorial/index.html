@@ -207,6 +207,12 @@
               </a>
             </li>
           
+            <li class="anchor">
+              <a title="SimpleNLPModel Tutorial" href="#simplenlpmodel-tutorial">
+                SimpleNLPModel Tutorial
+              </a>
+            </li>
+          
         </ul>
       
     
@@ -271,145 +277,191 @@
 <h2 id="adnlpmodel-tutorial">ADNLPModel Tutorial</h2>
 <p>ADNLPModel is simple to use and is useful for classrooms. It only needs the objective function $f$ and a starting point $x^0$ to be well-defined. For constrained problems, you'll also need the constraints function $c$, and the constraints vectors $c_L$ and $c_U$, such that $c_L \leq c(x) \leq c_U$. Equality constraints will be automatically identified as those indices $i$ for which $c_{L_i} = c_{U_i}$.</p>
 <p>Let's define the famous Rosenbrock function <script type="math/tex; mode=display">\begin{align*} f(x) = (x_1 - 1)^2 + 100(x_2 - x_1^2)^2, \end{align*}</script> with starting point $x^0 = (-1.2,1.0)$.</p>
-<p>```@example adnlp
-using NLPModels</p>
-<p>nlp = ADNLPModel(x-&gt;(x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2 , [-1.2; 1.0])</p>
-<div class="code"><pre><span></span>This is enough to define the model. Let&#39;s get the objective function value at $x^0$, using only `nlp`.
+<div class="code"><pre><span></span><span class="k">using</span> <span class="n">NLPModels</span>
+
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">ADNLPModel</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">100</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span> <span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.2</span><span class="p">;</span> <span class="mf">1.0</span><span class="p">])</span>
+</pre></div>
 
 
-```@example adnlp
-fx = obj(nlp, nlp.meta.x0)
-println(&quot;fx = $fx&quot;)
+<div class="code"><pre><span></span>NLPModels.ADNLPModel(Minimization problem Generic
+nvar = 2, ncon = 0 (0 linear)
+,NLPModels.Counters(0,0,0,0,0,0,0,0,0,0,0),(anonymous function),(anonymous function))
+</pre></div>
+
+
+<p>This is enough to define the model. Let's get the objective function value at $x^0$, using only <code>nlp</code>.</p>
+<div class="code"><pre><span></span><span class="n">fx</span> <span class="o">=</span> <span class="n">obj</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">nlp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">x0</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;fx = </span><span class="si">$fx</span><span class="s">&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="code"><pre><span></span>fx = 24.199999999999996
 </pre></div>
 
 
 <p>Done. Let's try the gradient and Hessian.</p>
-<p>```@example adnlp
-gx = grad(nlp, nlp.meta.x0)
-Hx = hess(nlp, nlp.meta.x0)
-println("gx = $gx")
-println("Hx = $Hx")</p>
-<div class="code"><pre><span></span>Notice how only the lower triangle of the Hessian is stored. Also notice that it is *dense*. This is a current limitation of this model. It doesn&#39;t return sparse matrices, so use it with care.
+<div class="code"><pre><span></span><span class="n">gx</span> <span class="o">=</span> <span class="n">grad</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">nlp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">x0</span><span class="p">)</span>
+<span class="n">Hx</span> <span class="o">=</span> <span class="n">hess</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">nlp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">x0</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;gx = </span><span class="si">$gx</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;Hx = </span><span class="si">$Hx</span><span class="s">&quot;</span><span class="p">)</span>
+</pre></div>
 
 
-Let&#39;s do something a little more complex here, defining a function to try to solve this problem through steepest descent method with Armijo search. Namely, the method
+<div class="code"><pre><span></span>gx = [-215.59999999999997,-87.99999999999999]
+Hx = [1330.0 0.0
+ 480.0 200.0]
+</pre></div>
 
 
-1. Given $x^0$, $\varepsilon &gt; 0$, and $\eta \in (0,1)$. Set $k = 0$;
-2. If $\Vert \nabla f(x^k) \Vert &lt; \varepsilon$ STOP with $x^* = x^k$;
-3. Compute $d^k = -\nabla f(x^k)$;
-4. Compute $\alpha_k \in (0,1]$ such that $ f(x^k + \alpha_kd^k) &lt; f(x^k) + \alpha_k\eta \nabla f(x^k)^Td^k $
-5. Define $x^{k+1} = x^k + \alpha_kx^k$
-6. Update $k = k + 1$ and go to step 2.
+<p>Notice how only the lower triangle of the Hessian is stored. Also notice that it is <em>dense</em>. This is a current limitation of this model. It doesn't return sparse matrices, so use it with care.</p>
+<p>Let's do something a little more complex here, defining a function to try to solve this problem through steepest descent method with Armijo search. Namely, the method</p>
+<ol>
+<li>Given $x^0$, $\varepsilon &gt; 0$, and $\eta \in (0,1)$. Set $k = 0$;</li>
+<li>If $\Vert \nabla f(x^k) \Vert &lt; \varepsilon$ STOP with $x^* = x^k$;</li>
+<li>Compute $d^k = -\nabla f(x^k)$;</li>
+<li>Compute $\alpha_k \in (0,1]$ such that $ f(x^k + \alpha_kd^k) &lt; f(x^k) + \alpha_k\eta \nabla f(x^k)^Td^k $</li>
+<li>Define $x^{k+1} = x^k + \alpha_kx^k$</li>
+<li>Update $k = k + 1$ and go to step 2.</li>
+</ol>
+<div class="code"><pre><span></span><span class="k">function</span><span class="nf"> steepest</span><span class="p">(</span><span class="n">nlp</span><span class="p">;</span> <span class="n">itmax</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="nb">eps</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.66</span><span class="p">)</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">x0</span>
+  <span class="n">fx</span> <span class="o">=</span> <span class="n">obj</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+  <span class="n">∇fx</span> <span class="o">=</span> <span class="n">grad</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+  <span class="n">slope</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">∇fx</span><span class="p">,</span> <span class="n">∇fx</span><span class="p">)</span>
+  <span class="n">∇f_norm</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">slope</span><span class="p">)</span>
+  <span class="n">iter</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="k">while</span> <span class="n">∇f_norm</span> <span class="o">&gt;</span> <span class="nb">eps</span> <span class="o">&amp;&amp;</span> <span class="n">iter</span> <span class="o">&lt;</span> <span class="n">itmax</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">x_trial</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">t</span> <span class="o">*</span> <span class="n">∇fx</span>
+    <span class="n">f_trial</span> <span class="o">=</span> <span class="n">obj</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x_trial</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">obj</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="n">t</span><span class="o">*</span><span class="n">∇fx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">fx</span> <span class="o">-</span> <span class="n">eta</span> <span class="o">*</span> <span class="n">t</span> <span class="o">*</span> <span class="n">slope</span>
+      <span class="n">t</span> <span class="o">*=</span> <span class="n">sigma</span>
+      <span class="n">x_trial</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">t</span> <span class="o">*</span> <span class="n">∇fx</span>
+      <span class="n">f_trial</span> <span class="o">=</span> <span class="n">obj</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x_trial</span><span class="p">)</span>
+    <span class="k">end</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x_trial</span>
+    <span class="n">fx</span> <span class="o">=</span> <span class="n">f_trial</span>
+    <span class="n">∇fx</span> <span class="o">=</span> <span class="n">grad</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">slope</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">∇fx</span><span class="p">,</span> <span class="n">∇fx</span><span class="p">)</span>
+    <span class="n">∇f_norm</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">slope</span><span class="p">)</span>
+    <span class="n">iter</span> <span class="o">+=</span> <span class="mi">1</span>
+  <span class="k">end</span>
+  <span class="n">optimal</span> <span class="o">=</span> <span class="n">∇f_norm</span> <span class="o">&lt;=</span> <span class="nb">eps</span>
+  <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">fx</span><span class="p">,</span> <span class="n">∇f_norm</span><span class="p">,</span> <span class="n">optimal</span><span class="p">,</span> <span class="n">iter</span>
+<span class="k">end</span>
+
+<span class="n">x</span><span class="p">,</span> <span class="n">fx</span><span class="p">,</span> <span class="n">ngx</span><span class="p">,</span> <span class="n">optimal</span><span class="p">,</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">steepest</span><span class="p">(</span><span class="n">nlp</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;x = </span><span class="si">$x</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;fx = </span><span class="si">$fx</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;ngx = </span><span class="si">$ngx</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;optimal = </span><span class="si">$optimal</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;iter = </span><span class="si">$iter</span><span class="s">&quot;</span><span class="p">)</span>
+</pre></div>
 
 
-```@example adnlp
-function steepest(nlp; itmax=100000, eta=1e-4, eps=1e-6, sigma=0.66)
-  x = nlp.meta.x0
-  fx = obj(nlp, x)
-  ∇fx = grad(nlp, x)
-  slope = dot(∇fx, ∇fx)
-  ∇f_norm = sqrt(slope)
-  iter = 0
-  while ∇f_norm &gt; eps &amp;&amp; iter &lt; itmax
-    t = 1.0
-    x_trial = x - t * ∇fx
-    f_trial = obj(nlp, x_trial)
-    while obj(nlp, x - t*∇fx) &gt; fx - eta * t * slope
-      t *= sigma
-      x_trial = x - t * ∇fx
-      f_trial = obj(nlp, x_trial)
-    end
-    x = x_trial
-    fx = f_trial
-    ∇fx = grad(nlp, x)
-    slope = dot(∇fx, ∇fx)
-    ∇f_norm = sqrt(slope)
-    iter += 1
-  end
-  optimal = ∇f_norm &lt;= eps
-  return x, fx, ∇f_norm, optimal, iter
-end
-
-x, fx, ngx, optimal, iter = steepest(nlp)
-println(&quot;x = $x&quot;)
-println(&quot;fx = $fx&quot;)
-println(&quot;ngx = $ngx&quot;)
-println(&quot;optimal = $optimal&quot;)
-println(&quot;iter = $iter&quot;)
+<div class="code"><pre><span></span>x = [1.0000006499501406,1.0000013043156974]
+fx = 4.2438440239813445e-13
+ngx = 9.984661274466946e-7
+optimal = true
 </pre></div>
 
 
 <p>Maybe this code is too complicated? If you're in a class you just want to show a Newton step.</p>
-<p>```@example adnlp
-g(x) = grad(nlp, x)
-H(x) = hess(nlp, x) + triu(hess(nlp, x)', 1)
-x = nlp.meta.x0
-d = -H(x)\g(x)</p>
-<div class="code"><pre><span></span>or a few
+<div class="code"><pre><span></span><span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">grad</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+<span class="n">H</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">hess</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">triu</span><span class="p">(</span><span class="n">hess</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span><span class="o">&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">x0</span>
+<span class="n">d</span> <span class="o">=</span> <span class="o">-</span><span class="n">H</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>\<span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
 
 
-```@example adnlp
-for i = 1:5
-  x = x - H(x)\g(x)
-  println(&quot;x = $x&quot;)
-end
+<div class="code"><pre><span></span>2-element Array{Float64,1}:
+ 0.0247191
+ 0.380674
+</pre></div>
+
+
+<p>or a few</p>
+<div class="code"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">5</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">H</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>\<span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  <span class="n">println</span><span class="p">(</span><span class="s">&quot;x = </span><span class="si">$x</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<div class="code"><pre><span></span>x = [-1.1752808988764043,1.3806741573033705]
+x = [0.763114871176745,-3.1750338547488415]
+x = [0.7634296788843487,0.5828247754975662]
+x = [0.9999953110849514,0.9440273238534179]
+x = [0.9999956956536327,0.999991391325645]
 </pre></div>
 
 
 <p>Also, notice how we can reuse the method.</p>
-<p>```@example adnlp
-f(x) = (x[1]^2 + x[2]^2 - 4)^2 + (x[1]*x[2] - 1)^2
-x0 = [2.0; 1.0]
-nlp = ADNLPModel(f, x0)</p>
-<p>x, fx, ngx, optimal, iter = steepest(nlp)</p>
-<div class="code"><pre><span></span>Even using a different model.
+<div class="code"><pre><span></span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">^</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">4</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span>
+<span class="n">x0</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">;</span> <span class="mf">1.0</span><span class="p">]</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">ADNLPModel</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span>
+
+<span class="n">x</span><span class="p">,</span> <span class="n">fx</span><span class="p">,</span> <span class="n">ngx</span><span class="p">,</span> <span class="n">optimal</span><span class="p">,</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">steepest</span><span class="p">(</span><span class="n">nlp</span><span class="p">)</span>
+</pre></div>
 
 
-```@example adnlp
-using OptimizationProblems # Defines a lot of JuMP models
+<div class="code"><pre><span></span>([1.9318516779143746,0.5176381004152917],1.2842480268876117e-14,9.402834701778815e-7,true,120)
+</pre></div>
 
-nlp = MathProgNLPModel(woods())
-x, fx, ngx, optimal, iter = steepest(nlp)
-println(&quot;fx = $fx&quot;)
-println(&quot;ngx = $ngx&quot;)
-println(&quot;optimal = $optimal&quot;)
-println(&quot;iter = $iter&quot;)
+
+<p>Even using a different model.</p>
+<div class="code"><pre><span></span><span class="k">using</span> <span class="n">OptimizationProblems</span> <span class="c"># Defines a lot of JuMP models</span>
+
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">MathProgNLPModel</span><span class="p">(</span><span class="n">woods</span><span class="p">())</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">fx</span><span class="p">,</span> <span class="n">ngx</span><span class="p">,</span> <span class="n">optimal</span><span class="p">,</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">steepest</span><span class="p">(</span><span class="n">nlp</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;fx = </span><span class="si">$fx</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;ngx = </span><span class="si">$ngx</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;optimal = </span><span class="si">$optimal</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;iter = </span><span class="si">$iter</span><span class="s">&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="code"><pre><span></span>fx = 1.0000000000002167
+ngx = 9.893253859340887e-7
+optimal = true
+iter = 12016
 </pre></div>
 
 
 <p>For constrained minimization, you need the constraints vector and bounds too. Bounds on the variables can be passed through a new vector.</p>
-<p>```@example adnlp2
-using NLPModels # hide
-f(x) = (x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2
-x0 = [-1.2; 1.0]
-lvar = [-Inf; 0.1]
-uvar = [0.5; 0.5]
-c(x) = [x[1] + x[2] - 2; x[1]^2 + x[2]^2]
-lcon = [0.0; -Inf]
-ucon = [Inf; 1.0]
-nlp = ADNLPModel(f, x0, c=c, lvar=lvar, uvar=uvar, lcon=lcon, ucon=ucon)</p>
-<p>println("cx = $(cons(nlp, nlp.meta.x0))")
-println("Jx = $(jac(nlp, nlp.meta.x0))")</p>
-<div class="code"><pre><span></span>&lt;a id=&#39;SimpleNLPModel-Tutorial-1&#39;&gt;&lt;/a&gt;
+<div class="code"><pre><span></span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">100</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span>
+<span class="n">x0</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.2</span><span class="p">;</span> <span class="mf">1.0</span><span class="p">]</span>
+<span class="n">lvar</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="nb">Inf</span><span class="p">;</span> <span class="mf">0.1</span><span class="p">]</span>
+<span class="n">uvar</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">;</span> <span class="mf">0.5</span><span class="p">]</span>
+<span class="n">c</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span><span class="p">;</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">^</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">lcon</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">;</span> <span class="o">-</span><span class="nb">Inf</span><span class="p">]</span>
+<span class="n">ucon</span> <span class="o">=</span> <span class="p">[</span><span class="nb">Inf</span><span class="p">;</span> <span class="mf">1.0</span><span class="p">]</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">ADNLPModel</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">lvar</span><span class="o">=</span><span class="n">lvar</span><span class="p">,</span> <span class="n">uvar</span><span class="o">=</span><span class="n">uvar</span><span class="p">,</span> <span class="n">lcon</span><span class="o">=</span><span class="n">lcon</span><span class="p">,</span> <span class="n">ucon</span><span class="o">=</span><span class="n">ucon</span><span class="p">)</span>
 
-## SimpleNLPModel Tutorial
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;cx = </span><span class="si">$(cons(nlp, nlp.meta.x0))</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;Jx = </span><span class="si">$(jac(nlp, nlp.meta.x0))</span><span class="s">&quot;</span><span class="p">)</span>
+</pre></div>
 
 
-SimpleNLPModel allows you to pass every single function of the model. On the other hand, it doesn&#39;t handle anything else. Calling an undefined function will throw a `NotImplementedError`. Only the objective function is mandatory (if you don&#39;t need it, pass `x-&gt;0`).
+<div class="code"><pre><span></span>cx = [-2.2,2.44]
+Jx = [1.0 1.0
+ -2.4 2.0]
+</pre></div>
 
 
-```julia
-using NLPModels
+<p><a id='SimpleNLPModel-Tutorial-1'></a></p>
+<h2 id="simplenlpmodel-tutorial">SimpleNLPModel Tutorial</h2>
+<p>SimpleNLPModel allows you to pass every single function of the model. On the other hand, it doesn't handle anything else. Calling an undefined function will throw a <code>NotImplementedError</code>. Only the objective function is mandatory (if you don't need it, pass <code>x-&gt;0</code>).</p>
+<div class="code"><pre><span></span><span class="k">using</span> <span class="n">NLPModels</span>
 
-f(x) = (x[1] - 1.0)^2 + 4*(x[2] - 1.0)^2
-x0 = zeros(2)
-nlp = SimpleNLPModel(f, x0)
+<span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span>
+<span class="n">x0</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">SimpleNLPModel</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span>
 
-fx = obj(nlp, nlp.meta.x0)
-println(&quot;fx = $fx&quot;)
+<span class="n">fx</span> <span class="o">=</span> <span class="n">obj</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">nlp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">x0</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;fx = </span><span class="si">$fx</span><span class="s">&quot;</span><span class="p">)</span>
 
-# grad(nlp, nlp.meta.x0) # This is undefined
+<span class="c"># grad(nlp, nlp.meta.x0) # This is undefined</span>
 </pre></div>
 
 
