@@ -13,12 +13,6 @@ model = ADNLPModel(x->dot(x,x), zeros(2), name="square")
 ignore_throw = [:reset!, :hess_op, :gradient_check, :hessian_check,
     :jacobian_check, :hessian_check_from_grad]
 @assert model.meta.name == "square"
-for meth in filter(f -> isa(eval(f), Function), names(NLPModels))
-  meth in ignore_throw && continue
-  meth in fieldnames(model.counters) && continue
-  meth = eval(meth)
-  @test_throws(NotImplementedError, meth(model))
-end
 
 model = MathProgNLPModel(genrose(), name="genrose")
 @assert model.meta.name == "genrose"
@@ -32,7 +26,7 @@ obj(model, model.meta.x0)
 reset!(model)
 @assert neval_obj(model) == 0
 
-@test_throws(NotImplementedError, jth_con(model))
+@test_throws(NotImplementedError, jth_con(model, model.meta.x0, 1))
 
 include("test_slack_model.jl")
 
