@@ -2,8 +2,8 @@
 
 This package provides general guidelines to represent optimization problems in
 Julia and a standardized API to evaluate the functions and their derivatives.
-The main objective is to be able to rely on that API when designing optimization
-solvers in Julia.
+The main objective is to be able to rely on that [API](api) when designing
+optimization solvers in Julia.
 
 ## Introduction
 
@@ -34,6 +34,7 @@ L(x,\lambda,z^L,z^U;\sigma) = \sigma f(x) + c(x)^T\lambda  + \sum_{i=1}^n z_i^L(
 + \sum_{i=1}^nz_i^U(u_i-x_i),
 \end{align*}
 where $\sigma$ is a scaling parameter included for computational reasons.
+Notice that, for the Hessian, the variables $z^L$ and $z^U$ are not used.
 
 Optimization problems are represented by an instance/subtype of `AbstractNLPModel`.
 Such instances are composed of
@@ -46,16 +47,24 @@ Such instances are composed of
 
 The current usable version of NLPModels.jl is in the development branch.
 Install with the following commands.
-```
+```julia
 Pkg.clone("https://github.com/JuliaSmoothOptimizers/NLPModels.jl")
 Pkg.build("NLPModels")
 ```
-If you want the `ADNLPModel` or the `JumpNLPModel`, you also need the
-```
+If you want the `ADNLPModel` or the `MathProgNLPModel`, you also need the
+```julia
 Pkg.add("ForwardDiff")
+Pkg.add("MathProgBase")
+```
+respectively. In addition, if you want to create a `MathProgNLPModel` from a
+`JuMP` model, you'll need
+```julia
 Pkg.add("JuMP")
 ```
-respectively.
+
+## Usage
+
+See the [Models](models), or the [Tutorial](tutorial), or the [API](api).
 
 ## Internal Interfaces
 
@@ -63,7 +72,10 @@ respectively.
    [`ForwardDiff`](http://github.com/JuliaDiff/ForwardDiff.jl) to compute the
    derivatives. It has a very simple interface, though it isn't very efficient
    for larger problems.
- - [`JuMPNLPModel`](@ref): Uses a [`JuMP`](https://github.com/JuliaOpt/JuMP.jl) model.
+ - [`MathProgNLPModel`](@ref): Uses a `MathProgModel`, derived from a
+   [`AbstractMathProgModel`](https://github.com/JuliaOpt/MathProgBase.jl) model.
+   For instance, [`JuMP.jl`](https://github.com/JuliaOpt/JuMP.jl) models can be
+   used.
  - [`SimpleNLPModel`](@ref): Only uses user defined functions.
  - [`SlackModel`](@ref): Creates an equality constrained problem with bounds
     on the variables using an existing NLPModel.
@@ -78,3 +90,8 @@ respectively.
    problems from [CUTEst](https://ccpforge.cse.rl.ac.uk/gf/project/cutest/wiki).
 
 If you want your interface here, open a PR.
+
+## Contents
+
+```@contents
+```

@@ -34,6 +34,7 @@ script:
   - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("NLPModels"); Pkg.test("NLPModels"; coverage=true)'
 
 after_success:
-  - julia -e 'Pkg.add("Documenter")'
+  - julia -e 'for pkg in ["Documenter", "JuMP", "ForwardDiff"] Pkg.add(pkg); end'
+  - julia -e 'Pkg.clone("https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl")'
   - julia -e 'cd(Pkg.dir("NLPModels")); include(joinpath("docs", "make.jl"))'
   - julia -e 'cd(Pkg.dir("NLPModels")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'

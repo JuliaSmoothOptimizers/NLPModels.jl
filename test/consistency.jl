@@ -204,20 +204,29 @@ function consistent_nlps(nlps; nloops=100, rtol=1.0e-8)
     reset!(nlp)
   end
   consistent_counters(nlps)
-  @printf("✓\n")
+  @printf("✓%15s", " ")
+  for nlp in nlps
+    @assert length(gradient_check(nlp)) == 0
+    @assert length(jacobian_check(nlp)) == 0
+    @assert sum(map(length, values(hessian_check(nlp)))) == 0
+    @assert sum(map(length, values(hessian_check_from_grad(nlp)))) == 0
+  end
+  @printf("✓%18s", " ")
 
   # If there are inequalities, test the SlackModels of each of these models
   if nlps[1].meta.ncon > length(nlps[1].meta.jfix)
-    @printf("  Checking slack variation %15s\t", "")
     slack_nlps = [SlackModel(nlp) for nlp in nlps]
     consistent_functions(slack_nlps)
-    @printf("✓\n")
+    @printf("✓")
+  else
+    @printf("-")
   end
+  @printf("\n")
 end
 
 function consistency(problem :: Symbol; nloops=100, rtol=1.0e-8)
   problem_s = string(problem)
-  @printf("Checking problem %-15s%12s\t", problem_s, "")
+  @printf("Checking problem %-20s", problem_s)
   problem_f = eval(problem)
   nlp_autodiff = eval(parse("$(problem)_autodiff"))()
   nlp_mpb = MathProgNLPModel(problem_f())

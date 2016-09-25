@@ -1,5 +1,3 @@
-using ForwardDiff
-
 import Compat.view
 
 export SimpleNLPModel, obj, grad, grad!, cons, cons!, jac_coord, jac, jprod,
