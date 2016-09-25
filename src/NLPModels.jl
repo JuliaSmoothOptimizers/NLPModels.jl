@@ -23,8 +23,7 @@ type NotImplementedError <: Exception
   name :: Union{Symbol,Function,String}
 end
 
-Base.showerror(io::IO, e::NotImplementedError) = print(io, e.name,
-  " not implemented")
+Base.showerror(io::IO, e::NotImplementedError) = print(io, e.name, " not implemented")
 
 
 # simple default API for retrieving counters
@@ -60,95 +59,94 @@ end
 
 Evaluate \$f(x)\$, the objective function of `nlp` at `x`.
 """
-obj(nlp :: AbstractNLPModel, args...; kwargs...) =
+obj(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("obj"))
 
 """`grad(nlp, x)`
 
 Evaluate \$\\nabla f(x)\$, the gradient of the objective function at `x`.
 """
-grad(nlp :: AbstractNLPModel, args...; kwargs...) =
+grad(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("grad"))
 
 """`grad!(nlp, x, g)`
 
 Evaluate \$\\nabla f(x)\$, the gradient of the objective function at `x` in place.
 """
-grad!(nlp :: AbstractNLPModel, args...; kwargs...) =
+grad!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("grad!"))
 
 """`cons(nlp, x)`
 
 Evaluate \$c(x)\$, the constraints at `x`.
 """
-cons(nlp :: AbstractNLPModel, args...; kwargs...) =
+cons(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("cons"))
 
 """`cons!(nlp, x, c)`
 
 Evaluate \$c(x)\$, the constraints at `x` in place.
 """
-cons!(nlp :: AbstractNLPModel, args...; kwargs...) =
+cons!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("cons!"))
 
-jth_con(nlp :: AbstractNLPModel, args...; kwargs...) =
+jth_con(::AbstractNLPModel, ::AbstractVector, ::Integer) =
   throw(NotImplementedError("jth_con"))
-jth_congrad(nlp :: AbstractNLPModel, args...; kwargs...) =
+jth_congrad(::AbstractNLPModel, ::AbstractVector, ::Integer) =
   throw(NotImplementedError("jth_congrad"))
-jth_congrad!(nlp :: AbstractNLPModel, args...; kwargs...) =
+jth_congrad!(::AbstractNLPModel, ::AbstractVector, ::Integer, ::AbstractVector) =
   throw(NotImplementedError("jth_congrad!"))
-jth_sparse_congrad(nlp :: AbstractNLPModel, args...; kwargs...) =
+jth_sparse_congrad(::AbstractNLPModel, ::AbstractVector, ::Integer) =
   throw(NotImplementedError("jth_sparse_congrad"))
 
 """`(rows,cols,vals) = jac_coord(nlp, x)`
 
 Evaluate \$\\nabla c(x)\$, the constraint's Jacobian at `x` in sparse coordinate format.
 """
-jac_coord(nlp :: AbstractNLPModel, args...; kwargs...) =
+jac_coord(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("jac_coord"))
 
 """`Jx = jac(nlp, x)`
 
 Evaluate \$\\nabla c(x)\$, the constraint's Jacobian at `x` as a sparse matrix.
 """
-jac(nlp :: AbstractNLPModel, args...; kwargs...) =
-  throw(NotImplementedError("jac"))
+jac(::AbstractNLPModel, ::AbstractVector) = throw(NotImplementedError("jac"))
 
 """`Jv = jprod(nlp, x, v)`
 
 Evaluate \$\\nabla c(x)v\$, the Jacobian-vector product at `x`.
 """
-jprod(nlp :: AbstractNLPModel, args...; kwargs...) =
+jprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("jprod"))
 
 """`Jv = jprod!(nlp, x, v, Jv)`
 
 Evaluate \$\\nabla c(x)v\$, the Jacobian-vector product at `x` in place.
 """
-jprod!(nlp :: AbstractNLPModel, args...; kwargs...) =
+jprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("jprod!"))
 
 """`Jtv = jtprod(nlp, x, v, Jtv)`
 
 Evaluate \$\\nabla c(x)^Tv\$, the transposed-Jacobian-vector product at `x`.
 """
-jtprod(nlp :: AbstractNLPModel, args...; kwargs...) =
+jtprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("jtprod"))
 
 """`Jtv = jtprod!(nlp, x, v, Jtv)`
 
 Evaluate \$\\nabla c(x)^Tv\$, the transposed-Jacobian-vector product at `x` in place.
 """
-jtprod!(nlp :: AbstractNLPModel, args...; kwargs...) =
+jtprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("jtprod!"))
 
-jth_hprod(nlp :: AbstractNLPModel, args...; kwargs...) =
+jth_hprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer) =
   throw(NotImplementedError("jth_hprod"))
-jth_hprod!(nlp :: AbstractNLPModel, args...; kwargs...) =
+jth_hprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer, ::AbstractVector) =
   throw(NotImplementedError("jth_hprod!"))
-ghjvprod(nlp :: AbstractNLPModel, args...; kwargs...) =
+ghjvprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("ghjvprod"))
-ghjvprod!(nlp :: AbstractNLPModel, args...; kwargs...) =
+ghjvprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("ghjvprod!"))
 
 """`(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0, y=zeros)`
@@ -161,7 +159,7 @@ with objective function scaled by `obj_weight`, i.e.,
 with σ = obj_weight.
 Only the lower triangle is returned.
 """
-hess_coord(nlp :: AbstractNLPModel, args...; kwargs...) =
+hess_coord(::AbstractNLPModel, ::AbstractVector; kwargs...) =
   throw(NotImplementedError("hess_coord"))
 
 """`Hx = hess(nlp, x; obj_weight=1.0, y=zeros)`
@@ -174,7 +172,7 @@ with objective function scaled by `obj_weight`, i.e.,
 with σ = obj_weight.
 Only the lower triangle is returned.
 """
-hess(nlp :: AbstractNLPModel, args...; kwargs...) =
+hess(::AbstractNLPModel, ::AbstractVector; kwargs...) =
   throw(NotImplementedError("hess"))
 
 """`Hv = hprod(nlp, x, v; obj_weight=1.0, y=zeros)`
@@ -186,7 +184,7 @@ with objective function scaled by `obj_weight`, i.e.,
 
 with σ = obj_weight.
 """
-hprod(nlp :: AbstractNLPModel, args...; kwargs...) =
+hprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector; kwargs...) =
   throw(NotImplementedError("hprod"))
 
 """`Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0, y=zeros)`
@@ -198,7 +196,7 @@ place, with objective function scaled by `obj_weight`, i.e.,
 
 with σ = obj_weight.
 """
-hprod!(nlp :: AbstractNLPModel, args...; kwargs...) =
+hprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector; kwargs...) =
   throw(NotImplementedError("hprod!"))
 
 """`H = hess_op(nlp, x; obj_weight=1.0, y=zeros)`
@@ -216,11 +214,11 @@ function hess_op(nlp :: AbstractNLPModel, x :: Vector{Float64};
   return LinearOperator(nlp.meta.nvar, Float64, v -> hprod(nlp, x, v; obj_weight=obj_weight, y=y))
 end
 
-varscale(nlp :: AbstractNLPModel, args...; kwargs...) =
+varscale(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("varscale"))
-lagscale(nlp :: AbstractNLPModel, args...; kwargs...) =
+lagscale(::AbstractNLPModel, ::Float64) =
   throw(NotImplementedError("lagscale"))
-conscale(nlp :: AbstractNLPModel, args...; kwargs...) =
+conscale(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("conscale"))
 
 if Pkg.installed("MathProgBase") != nothing
