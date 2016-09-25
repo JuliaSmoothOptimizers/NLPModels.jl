@@ -47,7 +47,7 @@ end
 obj(model, model.meta.x0)
 @assert neval_obj(model) == 1
 
-reset!(model)
+NLPModels.reset!(model)
 @assert neval_obj(model) == 0
 
 @test_throws(NotImplementedError, jth_con(model, model.meta.x0, 1))
