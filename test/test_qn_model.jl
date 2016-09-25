@@ -45,7 +45,7 @@ end
 
 for problem in [:hs10, :hs11, :hs14, :hs15]
   problem_s = string(problem)
-  include("$problem_s.jl")
+  isdefined(problem) || include("$problem_s.jl")
   problem_f = eval(problem)
   nlp_jump = JuMPNLPModel(problem_f())
   @printf("Checking LBFGS formulation of %-8s\t", problem_s)
