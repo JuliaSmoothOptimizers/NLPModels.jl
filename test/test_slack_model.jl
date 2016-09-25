@@ -99,7 +99,7 @@ function check_slack_model(smodel)
   jtu = zeros(N)
   @assert all(jtprod!(smodel, x, u, jtu) == Jtu)
 
-  reset!(smodel)
+  NLPModels.reset!(smodel)
 end
 
 for problem in [:hs10, :hs11, :hs14, :hs15]

@@ -195,23 +195,25 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
 
 end
 
-function consistent_nlps(nlps; nloops=100, rtol=1.0e-8)
+function consistent_nlps(nlps; nloops=100, rtol=1.0e-8, check_derivatives=true)
   consistent_counters(nlps)
   consistent_meta(nlps, rtol=rtol)
   consistent_functions(nlps, nloops=nloops, rtol=rtol)
   consistent_counters(nlps)
   for nlp in nlps
-    reset!(nlp)
+    NLPModels.reset!(nlp)
   end
   consistent_counters(nlps)
   @printf("✓%15s", " ")
-  for nlp in nlps
-    @assert length(gradient_check(nlp)) == 0
-    @assert length(jacobian_check(nlp)) == 0
-    @assert sum(map(length, values(hessian_check(nlp)))) == 0
-    @assert sum(map(length, values(hessian_check_from_grad(nlp)))) == 0
+  if check_derivatives
+    for nlp in nlps
+      @assert length(gradient_check(nlp)) == 0
+      @assert length(jacobian_check(nlp)) == 0
+      @assert sum(map(length, values(hessian_check(nlp)))) == 0
+      @assert sum(map(length, values(hessian_check_from_grad(nlp)))) == 0
+    end
+    @printf("✓%18s", " ")
   end
-  @printf("✓%18s", " ")
 
   # If there are inequalities, test the SlackModels of each of these models
   if nlps[1].meta.ncon > length(nlps[1].meta.jfix)
