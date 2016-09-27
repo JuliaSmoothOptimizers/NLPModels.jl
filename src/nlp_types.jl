@@ -168,7 +168,7 @@ end
 
 # Displaying NLPModelMeta instances.
 
-import Base.show, Base.print
+import Base.show, Base.print, Base.println
 function show(io :: IO, nlp :: NLPModelMeta)
   s  = nlp.minimize ? @sprintf("Minimization ") : @sprintf("Maximization ")
   s *= @sprintf("problem %s\n", nlp.name)
@@ -176,28 +176,34 @@ function show(io :: IO, nlp :: NLPModelMeta)
   print(io, s)
 end
 
+"""
+    print(io, meta)
+
+Prints meta information - x0, nvar, ncon, etc.
+"""
 function print(io :: IO, nlp :: NLPModelMeta)
-  nlp.minimize ? @printf("Minimization ") : @printf("Maximization ")
-  @printf("problem %s\n", nlp.name)
-  @printf("nvar = %d, ncon = %d (%d linear)\n", nlp.nvar, nlp.ncon, nlp.nlin)
-  @printf("lvar = "); display(nlp.lvar'); @printf("\n")
-  @printf("uvar = "); display(nlp.uvar'); @printf("\n")
-  @printf("lcon = "); display(nlp.lcon'); @printf("\n")
-  @printf("ucon = "); display(nlp.ucon'); @printf("\n")
-  @printf("x0 = ");   display(nlp.x0'); @printf("\n")
-  @printf("y0 = ");   display(nlp.y0'); @printf("\n")
-  @printf("nnzh = %d\n", nlp.nnzh);
-  @printf("nnzj = %d\n", nlp.nnzj);
+  nlp.minimize ? @printf(io, "Minimization ") : @printf(io, "Maximization ")
+  dsp(x) = length(x) == 0 ? print(io, "∅") : Base.show_delim_array(io, x, "", "  ", "", false)
+  @printf(io, "problem %s\n", nlp.name)
+  @printf(io, "nvar = %d, ncon = %d (%d linear)\n", nlp.nvar, nlp.ncon, nlp.nlin)
+  @printf(io, "lvar = "); dsp(nlp.lvar'); @printf(io, "\n")
+  @printf(io, "uvar = "); dsp(nlp.uvar'); @printf(io, "\n")
+  @printf(io, "lcon = "); dsp(nlp.lcon'); @printf(io, "\n")
+  @printf(io, "ucon = "); dsp(nlp.ucon'); @printf(io, "\n")
+  @printf(io, "x0 = ");   dsp(nlp.x0'); @printf(io, "\n")
+  @printf(io, "y0 = ");   dsp(nlp.y0'); @printf(io, "\n")
+  @printf(io, "nnzh = %d\n", nlp.nnzh);
+  @printf(io, "nnzj = %d\n", nlp.nnzj);
   if nlp.nlin > 0
-    @printf("linear constraints:    "); display(nlp.lin'); @printf("\n");
+    @printf(io, "linear constraints:    "); dsp(nlp.lin'); @printf(io, "\n");
   end
   if nlp.nnln > 0
-    @printf("nonlinear constraints: "); display(nlp.nln'); @printf("\n");
+    @printf(io, "nonlinear constraints: "); dsp(nlp.nln'); @printf(io, "\n");
   end
   if nlp.nlnet > 0
-    @printf("linear network constraints:   "); display(nlp.lnet'); @printf("\n");
+    @printf(io, "linear network constraints:   "); dsp(nlp.lnet'); @printf(io, "\n");
   end
   if nlp.nnnet > 0
-    @printf("nonlinear network constraints:   "); display(nlp.nnet'); @printf("\n");
+    @printf(io, "nonlinear network constraints:   "); dsp(nlp.nnet'); @printf(io, "\n");
   end
 end
