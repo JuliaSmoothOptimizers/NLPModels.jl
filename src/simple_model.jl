@@ -27,7 +27,7 @@ SimpleNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,
   - `y0 :: Vector` - The initial value of the Lagrangian estimates;
   - `lcon :: Vector` - \$c_L\$, the lower bounds of the constraints function;
   - `ucon :: Vector` - \$c_U\$, the upper bounds of the constraints function;
-  - `name :: AbstractString` - A name for the model.
+  - `name :: String` - A name for the model.
 
 All functions passed have a direct correlation with a NLP function. You don't
 have to define any more than you need, but calling an undefined function will
@@ -139,7 +139,7 @@ function SimpleNLPModel(f::Function, x0::Vector; y0::Vector = [],
     Jp!::Function = NotImplemented,
     Jtp::Function = NotImplemented,
     Jtp!::Function = NotImplemented,
-    name::AbstractString = "Generic")
+    name::String = "Generic")
 
   nvar = length(x0)
   length(lvar) == 0 && (lvar = -Inf*ones(nvar))

@@ -76,7 +76,7 @@ type MathProgNLPModel <: AbstractNLPModel
 end
 
 "Construct a `MathProgNLPModel` from a `MathProgModel`."
-function MathProgNLPModel(mpmodel :: MathProgModel; name :: AbstractString="Generic")
+function MathProgNLPModel(mpmodel :: MathProgModel; name :: String="Generic")
 
   nvar = mpmodel.numVar
   lvar = mpmodel.lvar

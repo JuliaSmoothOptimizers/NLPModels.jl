@@ -24,7 +24,7 @@ ADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,
   - `y0 :: Vector` - The initial value of the Lagrangian estimates;
   - `lcon :: Vector` - \$c_L\$, the lower bounds of the constraints function;
   - `ucon :: Vector` - \$c_U\$, the upper bounds of the constraints function;
-  - `name :: AbstractString` - A name for the model.
+  - `name :: String` - A name for the model.
 
 The functions follow the same restrictions of ForwardDiff functions, summarised
 here:
@@ -53,7 +53,7 @@ end
 function ADNLPModel(f::Function, x0::Vector; y0::Vector = [],
     lvar::Vector = [], uvar::Vector = [], lcon::Vector = [], ucon::Vector = [],
     c::Function = (args...)->throw(NotImplementedError("cons")),
-    name::AbstractString = "Generic")
+    name::String = "Generic")
 
   nvar = length(x0)
   length(lvar) == 0 && (lvar = -Inf*ones(nvar))
