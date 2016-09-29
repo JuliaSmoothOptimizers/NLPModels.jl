@@ -1,3 +1,6 @@
+export bound_constrained, unconstrained, linearly_constrained,
+      equality_constrained, inequality_constrained
+
 # Base type for an optimization model.
 abstract AbstractNLPModel
 
@@ -212,3 +215,50 @@ function print(io :: IO, nlp :: NLPModelMeta)
     @printf(io, "nonlinear network constraints:   "); dsp(nlp.nnet'); @printf(io, "\n");
   end
 end
+
+"""
+    bound_constrained(nlp)
+    bound_constrained(meta)
+
+Returns whether the problem has bounds on the variables.
+"""
+bound_constrained(meta::NLPModelMeta) = length(meta.ifree) < meta.nvar
+bound_constrained(nlp::AbstractNLPModel) = bound_constrained(nlp.meta)
+
+"""
+    unconstrained(nlp)
+    unconstrained(meta)
+
+Returns whether the problem in unconstrained.
+"""
+unconstrained(meta::NLPModelMeta) = meta.ncon == 0
+unconstrained(nlp::AbstractNLPModel) = unconstrained(nlp.meta)
+
+"""
+    linearly_constrained(nlp)
+    linearly_constrained(meta)
+
+Returns whether the problem's constraints are known to be all linear.
+"""
+linearly_constrained(meta::NLPModelMeta) = meta.nlin == meta.ncon > 0
+linearly_constrained(nlp::AbstractNLPModel) = linearly_constrained(nlp.meta)
+
+"""
+    equality_constrained(nlp)
+    equality_constrained(meta)
+
+Returns whether the problem's constraints are all equalities.
+Unconstrained problems return false.
+"""
+equality_constrained(meta::NLPModelMeta) = length(meta.jfix) == meta.ncon > 0
+equality_constrained(nlp::AbstractNLPModel) = equality_constrained(nlp.meta)
+
+"""
+    inequality_constrained(nlp)
+    inequality_constrained(meta)
+
+Returns whether the problem's constraints are all inequalities.
+Unconstrained problems return true.
+"""
+inequality_constrained(meta::NLPModelMeta) = meta.ncon > 0 && length(meta.jfix) == 0
+inequality_constrained(nlp::AbstractNLPModel) = inequality_constrained(nlp.meta)

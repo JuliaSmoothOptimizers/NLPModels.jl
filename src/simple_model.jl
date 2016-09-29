@@ -139,7 +139,8 @@ function SimpleNLPModel(f::Function, x0::Vector; y0::Vector = [],
     Jp!::Function = NotImplemented,
     Jtp::Function = NotImplemented,
     Jtp!::Function = NotImplemented,
-    name::String = "Generic")
+    name::String = "Generic",
+    lin::Vector{Int} = Int[])
 
   nvar = length(x0)
   length(lvar) == 0 && (lvar = -Inf*ones(nvar))
@@ -152,8 +153,10 @@ function SimpleNLPModel(f::Function, x0::Vector; y0::Vector = [],
     length(y0) == 0   && (y0 = zeros(ncon))
   end
 
+  nln = setdiff(1:ncon, lin)
+
   meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0,
-    lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=nnzh, name=name)
+    lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=nnzh, name=name, lin=lin, nln=nln)
 
   return SimpleNLPModel(meta, Counters(), f, g, g!, H, Hcoord, Hp, Hp!, c, c!,
       J, Jcoord, Jp, Jp!, Jtp, Jtp!)

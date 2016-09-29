@@ -58,6 +58,8 @@ reset!(model)
 
 @test_throws(NotImplementedError, jth_con(model, model.meta.x0, 1))
 
+include("test_tools.jl")
+
 include("test_slack_model.jl")
 include("test_qn_model.jl")
 
