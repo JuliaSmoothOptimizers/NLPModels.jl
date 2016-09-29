@@ -55,10 +55,8 @@ function MathProgBase.eval_hesslag(d::NLPModelEvaluator, H, x, σ, μ)
   copy!(H, vals)
 end
 
-# use hprod! ?
 function MathProgBase.eval_hesslag_prod(d::NLPModelEvaluator, h, x, v, σ, μ)
-  result = hprod(d.nlp, x, v, μ, obj_weight=σ)
-  copy!(h, result)
+  hprod!(d.nlp, x, v, h, y=μ, obj_weight=σ)
 end
 
 MathProgBase.isobjlinear(d::NLPModelEvaluator) = d.nlp.meta.nlo == 0
