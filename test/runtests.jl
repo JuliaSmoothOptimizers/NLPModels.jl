@@ -5,6 +5,13 @@ for problem in [:brownden, :genrose, :hs5, :hs6, :hs10, :hs11, :hs14, :hs15]
   include("$problem.jl")
 end
 
+println("Testing printing of nlp.meta")
+print(ADNLPModel(x->0, zeros(10), lvar=[-ones(5); -Inf*ones(5)],
+                 uvar=[ones(3); Inf*ones(4); collect(2:4)],
+                 name="Unconstrained example").meta)
+print(ADNLPModel(x->0, zeros(10), c=x->[0.0;0.0;0.0], lcon=[0.0;0.0;-Inf],
+                 ucon=[Inf;0.0;0.0], name="Constrained example").meta)
+
 # A problem with zero variables doesn't make sense.
 @test_throws(ErrorException, NLPModelMeta(0))
 
