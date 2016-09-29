@@ -183,7 +183,12 @@ Prints meta information - x0, nvar, ncon, etc.
 """
 function print(io :: IO, nlp :: NLPModelMeta)
   nlp.minimize ? @printf(io, "Minimization ") : @printf(io, "Maximization ")
-  dsp(x) = length(x) == 0 ? print(io, "∅") : Base.show_delim_array(io, x, "", "  ", "", false)
+  dsp(x) = length(x) == 0 ? print(io, "∅") :
+    (length(x) <= 5 ? Base.show_delim_array(io, x, "", "  ", "", false) :
+     begin
+      Base.show_delim_array(io, x[1:4], "", "  ", "", false)
+      print("  ⋯  $(x[end])")
+    end)
   @printf(io, "problem %s\n", nlp.name)
   @printf(io, "nvar = %d, ncon = %d (%d linear)\n", nlp.nvar, nlp.ncon, nlp.nlin)
   @printf(io, "lvar = "); dsp(nlp.lvar'); @printf(io, "\n")
