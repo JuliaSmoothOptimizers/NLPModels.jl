@@ -1,9 +1,4 @@
-export QuasiNewtonModel, LBFGSModel, LSR1Model,
-       reset!,
-       obj, grad, grad!,
-       cons, cons!, jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
-       hprod, hess_op,
-       push!
+export QuasiNewtonModel, LBFGSModel, LSR1Model
 
 abstract QuasiNewtonModel <: AbstractNLPModel
 
