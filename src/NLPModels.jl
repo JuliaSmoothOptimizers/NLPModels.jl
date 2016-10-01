@@ -215,7 +215,9 @@ with σ = obj_weight.
 """
 function hess_op(nlp :: AbstractNLPModel, x :: Vector{Float64};
                  obj_weight :: Float64=1.0, y :: Vector{Float64}=zeros(nlp.meta.ncon))
-  return LinearOperator(nlp.meta.nvar, Float64, v -> hprod(nlp, x, v; obj_weight=obj_weight, y=y))
+  return LinearOperator(nlp.meta.nvar, nlp.meta.nvar,
+                        true, true,
+                        v -> hprod(nlp, x, v; obj_weight=obj_weight, y=y))
 end
 
 push!(nlp :: AbstractNLPModel, args...; kwargs...) =
