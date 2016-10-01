@@ -41,10 +41,14 @@ function reset!(nlp :: QuasiNewtonModel)
 end
 
 # the following methods are not affected by the Hessian approximation
-for meth in (:obj, :grad, :grad!, :cons, :cons!, :jac_coord, :jac, :jprod, :jprod!, :jtprod, :jtprod!)
-  @eval begin
-    $meth(nlp :: QuasiNewtonModel, args...) = $meth(nlp.model, args...)
-  end
+for meth in (:obj, :grad, :cons, :jac_coord, :jac)
+  @eval $meth(nlp :: QuasiNewtonModel, x :: AbstractVector) = $meth(nlp.model, x)
+end
+for meth in (:grad!, :cons!, :jprod, :jtprod)
+  @eval $meth(nlp :: QuasiNewtonModel, x :: AbstractVector, y :: AbstractVector) = $meth(nlp.model, x, y)
+end
+for meth in (:jprod!, :jtprod!)
+  @eval $meth(nlp :: QuasiNewtonModel, x :: AbstractVector, y :: AbstractVector, z :: AbstractVector) = $meth(nlp.model, x, y, z)
 end
 
 # the following methods are affected by the Hessian approximation
