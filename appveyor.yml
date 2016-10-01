@@ -3,6 +3,8 @@ environment:
   - JULIAVERSION: "stable/win32"
   - JULIAVERSION: "stable/win64"
 
+skip_branch_with_pr: true
+
 install:
 # Download most recent Julia Windows binary
   - ps: (new-object net.webclient).DownloadFile($("http://status.julialang.org/"+$env:JULIAVERSION), "C:\projects\julia-binary.exe")
