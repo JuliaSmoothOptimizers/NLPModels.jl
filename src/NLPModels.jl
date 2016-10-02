@@ -12,9 +12,13 @@ export reset!,
        jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
        jth_hprod, jth_hprod!, ghjvprod, ghjvprod!,
        hess_coord, hess, hprod, hprod!, hess_op,
+       push!,
        varscale, lagscale, conscale,
        NotImplementedError
 
+# import methods we override
+import Base.push!
+import LinearOperators.reset!
 
 include("nlp_utils.jl");
 include("nlp_types.jl");
@@ -211,9 +215,13 @@ with σ = obj_weight.
 """
 function hess_op(nlp :: AbstractNLPModel, x :: Vector{Float64};
                  obj_weight :: Float64=1.0, y :: Vector{Float64}=zeros(nlp.meta.ncon))
-  return LinearOperator(nlp.meta.nvar, Float64, v -> hprod(nlp, x, v; obj_weight=obj_weight, y=y))
+  return LinearOperator(nlp.meta.nvar, nlp.meta.nvar,
+                        true, true,
+                        v -> hprod(nlp, x, v; obj_weight=obj_weight, y=y))
 end
 
+push!(nlp :: AbstractNLPModel, args...; kwargs...) =
+  throw(NotImplementedError("push!"))
 varscale(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("varscale"))
 lagscale(::AbstractNLPModel, ::Float64) =
@@ -233,6 +241,7 @@ if Pkg.installed("ForwardDiff") != nothing
 end
 include("simple_model.jl")
 include("slack_model.jl")
+include("qn_model.jl")
 
 include("dercheck.jl")
 

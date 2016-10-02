@@ -60,6 +60,7 @@ reset!(model)
 @test_throws(NotImplementedError, jth_con(model, model.meta.x0, 1))
 
 include("test_slack_model.jl")
+include("test_qn_model.jl")
 
 @printf("For tests to pass, all models must have been written identically.\n")
 @printf("Constraints, if any, must have been declared in the same order.\n")
