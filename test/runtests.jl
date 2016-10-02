@@ -38,11 +38,10 @@ end
 @test_throws(NotImplementedError, jth_hprod!(model, [0], [1], 2, [3]))
 @test_throws(NotImplementedError, ghjvprod!(model, [0], [1], [2], [3]))
 @assert isa(hess_op(model, [0.]), LinearOperator)
+@assert isa(jac_op(model, [0.]), LinearOperator)
 
 # ADNLPModel with no functions
 model = ADNLPModel(x->dot(x,x), zeros(2), name="square")
-ignore_throw = [:reset!, :hess_op, :gradient_check, :hessian_check,
-    :jacobian_check, :hessian_check_from_grad]
 @assert model.meta.name == "square"
 
 model = MathProgNLPModel(genrose(), name="genrose")
