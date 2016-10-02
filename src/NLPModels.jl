@@ -9,7 +9,7 @@ export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters
 export reset!,
        obj, grad, grad!,
        cons, cons!, jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad,
-       jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
+       jac_coord, jac, jprod, jprod!, jtprod, jtprod!, jac_op,
        jth_hprod, jth_hprod!, ghjvprod, ghjvprod!,
        hess_coord, hess, hprod, hprod!, hess_op,
        push!,
@@ -143,6 +143,20 @@ Evaluate \$\\nabla c(x)^Tv\$, the transposed-Jacobian-vector product at `x` in p
 """
 jtprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("jtprod!"))
+
+"""`J = jac_op(nlp, x)`
+
+Return the Jacobian at `x` as a linear operator.
+The resulting object may be used as if it were a matrix, e.g., `J * v` or
+`J' * v`.
+"""
+function jac_op(nlp :: AbstractNLPModel, x :: Vector{Float64})
+  return LinearOperator(nlp.meta.ncon, nlp.meta.nvar,
+                        false, false,
+                        v -> jprod(nlp, x, v),
+                        Nullable{Function}(),
+                        v -> jtprod(nlp, x, v))
+end
 
 jth_hprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer) =
   throw(NotImplementedError("jth_hprod"))

@@ -129,9 +129,10 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
         end
       end
 
+      Jops = Any[jac_op(nlp, x) for nlp in nlps]
       Jps = Any[jprod(nlp, x, v) for nlp in nlps]
-      Jpmin = minimum(map(norm, Jps))
       for i = 1:N
+        @test_approx_eq_eps Jps[i] (Jops[i] * v) rtol * max(Jmin, 1.0)
         vi = norm(Jps[i])
         for j = i+1:N
           @test_approx_eq_eps vi norm(Jps[j]) rtol * max(Jmin, 1.0)
@@ -142,8 +143,8 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
 
       w = 10 * (rand() - 0.5) * ones(m)
       Jtps = Any[jtprod(nlp, x, w) for nlp in nlps]
-      Jtpmin = minimum(map(norm, Jps))
       for i = 1:N
+        @test_approx_eq_eps Jtps[i] (Jops[i]' * w) rtol * max(Jmin, 1.0)
         vi = norm(Jtps[i])
         for j = i+1:N
           @test_approx_eq_eps vi norm(Jtps[j]) rtol * max(Jmin, 1.0)
