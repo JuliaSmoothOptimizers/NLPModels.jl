@@ -151,7 +151,7 @@ The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`.
 """
 function jac_op(nlp :: AbstractNLPModel, x :: Vector{Float64})
-  return LinearOperator(nlp.meta.ncon, nlp.meta.nvar,
+  return LinearOperator{Float64}(nlp.meta.ncon, nlp.meta.nvar,
                         false, false,
                         v -> jprod(nlp, x, v),
                         Nullable{Function}(),
