@@ -50,6 +50,7 @@ Install with the following commands.
 ```julia
 Pkg.clone("https://github.com/JuliaSmoothOptimizers/NLPModels.jl")
 Pkg.build("NLPModels")
+Pkg.checkout("NLPModels", "develop")
 ```
 If you want the `ADNLPModel` or the `MathProgNLPModel`, you also need the
 ```julia
