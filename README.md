@@ -20,7 +20,7 @@ develop
 
 **Documentation:**
 develop
-[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/latest)
+[![](https://img.shields.io/badge/docs-latest-3f51b5.svg)](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/latest)
 
 
 ## Objective
@@ -35,15 +35,29 @@ Such instances are composed of
 * an instance of `NLPModelMeta`, which provides information about the problem, including the number of variables, constraints, bounds on the variables, etc.
 * other data specific to the provenance of the problem.
 
-If the [`JuMP`](https://github.com/JuliaOpt/JuMP.jl) modeling language is available, this package provides the `JuMPNLPModel` type.
+See the
+[documentation](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/latest) for
+details on the models, a tutorial and the API.
 
-Corresponding interfaces are defined in [`AmplNLReader.jl`](https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl) for problems modeled using [AMPL](http://www.ampl.com), and in  [`CUTEst.jl`](https://github.com/JuliaSmoothOptimizers/CUTEst.jl) for problems from [CUTEst](https://ccpforge.cse.rl.ac.uk/gf/project/cutest/wiki).
+## Installation
 
-The `NLPModelMeta` data structure focuses on continuous problems written in the form
-
-    optimize f(x)  subject to l ≤ x ≤ u,  L ≤ c(x) ≤ U,
-
-where `f` is the objective function, `c` is the (vector-valued) constraint function, `l` and `u` are vectors of lower and upper bounds on the variables, and `L` and `U` are vectors of lower and upper bounds on the general constraints.
+```julia
+Pkg.add("NLPModels")
+```
+If you want to use a model with automatic differentiation, you'll need
+```julia
+Pkg.add("ForwardDiff")
+```
+If you want to create a NLPModel from a [MathProgBase](https://github.com/JuliaOpt/MathProgBase.jl)
+model or vice-versa, you'll need
+```julia
+Pkg.add("MathProgBase")
+```
+If you want to create a model from a [JuMP](https://github.com/JuliaOpt/JuMP.jl)
+model, you'll need
+```julia
+Pkg.add("JuMP")
+```
 
 ## Main Methods
 
@@ -90,12 +104,14 @@ The complete list of methods that an interface may implement is as follows:
 * `jth_sparse_congrad()`,
 * `jac_coord()`,
 * `jac()`,
+* `jac_op()`,
 * `jth_hprod()`,
 * `jth_hprod!()`,
 * `ghjvprod()`,
 * `ghjvprod!()`,
 * `hess_coord()`,
 * `hess()`,
+* `hess_op()`
 * `hprod()`,
 * `hprod!`
 
