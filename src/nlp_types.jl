@@ -1,4 +1,4 @@
-export bound_constrained, unconstrained, linearly_constrained,
+export has_bounds, bound_constrained, unconstrained, linearly_constrained,
       equality_constrained, inequality_constrained
 
 # Base type for an optimization model.
@@ -217,12 +217,21 @@ function print(io :: IO, nlp :: NLPModelMeta)
 end
 
 """
-    bound_constrained(nlp)
-    bound_constrained(meta)
+    has_bounds(nlp)
+    has_bounds(meta)
 
 Returns whether the problem has bounds on the variables.
 """
-bound_constrained(meta::NLPModelMeta) = length(meta.ifree) < meta.nvar
+has_bounds(meta::NLPModelMeta) = length(meta.ifree) < meta.nvar
+has_bounds(nlp::AbstractNLPModel) = has_bounds(nlp.meta)
+
+"""
+    bound_constrained(nlp)
+    bound_constrained(meta)
+
+Returns whether the problem has bounds on the variables and no other constraints.
+"""
+bound_constrained(meta::NLPModelMeta) = meta.ncon == 0 && has_bounds(meta)
 bound_constrained(nlp::AbstractNLPModel) = bound_constrained(nlp.meta)
 
 """
@@ -231,7 +240,7 @@ bound_constrained(nlp::AbstractNLPModel) = bound_constrained(nlp.meta)
 
 Returns whether the problem in unconstrained.
 """
-unconstrained(meta::NLPModelMeta) = meta.ncon == 0
+unconstrained(meta::NLPModelMeta) = meta.ncon == 0 && !has_bounds(meta)
 unconstrained(nlp::AbstractNLPModel) = unconstrained(nlp.meta)
 
 """
