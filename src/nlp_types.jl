@@ -223,7 +223,6 @@ end
 Returns whether the problem has bounds on the variables.
 """
 has_bounds(meta::NLPModelMeta) = length(meta.ifree) < meta.nvar
-has_bounds(nlp::AbstractNLPModel) = has_bounds(nlp.meta)
 
 """
     bound_constrained(nlp)
@@ -232,7 +231,6 @@ has_bounds(nlp::AbstractNLPModel) = has_bounds(nlp.meta)
 Returns whether the problem has bounds on the variables and no other constraints.
 """
 bound_constrained(meta::NLPModelMeta) = meta.ncon == 0 && has_bounds(meta)
-bound_constrained(nlp::AbstractNLPModel) = bound_constrained(nlp.meta)
 
 """
     unconstrained(nlp)
@@ -241,7 +239,6 @@ bound_constrained(nlp::AbstractNLPModel) = bound_constrained(nlp.meta)
 Returns whether the problem in unconstrained.
 """
 unconstrained(meta::NLPModelMeta) = meta.ncon == 0 && !has_bounds(meta)
-unconstrained(nlp::AbstractNLPModel) = unconstrained(nlp.meta)
 
 """
     linearly_constrained(nlp)
@@ -250,7 +247,6 @@ unconstrained(nlp::AbstractNLPModel) = unconstrained(nlp.meta)
 Returns whether the problem's constraints are known to be all linear.
 """
 linearly_constrained(meta::NLPModelMeta) = meta.nlin == meta.ncon > 0
-linearly_constrained(nlp::AbstractNLPModel) = linearly_constrained(nlp.meta)
 
 """
     equality_constrained(nlp)
@@ -260,7 +256,6 @@ Returns whether the problem's constraints are all equalities.
 Unconstrained problems return false.
 """
 equality_constrained(meta::NLPModelMeta) = length(meta.jfix) == meta.ncon > 0
-equality_constrained(nlp::AbstractNLPModel) = equality_constrained(nlp.meta)
 
 """
     inequality_constrained(nlp)
@@ -270,4 +265,8 @@ Returns whether the problem's constraints are all inequalities.
 Unconstrained problems return true.
 """
 inequality_constrained(meta::NLPModelMeta) = meta.ncon > 0 && length(meta.jfix) == 0
-inequality_constrained(nlp::AbstractNLPModel) = inequality_constrained(nlp.meta)
+
+for meth in (:has_bounds, :bound_constrained, :unconstrained,
+    :linearly_constrained, :equality_constrained, :inequality_constrained)
+  @eval $meth(nlp::AbstractNLPModel) = $meth(nlp.meta)
+end
