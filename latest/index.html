@@ -216,6 +216,18 @@
             </li>
           
             <li class="anchor">
+              <a title="Attributes" href="#attributes">
+                Attributes
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="License" href="#license">
+                License
+              </a>
+            </li>
+          
+            <li class="anchor">
               <a title="Contents" href="#contents">
                 Contents
               </a>
@@ -301,14 +313,13 @@
 & \ell \leq x \leq u, \end{align*}</script> defining $c_{L_i} = c_{U_i}$ for all $i \in E$. The Lagrangian of this problem is defined as <script type="math/tex; mode=display">\begin{align*} L(x,\lambda,z^L,z^U;\sigma) = \sigma f(x) + c(x)^T\lambda  + \sum_{i=1}^n z_i^L(x_i-l_i) + \sum_{i=1}^nz_i^U(u_i-x_i), \end{align*}</script> where $\sigma$ is a scaling parameter included for computational reasons. Notice that, for the Hessian, the variables $z^L$ and $z^U$ are not used.</p>
 <p>Optimization problems are represented by an instance/subtype of <code>AbstractNLPModel</code>. Such instances are composed of</p>
 <ul>
-<li>an instance of <code>NLPModelMeta</code>, which provides information about the problem,   including the number of variables, constraints, bounds on the variables, etc.</li>
+<li>an instance of <a href="#attributes"><code>NLPModelMeta</code></a>, which provides information about the problem,   including the number of variables, constraints, bounds on the variables, etc.</li>
 <li>other data specific to the provenance of the problem.</li>
 </ul>
 <p><a id='Install-1'></a></p>
 <h2 id="install">Install</h2>
-<p>The current usable version of NLPModels.jl is in the development branch. Install with the following commands.</p>
-<div class="code"><pre><span></span><span class="n">Pkg</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="s">&quot;https://github.com/JuliaSmoothOptimizers/NLPModels.jl&quot;</span><span class="p">)</span>
-<span class="n">Pkg</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s">&quot;NLPModels&quot;</span><span class="p">)</span>
+<p>Install NLPModels.jl with the following commands.</p>
+<div class="code"><pre><span></span><span class="n">Pkg</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;NLPModels&quot;</span><span class="p">)</span>
 </pre></div>
 
 
@@ -341,6 +352,178 @@
 <li><code>CUTEstModel</code>: Defined in    <a href="https://github.com/JuliaSmoothOptimizers/CUTEst.jl"><code>CUTEst.jl</code></a> for    problems from <a href="https://ccpforge.cse.rl.ac.uk/gf/project/cutest/wiki">CUTEst</a>.</li>
 </ul>
 <p>If you want your interface here, open a PR.</p>
+<p><a id='Attributes-1'></a></p>
+<h2 id="attributes">Attributes</h2>
+<p><code>NLPModelMeta</code> objects have the following attributes:</p>
+<table>
+<thead>
+<tr>
+<th align="right">Attribute</th>
+<th align="right">Type</th>
+<th align="right">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right"><code>nvar</code></td>
+<td align="right"><code>Int</code></td>
+<td align="right">number of variables</td>
+</tr>
+<tr>
+<td align="right"><code>x0</code></td>
+<td align="right"><code>Array{Float64,1}</code></td>
+<td align="right">initial guess</td>
+</tr>
+<tr>
+<td align="right"><code>lvar</code></td>
+<td align="right"><code>Array{Float64,1}</code></td>
+<td align="right">vector of lower bounds</td>
+</tr>
+<tr>
+<td align="right"><code>uvar</code></td>
+<td align="right"><code>Array{Float64,1}</code></td>
+<td align="right">vector of upper bounds</td>
+</tr>
+<tr>
+<td align="right"><code>ifix</code></td>
+<td align="right"><code>Array{Int64,1}</code></td>
+<td align="right">indices of fixed variables</td>
+</tr>
+<tr>
+<td align="right"><code>ilow</code></td>
+<td align="right"><code>Array{Int64,1}</code></td>
+<td align="right">indices of variables with lower bound only</td>
+</tr>
+<tr>
+<td align="right"><code>iupp</code></td>
+<td align="right"><code>Array{Int64,1}</code></td>
+<td align="right">indices of variables with upper bound only</td>
+</tr>
+<tr>
+<td align="right"><code>irng</code></td>
+<td align="right"><code>Array{Int64,1}</code></td>
+<td align="right">indices of variables with lower and upper bound (range)</td>
+</tr>
+<tr>
+<td align="right"><code>ifree</code></td>
+<td align="right"><code>Array{Int64,1}</code></td>
+<td align="right">indices of free variables</td>
+</tr>
+<tr>
+<td align="right"><code>iinf</code></td>
+<td align="right"><code>Array{Int64,1}</code></td>
+<td align="right">indices of visibly infeasible bounds</td>
+</tr>
+<tr>
+<td align="right"><code>ncon</code></td>
+<td align="right"><code>Int</code></td>
+<td align="right">total number of general constraints</td>
+</tr>
+<tr>
+<td align="right"><code>nlin</code></td>
+<td align="right"><code>Int</code></td>
+<td align="right">number of linear constraints</td>
+</tr>
+<tr>
+<td align="right"><code>nnln</code></td>
+<td align="right"><code>Int</code></td>
+<td align="right">number of nonlinear general constraints</td>
+</tr>
+<tr>
+<td align="right"><code>nnet</code></td>
+<td align="right"><code>Int</code></td>
+<td align="right">number of nonlinear network constraints</td>
+</tr>
+<tr>
+<td align="right"><code>y0</code></td>
+<td align="right"><code>Array{Float64,1}</code></td>
+<td align="right">initial Lagrange multipliers</td>
+</tr>
+<tr>
+<td align="right"><code>lcon</code></td>
+<td align="right"><code>Array{Float64,1}</code></td>
+<td align="right">vector of constraint lower bounds</td>
+</tr>
+<tr>
+<td align="right"><code>ucon</code></td>
+<td align="right"><code>Array{Float64,1}</code></td>
+<td align="right">vector of constraint upper bounds</td>
+</tr>
+<tr>
+<td align="right"><code>lin</code></td>
+<td align="right"><code>Range1{Int64}</code></td>
+<td align="right">indices of linear constraints</td>
+</tr>
+<tr>
+<td align="right"><code>nln</code></td>
+<td align="right"><code>Range1{Int64}</code></td>
+<td align="right">indices of nonlinear constraints (not network)</td>
+</tr>
+<tr>
+<td align="right"><code>nnet</code></td>
+<td align="right"><code>Range1{Int64}</code></td>
+<td align="right">indices of nonlinear network constraints</td>
+</tr>
+<tr>
+<td align="right"><code>jfix</code></td>
+<td align="right"><code>Array{Int64,1}</code></td>
+<td align="right">indices of equality constraints</td>
+</tr>
+<tr>
+<td align="right"><code>jlow</code></td>
+<td align="right"><code>Array{Int64,1}</code></td>
+<td align="right">indices of constraints of the form c(x) ≥ cl</td>
+</tr>
+<tr>
+<td align="right"><code>jupp</code></td>
+<td align="right"><code>Array{Int64,1}</code></td>
+<td align="right">indices of constraints of the form c(x) ≤ cu</td>
+</tr>
+<tr>
+<td align="right"><code>jrng</code></td>
+<td align="right"><code>Array{Int64,1}</code></td>
+<td align="right">indices of constraints of the form cl ≤ c(x) ≤ cu</td>
+</tr>
+<tr>
+<td align="right"><code>jfree</code></td>
+<td align="right"><code>Array{Int64,1}</code></td>
+<td align="right">indices of "free" constraints (there shouldn't be any)</td>
+</tr>
+<tr>
+<td align="right"><code>jinf</code></td>
+<td align="right"><code>Array{Int64,1}</code></td>
+<td align="right">indices of the visibly infeasible constraints</td>
+</tr>
+<tr>
+<td align="right"><code>nnzj</code></td>
+<td align="right"><code>Int</code></td>
+<td align="right">number of nonzeros in the sparse Jacobian</td>
+</tr>
+<tr>
+<td align="right"><code>nnzh</code></td>
+<td align="right"><code>Int</code></td>
+<td align="right">number of nonzeros in the sparse Hessian</td>
+</tr>
+<tr>
+<td align="right"><code>minimize</code></td>
+<td align="right"><code>Bool</code></td>
+<td align="right">true if <code>optimize == minimize</code></td>
+</tr>
+<tr>
+<td align="right"><code>islp</code></td>
+<td align="right"><code>Bool</code></td>
+<td align="right">true if the problem is a linear program</td>
+</tr>
+<tr>
+<td align="right"><code>name</code></td>
+<td align="right"><code>String</code></td>
+<td align="right">problem name</td>
+</tr>
+</tbody>
+</table>
+<p><a id='License-1'></a></p>
+<h2 id="license">License</h2>
+<p>This content is released under the <a href="http://opensource.org/licenses/MIT">MIT</a> License. <a href="http://opensource.org/licenses/MIT"><img alt="" height="40" src="http://upload.wikimedia.org/wikipedia/commons/c/c3/License_icon-mit.svg" /> </a></p>
 <p><a id='Contents-1'></a></p>
 <h2 id="contents">Contents</h2>
 <ul>
@@ -364,6 +547,8 @@
 <li><a href=".#Usage-1">Usage</a></li>
 <li><a href=".#Internal-Interfaces-1">Internal Interfaces</a></li>
 <li><a href=".#External-Interfaces-1">External Interfaces</a></li>
+<li><a href=".#Attributes-1">Attributes</a></li>
+<li><a href=".#License-1">License</a></li>
 <li><a href=".#Contents-1">Contents</a></li>
 </ul>
 </li>
