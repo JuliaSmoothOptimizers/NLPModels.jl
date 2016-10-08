@@ -30,8 +30,7 @@ For computational reasons, we write
 defining $c_{L_i} = c_{U_i}$ for all $i \in E$.
 The Lagrangian of this problem is defined as
 \begin{align*}
-L(x,\lambda,z^L,z^U;\sigma) = \sigma f(x) + c(x)^T\lambda  + \sum_{i=1}^n z_i^L(x_i-l_i)
-+ \sum_{i=1}^nz_i^U(u_i-x_i),
+L(x,\lambda,z^L,z^U;\sigma) = \sigma f(x) + c(x)^T\lambda  + \sum_{i=1}^n z_i^L(x_i-l_i) + \sum_{i=1}^nz_i^U(u_i-x_i),
 \end{align*}
 where $\sigma$ is a scaling parameter included for computational reasons.
 Notice that, for the Hessian, the variables $z^L$ and $z^U$ are not used.
@@ -39,17 +38,15 @@ Notice that, for the Hessian, the variables $z^L$ and $z^U$ are not used.
 Optimization problems are represented by an instance/subtype of `AbstractNLPModel`.
 Such instances are composed of
 
-- an instance of `NLPModelMeta`, which provides information about the problem,
+- an instance of [`NLPModelMeta`](#attributes), which provides information about the problem,
   including the number of variables, constraints, bounds on the variables, etc.
 - other data specific to the provenance of the problem.
 
 ## Install
 
-The current usable version of NLPModels.jl is in the development branch.
-Install with the following commands.
+Install NLPModels.jl with the following commands.
 ```julia
-Pkg.clone("https://github.com/JuliaSmoothOptimizers/NLPModels.jl")
-Pkg.build("NLPModels")
+Pkg.add("NLPModels")
 ```
 If you want the `ADNLPModel` or the `MathProgNLPModel`, you also need the
 ```julia
@@ -90,6 +87,51 @@ See the [Models](models), or the [Tutorial](tutorial), or the [API](api).
    problems from [CUTEst](https://ccpforge.cse.rl.ac.uk/gf/project/cutest/wiki).
 
 If you want your interface here, open a PR.
+
+## Attributes
+
+`NLPModelMeta` objects have the following attributes:
+
+Attribute   | Type               | Notes
+------------|--------------------|------------------------------------
+`nvar`      | `Int             ` | number of variables
+`x0  `      | `Array{Float64,1}` | initial guess
+`lvar`      | `Array{Float64,1}` | vector of lower bounds
+`uvar`      | `Array{Float64,1}` | vector of upper bounds
+`ifix`      | `Array{Int64,1}`   | indices of fixed variables
+`ilow`      | `Array{Int64,1}`   | indices of variables with lower bound only
+`iupp`      | `Array{Int64,1}`   | indices of variables with upper bound only
+`irng`      | `Array{Int64,1}`   | indices of variables with lower and upper bound (range)
+`ifree`     | `Array{Int64,1}`   | indices of free variables
+`iinf`      | `Array{Int64,1}`   | indices of visibly infeasible bounds
+`ncon`      | `Int             ` | total number of general constraints
+`nlin `     | `Int             ` | number of linear constraints
+`nnln`      | `Int             ` | number of nonlinear general constraints
+`nnet`      | `Int             ` | number of nonlinear network constraints
+`y0  `      | `Array{Float64,1}` | initial Lagrange multipliers
+`lcon`      | `Array{Float64,1}` | vector of constraint lower bounds
+`ucon`      | `Array{Float64,1}` | vector of constraint upper bounds
+`lin `      | `Range1{Int64}   ` | indices of linear constraints
+`nln`       | `Range1{Int64}   ` | indices of nonlinear constraints (not network)
+`nnet`      | `Range1{Int64}   ` | indices of nonlinear network constraints
+`jfix`      | `Array{Int64,1}`   | indices of equality constraints
+`jlow`      | `Array{Int64,1}`   | indices of constraints of the form c(x) ≥ cl
+`jupp`      | `Array{Int64,1}`   | indices of constraints of the form c(x) ≤ cu
+`jrng`      | `Array{Int64,1}`   | indices of constraints of the form cl ≤ c(x) ≤ cu
+`jfree`     | `Array{Int64,1}`   | indices of "free" constraints (there shouldn't be any)
+`jinf`      | `Array{Int64,1}`   | indices of the visibly infeasible constraints
+`nnzj`      | `Int             ` | number of nonzeros in the sparse Jacobian
+`nnzh`      | `Int             ` | number of nonzeros in the sparse Hessian
+`minimize`  | `Bool            ` | true if `optimize == minimize`
+`islp`      | `Bool            ` | true if the problem is a linear program
+`name`      | `String`           | problem name
+
+## License
+
+This content is released under the [MIT](http://opensource.org/licenses/MIT) License.
+[![](http://upload.wikimedia.org/wikipedia/commons/c/c3/License_icon-mit.svg){
+height="40" }
+](http://opensource.org/licenses/MIT)
 
 ## Contents
 
