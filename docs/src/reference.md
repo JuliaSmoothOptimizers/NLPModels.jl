@@ -1,4 +1,4 @@
-# Index
+# Reference
 
 ```@index
 ```
