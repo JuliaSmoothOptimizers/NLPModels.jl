@@ -5,25 +5,32 @@ os:
   - osx
 
 julia:
-  - 0.3
+  - 0.4
   - release
   - nightly
+
+sudo: required
+
+git:
+  depth: 9999
 
 notifications:
   email: false
 
-script:
-  - if [ `uname` == "Linux" ]; then
-    wget http://www.cmake.org/files/v3.2/cmake-3.2.1-Linux-x86_64.tar.gz;
-    tar -xzf cmake-3.2.1-Linux-x86_64.tar.gz;
-    sudo cp -fR cmake-3.2.1-Linux-x86_64/* /usr;
-    export PATH=`pwd`/cmake-3.2.1-Linux-x86_64/bin:$PATH; fi
-  - which cmake
-  - cmake --version
+# Github/Travis bug
+# branches:
+#   only:
+#     - master
+
+before_install:
+  - if [ `uname` == "Linux" ]; then unset DYLD_LIBRARY_PATH; bash travisCI/setup_travis_linux.sh; fi
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'Pkg.clone("MathProgBase"); Pkg.clone("JuMP")'
-  - julia -e 'Pkg.clone("https://github.com/dpo/AmplNLReader.jl.git"); Pkg.checkout("AmplNLReader", "develop"); Pkg.build("AmplNLReader")'
+
+script:
   - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("NLPModels"); Pkg.test("NLPModels"; coverage=true)'
 
 after_success:
+  - julia -e 'for pkg in ["Documenter", "JuMP", "ForwardDiff"] Pkg.add(pkg); end'
+  - julia -e 'Pkg.clone("https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl")'
+  - julia -e 'cd(Pkg.dir("NLPModels")); include(joinpath("docs", "make.jl"))'
   - julia -e 'cd(Pkg.dir("NLPModels")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'

@@ -1,301 +1,262 @@
 module NLPModels
 
 using Compat
-using JuMP
-using MathProgBase
+import Compat.String
 
-include(Pkg.dir("MathProgBase", "src", "NLP", "NLP.jl"))
-using .NLP  # Defines NLPModelMeta.
+using LinearOperators
 
-export AbstractNLPModel, NLPModel,
-       reset!,
+export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters
+export reset!,
        obj, grad, grad!,
-       cons, cons!, jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
-       hess_coord, hess, hprod, hprod!
+       cons, cons!, jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad,
+       jac_coord, jac, jprod, jprod!, jtprod, jtprod!, jac_op,
+       jth_hprod, jth_hprod!, ghjvprod, ghjvprod!,
+       hess_coord, hess, hprod, hprod!, hess_op,
+       push!,
+       varscale, lagscale, conscale,
+       NotImplementedError
 
-type ModelReader <: MathProgBase.AbstractMathProgSolver
+# import methods we override
+import Base.push!
+import LinearOperators.reset!
+
+include("nlp_utils.jl");
+include("nlp_types.jl");
+
+type NotImplementedError <: Exception
+  name :: Union{Symbol,Function,String}
 end
 
-type MathProgModel <: MathProgBase.AbstractMathProgModel
-  eval :: @compat Union{JuMPNLPEvaluator, Void}
-  numVar :: Int
-  numConstr :: Int
-  x :: Vector{Float64}
-  y :: Vector{Float64}
-  lvar :: Vector{Float64}
-  uvar :: Vector{Float64}
-  lcon :: Vector{Float64}
-  ucon :: Vector{Float64}
-  sense :: Symbol
-  status :: Symbol
+Base.showerror(io::IO, e::NotImplementedError) = print(io, e.name, " not implemented")
+
+
+# simple default API for retrieving counters
+for counter in fieldnames(Counters)
+  @eval begin
+    $counter(nlp :: AbstractNLPModel) = nlp.counters.$counter
+    export $counter
+  end
 end
 
-MathProgBase.NonlinearModel(solver :: ModelReader) = MathProgModel(nothing,
-                                                                   0,
-                                                                   0,
-                                                                   Float64[],
-                                                                   Float64[],
-                                                                   Float64[],
-                                                                   Float64[],
-                                                                   Float64[],
-                                                                   Float64[],
-                                                                   :Min,
-                                                                   :Uninitialized);
+"""`reset!(counters)`
 
-function MathProgBase.loadproblem!(m :: MathProgModel,
-                                   numVar, numConstr,
-                                   l, u, lb, ub,
-                                   sense,
-                                   eval :: MathProgBase.AbstractNLPEvaluator)
-
-  # TODO: :JacVec is not yet available.
-  # [:Grad, :Jac, :JacVec, :Hess, :HessVec, :ExprGraph]
-  MathProgBase.initialize(eval, [:Grad, :Jac, :Hess, :HessVec, :ExprGraph])
-  m.numVar = numVar
-  m.numConstr = numConstr
-  m.x = zeros(numVar)
-  m.y = zeros(numConstr)
-  m.eval = eval
-  m.lvar = l
-  m.uvar = u
-  m.lcon = lb
-  m.ucon = ub
-  m.sense = sense
+Reset evaluation counters
+"""
+function reset!(counters :: Counters)
+  for f in fieldnames(Counters)
+    setfield!(counters, f, 0)
+  end
+  return counters
 end
 
-MathProgBase.setwarmstart!(m :: MathProgModel, x) = (m.x = x)
-MathProgBase.status(m :: MathProgModel) = m.status
-MathProgBase.getsolution(m :: MathProgModel) = m.x
-MathProgBase.getobjval(m :: MathProgModel) = MathProgBase.eval_f(m.eval, m.x)
+"""`reset!(nlp)
 
-abstract AbstractNLPModel
-
-type NLPModel <: AbstractNLPModel
-  meta :: NLPModelMeta
-  jmodel :: Model          # JuMP Model
-  mpmodel :: MathProgModel
-
-  neval_obj :: Int          # Number of objective evaluations.
-  neval_grad :: Int         # Number of objective gradient evaluations.
-  neval_cons :: Int         # Number of constraint vector evaluations.
-  neval_icon :: Int         # Number of individual constraints evaluations.
-  neval_jac :: Int          # Number of constraint Jacobian evaluations.
-  neval_jprod :: Int        # Number of Jacobian-vector products.
-  neval_jtprod :: Int       # Number of transposed Jacobian-vector products.
-  neval_hess :: Int         # Number of Lagrangian/objective Hessian evaluations.
-  neval_hprod :: Int        # Number of Lagrangian/objective Hessian-vector products.
-
-  g :: Vector{Float64}      # Room for the objective gradient.
-  hvals :: Vector{Float64}  # Room for the Lagrangian Hessian.
-  hv :: Vector{Float64}     # Room for a Hessian-vector product.
-  c :: Vector{Float64}      # Room for the constraints value.
-  jvals :: Vector{Float64}  # Room for the constraints Jacobian.
-  jv :: Vector{Float64}     # Room for a Jacobian-vector product.
-  jtv :: Vector{Float64}    # Room for a transposed-Jacobian-vector product.
-end
-
-"Construct an `NLPModel` from a JuMP `Model`."
-function NLPModel(jmodel :: Model)
-
-  setSolver(jmodel, ModelReader())
-  buildInternalModel(jmodel)
-  mpmodel = getInternalModel(jmodel)
-
-  nvar = mpmodel.numVar
-  lvar = mpmodel.lvar
-  uvar = mpmodel.uvar
-
-  nlin = MathProgBase.numlinconstr(jmodel)        # Number of linear constraints.
-  nquad = MathProgBase.numquadconstr(jmodel)      # Number of quadratic constraints.
-  nnln = length(mpmodel.eval.m.nlpdata.nlconstr)  # Number of nonlinear constraints.
-  ncon = mpmodel.numConstr                        # Total number of constraints.
-  lcon = mpmodel.lcon
-  ucon = mpmodel.ucon
-
-  jrows, jcols = MathProgBase.jac_structure(mpmodel.eval)
-  hrows, hcols = MathProgBase.hesslag_structure(mpmodel.eval)
-  # hrows, hcols = 0,0 # MathProgBase.hesslag_structure(mpmodel.eval)
-  nnzj = length(jrows)
-  nnzh = length(hrows)
-
-  meta = NLPModelMeta(nvar,
-                      x0=mpmodel.x,
-                      lvar=lvar,
-                      uvar=uvar,
-                      ncon=ncon,
-                      y0=zeros(ncon),
-                      lcon=lcon,
-                      ucon=ucon,
-                      nnzj=nnzj,
-                      nnzh=nnzh,
-                      lin=collect(1:nlin),  # linear constraints appear first in JuMP
-                      nln=collect(nlin+1:ncon),
-                      minimize=(mpmodel.sense == :Min),
-                      islp=MathProgBase.isobjlinear(mpmodel.eval) & (nlin == ncon),
-                      )
-
-  return NLPModel(meta,
-                  jmodel,
-                  mpmodel,
-                  0, 0, 0, 0, 0, 0, 0, 0, 0,  # evaluation counters
-                  zeros(nvar),  # g
-                  zeros(nnzh),  # hvals
-                  zeros(nvar),  # hv
-                  zeros(ncon),  # c
-                  zeros(nnzj),  # jvals
-                  zeros(ncon),  # jv
-                  zeros(nvar),  # jtv
-                  )
-end
-
-import Base.show
-show(nlp :: NLPModel) = show(nlp.jmodel)
-
-"Reset evaluation counters in `nlp`"
-function reset!(nlp :: NLPModel)
-  nlp.neval_obj = 0
-  nlp.neval_grad = 0
-  nlp.neval_cons = 0
-  nlp.neval_icon = 0
-  nlp.neval_jac = 0
-  nlp.neval_jprod = 0
-  nlp.neval_jtprod = 0
-  nlp.neval_hess = 0
-  nlp.neval_hprod = 0
+Reset evaluation count in `nlp`
+"""
+function reset!(nlp :: AbstractNLPModel)
+  reset!(nlp.counters)
   return nlp
 end
 
-"Evaluate the objective function of `nlp` at `x`."
-function obj(nlp :: NLPModel, x :: Array{Float64})
-  nlp.neval_obj += 1
-  return MathProgBase.eval_f(nlp.mpmodel.eval, x)
+# Methods to be overridden in other packages.
+"""`obj(nlp, x)`
+
+Evaluate \$f(x)\$, the objective function of `nlp` at `x`.
+"""
+obj(::AbstractNLPModel, ::AbstractVector) =
+  throw(NotImplementedError("obj"))
+
+"""`grad(nlp, x)`
+
+Evaluate \$\\nabla f(x)\$, the gradient of the objective function at `x`.
+"""
+grad(::AbstractNLPModel, ::AbstractVector) =
+  throw(NotImplementedError("grad"))
+
+"""`grad!(nlp, x, g)`
+
+Evaluate \$\\nabla f(x)\$, the gradient of the objective function at `x` in place.
+"""
+grad!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
+  throw(NotImplementedError("grad!"))
+
+"""`cons(nlp, x)`
+
+Evaluate \$c(x)\$, the constraints at `x`.
+"""
+cons(::AbstractNLPModel, ::AbstractVector) =
+  throw(NotImplementedError("cons"))
+
+"""`cons!(nlp, x, c)`
+
+Evaluate \$c(x)\$, the constraints at `x` in place.
+"""
+cons!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
+  throw(NotImplementedError("cons!"))
+
+jth_con(::AbstractNLPModel, ::AbstractVector, ::Integer) =
+  throw(NotImplementedError("jth_con"))
+jth_congrad(::AbstractNLPModel, ::AbstractVector, ::Integer) =
+  throw(NotImplementedError("jth_congrad"))
+jth_congrad!(::AbstractNLPModel, ::AbstractVector, ::Integer, ::AbstractVector) =
+  throw(NotImplementedError("jth_congrad!"))
+jth_sparse_congrad(::AbstractNLPModel, ::AbstractVector, ::Integer) =
+  throw(NotImplementedError("jth_sparse_congrad"))
+
+"""`(rows,cols,vals) = jac_coord(nlp, x)`
+
+Evaluate \$\\nabla c(x)\$, the constraint's Jacobian at `x` in sparse coordinate format.
+"""
+jac_coord(::AbstractNLPModel, ::AbstractVector) =
+  throw(NotImplementedError("jac_coord"))
+
+"""`Jx = jac(nlp, x)`
+
+Evaluate \$\\nabla c(x)\$, the constraint's Jacobian at `x` as a sparse matrix.
+"""
+jac(::AbstractNLPModel, ::AbstractVector) = throw(NotImplementedError("jac"))
+
+"""`Jv = jprod(nlp, x, v)`
+
+Evaluate \$\\nabla c(x)v\$, the Jacobian-vector product at `x`.
+"""
+jprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
+  throw(NotImplementedError("jprod"))
+
+"""`Jv = jprod!(nlp, x, v, Jv)`
+
+Evaluate \$\\nabla c(x)v\$, the Jacobian-vector product at `x` in place.
+"""
+jprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
+  throw(NotImplementedError("jprod!"))
+
+"""`Jtv = jtprod(nlp, x, v, Jtv)`
+
+Evaluate \$\\nabla c(x)^Tv\$, the transposed-Jacobian-vector product at `x`.
+"""
+jtprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
+  throw(NotImplementedError("jtprod"))
+
+"""`Jtv = jtprod!(nlp, x, v, Jtv)`
+
+Evaluate \$\\nabla c(x)^Tv\$, the transposed-Jacobian-vector product at `x` in place.
+"""
+jtprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
+  throw(NotImplementedError("jtprod!"))
+
+"""`J = jac_op(nlp, x)`
+
+Return the Jacobian at `x` as a linear operator.
+The resulting object may be used as if it were a matrix, e.g., `J * v` or
+`J' * v`.
+"""
+function jac_op(nlp :: AbstractNLPModel, x :: Vector{Float64})
+  return LinearOperator{Float64}(nlp.meta.ncon, nlp.meta.nvar,
+                        false, false,
+                        v -> jprod(nlp, x, v),
+                        Nullable{Function}(),
+                        v -> jtprod(nlp, x, v))
 end
 
-# TODO: Move g out of NLPModel?
-"Evaluate the gradient of the objective function at `x`."
-function grad(nlp :: NLPModel, x :: Array{Float64})
-  nlp.neval_grad += 1
-  MathProgBase.eval_grad_f(nlp.mpmodel.eval, nlp.g, x)
-  return nlp.g
-end
+jth_hprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer) =
+  throw(NotImplementedError("jth_hprod"))
+jth_hprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer, ::AbstractVector) =
+  throw(NotImplementedError("jth_hprod!"))
+ghjvprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
+  throw(NotImplementedError("ghjvprod"))
+ghjvprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
+  throw(NotImplementedError("ghjvprod!"))
 
-"Evaluate the gradient of the objective function at `x` in place."
-function grad!(nlp :: NLPModel, x :: Array{Float64}, g :: Array{Float64})
-  nlp.neval_grad += 1
-  MathProgBase.eval_grad_f(nlp.mpmodel.eval, g, x)
-  return g
-end
+"""`(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0, y=zeros)`
 
-# TODO: Move c out of NLPModel?
-"Evaluate the constraints at `x`."
-function cons(nlp :: NLPModel, x :: Array{Float64})
-  nlp.neval_cons += 1
-  MathProgBase.eval_g(nlp.mpmodel.eval, nlp.c, x)
-  return nlp.c
-end
+Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format,
+with objective function scaled by `obj_weight`, i.e.,
 
-"Evaluate the constraints at `x` in place."
-function cons!(nlp :: NLPModel, x :: Array{Float64}, c :: Array{Float64})
-  nlp.neval_cons += 1
-  MathProgBase.eval_g(nlp.mpmodel.eval, c, x)
-  return c
-end
+\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
 
-"Evaluate the constraints Jacobian at `x` in sparse coordinate format."
-function jac_coord(nlp :: NLPModel, x :: Array{Float64})
-  nlp.neval_jac += 1
-  MathProgBase.eval_jac_g(nlp.mpmodel.eval, nlp.jvals, x)
-  return (nlp.mpmodel.eval.jac_I, nlp.mpmodel.eval.jac_J, nlp.jvals)
-end
-
-"Evaluate the constraints Jacobian at `x` as a sparse matrix."
-function jac(nlp :: NLPModel, x :: Array{Float64})
-  return sparse(jac_coord(nlp, x)..., nlp.meta.ncon, nlp.meta.nvar)
-end
-
-"Evaluate the Jacobian-vector product at `x`."
-function jprod(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64})
-  nlp.neval_jprod += 1
-  MathProgBase.eval_jac_prod(nlp.mpmodel.eval, nlp.jv, x, v)
-  return nlp.jv
-end
-
-"Evaluate the Jacobian-vector product at `x` in place."
-function jprod!(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64}, jv ::
-  Array{Float64})
-  nlp.neval_jprod += 1
-  MathProgBase.eval_jac_prod(nlp.mpmodel.eval, jv, x, v)
-  return jv
-end
-
-"Evaluate the transposed-Jacobian-vector product at `x`."
-function jtprod(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64})
-  nlp.neval_jtprod += 1
-  MathProgBase.eval_jac_prod_t(nlp.mpmodel.eval, nlp.jtv, x, v)
-  return nlp.jtv
-end
-
-"Evaluate the transposed-Jacobian-vector product at `x` in place."
-function jtprod!(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64}, jtv ::
-  Array{Float64})
-  nlp.neval_jtprod += 1
-  MathProgBase.eval_jac_prod_t(nlp.mpmodel.eval, jtv, x, v)
-  return jtv
-end
-
-"""Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format.
+with σ = obj_weight.
 Only the lower triangle is returned.
 """
-function hess_coord(nlp :: NLPModel, x :: Array{Float64}, y :: Array{Float64})
-  nlp.neval_hess += 1
-  MathProgBase.eval_hesslag(nlp.mpmodel.eval, nlp.hvals, x, 1.0, y)
-  return (nlp.mpmodel.eval.hess_I, nlp.mpmodel.eval.hess_J, nlp.hvals)
-end
+hess_coord(::AbstractNLPModel, ::AbstractVector; kwargs...) =
+  throw(NotImplementedError("hess_coord"))
 
-"""Evaluate the objective Hessian at `x` in sparse coordinate format.
+"""`Hx = hess(nlp, x; obj_weight=1.0, y=zeros)`
+
+Evaluate the Lagrangian Hessian at `(x,y)` as a sparse matrix,
+with objective function scaled by `obj_weight`, i.e.,
+
+\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
+
+with σ = obj_weight.
 Only the lower triangle is returned.
 """
-function hess_coord(nlp :: NLPModel, x :: Array{Float64})
-  return hess_coord(nlp, x, zeros(nlp.meta.ncon))
-end
+hess(::AbstractNLPModel, ::AbstractVector; kwargs...) =
+  throw(NotImplementedError("hess"))
 
-"""Evaluate the Lagrangian Hessian at `(x,y)` as a sparse matrix.
-Only the lower triangle is returned.
+"""`Hv = hprod(nlp, x, v; obj_weight=1.0, y=zeros)`
+
+Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v`,
+with objective function scaled by `obj_weight`, i.e.,
+
+\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
+
+with σ = obj_weight.
 """
-function hess(nlp :: NLPModel, x :: Array{Float64}, y :: Array{Float64})
-  return sparse(hess_coord(nlp, x, y)..., nlp.meta.nvar, nlp.meta.nvar)
-end
+hprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector; kwargs...) =
+  throw(NotImplementedError("hprod"))
 
-"""Evaluate the objective Hessian at `x` as a sparse matrix.
-Only the lower triangle is returned.
+"""`Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0, y=zeros)`
+
+Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in
+place, with objective function scaled by `obj_weight`, i.e.,
+
+\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
+
+with σ = obj_weight.
 """
-function hess(nlp :: NLPModel, x :: Array{Float64})
-  return sparse(hess_coord(nlp, x)..., nlp.meta.nvar, nlp.meta.nvar)
+hprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector; kwargs...) =
+  throw(NotImplementedError("hprod!"))
+
+"""`H = hess_op(nlp, x; obj_weight=1.0, y=zeros)`
+
+Return the Lagrangian Hessian at `(x,y)` with objective function scaled by
+`obj_weight` as a linear operator. The resulting object may be used as if it were a
+matrix, e.g., `H * v`. The linear operator H represents
+
+\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
+
+with σ = obj_weight.
+"""
+function hess_op(nlp :: AbstractNLPModel, x :: Vector{Float64};
+                 obj_weight :: Float64=1.0, y :: Vector{Float64}=zeros(nlp.meta.ncon))
+  return LinearOperator(nlp.meta.nvar, nlp.meta.nvar,
+                        true, true,
+                        v -> hprod(nlp, x, v; obj_weight=obj_weight, y=y))
 end
 
-# TODO: Move hv out of NLPModel
-"Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v`."
-function hprod(nlp :: NLPModel, x :: Array{Float64}, y :: Array{Float64}, v :: Array{Float64})
-  nlp.neval_hprod += 1
-  MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, nlp.hv, x, v, 1.0, y)
-  return nlp.hv
-end
+push!(nlp :: AbstractNLPModel, args...; kwargs...) =
+  throw(NotImplementedError("push!"))
+varscale(::AbstractNLPModel, ::AbstractVector) =
+  throw(NotImplementedError("varscale"))
+lagscale(::AbstractNLPModel, ::Float64) =
+  throw(NotImplementedError("lagscale"))
+conscale(::AbstractNLPModel, ::AbstractVector) =
+  throw(NotImplementedError("conscale"))
 
-"Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in place."
-function hprod!(nlp :: NLPModel, x :: Array{Float64}, y :: Array{Float64}, v :: Array{Float64}, hv :: Array{Float64})
-  nlp.neval_hprod += 1
-  MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, hv, x, v, 1.0, y)
-  return hv
+if Pkg.installed("MathProgBase") != nothing
+  include("mpb_model.jl")
+  include("nlp_to_mpb.jl")
+  if Pkg.installed("JuMP") != nothing
+    include("jump_model.jl")
+  end
 end
+if Pkg.installed("ForwardDiff") != nothing
+  include("autodiff_model.jl")
+end
+include("simple_model.jl")
+include("slack_model.jl")
+include("qn_model.jl")
 
-"Evaluate the product of the objective Hessian at `(x,y)` with the vector `v`."
-function hprod(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64})
-  return hprod(nlp, x, zeros(nlp.meta.ncon), v)
-end
-
-"Evaluate the product of the objective Hessian at `(x,y)` with the vector `v` in place."
-function hprod!(nlp :: NLPModel, x :: Array{Float64}, v :: Array{Float64}, hv :: Array{Float64})
-  return hprod!(nlp, x, zeros(nlp.meta.ncon), v, hv)
-end
+include("dercheck.jl")
 
 end # module
