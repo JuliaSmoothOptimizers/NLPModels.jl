@@ -17,12 +17,15 @@ git:
 notifications:
   email: false
 
+addons:
+  apt_packages:
+    - gfortran
+
 branches:
   only:
     - master
 
 before_install:
-  - if [ `uname` == "Linux" ]; then unset DYLD_LIBRARY_PATH; bash travisCI/setup_travis_linux.sh; fi
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 
 script:
