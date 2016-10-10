@@ -1,25 +1,8 @@
 # NLPModels
 
-**OSX/Linux:**
-master
 [![Master Build Status](https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl.svg?branch=master)](https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl)
-develop
-[![Develop Build Status](https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl.svg?branch=develop)](https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl)
-
-**Windows:**
-master
 [![Master Build status](https://ci.appveyor.com/api/projects/status/l1rs9ajxkyc0cer9/branch/master?svg=true)](https://ci.appveyor.com/project/dpo/nlpmodels-jl/branch/master)
-develop
-[![Develop Build status](https://ci.appveyor.com/api/projects/status/l1rs9ajxkyc0cer9/branch/develop?svg=true)](https://ci.appveyor.com/project/dpo/nlpmodels-jl/branch/develop)
-
-**Coverage:**
-master
 [![Master Coverage Status](https://coveralls.io/repos/JuliaSmoothOptimizers/NLPModels.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/JuliaSmoothOptimizers/NLPModels.jl?branch=master)
-develop
-[![Develop Coverage Status](https://coveralls.io/repos/JuliaSmoothOptimizers/NLPModels.jl/badge.svg?branch=develop&service=github)](https://coveralls.io/github/JuliaSmoothOptimizers/NLPModels.jl?branch=develop)
-
-**Documentation:**
-develop
 [![](https://img.shields.io/badge/docs-latest-3f51b5.svg)](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/latest)
 
 
@@ -44,6 +27,9 @@ details on the models, a tutorial and the API.
 ```julia
 Pkg.add("NLPModels")
 ```
+
+### Optional Dependencies
+
 If you want to use a model with automatic differentiation, you'll need
 ```julia
 Pkg.add("ForwardDiff")
