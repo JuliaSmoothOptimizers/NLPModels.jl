@@ -1,3 +1,5 @@
+__precompile__(false)  # due to optional dependencies
+
 module NLPModels
 
 using Compat
