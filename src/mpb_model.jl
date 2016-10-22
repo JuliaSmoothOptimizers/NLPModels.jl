@@ -40,10 +40,7 @@ function MathProgBase.loadproblem!(m :: MathProgModel,
                                    l, u, lb, ub,
                                    sense,
                                    eval :: MathProgBase.AbstractNLPEvaluator)
-
-  # TODO: :JacVec is not yet available.
-  # [:Grad, :Jac, :JacVec, :Hess, :HessVec, :ExprGraph]
-  MathProgBase.initialize(eval, [:Grad, :Jac, :Hess, :HessVec, :ExprGraph])
+  # eval is initialized in the MathProgNLPModel constructor
   m.numVar = numVar
   m.numConstr = numConstr
   m.x = zeros(numVar)
@@ -76,7 +73,12 @@ type MathProgNLPModel <: AbstractNLPModel
 end
 
 "Construct a `MathProgNLPModel` from a `MathProgModel`."
-function MathProgNLPModel(mpmodel :: MathProgModel; name :: String="Generic")
+function MathProgNLPModel(mpmodel :: MathProgModel;
+                          name :: String="Generic",
+                          features :: Vector{Symbol}=[:Grad, :Jac, :Hess, :HessVec, :ExprGraph])
+
+  # TODO: :JacVec is not yet available.
+  MathProgBase.initialize(mpmodel.eval, features)
 
   nvar = mpmodel.numVar
   lvar = mpmodel.lvar
@@ -89,10 +91,22 @@ function MathProgNLPModel(mpmodel :: MathProgModel; name :: String="Generic")
   lcon = mpmodel.lcon
   ucon = mpmodel.ucon
 
-  jrows, jcols = MathProgBase.jac_structure(mpmodel.eval)
-  hrows, hcols = MathProgBase.hesslag_structure(mpmodel.eval)
-  nnzj = length(jrows)
-  nnzh = length(hrows)
+  if :Jac in features
+    jrows, jcols = MathProgBase.jac_structure(mpmodel.eval)
+    nnzj = length(jrows)
+  else
+    jrows = Int[]
+    jcols = Int[]
+    nnzj = 0
+  end
+  if :Hess in features
+    hrows, hcols = MathProgBase.hesslag_structure(mpmodel.eval)
+    nnzh = length(hrows)
+  else
+    hrows = Int[]
+    hcols = Int[]
+    nnzh = 0
+  end
 
   meta = NLPModelMeta(nvar,
                       x0=mpmodel.x,
