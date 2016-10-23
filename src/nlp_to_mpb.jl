@@ -152,7 +152,7 @@ function NLPtoMPB(model :: MathProgNLPModel, solver :: MathProgBase.AbstractMath
                             model.meta.lvar, model.meta.uvar,
                             model.meta.lcon, model.meta.ucon,
                             model.meta.minimize ? :Min : :Max,
-                            model.mpmodel.eval)
+                            NLPModelEvaluator(model))
   MathProgBase.setwarmstart!(mpbmodel, model.meta.x0)
   return mpbmodel
 end
