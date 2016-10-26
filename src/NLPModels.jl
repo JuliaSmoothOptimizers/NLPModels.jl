@@ -11,9 +11,9 @@ export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters
 export reset!,
        obj, grad, grad!,
        cons, cons!, jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad,
-       jac_coord, jac, jprod, jprod!, jtprod, jtprod!, jac_op,
+       jac_coord, jac, jprod, jprod!, jtprod, jtprod!, jac_op, jac_op!,
        jth_hprod, jth_hprod!, ghjvprod, ghjvprod!,
-       hess_coord, hess, hprod, hprod!, hess_op,
+       hess_coord, hess, hprod, hprod!, hess_op, hess_op!,
        push!,
        varscale, lagscale, conscale,
        NotImplementedError
@@ -160,6 +160,22 @@ function jac_op(nlp :: AbstractNLPModel, x :: Vector{Float64})
                         v -> jtprod(nlp, x, v))
 end
 
+"""`J = jac_op!(nlp, x, Jv, Jtv)`
+
+Return the Jacobian at `x` as a linear operator.
+The resulting object may be used as if it were a matrix, e.g., `J * v` or
+`J' * v`. The values `Jv` and `Jtv` are used to preallocate the memory for the
+operations.
+"""
+function jac_op!(nlp :: AbstractNLPModel, x :: Vector{Float64},
+                 Jv :: Vector{Float64}, Jtv :: Vector{Float64})
+  return LinearOperator{Float64}(nlp.meta.ncon, nlp.meta.nvar,
+                        false, false,
+                        v -> jprod!(nlp, x, v, Jv),
+                        Nullable{Function}(),
+                        v -> jtprod!(nlp, x, v, Jtv))
+end
+
 jth_hprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer) =
   throw(NotImplementedError("jth_hprod"))
 jth_hprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer, ::AbstractVector) =
@@ -234,6 +250,25 @@ function hess_op(nlp :: AbstractNLPModel, x :: Vector{Float64};
   return LinearOperator(nlp.meta.nvar, nlp.meta.nvar,
                         true, true,
                         v -> hprod(nlp, x, v; obj_weight=obj_weight, y=y))
+end
+
+"""`H = hess_op!(nlp, x, Hv; obj_weight=1.0, y=zeros)`
+
+Return the Lagrangian Hessian at `(x,y)` with objective function scaled by
+`obj_weight` as a linear operator, and storing the result on `Hv`. The resulting
+object may be used as if it were a matrix, e.g., `w = H * v`. The vector `Hv` is
+used to preallocate the memory for the operation.  The linear operator H
+represents
+
+\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
+
+with σ = obj_weight.
+"""
+function hess_op!(nlp :: AbstractNLPModel, x :: Vector{Float64}, Hv :: Vector{Float64};
+                 obj_weight :: Float64=1.0, y :: Vector{Float64}=zeros(nlp.meta.ncon))
+  return LinearOperator(nlp.meta.nvar, nlp.meta.nvar,
+                        true, true,
+                        v -> hprod!(nlp, x, v, Hv; obj_weight=obj_weight, y=y))
 end
 
 push!(nlp :: AbstractNLPModel, args...; kwargs...) =
