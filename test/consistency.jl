@@ -89,6 +89,11 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
       end
       hprod!(nlps[i], x, v, tmp_n)
       @test_approx_eq_eps Hvs[i] tmp_n rtol * max(Hvmin, 1.0)
+      fill!(tmp_n, 0)
+      H = hess_op!(nlps[i], x, tmp_n)
+      res = H * v
+      @test_approx_eq_eps res Hvs[i] rtol * max(Hvmin, 1.0)
+      @test_approx_eq_eps res tmp_n rtol * max(Hvmin, 1.0)
     end
 
     if m > 0
@@ -139,6 +144,11 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
         end
         jprod!(nlps[i], x, v, tmp_m)
         @test_approx_eq_eps Jps[i] tmp_m rtol * max(Jmin, 1.0)
+        fill!(tmp_m, 0)
+        J = jac_op!(nlps[i], x, tmp_m, tmp_n)
+        res = J * v
+        @test_approx_eq_eps res Jps[i] rtol * max(Jmin, 1.0)
+        @test_approx_eq_eps res tmp_m rtol * max(Jmin, 1.0)
       end
 
       w = 10 * (rand() - 0.5) * ones(m)
@@ -151,6 +161,11 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
         end
         jtprod!(nlps[i], x, w, tmp_n)
         @test_approx_eq_eps Jtps[i] tmp_n rtol * max(Jmin, 1.0)
+        fill!(tmp_n, 0)
+        J = jac_op!(nlps[i], x, tmp_m, tmp_n)
+        res = J' * w
+        @test_approx_eq_eps res Jtps[i] rtol * max(Jmin, 1.0)
+        @test_approx_eq_eps res tmp_n rtol * max(Jmin, 1.0)
       end
 
       y = (rand() - 0.5) * ones(m)
