@@ -164,7 +164,7 @@ end
 
 Return the Jacobian at `x` as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or
-`J' * v`. The values `Jv` and `Jtv` are used to preallocate the memory for the
+`J' * v`. The values `Jv` and `Jtv` are used as preallocated storage for the
 operations.
 """
 function jac_op!(nlp :: AbstractNLPModel, x :: Vector{Float64},
@@ -257,7 +257,7 @@ end
 Return the Lagrangian Hessian at `(x,y)` with objective function scaled by
 `obj_weight` as a linear operator, and storing the result on `Hv`. The resulting
 object may be used as if it were a matrix, e.g., `w = H * v`. The vector `Hv` is
-used to preallocate the memory for the operation.  The linear operator H
+used as preallocated storage for the operation.  The linear operator H
 represents
 
 \\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
