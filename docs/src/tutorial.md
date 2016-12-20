@@ -90,7 +90,7 @@ function steepest(nlp; itmax=100000, eta=1e-4, eps=1e-6, sigma=0.66)
     t = 1.0
     x_trial = x - t * ∇fx
     f_trial = obj(nlp, x_trial)
-    while obj(nlp, x - t*∇fx) > fx - eta * t * slope
+    while f_trial > fx - eta * t * slope
       t *= sigma
       x_trial = x - t * ∇fx
       f_trial = obj(nlp, x_trial)
