@@ -40,6 +40,7 @@ function hs6_simple()
   g!(x, gx) = begin
     gx[1] = -2*(1 - x[1])
     gx[2] = 0.0
+    return gx
   end
 
   c(x) = [10 * (x[2] - x[1]^2)]

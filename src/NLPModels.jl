@@ -9,7 +9,7 @@ using LinearOperators
 
 export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters
 export reset!,
-       obj, grad, grad!,
+       obj, grad, grad!, objgrad, objgrad!, objcons, objcons!,
        cons, cons!, jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad,
        jac_coord, jac, jprod, jprod!, jtprod, jtprod!, jac_op, jac_op!,
        jth_hprod, jth_hprod!, ghjvprod, ghjvprod!,
@@ -104,6 +104,47 @@ jth_congrad!(::AbstractNLPModel, ::AbstractVector, ::Integer, ::AbstractVector) 
   throw(NotImplementedError("jth_congrad!"))
 jth_sparse_congrad(::AbstractNLPModel, ::AbstractVector, ::Integer) =
   throw(NotImplementedError("jth_sparse_congrad"))
+
+"""`f, c = objcons(nlp, x)`
+
+Evaluate \$f(x)\$ and \$c(x)\$ at `x`.
+"""
+function objcons(nlp, x)
+  f = obj(nlp, x)
+  c = nlp.meta.ncon > 0 ? cons(nlp, x) : []
+  return f, c
+end
+
+"""`f = objcons!(nlp, x, c)`
+
+Evaluate \$f(x)\$ and \$c(x)\$ at `x`. `c` is overwritten with the value of \$c(x)\$.
+"""
+function objcons!(nlp, x, c)
+  f = obj(nlp, x)
+  cons!(nlp, x, c)
+  return f, c
+end
+
+"""`f, g = objgrad(nlp, x)`
+
+Evaluate \$f(x)\$ and \$\\nabla f(x)\$ at `x`.
+"""
+function objgrad(nlp, x)
+  f = obj(nlp, x)
+  g = grad(nlp, x)
+  return f, g
+end
+
+"""`f, g = objgrad!(nlp, x, g)`
+
+Evaluate \$f(x)\$ and \$\\nabla f(x)\$ at `x`. `g` is overwritten with the
+value of \$\\nabla f(x)\$.
+"""
+function objgrad!(nlp, x, g)
+  f = obj(nlp, x)
+  grad!(nlp, x, g)
+  return f, g
+end
 
 """`(rows,cols,vals) = jac_coord(nlp, x)`
 

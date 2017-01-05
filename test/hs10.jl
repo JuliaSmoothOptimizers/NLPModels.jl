@@ -40,6 +40,7 @@ function hs10_simple()
   g!(x, gx) = begin
     gx[1] = 1.0
     gx[2] = -1.0
+    return gx
   end
 
   c(x) = [-3 * x[1]^2 + 2 * x[1] * x[2] - x[2]^2 + 1.0]

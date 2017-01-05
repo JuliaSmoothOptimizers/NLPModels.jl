@@ -106,12 +106,16 @@ type SimpleNLPModel <: AbstractNLPModel
   f :: Function
   g :: Function
   g! :: Function
+  fg :: Function
+  fg! :: Function
   H :: Function
   Hcoord :: Function
   Hp :: Function
   Hp! :: Function
   c :: Function
   c! :: Function
+  fc :: Function
+  fc! :: Function
   J :: Function
   Jcoord :: Function
   Jp :: Function
@@ -127,12 +131,16 @@ function SimpleNLPModel(f::Function, x0::Vector; y0::Vector = [],
     nnzh::Int = 0, nnzj::Int = 0,
     g::Function = NotImplemented,
     g!::Function = NotImplemented,
+    fg::Function = NotImplemented,
+    fg!::Function = NotImplemented,
     H::Function = NotImplemented,
     Hcoord::Function = NotImplemented,
     Hp::Function = NotImplemented,
     Hp!::Function = NotImplemented,
     c::Function = NotImplemented,
     c!::Function = NotImplemented,
+    fc::Function = NotImplemented,
+    fc!::Function = NotImplemented,
     J::Function = NotImplemented,
     Jcoord::Function = NotImplemented,
     Jp::Function = NotImplemented,
@@ -158,8 +166,8 @@ function SimpleNLPModel(f::Function, x0::Vector; y0::Vector = [],
   meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0,
     lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=nnzh, name=name, lin=lin, nln=nln)
 
-  return SimpleNLPModel(meta, Counters(), f, g, g!, H, Hcoord, Hp, Hp!, c, c!,
-      J, Jcoord, Jp, Jp!, Jtp, Jtp!)
+  return SimpleNLPModel(meta, Counters(), f, g, g!, fg, fg!, H, Hcoord, Hp,
+                        Hp!, c, c!, fc, fc!, J, Jcoord, Jp, Jp!, Jtp, Jtp!)
 end
 
 function obj(nlp :: SimpleNLPModel, x :: Vector)
@@ -177,6 +185,26 @@ function grad!(nlp :: SimpleNLPModel, x :: Vector, g :: Vector)
   return nlp.g!(x, g)
 end
 
+function objgrad(nlp :: SimpleNLPModel, x :: Vector)
+  if nlp.fg == NotImplemented
+    return obj(nlp, x), grad(nlp, x)
+  else
+    nlp.counters.neval_obj += 1
+    nlp.counters.neval_grad += 1
+    return nlp.fg(x)
+  end
+end
+
+function objgrad!(nlp :: SimpleNLPModel, x :: Vector, g :: Vector)
+  if nlp.fg! == NotImplemented
+    return obj(nlp, x), grad!(nlp, x, g)
+  else
+    nlp.counters.neval_obj += 1
+    nlp.counters.neval_grad += 1
+    return nlp.fg!(x, g)
+  end
+end
+
 function cons(nlp :: SimpleNLPModel, x :: Vector)
   nlp.counters.neval_cons += 1
   return nlp.c(x)
@@ -185,6 +213,26 @@ end
 function cons!(nlp :: SimpleNLPModel, x :: Vector, c :: Vector)
   nlp.counters.neval_cons += 1
   return nlp.c!(x, c)
+end
+
+function objcons(nlp :: SimpleNLPModel, x :: Vector)
+  if nlp.fc == NotImplemented
+    return obj(nlp, x), cons(nlp, x)
+  else
+    nlp.counters.neval_obj += 1
+    nlp.counters.neval_cons += 1
+    return nlp.fc(x)
+  end
+end
+
+function objcons!(nlp :: SimpleNLPModel, x :: Vector, c :: Vector)
+  if nlp.fc! == NotImplemented
+    return obj(nlp, x), cons!(nlp, x, c)
+  else
+    nlp.counters.neval_obj += 1
+    nlp.counters.neval_cons += 1
+    return nlp.fc!(x, c)
+  end
 end
 
 function jac_coord(nlp :: SimpleNLPModel, x :: Vector)

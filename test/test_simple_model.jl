@@ -65,4 +65,44 @@ function test_simple_model()
   @test jtprod(nlp, x0, v) == Jtp(x0, v)
 end
 
+function test_objgrad_objcons()
+  n = 100
+  G = rand(n, n)
+  G = G*G'
+  v = rand(n)
+
+  x0 = zeros(n)
+  f(x) = dot(x, G*x)/2 + dot(v, x)
+  g(x) = G*x + v
+  g!(x, gx) = begin gx[:] = G*x + v end
+  c(x) = [dot(v, G*x) - 1]
+  c!(x, cx) = begin cx[1] = dot(v, G*x) - 1 end
+  fg(x) = begin
+    g = G*x
+    f = dot(x, g)/2 + dot(v, x)
+    g += v
+    return f, g
+  end
+  fg!(x, g) = begin
+    g[:] = G*x
+    f = dot(x, g)/2 + dot(v, x)
+    g[:] += v
+    return f, g
+  end
+  fc(x) = begin
+    y = G*x
+    f = dot(x, y)/2 + dot(v, x)
+    c = [dot(v, y) - 1]
+    return f, c
+  end
+  fc!(x, c) = begin
+    y = G*x
+    f = dot(x, y)/2 + dot(v, x)
+    c[1] = dot(v, y) - 1
+    return f, c
+  end
+  nlp = SimpleNLPModel(f, x0, g=g, g! =g!, fg=fg, fg! =fg!, c=c, c! =c!, fc =fc, fc! =fc!)
+end
+
 test_simple_model()
+test_objgrad_objcons()

@@ -45,6 +45,7 @@ function hs14_simple()
   g!(x, gx) = begin
     gx[1] = 2*(x[1] - 2)
     gx[2] = 2*(x[2] - 1)
+    return gx
   end
 
   c(x) = [-x[1]^2/4 - x[2]^2 + 1; x[1] - 2 * x[2] + 1]
