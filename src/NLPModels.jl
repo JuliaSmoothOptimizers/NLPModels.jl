@@ -61,35 +61,35 @@ function reset!(nlp :: AbstractNLPModel)
 end
 
 # Methods to be overridden in other packages.
-"""`obj(nlp, x)`
+"""`f = obj(nlp, x)`
 
 Evaluate \$f(x)\$, the objective function of `nlp` at `x`.
 """
 obj(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("obj"))
 
-"""`grad(nlp, x)`
+"""`g = grad(nlp, x)`
 
 Evaluate \$\\nabla f(x)\$, the gradient of the objective function at `x`.
 """
 grad(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("grad"))
 
-"""`grad!(nlp, x, g)`
+"""`g = grad!(nlp, x, g)`
 
 Evaluate \$\\nabla f(x)\$, the gradient of the objective function at `x` in place.
 """
 grad!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("grad!"))
 
-"""`cons(nlp, x)`
+"""`c = cons(nlp, x)`
 
 Evaluate \$c(x)\$, the constraints at `x`.
 """
 cons(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("cons"))
 
-"""`cons!(nlp, x, c)`
+"""`c = cons!(nlp, x, c)`
 
 Evaluate \$c(x)\$, the constraints at `x` in place.
 """
