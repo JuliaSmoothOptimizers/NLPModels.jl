@@ -34,13 +34,13 @@ Feel free to open an issue to suggest other methods that should apply to all
 NLPModels instances.
 
 | Function          | NLPModels function                                                                                                                                                                                   |
-|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| $f(x)$            | [obj](api/#NLPModels.obj)                                                                                                                                                                            |
-| $\nabla f(x)$     | [grad](api/#NLPModels.grad), [grad!](api/#NLPModels.grad!)                                                                                                                                           |
-| $\nabla^2 f(x)$   | [hess](api/#NLPModels.hess), [hess_op](api/#NLPModels.hess_op), [hess_op!](api/#NLPModels.hess_op!), [hess_coord](api/#NLPModels.hess_coord), [hprod](api/#NLPModels.hprod), [hprod!](api/#NLPModels.hprod!)                              |
-| $c(x)$            | [cons](api/#NLPModels.cons), [cons!](api/#NLPModels.cons!)                                                                                                                                           |
+|-------------------|-------------------------------------------|
+| $f(x)$            | [obj](api/#NLPModels.obj), [objgrad](api/#NLPModels.objgrad), [objgrad!](api/#NLPModels.objgrad!), [objcons](api/#NLPModels.objcons), [objcons!](api/#NLPModels.objcons!) |
+| $\nabla f(x)$     | [grad](api/#NLPModels.grad), [grad!](api/#NLPModels.grad!), [objgrad](api/#NLPModels.objgrad), [objgrad!](api/#NLPModels.objgrad!) |
+| $\nabla^2 f(x)$   | [hess](api/#NLPModels.hess), [hess_op](api/#NLPModels.hess_op), [hess_op!](api/#NLPModels.hess_op!), [hess_coord](api/#NLPModels.hess_coord), [hprod](api/#NLPModels.hprod), [hprod!](api/#NLPModels.hprod!) |
+| $c(x)$            | [cons](api/#NLPModels.cons), [cons!](api/#NLPModels.cons!), [objcons](api/#NLPModels.objcons), [objcons!](api/#NLPModels.objcons!) |
 | $J(x)$            | [jac](api/#NLPModels.jac), [jac_op](api/#NLPModels.jac_op), [jac_op!](api/#NLPModels.jac_op!), [jac_coord](api/#NLPModels.jac_coord), [jprod](api/#NLPModels.jprod), [jprod!](api/#NLPModels.jprod!), [jtprod](api/#NLPModels.jtprod), [jtprod!](api/#NLPModels.jtprod!) |
-| $\nabla^2 L(x,y)$ | [hess](api/#NLPModels.hess), [hess_op](api/#NLPModels.hess_op), [hess_coord](api/#NLPModels.hess_coord), [hprod](api/#NLPModels.hprod), [hprod!](api/#NLPModels.hprod!)                              |
+| $\nabla^2 L(x,y)$ | [hess](api/#NLPModels.hess), [hess_op](api/#NLPModels.hess_op), [hess_coord](api/#NLPModels.hess_coord), [hprod](api/#NLPModels.hprod), [hprod!](api/#NLPModels.hprod!) |
 
 
 ## AbstractNLPModel functions
@@ -49,8 +49,12 @@ NLPModels instances.
 obj
 grad
 grad!
+objgrad
+objgrad!
 cons
 cons!
+objcons
+objcons!
 jac_coord
 jac
 jac_op
