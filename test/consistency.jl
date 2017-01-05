@@ -47,8 +47,9 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
       for j = i+1:N
         @test_approx_eq_eps gs[i] gs[j] rtol * max(gmin, 1.0)
       end
-      grad!(nlps[i], x, tmp_n)
+      _ = grad!(nlps[i], x, tmp_n)
       @test_approx_eq_eps gs[i] tmp_n rtol * max(gmin, 1.0)
+      @test _ == tmp_n
 
       f, g = objgrad(nlps[i], x)
       @test fs[i] == f
@@ -95,8 +96,9 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
         @test_approx_eq_eps Hvs[i] Hvs[j] rtol * max(Hvmin, 1.0)
         @test_approx_eq_eps Hvs[i] Hopvs[j] rtol * max(Hvmin, 1.0)
       end
-      hprod!(nlps[i], x, v, tmp_n)
+      _ = hprod!(nlps[i], x, v, tmp_n)
       @test_approx_eq_eps Hvs[i] tmp_n rtol * max(Hvmin, 1.0)
+      @test _ == tmp_n
       fill!(tmp_n, 0)
       H = hess_op!(nlps[i], x, tmp_n)
       res = H * v
@@ -110,8 +112,9 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
       cus = [nlp.meta.ucon for nlp in nlps]
       cmin = minimum(map(norm, cs))
       for i = 1:N
-        cons!(nlps[i], x, tmp_m)
+        _ = cons!(nlps[i], x, tmp_m)
         @test_approx_eq_eps cs[i] tmp_m rtol * max(cmin, 1.0)
+        @test _ == tmp_m
         ci, li, ui = copy(cs[i]), cls[i], cus[i]
         for k = 1:m
           if li[k] > -Inf
@@ -158,7 +161,8 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
         for j = i+1:N
           @test_approx_eq_eps vi norm(Jps[j]) rtol * max(Jmin, 1.0)
         end
-        jprod!(nlps[i], x, v, tmp_m)
+        _ = jprod!(nlps[i], x, v, tmp_m)
+        @test _ == tmp_m
         @test_approx_eq_eps Jps[i] tmp_m rtol * max(Jmin, 1.0)
         fill!(tmp_m, 0)
         J = jac_op!(nlps[i], x, tmp_m, tmp_n)
@@ -175,8 +179,9 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
         for j = i+1:N
           @test_approx_eq_eps vi norm(Jtps[j]) rtol * max(Jmin, 1.0)
         end
-        jtprod!(nlps[i], x, w, tmp_n)
+        _ = jtprod!(nlps[i], x, w, tmp_n)
         @test_approx_eq_eps Jtps[i] tmp_n rtol * max(Jmin, 1.0)
+        @test _ == tmp_n
         fill!(tmp_n, 0)
         J = jac_op!(nlps[i], x, tmp_m, tmp_n)
         res = J' * w
