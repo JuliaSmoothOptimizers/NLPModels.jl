@@ -46,7 +46,7 @@ NLPModels.MathProgNLPModel
 using NLPModels, MathProgBase, JuMP
 m = Model()
 @variable(m, x[1:4])
-@NLobjective(m, Min, sum{x[i]^4, i=1:4})
+@NLobjective(m, Min, sum(x[i]^4 for i=1:4))
 nlp = MathProgNLPModel(m)
 x0 = [1.0; 0.5; 0.25; 0.125]
 grad(nlp, x0)

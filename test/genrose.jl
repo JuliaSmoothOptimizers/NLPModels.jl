@@ -48,7 +48,7 @@ function genrose(n :: Int=500)
   @NLobjective(
     nlp,
     Min,
-    1.0 + 100 * sum{(x[i+1] - x[i]^2)^2, i=1:n-1} + sum{(x[i] - 1.0)^2, i=1:n-1}
+    1.0 + 100 * sum((x[i+1] - x[i]^2)^2 for i=1:n-1) + sum((x[i] - 1.0)^2 for i=1:n-1)
   )
 
   return nlp
