@@ -49,6 +49,14 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
       end
       grad!(nlps[i], x, tmp_n)
       @test_approx_eq_eps gs[i] tmp_n rtol * max(gmin, 1.0)
+
+      f, g = objgrad(nlps[i], x)
+      @test fs[i] == f
+      @test gs[i] == g
+      f, _ = objgrad!(nlps[i], x, g)
+      @test fs[i] == f
+      @test gs[i] == g
+      @test g == _
     end
 
     Hs = Array{Any}(N)
@@ -123,6 +131,14 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
           end
           @test_approx_eq_eps norm(ci) norm(cj) rtol * max(cmin, 1.0)
         end
+
+        f, c = objcons(nlps[i], x)
+        @test fs[i] == f
+        @test cs[i] == c
+        f, _ = objcons!(nlps[i], x, c)
+        @test fs[i] == f
+        @test cs[i] == c
+        @test c == _
       end
 
       Js = Any[jac(nlp, x) for nlp in nlps]

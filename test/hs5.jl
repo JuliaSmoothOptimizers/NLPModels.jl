@@ -35,6 +35,7 @@ function hs5_simple()
   g!(x, gx) = begin
     gx[1] = cos(x[1] + x[2]) + 2*(x[1] - x[2]) - 1.5
     gx[2] = cos(x[1] + x[2]) - 2*(x[1] - x[2]) + 2.5
+    return gx
   end
   Hf(x; obj_weight=1.0) = (-sin(x[1] + x[2])*ones(2,2) + [2.0 -2.0; -2.0 2.0])*obj_weight
   H(x; obj_weight=1.0) = tril(Hf(x; obj_weight=obj_weight))

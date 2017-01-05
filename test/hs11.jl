@@ -41,6 +41,7 @@ function hs11_simple()
   g!(x, gx) = begin
     gx[1] = 2*(x[1] - 5)
     gx[2] = 2*x[2]
+    return gx
   end
 
   c(x) = [-x[1]^2 + x[2]]
