@@ -86,6 +86,8 @@ for counter in fieldnames(Counters)
   end
 end
 
+counters(nlp :: SlackModel) = counters(nlp.model)
+
 function reset!(nlp :: SlackModel)
   reset!(nlp.model.counters)
   return nlp
