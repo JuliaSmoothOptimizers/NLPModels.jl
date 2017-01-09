@@ -8,7 +8,7 @@ import Compat.String
 using LinearOperators
 
 export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters
-export reset!,
+export reset!, counters,
        obj, grad, grad!, objgrad, objgrad!, objcons, objcons!,
        cons, cons!, jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad,
        jac_coord, jac, jprod, jprod!, jtprod, jtprod!, jac_op, jac_op!,
@@ -39,6 +39,8 @@ for counter in fieldnames(Counters)
     export $counter
   end
 end
+
+counters(nlp :: AbstractNLPModel) = nlp.counters
 
 """`reset!(counters)`
 
