@@ -1,277 +1,337 @@
+
 <!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+<html class="no-js">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <title>Tutorial - NLPModels.jl</title>
-      
+        <meta name="description" content="Nonlinear Programming Models">
       
       
       
         <meta name="author" content="JuliaSmoothOptimizers">
       
-    
-    <meta property="og:url" content="None">
-    <meta property="og:title" content="NLPModels.jl">
-    <meta property="og:image" content="None/../">
-    <meta name="apple-mobile-web-app-title" content="NLPModels.jl">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    
-    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
-    <style>
-      @font-face {
-      	font-family: 'Icon';
-      	src: url('../assets/fonts/icon.eot?52m981');
-      	src: url('../assets/fonts/icon.eot?#iefix52m981')
-               format('embedded-opentype'),
-      		   url('../assets/fonts/icon.woff?52m981')
-               format('woff'),
-      		   url('../assets/fonts/icon.ttf?52m981')
-               format('truetype'),
-      		   url('../assets/fonts/icon.svg?52m981#icon')
-               format('svg');
-      	font-weight: normal;
-      	font-style: normal;
-      }
-    </style>
-    <link rel="stylesheet" href="../assets/stylesheets/application-a422ff04cc.css">
-    
-      <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
+      
+        <link rel="shortcut icon" href="../assets/images/favicon.ico">
+      
+      <meta name="generator" content="mkdocs+mkdocs-material#1.0.3">
     
     
       
+        <title>Tutorial - NLPModels.jl</title>
+      
+    
+    
+      <script src="../assets/javascripts/modernizr-facb31f4a3.js"></script>
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application-f3ab63f78a.css">
+      
+        <link rel="stylesheet" href="../assets/stylesheets/application-02ce7adcc2.palette.css">
       
       
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
-      <style>
-        body, input {
-          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
-        }
-        pre, code {
-          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
-        }
-      </style>
+        <link rel="stylesheet" href="../assets/Documenter.css">
+      
+        <link rel="stylesheet" href="../assets/style.css">
+      
     
-    
-      <link rel="stylesheet" href="../assets/Documenter.css">
-    
-      <link rel="stylesheet" href="../assets/style.css">
-    
-    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
     
   </head>
   
   
   
-  <body class="palette-primary-deep-orange palette-accent-indigo">
-    
-      
-      
-    
-    <div class="backdrop">
-      <div class="backdrop-paper"></div>
-    </div>
-    <input class="toggle" type="checkbox" id="toggle-drawer">
-    <input class="toggle" type="checkbox" id="toggle-search">
-    <label class="toggle-button overlay" for="toggle-drawer"></label>
-    <header class="header">
-      <nav aria-label="Header">
-  <div class="bar default">
-    <div class="button button-menu" role="button" aria-label="Menu">
-      <label class="toggle-button icon icon-menu" for="toggle-drawer">
-        <span></span>
-      </label>
-    </div>
-    <div class="stretch">
-      <div class="title">
-        
-          <span class="path">
-            
-          </span>
-        
-        Tutorial
-      </div>
-    </div>
-    
-    
-      
-      <div class="button button-github" role="button" aria-label="GitHub">
-        <a href="https://github.com/JuliaSmoothOptimizers" title="@JuliaSmoothOptimizers on GitHub" target="_blank" class="toggle-button icon icon-github"></a>
-      </div>
-    
-    <div class="button button-search" role="button" aria-label="Search">
-      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
-    </div>
-  </div>
-  <div class="bar search">
-    <div class="button button-close" role="button" aria-label="Close">
-      <label class="toggle-button icon icon-back" for="toggle-search"></label>
-    </div>
-    <div class="stretch">
-      <div class="field">
-        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
-      </div>
-    </div>
-    <div class="button button-reset" role="button" aria-label="Search">
-      <button class="toggle-button icon icon-close" id="reset-search"></button>
-    </div>
-  </div>
-</nav>
-    </header>
-    <main class="main">
-      
-      <div class="drawer">
-        <nav aria-label="Navigation">
   
-  <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl" class="project">
-    <div class="banner">
-      
-      <div class="name">
-        <strong>
-          NLPModels.jl
-          <span class="version">
-            
-          </span>
-        </strong>
+    <body data-md-color-primary="deep-orange" data-md-color-accent="indigo">
+  
+    <svg class="md-svg">
+      <defs>
         
-          <br>
-          JuliaSmoothOptimizers/NLPModels.jl
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="NLPModels.jl" class=" md-icon md-icon--home  md-header-nav__button">
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+            
+            Tutorial
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <div class="md-search__overlay"></div>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false">
+      <label class="md-icon md-search__icon" for="search"></label>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result"></div>
+      </div>
+    </div>
+  </div>
+</div>
         
       </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+              
+
+
+  
+
+
+  <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
     </div>
   </a>
-  <div class="scrollable">
-    <div class="wrapper">
-      
-        <ul class="repo">
-          <li class="repo-download">
+
             
-            <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
-              <i class="icon icon-download"></i> Download
-            </a>
-          </li>
-          <li class="repo-stars">
-            <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
-              <i class="icon icon-star"></i> Stars
-              <span class="count">&ndash;</span>
-            </a>
-          </li>
-        </ul>
-        <hr>
-      
-      <div class="toc">
-        <ul>
+          </div>
+      </div>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
           
             
-  <li>
-    <a class="" title="Home" href="..">
-      Home
-    </a>
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    <i class=" md-icon md-icon--home  md-nav__button">
+      
+    </i>
+    NLPModels.jl
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href=".." title="Home" class="md-nav__link">
+        Home
+      </a>
     
   </li>
 
-          
-            
-  <li>
-    <a class="" title="Models" href="../models/">
-      Models
-    </a>
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../models/" title="Models" class="md-nav__link">
+        Models
+      </a>
     
   </li>
 
-          
-            
-  <li>
-    <a class="current" title="Tutorial" href="./">
+    
+      
+      
+  <li class="md-nav__item">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Tutorial
+      </label>
+    
+    <a href="./" title="Tutorial" class="md-nav__link md-nav__link--active">
       Tutorial
     </a>
     
       
-        
-      
-      
-        <ul>
-          
-            <li class="anchor">
-              <a title="ADNLPModel Tutorial" href="#adnlpmodel-tutorial">
-                ADNLPModel Tutorial
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="SimpleNLPModel Tutorial" href="#simplenlpmodel-tutorial">
-                SimpleNLPModel Tutorial
-              </a>
-            </li>
-          
-        </ul>
-      
+<nav class="md-nav md-nav--secondary">
+  
+  
     
-  </li>
-
-          
-            
-  <li>
-    <a class="" title="API" href="../api/">
-      API
-    </a>
-    
-  </li>
-
-          
-            
-  <li>
-    <a class="" title="Reference" href="../reference/">
-      Reference
-    </a>
-    
-  </li>
-
-          
-        </ul>
-        
-          <hr>
-          <span class="section">The author</span>
-          <ul>
-            
-            
-              
-              <li>
-                <a href="https://github.com/JuliaSmoothOptimizers" target="_blank" title="@JuliaSmoothOptimizers on GitHub">
-                  @JuliaSmoothOptimizers on GitHub
-                </a>
-              </li>
-            
-          </ul>
-        
-      </div>
-    </div>
-  </div>
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#adnlpmodel-tutorial" title="ADNLPModel Tutorial" class="md-nav__link">
+    ADNLPModel Tutorial
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simplenlpmodel-tutorial" title="SimpleNLPModel Tutorial" class="md-nav__link">
+    SimpleNLPModel Tutorial
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
-      </div>
-      <article class="article">
-        <div class="wrapper">
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../api/" title="API" class="md-nav__link">
+        API
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../reference/" title="Reference" class="md-nav__link">
+        Reference
+      </a>
+    
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#adnlpmodel-tutorial" title="ADNLPModel Tutorial" class="md-nav__link">
+    ADNLPModel Tutorial
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simplenlpmodel-tutorial" title="SimpleNLPModel Tutorial" class="md-nav__link">
+    SimpleNLPModel Tutorial
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
-          <p><a id='Tutorial-1'></a></p>
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+               
+                 <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl/edit/master/docs/tutorial.md" title="Edit this page" class="md-icon md-content__edit">edit</a>
+               
+              
+                
+                <p><a id='Tutorial-1'></a></p>
 <h1 id="tutorial">Tutorial</h1>
 <p>NLPModels.jl was created for two purposes:</p>
 <ul>
-<li>Allow users to access problem databases in an unified way.  Mainly, this means  <a href="https://github.com/JuliaSmoothOptimizers/CUTEst.jl">CUTEst.jl</a>,  but it also gives access to <a href="https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl">AMPL  problems</a>,  as well as JuMP defined problems (e.g. as in  <a href="https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl">OptimizationProblems.jl</a>).</li>
-<li>Allow users to create their own problems in the same way.  As a consequence, optimization methods designed according to the NLPModels API  will accept NLPModels of any provenance.  See, for instance,  <a href="https://github.com/JuliaSmoothOptimizers/Optimize.jl">Optimize.jl</a>.</li>
+<li>Allow users to access problem databases in an unified way.</li>
 </ul>
+<p>Mainly, this means  <a href="https://github.com/JuliaSmoothOptimizers/CUTEst.jl">CUTEst.jl</a>,  but it also gives access to <a href="https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl">AMPL  problems</a>,  as well as JuMP defined problems (e.g. as in  <a href="https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl">OptimizationProblems.jl</a>).</p>
+<ul>
+<li>Allow users to create their own problems in the same way.</li>
+</ul>
+<p>As a consequence, optimization methods designed according to the NLPModels API  will accept NLPModels of any provenance.  See, for instance,  <a href="https://github.com/JuliaSmoothOptimizers/Optimize.jl">Optimize.jl</a>.</p>
 <p>The main interfaces for user defined problems are</p>
 <ul>
-<li><a href="../models/#adnlpmodel">ADNLPModel</a>, which defines a model easily, using automatic   differentiation.</li>
-<li><a href="../models/#simplenlpmodel">SimpleNLPModel</a>, which allows users to handle all functions themselves,   giving</li>
+<li><a href="../models/#adnlpmodel">ADNLPModel</a>, which defines a model easily, using automatic differentiation.</li>
+<li><a href="../models/#simplenlpmodel">SimpleNLPModel</a>, which allows users to handle all functions themselves, giving</li>
 </ul>
 <p><a id='ADNLPModel-Tutorial-1'></a></p>
 <h2 id="adnlpmodel-tutorial">ADNLPModel Tutorial</h2>
@@ -285,7 +345,7 @@
 
 <div class="code"><pre><span></span>NLPModels.ADNLPModel(Minimization problem Generic
 nvar = 2, ncon = 0 (0 linear)
-,NLPModels.Counters(0,0,0,0,0,0,0,0,0,0,0),(anonymous function),(anonymous function))
+,NLPModels.Counters(0,0,0,0,0,0,0,0,0,0,0),ex-adnlp.#1,NLPModels.#32)
 </pre></div>
 
 
@@ -307,9 +367,8 @@ nvar = 2, ncon = 0 (0 linear)
 </pre></div>
 
 
-<div class="code"><pre><span></span>gx = [-215.59999999999997,-87.99999999999999]
-Hx = [1330.0 0.0
- 480.0 200.0]
+<div class="code"><pre><span></span>gx = [-215.6,-88.0]
+Hx = [1330.0 0.0; 480.0 200.0]
 </pre></div>
 
 
@@ -319,22 +378,25 @@ Hx = [1330.0 0.0
 <li>Given $x^0$, $\varepsilon &gt; 0$, and $\eta \in (0,1)$. Set $k = 0$;</li>
 <li>If $\Vert \nabla f(x^k) \Vert &lt; \varepsilon$ STOP with $x^* = x^k$;</li>
 <li>Compute $d^k = -\nabla f(x^k)$;</li>
-<li>Compute $\alpha_k \in (0,1]$ such that $ f(x^k + \alpha_kd^k) &lt; f(x^k) + \alpha_k\eta \nabla f(x^k)^Td^k $</li>
+<li>Compute $\alpha_k \in (0,1]$ such that</li>
+</ol>
+<p>$ f(x^k + \alpha_kd^k) &lt; f(x^k) + \alpha_k\eta \nabla f(x^k)^Td^k $</p>
+<ol>
 <li>Define $x^{k+1} = x^k + \alpha_kx^k$</li>
 <li>Update $k = k + 1$ and go to step 2.</li>
 </ol>
-<div class="code"><pre><span></span><span class="k">function</span><span class="nf"> steepest</span><span class="p">(</span><span class="n">nlp</span><span class="p">;</span> <span class="n">itmax</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="nb">eps</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.66</span><span class="p">)</span>
+<div class="code"><pre><span></span><span class="k">function</span> <span class="n">steepest</span><span class="p">(</span><span class="n">nlp</span><span class="p">;</span> <span class="n">itmax</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.66</span><span class="p">)</span>
   <span class="n">x</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">x0</span>
   <span class="n">fx</span> <span class="o">=</span> <span class="n">obj</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
   <span class="n">∇fx</span> <span class="o">=</span> <span class="n">grad</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
   <span class="n">slope</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">∇fx</span><span class="p">,</span> <span class="n">∇fx</span><span class="p">)</span>
   <span class="n">∇f_norm</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">slope</span><span class="p">)</span>
   <span class="n">iter</span> <span class="o">=</span> <span class="mi">0</span>
-  <span class="k">while</span> <span class="n">∇f_norm</span> <span class="o">&gt;</span> <span class="nb">eps</span> <span class="o">&amp;&amp;</span> <span class="n">iter</span> <span class="o">&lt;</span> <span class="n">itmax</span>
+  <span class="k">while</span> <span class="n">∇f_norm</span> <span class="o">&gt;</span> <span class="n">eps</span> <span class="o">&amp;&amp;</span> <span class="n">iter</span> <span class="o">&lt;</span> <span class="n">itmax</span>
     <span class="n">t</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="n">x_trial</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">t</span> <span class="o">*</span> <span class="n">∇fx</span>
     <span class="n">f_trial</span> <span class="o">=</span> <span class="n">obj</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x_trial</span><span class="p">)</span>
-    <span class="k">while</span> <span class="n">obj</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="n">t</span><span class="o">*</span><span class="n">∇fx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">fx</span> <span class="o">-</span> <span class="n">eta</span> <span class="o">*</span> <span class="n">t</span> <span class="o">*</span> <span class="n">slope</span>
+    <span class="k">while</span> <span class="n">f_trial</span> <span class="o">&gt;</span> <span class="n">fx</span> <span class="o">-</span> <span class="n">eta</span> <span class="o">*</span> <span class="n">t</span> <span class="o">*</span> <span class="n">slope</span>
       <span class="n">t</span> <span class="o">*=</span> <span class="n">sigma</span>
       <span class="n">x_trial</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">t</span> <span class="o">*</span> <span class="n">∇fx</span>
       <span class="n">f_trial</span> <span class="o">=</span> <span class="n">obj</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x_trial</span><span class="p">)</span>
@@ -346,7 +408,7 @@ Hx = [1330.0 0.0
     <span class="n">∇f_norm</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">slope</span><span class="p">)</span>
     <span class="n">iter</span> <span class="o">+=</span> <span class="mi">1</span>
   <span class="k">end</span>
-  <span class="n">optimal</span> <span class="o">=</span> <span class="n">∇f_norm</span> <span class="o">&lt;=</span> <span class="nb">eps</span>
+  <span class="n">optimal</span> <span class="o">=</span> <span class="n">∇f_norm</span> <span class="o">&lt;=</span> <span class="n">eps</span>
   <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">fx</span><span class="p">,</span> <span class="n">∇f_norm</span><span class="p">,</span> <span class="n">optimal</span><span class="p">,</span> <span class="n">iter</span>
 <span class="k">end</span>
 
@@ -359,7 +421,7 @@ Hx = [1330.0 0.0
 </pre></div>
 
 
-<div class="code"><pre><span></span>x = [1.0000006499501406,1.0000013043156974]
+<div class="code"><pre><span></span>x = [1.0,1.0]
 fx = 4.2438440239813445e-13
 ngx = 9.984661274466946e-7
 optimal = true
@@ -370,7 +432,7 @@ optimal = true
 <div class="code"><pre><span></span><span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">grad</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 <span class="n">H</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">hess</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">triu</span><span class="p">(</span><span class="n">hess</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span><span class="o">&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">x</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">x0</span>
-<span class="n">d</span> <span class="o">=</span> <span class="o">-</span><span class="n">H</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>\<span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="o">-</span><span class="n">H</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">\</span><span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </pre></div>
 
 
@@ -381,18 +443,18 @@ optimal = true
 
 
 <p>or a few</p>
-<div class="code"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">5</span>
-  <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">H</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>\<span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<div class="code"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="mi">5</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">H</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">\</span><span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
   <span class="n">println</span><span class="p">(</span><span class="s">&quot;x = </span><span class="si">$x</span><span class="s">&quot;</span><span class="p">)</span>
 <span class="k">end</span>
 </pre></div>
 
 
-<div class="code"><pre><span></span>x = [-1.1752808988764043,1.3806741573033705]
-x = [0.763114871176745,-3.1750338547488415]
-x = [0.7634296788843487,0.5828247754975662]
-x = [0.9999953110849514,0.9440273238534179]
-x = [0.9999956956536327,0.999991391325645]
+<div class="code"><pre><span></span>x = [-1.17528,1.38067]
+x = [0.763115,-3.17503]
+x = [0.76343,0.582825]
+x = [0.999995,0.944027]
+x = [0.999996,0.999991]
 </pre></div>
 
 
@@ -405,7 +467,7 @@ x = [0.9999956956536327,0.999991391325645]
 </pre></div>
 
 
-<div class="code"><pre><span></span>([1.9318516779143746,0.5176381004152917],1.2842480268876117e-14,9.402834701778815e-7,true,120)
+<div class="code"><pre><span></span>([1.93185,0.517638],1.2842480268876117e-14,9.402834701778815e-7,true,120)
 </pre></div>
 
 
@@ -421,7 +483,84 @@ x = [0.9999956956536327,0.999991391325645]
 </pre></div>
 
 
-<div class="code"><pre><span></span>fx = 1.0000000000002167
+<div class="code"><pre><span></span>WARNING: The curly syntax (sum{},prod{},norm2{}) is deprecated in favor of the new generator syntax (sum(),prod(),norm()).
+WARNING: Replace sum{((x[i] ^ 2 + x[n] ^ 2) ^ 2 - 4 * x[i]) + 3,i = 1:n - 1} with sum(((x[i] ^ 2 + x[n] ^ 2) ^ 2 - 4 * x[i]) + 3 for i = 1:n - 1).
+WARNING: Replace sum{(3 - 4 * x[i]) ^ 2 + (x[i] ^ 2 + 2 * x[i + 1] ^ 2 + 3 * x[i + 2] ^ 2 + 4 * x[i + 3] ^ 2 + 5 * x[n] ^ 2) ^ 2,i = 1:n - 4} with sum((3 - 4 * x[i]) ^ 2 + (x[i] ^ 2 + 2 * x[i + 1] ^ 2 + 3 * x[i + 2] ^ 2 + 4 * x[i + 3] ^ 2 + 5 * x[n] ^ 2) ^ 2 for i = 1:n - 4).
+WARNING: Replace sum{abs(((1 - x[i - 1]) - 2 * x[i + 1]) + (3 - x[i] / 2) * x[i]) ^ p,i = 2:n - 1} with sum(abs(((1 - x[i - 1]) - 2 * x[i + 1]) + (3 - x[i] / 2) * x[i]) ^ p for i = 2:n - 1).
+WARNING: Replace sum{abs(x[i] + x[i + n2]) ^ p,i = 1:n2} with sum(abs(x[i] + x[i + n2]) ^ p for i = 1:n2).
+WARNING: Replace sum{((x[i] * (2 + 5 * x[i] ^ 2) + 1) - sum{x[j] * (1 + x[j]),j = max(1,i - ml):min(n,i + mu); j != i}) ^ 2,i = 1:n} with sum(((x[i] * (2 + 5 * x[i] ^ 2) + 1) - sum{x[j] * (1 + x[j]),j = max(1,i - ml):min(n,i + mu); j != i}) ^ 2 for i = 1:n).
+WARNING: Replace sum{x[j] * (1 + x[j]),j = max(1,i - ml):min(n,i + mu); j != i} with sum(x[j] * (1 + x[j]) for j = max(1,i - ml):min(n,i + mu) if j != i).
+WARNING: Replace sum{100 * (x[2i] - x[2i - 1] ^ 2) ^ 2 + (1 - x[2i - 1]) ^ 2 + 90 * (x[2i + 2] - x[2i + 1] ^ 2) ^ 2 + (1 - x[2i + 1]) ^ 2 + 10 * ((x[2i] + x[2i + 2]) - 2) ^ 2 + 0.1 * (x[2i] - x[2i + 2]) ^ 2,i = 1:div(n,2) - 1} with sum(100 * (x[2i] - x[2i - 1] ^ 2) ^ 2 + (1 - x[2i - 1]) ^ 2 + 90 * (x[2i + 2] - x[2i + 1] ^ 2) ^ 2 + (1 - x[2i + 1]) ^ 2 + 10 * ((x[2i] + x[2i + 2]) - 2) ^ 2 + 0.1 * (x[2i] - x[2i + 2]) ^ 2 for i = 1:div(n,2) - 1).
+WARNING: Replace sum{cos(x[i] ^ 2 - 0.5 * x[i + 1]),i = 1:n - 1} with sum(cos(x[i] ^ 2 - 0.5 * x[i + 1]) for i = 1:n - 1).
+WARNING: Replace sum{(exp(x[2i - 1]) - x[2i]) ^ 4 + 100 * (x[2i] - x[2i + 1]) ^ 6 + ((tan(x[2i + 1] - x[2i + 2]) + x[2i + 1]) - x[2i + 2]) ^ 4 + x[2i - 1] ^ 8 + (x[2i + 2] - 1) ^ 2,i = 1:div(n,2) - 1} with sum((exp(x[2i - 1]) - x[2i]) ^ 4 + 100 * (x[2i] - x[2i + 1]) ^ 6 + ((tan(x[2i + 1] - x[2i + 2]) + x[2i + 1]) - x[2i + 2]) ^ 4 + x[2i - 1] ^ 8 + (x[2i + 2] - 1) ^ 2 for i = 1:div(n,2) - 1).
+WARNING: Replace sum{x[j],j = i:min(i + b,n)} with sum(x[j] for j = i:min(i + b,n)).
+WARNING: Replace sum{f[i] * (f[i] * (f[i] ^ 2 - 20) - 0.1),i = 1:n} with sum(f[i] * (f[i] * (f[i] ^ 2 - 20) - 0.1) for i = 1:n).
+WARNING: Replace sum{(i / n) * α * x[i] ^ 2,i = 1:n} with sum((i / n) * α * x[i] ^ 2 for i = 1:n).
+WARNING: Replace sum{β * x[i] ^ 2 * (x[i + 1] + x[i + 1] ^ 2) ^ 2,i = 1:n - 1} with sum(β * x[i] ^ 2 * (x[i + 1] + x[i + 1] ^ 2) ^ 2 for i = 1:n - 1).
+WARNING: Replace sum{γ * x[i] ^ 2 * x[i + m] ^ 4,i = 1:2m} with sum(γ * x[i] ^ 2 * x[i + m] ^ 4 for i = 1:2m).
+WARNING: Replace sum{(i / n) * δ * x[i] * x[i + 2m],i = 1:m} with sum((i / n) * δ * x[i] * x[i + 2m] for i = 1:m).
+WARNING: Replace sum{(i / n) ^ 2 * α * x[i] ^ 2,i = 1:n} with sum((i / n) ^ 2 * α * x[i] ^ 2 for i = 1:n).
+WARNING: Replace sum{(i / n) ^ 2 * δ * x[i] * x[i + 2m],i = 1:m} with sum((i / n) ^ 2 * δ * x[i] * x[i + 2m] for i = 1:m).
+WARNING: Replace sum{(i / n) * β * x[i] ^ 2 * (x[i + 1] + x[i + 1] ^ 2) ^ 2,i = 1:n - 1} with sum((i / n) * β * x[i] ^ 2 * (x[i + 1] + x[i + 1] ^ 2) ^ 2 for i = 1:n - 1).
+WARNING: Replace sum{(i / n) * γ * x[i] ^ 2 * x[i + m] ^ 4,i = 1:2m} with sum((i / n) * γ * x[i] ^ 2 * x[i + m] ^ 4 for i = 1:2m).
+WARNING: Replace sum{(x[i] - i) ^ 4,i = 1:n} with sum((x[i] - i) ^ 4 for i = 1:n).
+WARNING: Replace sum{(x[i] - 2) ^ 4 + (x[i] * x[i + 1] - 2 * x[i + 1]) ^ 2 + (x[i + 1] + 1) ^ 2,i = 1:n - 1} with sum((x[i] - 2) ^ 4 + (x[i] * x[i + 1] - 2 * x[i + 1]) ^ 2 + (x[i + 1] + 1) ^ 2 for i = 1:n - 1).
+WARNING: Replace sum{sin((x[1] + x[i] ^ 2) - 1),i = 1:n - 1} with sum(sin((x[1] + x[i] ^ 2) - 1) for i = 1:n - 1).
+WARNING: Replace sum{((x[i] ^ 2 + x[i + 1] ^ 2) ^ 2 - 4 * x[i]) + 3,i = 1:n - 1} with sum(((x[i] ^ 2 + x[i + 1] ^ 2) ^ 2 - 4 * x[i]) + 3 for i = 1:n - 1).
+WARNING: Replace sum{(x[i + 1] - x[i] ^ 2) ^ 2,i = 1:n - 1} with sum((x[i + 1] - x[i] ^ 2) ^ 2 for i = 1:n - 1).
+WARNING: Replace sum{(x[i] - 1.0) ^ 2,i = 1:n - 1} with sum((x[i] - 1.0) ^ 2 for i = 1:n - 1).
+WARNING: Replace sum{(x[i] - x[i - 1] ^ 2) ^ 2,i = 2:n} with sum((x[i] - x[i - 1] ^ 2) ^ 2 for i = 2:n).
+WARNING: Replace sum{(1.0 - x[i]) ^ 2,i = 2:n} with sum((1.0 - x[i]) ^ 2 for i = 2:n).
+WARNING: Replace sum{(x[i - 1] - x[i] ^ 2) ^ 2 * (1.5 + sin(i)) ^ 2,i = 2:n} with sum((x[i - 1] - x[i] ^ 2) ^ 2 * (1.5 + sin(i)) ^ 2 for i = 2:n).
+WARNING: Replace sum{(x[i - 1] - 16.0 * x[i] ^ 2 * (1.5 + sin(i)) ^ 2) ^ 2,i = 2:n} with sum((x[i - 1] - 16.0 * x[i] ^ 2 * (1.5 + sin(i)) ^ 2) ^ 2 for i = 2:n).
+WARNING: Replace sum{(x[i] - x[i + 1]) ^ 2,i = 1:n - 1} with sum((x[i] - x[i + 1]) ^ 2 for i = 1:n - 1).
+WARNING: Replace sum{100.0 * (1 + 2.0 / h ^ 2) * sin(x[i] / 100.0) + (1 / h ^ 2) * cos(x[i]),i = 1:n} with sum(100.0 * (1 + 2.0 / h ^ 2) * sin(x[i] / 100.0) + (1 / h ^ 2) * cos(x[i]) for i = 1:n).
+WARNING: Replace sum{2 * x[i] + cos(x[i]),i = 1:n} with sum(2 * x[i] + cos(x[i]) for i = 1:n).
+WARNING: Replace sum{(((x[i + 1] - x[i]) + 1) - x[i] ^ 2) ^ 2,i = 1:n - 1} with sum((((x[i + 1] - x[i]) + 1) - x[i] ^ 2) ^ 2 for i = 1:n - 1).
+WARNING: Replace sum{sum{(100.0 * sqrt(0.5 * (p - 1) ^ 2 * ((x[i,j] - x[i + 1,j + 1]) ^ 2 + (x[i + 1,j] - x[i,j + 1]) ^ 2) + 1.0)) / scale,i = 1:p - 1},j = 1:p - 1} with sum(sum{(100.0 * sqrt(0.5 * (p - 1) ^ 2 * ((x[i,j] - x[i + 1,j + 1]) ^ 2 + (x[i + 1,j] - x[i,j + 1]) ^ 2) + 1.0)) / scale,i = 1:p - 1} for j = 1:p - 1).
+WARNING: Replace sum{(100.0 * sqrt(0.5 * (p - 1) ^ 2 * ((x[i,j] - x[i + 1,j + 1]) ^ 2 + (x[i + 1,j] - x[i,j + 1]) ^ 2) + 1.0)) / scale,i = 1:p - 1} with sum((100.0 * sqrt(0.5 * (p - 1) ^ 2 * ((x[i,j] - x[i + 1,j + 1]) ^ 2 + (x[i + 1,j] - x[i,j + 1]) ^ 2) + 1.0)) / scale for i = 1:p - 1).
+WARNING: Replace sum{((((5.0 - x[i + 1]) * x[i + 1] ^ 2 + x[i]) - 2 * x[i + 1]) - 13.0) ^ 2,i = 1:ngs} with sum(((((5.0 - x[i + 1]) * x[i + 1] ^ 2 + x[i]) - 2 * x[i + 1]) - 13.0) ^ 2 for i = 1:ngs).
+WARNING: Replace sum{((((1.0 + x[i + 1]) * x[i + 1] ^ 2 + x[i]) - 14 * x[i + 1]) - 29.0) ^ 2,i = 1:ngs} with sum(((((1.0 + x[i + 1]) * x[i + 1] ^ 2 + x[i]) - 14 * x[i + 1]) - 29.0) ^ 2 for i = 1:ngs).
+WARNING: Replace sum{sin(ζ * x[i]) ^ 2 * sin(ζ * x[i + 1]) ^ 2 + 0.05 * (x[i] ^ 2 + x[i + 1] ^ 2),i = 1:n - 1} with sum(sin(ζ * x[i]) ^ 2 * sin(ζ * x[i + 1]) ^ 2 + 0.05 * (x[i] ^ 2 + x[i + 1] ^ 2) for i = 1:n - 1).
+WARNING: Replace sum{sin(x[i] / 100.0),i = 1:n} with sum(sin(x[i] / 100.0) for i = 1:n).
+WARNING: Replace sum{cos((2.0 * x[i] - x[n]) - x[1]),i = 2:n - 1} with sum(cos((2.0 * x[i] - x[n]) - x[1]) for i = 2:n - 1).
+WARNING: Replace sum{4.0 * (x[i] ^ 2 - x[1]) ^ 2 + (x[i] - 1) ^ 2,i = 1:n} with sum(4.0 * (x[i] ^ 2 - x[1]) ^ 2 + (x[i] - 1) ^ 2 for i = 1:n).
+WARNING: Replace sum{(((2.0 * x[i] - x[i - 1]) - x[i + 1]) + (h ^ 2 / 2.0) * (x[i] + (i - 1) * h + 1) ^ 3) ^ 2,i = 2:n - 1} with sum((((2.0 * x[i] - x[i - 1]) - x[i + 1]) + (h ^ 2 / 2.0) * (x[i] + (i - 1) * h + 1) ^ 3) ^ 2 for i = 2:n - 1).
+WARNING: Replace sum{(10.0 / i) * sum{x[(i + j) - 1] / (1 + x[(i + j) - 1] ^ 2),j = 1:20} ^ 2 - 0.2 * sum{x[(i + j) - 1],j = 1:20},i = 1:n - 30} with sum((10.0 / i) * sum{x[(i + j) - 1] / (1 + x[(i + j) - 1] ^ 2),j = 1:20} ^ 2 - 0.2 * sum{x[(i + j) - 1],j = 1:20} for i = 1:n - 30).
+WARNING: Replace sum{x[(i + j) - 1] / (1 + x[(i + j) - 1] ^ 2),j = 1:20} with sum(x[(i + j) - 1] / (1 + x[(i + j) - 1] ^ 2) for j = 1:20).
+WARNING: Replace sum{x[(i + j) - 1],j = 1:20} with sum(x[(i + j) - 1] for j = 1:20).
+WARNING: Replace sum{x[i] ^ 4 + 2,i = 1:n - 10} with sum(x[i] ^ 4 + 2 for i = 1:n - 10).
+WARNING: Replace sum{x[i] * x[i + 10] * x[(i + n) - 10] + 2.0 * x[(i + n) - 10] ^ 2,i = 1:10} with sum(x[i] * x[i + 10] * x[(i + n) - 10] + 2.0 * x[(i + n) - 10] ^ 2 for i = 1:10).
+WARNING: Replace sum{(10.0 / i) * sum{x[(i + j) - 1] / (1 + x[(i + j) - 1] ^ 2),j = 1:20} ^ 2 - 0.2 * sum{x[(i + j) - 1],j = 1:20},i = 1:n - 19} with sum((10.0 / i) * sum{x[(i + j) - 1] / (1 + x[(i + j) - 1] ^ 2),j = 1:20} ^ 2 - 0.2 * sum{x[(i + j) - 1],j = 1:20} for i = 1:n - 19).
+WARNING: Replace sum{100.0 * x[i] ^ 4 + 2.0,i = 1:n} with sum(100.0 * x[i] ^ 4 + 2.0 for i = 1:n).
+WARNING: Replace sum{(x[i] + x[mod(3i - 2,n) + 1] + x[mod(7i - 3,n) + 1]) ^ 2 + 4.0 * cos(x[i] + x[mod(3i - 2,n) + 1] + x[mod(7i - 3,n) + 1]),i = 1:n} with sum((x[i] + x[mod(3i - 2,n) + 1] + x[mod(7i - 3,n) + 1]) ^ 2 + 4.0 * cos(x[i] + x[mod(3i - 2,n) + 1] + x[mod(7i - 3,n) + 1]) for i = 1:n).
+WARNING: Replace sum{(x[i] + x[mod(2i - 1,n) + 1] + x[mod(3i - 1,n) + 1]) ^ 2 + 4.0 * cos(x[i] + x[mod(2i - 1,n) + 1] + x[mod(3i - 1,n) + 1]),i = 1:n} with sum((x[i] + x[mod(2i - 1,n) + 1] + x[mod(3i - 1,n) + 1]) ^ 2 + 4.0 * cos(x[i] + x[mod(2i - 1,n) + 1] + x[mod(3i - 1,n) + 1]) for i = 1:n).
+WARNING: Replace sum{(100.0 * x[1] - x[i - 1] ^ 2) ^ 2,i = 2:n} with sum((100.0 * x[1] - x[i - 1] ^ 2) ^ 2 for i = 2:n).
+WARNING: Replace sum{(x[i] + x[i + 1] + x[n]) ^ 4,i = 1:n - 2} with sum((x[i] + x[i + 1] + x[n]) ^ 4 for i = 1:n - 2).
+WARNING: Replace sum{a * ((exp(x[i] / 10.0) + exp(x[i - 1] / 10.0)) - y[i]) ^ 2,i = 2:n} with sum(a * ((exp(x[i] / 10.0) + exp(x[i - 1] / 10.0)) - y[i]) ^ 2 for i = 2:n).
+WARNING: Replace sum{a * (exp(x[(i - n) + 1] / 10.0) - exp(-1 / 10)) ^ 2,i = n + 1:2n - 1} with sum(a * (exp(x[(i - n) + 1] / 10.0) - exp(-1 / 10)) ^ 2 for i = n + 1:2n - 1).
+WARNING: Replace sum{((n - j) + 1) * x[j] ^ 2,j = 1:n} with sum(((n - j) + 1) * x[j] ^ 2 for j = 1:n).
+WARNING: Replace sum{(x[i] - 1.0) ^ 2,i = 1:div(n,2)} with sum((x[i] - 1.0) ^ 2 for i = 1:div(n,2)).
+WARNING: Replace sum{((x[i] + 2.0 * x[i + 1] + 10.0 * x[i + 2]) - 1.0) ^ 2,i = 1:n - 2} with sum(((x[i] + 2.0 * x[i + 1] + 10.0 * x[i + 2]) - 1.0) ^ 2 for i = 1:n - 2).
+WARNING: Replace sum{((2.0 * x[i] + x[i + 1]) - 3.0) ^ 2,i = 1:n - 2} with sum(((2.0 * x[i] + x[i + 1]) - 3.0) ^ 2 for i = 1:n - 2).
+WARNING: Replace sum{x[i] ^ 2 - n,i = 1:n} with sum(x[i] ^ 2 - n for i = 1:n).
+WARNING: Replace sum{(x[j] + 10.0 * x[j + 1]) ^ 2 + 5.0 * (x[j + 2] - x[j + 3]) ^ 2 + (x[j + 1] - 2.0 * x[j + 2]) ^ 4 + 10.0 * (x[j] - x[j + 3]) ^ 4,j = 1:div(n,4)} with sum((x[j] + 10.0 * x[j + 1]) ^ 2 + 5.0 * (x[j + 2] - x[j + 3]) ^ 2 + (x[j + 1] - 2.0 * x[j + 2]) ^ 4 + 10.0 * (x[j] - x[j + 3]) ^ 4 for j = 1:div(n,4)).
+WARNING: Replace sum{(((2.0 + 5.0 * p[i] ^ 2 * x[i] ^ 2) * p[i] * x[i] + 1.0) - sum{p[j] * x[j] * (1.0 + p[j] * x[j]),j = J[i]}) ^ 2,i = 1:n} with sum((((2.0 + 5.0 * p[i] ^ 2 * x[i] ^ 2) * p[i] * x[i] + 1.0) - sum{p[j] * x[j] * (1.0 + p[j] * x[j]),j = J[i]}) ^ 2 for i = 1:n).
+WARNING: Replace sum{p[j] * x[j] * (1.0 + p[j] * x[j]),j = J[i]} with sum(p[j] * x[j] * (1.0 + p[j] * x[j]) for j = J[i]).
+WARNING: Replace sum{cos(p[i] ^ 2 * x[i] ^ 2 - (p[i + 1] * x[i + 1]) / 2.0),i = 1:n - 1} with sum(cos(p[i] ^ 2 * x[i] ^ 2 - (p[i + 1] * x[i + 1]) / 2.0) for i = 1:n - 1).
+WARNING: Replace sum{(-(1.0 / (1.0 + (x[i] - x[i + 1]) ^ 2)) - sin((pi * x[i + 1] + x[i + 2]) / 2.0)) - exp(-(((x[i] + x[i + 2]) / x[i + 1] - 2.0) ^ 2)),i = 1:n - 2} with sum((-(1.0 / (1.0 + (x[i] - x[i + 1]) ^ 2)) - sin((pi * x[i + 1] + x[i + 2]) / 2.0)) - exp(-(((x[i] + x[i + 2]) / x[i + 1] - 2.0) ^ 2)) for i = 1:n - 2).
+WARNING: Replace sum{((sin(x[i] - x[n]) - x[1] ^ 2) + x[i] ^ 2) ^ 2,i = 2:n - 1} with sum(((sin(x[i] - x[n]) - x[1] ^ 2) + x[i] ^ 2) ^ 2 for i = 2:n - 1).
+WARNING: Replace sum{i * (sin(x[i]) + sin(x[mod(2i - 1,n) + 1]) + sin(x[mod(3i - 1,n) + 1]) + sin(x[mod(5i - 1,n) + 1]) + sin(x[mod(7i - 1,n) + 1]) + sin(x[mod(11i - 1,n) + 1])) ^ 2,i = 1:n} with sum(i * (sin(x[i]) + sin(x[mod(2i - 1,n) + 1]) + sin(x[mod(3i - 1,n) + 1]) + sin(x[mod(5i - 1,n) + 1]) + sin(x[mod(7i - 1,n) + 1]) + sin(x[mod(11i - 1,n) + 1])) ^ 2 for i = 1:n).
+WARNING: Replace sum{i * (x[i] ^ 2 + x[mod(2i - 1,n) + 1] ^ 2 + x[mod(3i - 1,n) + 1] ^ 2 + x[mod(5i - 1,n) + 1] ^ 2 + x[mod(7i - 1,n) + 1] ^ 2 + x[mod(11i - 1,n) + 1] ^ 2) ^ 2,i = 1:n} with sum(i * (x[i] ^ 2 + x[mod(2i - 1,n) + 1] ^ 2 + x[mod(3i - 1,n) + 1] ^ 2 + x[mod(5i - 1,n) + 1] ^ 2 + x[mod(7i - 1,n) + 1] ^ 2 + x[mod(11i - 1,n) + 1] ^ 2) ^ 2 for i = 1:n).
+WARNING: Replace sum{100.0 * (x[2i] - x[2i - 1] ^ 2) ^ 2 + (x[2i - 1] - 1.0) ^ 2,i = 1:div(n,2)} with sum(100.0 * (x[2i] - x[2i - 1] ^ 2) ^ 2 + (x[2i - 1] - 1.0) ^ 2 for i = 1:div(n,2)).
+WARNING: Replace sum{(10.0 / (n + 2) + x[i + 2] ^ 2) * (2.0 - exp(-((x[i] - x[i + 1]) ^ 2) / (0.1 + x[i + 2] ^ 2))),i = 1:n - 2} with sum((10.0 / (n + 2) + x[i + 2] ^ 2) * (2.0 - exp(-((x[i] - x[i + 1]) ^ 2) / (0.1 + x[i + 2] ^ 2))) for i = 1:n - 2).
+WARNING: Replace sum{(x[1] ^ 2 - x[i + 1] ^ 2) ^ 2,i = 1:n - 2} with sum((x[1] ^ 2 - x[i + 1] ^ 2) ^ 2 for i = 1:n - 2).
+WARNING: Replace sum{100 * (x[4i - 2] - x[4i - 3] ^ 2) ^ 2 + (1 - x[4i - 3]) ^ 2 + 90 * (x[4i] - x[4i - 1] ^ 2) ^ 2 + (1 - x[4i - 1]) ^ 2 + 10 * ((x[4i - 2] + x[4i]) - 2) ^ 2 + 0.1 * (x[4i - 2] - x[4i]) ^ 2,i = 1:div(n,4)} with sum(100 * (x[4i - 2] - x[4i - 3] ^ 2) ^ 2 + (1 - x[4i - 3]) ^ 2 + 90 * (x[4i] - x[4i - 1] ^ 2) ^ 2 + (1 - x[4i - 1]) ^ 2 + 10 * ((x[4i - 2] + x[4i]) - 2) ^ 2 + 0.1 * (x[4i - 2] - x[4i]) ^ 2 for i = 1:div(n,4)).
+WARNING: Replace sum{exp(x[j]) * ((c[j] + x[j]) - log(sum{exp(x[k]),k = 1:10})),j = 1:10} with sum(exp(x[j]) * ((c[j] + x[j]) - log(sum{exp(x[k]),k = 1:10})) for j = 1:10).
+WARNING: Replace sum{exp(x[k]),k = 1:10} with sum(exp(x[k]) for k = 1:10).
+WARNING: Replace sum{x[j] * (c[j] + log(x[j] / sum{x[k],k = 1:10})),j = 1:10} with sum(x[j] * (c[j] + log(x[j] / sum{x[k],k = 1:10})) for j = 1:10).
+WARNING: Replace sum{x[k],k = 1:10} with sum(x[k] for k = 1:10).
+fx = 1.0000000000002167
 ngx = 9.893253859340887e-7
 optimal = true
 iter = 12016
@@ -438,14 +577,13 @@ iter = 12016
 <span class="n">ucon</span> <span class="o">=</span> <span class="p">[</span><span class="nb">Inf</span><span class="p">;</span> <span class="mf">1.0</span><span class="p">]</span>
 <span class="n">nlp</span> <span class="o">=</span> <span class="n">ADNLPModel</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">lvar</span><span class="o">=</span><span class="n">lvar</span><span class="p">,</span> <span class="n">uvar</span><span class="o">=</span><span class="n">uvar</span><span class="p">,</span> <span class="n">lcon</span><span class="o">=</span><span class="n">lcon</span><span class="p">,</span> <span class="n">ucon</span><span class="o">=</span><span class="n">ucon</span><span class="p">)</span>
 
-<span class="n">println</span><span class="p">(</span><span class="s">&quot;cx = </span><span class="si">$(cons(nlp, nlp.meta.x0))</span><span class="s">&quot;</span><span class="p">)</span>
-<span class="n">println</span><span class="p">(</span><span class="s">&quot;Jx = </span><span class="si">$(jac(nlp, nlp.meta.x0))</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;cx = </span><span class="si">$</span><span class="p">(</span><span class="n">cons</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">nlp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">x0</span><span class="p">))</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="n">println</span><span class="p">(</span><span class="s">&quot;Jx = </span><span class="si">$</span><span class="p">(</span><span class="n">jac</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">nlp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">x0</span><span class="p">))</span><span class="s">&quot;</span><span class="p">)</span>
 </pre></div>
 
 
 <div class="code"><pre><span></span>cx = [-2.2,2.44]
-Jx = [1.0 1.0
- -2.4 2.0]
+Jx = [1.0 1.0; -2.4 2.0]
 </pre></div>
 
 
@@ -498,7 +636,7 @@ Jx = [1.0 1.0
 
 
 <div class="code"><pre><span></span>Dict{Int64,Float64} with 1 entry:
-  2 =&gt; 6.999999999951384
+  2 =&gt; 7.0
 </pre></div>
 
 
@@ -536,83 +674,79 @@ Jx = [1.0 1.0
  -2.0
   8.0
 </pre></div>
-          <aside class="copyright" role="note">
-            
-            Documentation built with
-            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
-            using the
-            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
-              Material
-            </a>
-            theme.
-          </aside>
-          
-            <footer class="footer">
               
-  <nav class="pagination" aria-label="Footer">
-    <div class="previous">
+            </article>
+          </div>
+        </div>
+      </main>
       
-        <a href="../models/" title="Models">
-          <span class="direction">
-            Previous
-          </span>
-          <div class="page">
-            <div class="button button-previous" role="button" aria-label="Previous">
-              <i class="icon icon-back"></i>
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../models/" title="Models" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
-            <div class="stretch">
-              <div class="title">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
                 Models
-              </div>
+              </span>
             </div>
-          </div>
-        </a>
-      
-    </div>
-    <div class="next">
-      
-        <a href="../api/" title="API">
-          <span class="direction">
-            Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
+          </a>
+        
+        
+          <a href="../api/" title="API" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
                 API
-              </div>
+              </span>
             </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
             </div>
-          </div>
-        </a>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
       
     </div>
-  </nav>
-
-            </footer>
-          
-        </div>
-      </article>
-      <div class="results" role="status" aria-live="polite">
-        <div class="scrollable">
-          <div class="wrapper">
-            <div class="meta"></div>
-            <div class="list"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
-      var base_url = '..';
-      var repo_id  = 'JuliaSmoothOptimizers/NLPModels.jl';
-    </script>
-    <script src="../assets/javascripts/application-997097ee0c.js"></script>
+  </div>
+</footer>
+      
+    </div>
     
-      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+      <script src="../assets/javascripts/application-2afe21e0b2.js"></script>
+      <script>var config={url:{base:".."}},app=new Application(config);app.initialize()</script>
+      
+        <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+      
+        <script src="../assets/mathjaxhelper.js"></script>
+      
     
-      <script src="../assets/mathjaxhelper.js"></script>
     
+      
     
   </body>
 </html>

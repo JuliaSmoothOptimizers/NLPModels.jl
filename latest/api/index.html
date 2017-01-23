@@ -1,282 +1,365 @@
+
 <!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+<html class="no-js">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <title>API - NLPModels.jl</title>
-      
+        <meta name="description" content="Nonlinear Programming Models">
       
       
       
         <meta name="author" content="JuliaSmoothOptimizers">
       
-    
-    <meta property="og:url" content="None">
-    <meta property="og:title" content="NLPModels.jl">
-    <meta property="og:image" content="None/../">
-    <meta name="apple-mobile-web-app-title" content="NLPModels.jl">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    
-    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
-    <style>
-      @font-face {
-      	font-family: 'Icon';
-      	src: url('../assets/fonts/icon.eot?52m981');
-      	src: url('../assets/fonts/icon.eot?#iefix52m981')
-               format('embedded-opentype'),
-      		   url('../assets/fonts/icon.woff?52m981')
-               format('woff'),
-      		   url('../assets/fonts/icon.ttf?52m981')
-               format('truetype'),
-      		   url('../assets/fonts/icon.svg?52m981#icon')
-               format('svg');
-      	font-weight: normal;
-      	font-style: normal;
-      }
-    </style>
-    <link rel="stylesheet" href="../assets/stylesheets/application-a422ff04cc.css">
-    
-      <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
+      
+        <link rel="shortcut icon" href="../assets/images/favicon.ico">
+      
+      <meta name="generator" content="mkdocs+mkdocs-material#1.0.3">
     
     
       
+        <title>API - NLPModels.jl</title>
+      
+    
+    
+      <script src="../assets/javascripts/modernizr-facb31f4a3.js"></script>
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application-f3ab63f78a.css">
+      
+        <link rel="stylesheet" href="../assets/stylesheets/application-02ce7adcc2.palette.css">
       
       
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
-      <style>
-        body, input {
-          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
-        }
-        pre, code {
-          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
-        }
-      </style>
+        <link rel="stylesheet" href="../assets/Documenter.css">
+      
+        <link rel="stylesheet" href="../assets/style.css">
+      
     
-    
-      <link rel="stylesheet" href="../assets/Documenter.css">
-    
-      <link rel="stylesheet" href="../assets/style.css">
-    
-    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
     
   </head>
   
   
   
-  <body class="palette-primary-deep-orange palette-accent-indigo">
-    
-      
-      
-    
-    <div class="backdrop">
-      <div class="backdrop-paper"></div>
-    </div>
-    <input class="toggle" type="checkbox" id="toggle-drawer">
-    <input class="toggle" type="checkbox" id="toggle-search">
-    <label class="toggle-button overlay" for="toggle-drawer"></label>
-    <header class="header">
-      <nav aria-label="Header">
-  <div class="bar default">
-    <div class="button button-menu" role="button" aria-label="Menu">
-      <label class="toggle-button icon icon-menu" for="toggle-drawer">
-        <span></span>
-      </label>
-    </div>
-    <div class="stretch">
-      <div class="title">
-        
-          <span class="path">
-            
-          </span>
-        
-        API
-      </div>
-    </div>
-    
-    
-      
-      <div class="button button-github" role="button" aria-label="GitHub">
-        <a href="https://github.com/JuliaSmoothOptimizers" title="@JuliaSmoothOptimizers on GitHub" target="_blank" class="toggle-button icon icon-github"></a>
-      </div>
-    
-    <div class="button button-search" role="button" aria-label="Search">
-      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
-    </div>
-  </div>
-  <div class="bar search">
-    <div class="button button-close" role="button" aria-label="Close">
-      <label class="toggle-button icon icon-back" for="toggle-search"></label>
-    </div>
-    <div class="stretch">
-      <div class="field">
-        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
-      </div>
-    </div>
-    <div class="button button-reset" role="button" aria-label="Search">
-      <button class="toggle-button icon icon-close" id="reset-search"></button>
-    </div>
-  </div>
-</nav>
-    </header>
-    <main class="main">
-      
-      <div class="drawer">
-        <nav aria-label="Navigation">
   
-  <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl" class="project">
-    <div class="banner">
-      
-      <div class="name">
-        <strong>
-          NLPModels.jl
-          <span class="version">
-            
-          </span>
-        </strong>
+    <body data-md-color-primary="deep-orange" data-md-color-accent="indigo">
+  
+    <svg class="md-svg">
+      <defs>
         
-          <br>
-          JuliaSmoothOptimizers/NLPModels.jl
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="NLPModels.jl" class=" md-icon md-icon--home  md-header-nav__button">
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+            
+            API
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <div class="md-search__overlay"></div>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false">
+      <label class="md-icon md-search__icon" for="search"></label>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result"></div>
+      </div>
+    </div>
+  </div>
+</div>
         
       </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+              
+
+
+  
+
+
+  <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
     </div>
   </a>
-  <div class="scrollable">
-    <div class="wrapper">
+
+            
+          </div>
+      </div>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    <i class=" md-icon md-icon--home  md-nav__button">
       
-        <ul class="repo">
-          <li class="repo-download">
-            
-            <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
-              <i class="icon icon-download"></i> Download
-            </a>
-          </li>
-          <li class="repo-stars">
-            <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
-              <i class="icon icon-star"></i> Stars
-              <span class="count">&ndash;</span>
-            </a>
-          </li>
-        </ul>
-        <hr>
+    </i>
+    NLPModels.jl
+  </label>
+  
+    <div class="md-nav__source">
       
-      <div class="toc">
-        <ul>
-          
-            
-  <li>
-    <a class="" title="Home" href="..">
-      Home
-    </a>
+
+
+  
+
+
+  <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href=".." title="Home" class="md-nav__link">
+        Home
+      </a>
     
   </li>
 
-          
-            
-  <li>
-    <a class="" title="Models" href="../models/">
-      Models
-    </a>
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../models/" title="Models" class="md-nav__link">
+        Models
+      </a>
     
   </li>
 
-          
-            
-  <li>
-    <a class="" title="Tutorial" href="../tutorial/">
-      Tutorial
-    </a>
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../tutorial/" title="Tutorial" class="md-nav__link">
+        Tutorial
+      </a>
     
   </li>
 
-          
-            
-  <li>
-    <a class="current" title="API" href="./">
+    
+      
+      
+  <li class="md-nav__item">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        API
+      </label>
+    
+    <a href="./" title="API" class="md-nav__link md-nav__link--active">
       API
     </a>
     
       
-        
-      
-      
-        <ul>
-          
-            <li class="anchor">
-              <a title="Reference guide" href="#reference-guide">
-                Reference guide
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="AbstractNLPModel functions" href="#abstractnlpmodel-functions">
-                AbstractNLPModel functions
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Derivative check" href="#derivative-check">
-                Derivative check
-              </a>
-            </li>
-          
-        </ul>
-      
+<nav class="md-nav md-nav--secondary">
+  
+  
     
-  </li>
-
-          
-            
-  <li>
-    <a class="" title="Reference" href="../reference/">
-      Reference
-    </a>
-    
-  </li>
-
-          
-        </ul>
-        
-          <hr>
-          <span class="section">The author</span>
-          <ul>
-            
-            
-              
-              <li>
-                <a href="https://github.com/JuliaSmoothOptimizers" target="_blank" title="@JuliaSmoothOptimizers on GitHub">
-                  @JuliaSmoothOptimizers on GitHub
-                </a>
-              </li>
-            
-          </ul>
-        
-      </div>
-    </div>
-  </div>
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#reference-guide" title="Reference guide" class="md-nav__link">
+    Reference guide
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstractnlpmodel-functions" title="AbstractNLPModel functions" class="md-nav__link">
+    AbstractNLPModel functions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#derivative-check" title="Derivative check" class="md-nav__link">
+    Derivative check
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
-      </div>
-      <article class="article">
-        <div class="wrapper">
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../reference/" title="Reference" class="md-nav__link">
+        Reference
+      </a>
+    
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#reference-guide" title="Reference guide" class="md-nav__link">
+    Reference guide
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstractnlpmodel-functions" title="AbstractNLPModel functions" class="md-nav__link">
+    AbstractNLPModel functions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#derivative-check" title="Derivative check" class="md-nav__link">
+    Derivative check
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
-          <p><a id='API-1'></a></p>
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+               
+                 <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl/edit/master/docs/api.md" title="Edit this page" class="md-icon md-content__edit">edit</a>
+               
+              
+                
+                <p><a id='API-1'></a></p>
 <h1 id="api">API</h1>
 <p>As stated in the <a href="../home">home</a> page, we consider the nonlinear optimization problem in the following format: <script type="math/tex; mode=display">\begin{align*} \min \quad & f(x) \\
 & c_L \leq c(x) \leq c_U \\
 & \ell \leq x \leq u. \end{align*}</script> To develop an optimization algorithm, we are usually worried not only with $f(x)$ and $c(x)$, but also with their derivatives. Namely,</p>
 <ul>
-<li>$\nabla f(x)$, the gradient of $f$ at the point $x$;</li>
-<li>$\nabla^2 f(x)$, the Hessian of $f$ at the point $x$;</li>
-<li>$J(x) = \nabla c(x)$, the Jacobian of $c$ at the point $x$;</li>
-<li>$\nabla^2 f(x) + \sum_{i=1}^m \lambda_i \nabla^2 c_i(x)$,   the Hessian of the Lagrangian function at the point $(x,\lambda)$.</li>
+<li>
+<p>
+<script type="math/tex; mode=display">
+    \nabla f(x)
+    </script>
+</p>
+<p>, the gradient of $f$ at the point $x$;
+  * <script type="math/tex; mode=display">
+\nabla^2 f(x)
+</script>
+</p>
+<p>, the Hessian of $f$ at the point $x$;
+  * <script type="math/tex; mode=display">
+J(x) = \nabla c(x)
+</script>
+</p>
+<p>, the Jacobian of $c$ at the point $x$;
+  * <script type="math/tex; mode=display">
+\nabla^2 f(x) + \sum_{i=1}^m \lambda_i \nabla^2 c_i(x)
+</script>
+</p>
+<p>, the Hessian of the Lagrangian function at the point $(x,\lambda)$.</p>
+</li>
 </ul>
 <p>There are many ways to access some of these values, so here is a little reference guide.</p>
 <p><a id='Reference-guide-1'></a></p>
@@ -299,23 +382,23 @@
 <tbody>
 <tr>
 <td align="right">$f(x)$</td>
-<td align="right"><a href="../api/#NLPModels.obj">obj</a></td>
+<td align="right"><a href="../api/#NLPModels.obj">obj</a>, <a href="../api/#NLPModels.objgrad">objgrad</a>, <a href="../api/#NLPModels.objgrad!">objgrad!</a>, <a href="../api/#NLPModels.objcons">objcons</a>, <a href="../api/#NLPModels.objcons!">objcons!</a></td>
 </tr>
 <tr>
 <td align="right">$\nabla f(x)$</td>
-<td align="right"><a href="../api/#NLPModels.grad">grad</a>, <a href="../api/#NLPModels.grad!">grad!</a></td>
+<td align="right"><a href="../api/#NLPModels.grad">grad</a>, <a href="../api/#NLPModels.grad!">grad!</a>, <a href="../api/#NLPModels.objgrad">objgrad</a>, <a href="../api/#NLPModels.objgrad!">objgrad!</a></td>
 </tr>
 <tr>
 <td align="right">$\nabla^2 f(x)$</td>
-<td align="right"><a href="../api/#NLPModels.hess">hess</a>, <a href="../api/#NLPModels.hess_op">hess_op</a>, <a href="../api/#NLPModels.hess_coord">hess_coord</a>, <a href="../api/#NLPModels.hprod">hprod</a>, <a href="../api/#NLPModels.hprod!">hprod!</a></td>
+<td align="right"><a href="../api/#NLPModels.hess">hess</a>, <a href="../api/#NLPModels.hess_op">hess_op</a>, <a href="../api/#NLPModels.hess_op!">hess_op!</a>, <a href="../api/#NLPModels.hess_coord">hess_coord</a>, <a href="../api/#NLPModels.hprod">hprod</a>, <a href="../api/#NLPModels.hprod!">hprod!</a></td>
 </tr>
 <tr>
 <td align="right">$c(x)$</td>
-<td align="right"><a href="../api/#NLPModels.cons">cons</a>, <a href="../api/#NLPModels.cons!">cons!</a></td>
+<td align="right"><a href="../api/#NLPModels.cons">cons</a>, <a href="../api/#NLPModels.cons!">cons!</a>, <a href="../api/#NLPModels.objcons">objcons</a>, <a href="../api/#NLPModels.objcons!">objcons!</a></td>
 </tr>
 <tr>
 <td align="right">$J(x)$</td>
-<td align="right"><a href="../api/#NLPModels.jac">jac</a>, <a href="../api/#NLPModels.jac_coord">jac_coord</a>, <a href="../api/#NLPModels.jprod">jprod</a>, <a href="../api/#NLPModels.jprod!">jprod!</a>, <a href="../api/#NLPModels.jtprod">jtprod</a>, <a href="../api/#NLPModels.jtprod!">jtprod!</a></td>
+<td align="right"><a href="../api/#NLPModels.jac">jac</a>, <a href="../api/#NLPModels.jac_op">jac_op</a>, <a href="../api/#NLPModels.jac_op!">jac_op!</a>, <a href="../api/#NLPModels.jac_coord">jac_coord</a>, <a href="../api/#NLPModels.jprod">jprod</a>, <a href="../api/#NLPModels.jprod!">jprod!</a>, <a href="../api/#NLPModels.jtprod">jtprod</a>, <a href="../api/#NLPModels.jtprod!">jtprod!</a></td>
 </tr>
 <tr>
 <td align="right">$\nabla^2 L(x,y)$</td>
@@ -327,48 +410,89 @@
 <h2 id="abstractnlpmodel-functions">AbstractNLPModel functions</h2>
 <p><a id='NLPModels.obj' href='#NLPModels.obj'>#</a>
 <strong><code>NLPModels.obj</code></strong> &mdash; <em>Function</em>.</p>
-<p><code>obj(nlp, x)</code></p>
+<p><code>f = obj(nlp, x)</code></p>
 <p>Evaluate $f(x)$, the objective function of <code>nlp</code> at <code>x</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L66-L70' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.grad' href='#NLPModels.grad'>#</a>
 <strong><code>NLPModels.grad</code></strong> &mdash; <em>Function</em>.</p>
-<p><code>grad(nlp, x)</code></p>
+<p><code>g = grad(nlp, x)</code></p>
 <p>Evaluate $\nabla f(x)$, the gradient of the objective function at <code>x</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L73-L77' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.grad!' href='#NLPModels.grad!'>#</a>
 <strong><code>NLPModels.grad!</code></strong> &mdash; <em>Function</em>.</p>
-<p><code>grad!(nlp, x, g)</code></p>
+<p><code>g = grad!(nlp, x, g)</code></p>
 <p>Evaluate $\nabla f(x)$, the gradient of the objective function at <code>x</code> in place.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L80-L84' class='documenter-source'>source</a><br></p>
+<p><a id='NLPModels.objgrad' href='#NLPModels.objgrad'>#</a>
+<strong><code>NLPModels.objgrad</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>f, g = objgrad(nlp, x)</code></p>
+<p>Evaluate $f(x)$ and $\nabla f(x)$ at <code>x</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L130-L134' class='documenter-source'>source</a><br></p>
+<p><a id='NLPModels.objgrad!' href='#NLPModels.objgrad!'>#</a>
+<strong><code>NLPModels.objgrad!</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>f, g = objgrad!(nlp, x, g)</code></p>
+<p>Evaluate $f(x)$ and $\nabla f(x)$ at <code>x</code>. <code>g</code> is overwritten with the value of $\nabla f(x)$.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L140-L145' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.cons' href='#NLPModels.cons'>#</a>
 <strong><code>NLPModels.cons</code></strong> &mdash; <em>Function</em>.</p>
-<p><code>cons(nlp, x)</code></p>
+<p><code>c = cons(nlp, x)</code></p>
 <p>Evaluate $c(x)$, the constraints at <code>x</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L87-L91' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.cons!' href='#NLPModels.cons!'>#</a>
 <strong><code>NLPModels.cons!</code></strong> &mdash; <em>Function</em>.</p>
-<p><code>cons!(nlp, x, c)</code></p>
+<p><code>c = cons!(nlp, x, c)</code></p>
 <p>Evaluate $c(x)$, the constraints at <code>x</code> in place.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L94-L98' class='documenter-source'>source</a><br></p>
+<p><a id='NLPModels.objcons' href='#NLPModels.objcons'>#</a>
+<strong><code>NLPModels.objcons</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>f, c = objcons(nlp, x)</code></p>
+<p>Evaluate $f(x)$ and $c(x)$ at <code>x</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L110-L114' class='documenter-source'>source</a><br></p>
+<p><a id='NLPModels.objcons!' href='#NLPModels.objcons!'>#</a>
+<strong><code>NLPModels.objcons!</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>f = objcons!(nlp, x, c)</code></p>
+<p>Evaluate $f(x)$ and $c(x)$ at <code>x</code>. <code>c</code> is overwritten with the value of $c(x)$.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L120-L124' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.jac_coord' href='#NLPModels.jac_coord'>#</a>
 <strong><code>NLPModels.jac_coord</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>(rows,cols,vals) = jac_coord(nlp, x)</code></p>
 <p>Evaluate $\nabla c(x)$, the constraint's Jacobian at <code>x</code> in sparse coordinate format.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L151-L155' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.jac' href='#NLPModels.jac'>#</a>
 <strong><code>NLPModels.jac</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>Jx = jac(nlp, x)</code></p>
 <p>Evaluate $\nabla c(x)$, the constraint's Jacobian at <code>x</code> as a sparse matrix.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L158-L162' class='documenter-source'>source</a><br></p>
+<p><a id='NLPModels.jac_op' href='#NLPModels.jac_op'>#</a>
+<strong><code>NLPModels.jac_op</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>J = jac_op(nlp, x)</code></p>
+<p>Return the Jacobian at <code>x</code> as a linear operator. The resulting object may be used as if it were a matrix, e.g., <code>J * v</code> or <code>J' * v</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L192-L198' class='documenter-source'>source</a><br></p>
+<p><a id='NLPModels.jac_op!' href='#NLPModels.jac_op!'>#</a>
+<strong><code>NLPModels.jac_op!</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>J = jac_op!(nlp, x, Jv, Jtv)</code></p>
+<p>Return the Jacobian at <code>x</code> as a linear operator. The resulting object may be used as if it were a matrix, e.g., <code>J * v</code> or <code>J' * v</code>. The values <code>Jv</code> and <code>Jtv</code> are used as preallocated storage for the operations.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L206-L213' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.jprod' href='#NLPModels.jprod'>#</a>
 <strong><code>NLPModels.jprod</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>Jv = jprod(nlp, x, v)</code></p>
 <p>Evaluate $\nabla c(x)v$, the Jacobian-vector product at <code>x</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L164-L168' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.jprod!' href='#NLPModels.jprod!'>#</a>
 <strong><code>NLPModels.jprod!</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>Jv = jprod!(nlp, x, v, Jv)</code></p>
 <p>Evaluate $\nabla c(x)v$, the Jacobian-vector product at <code>x</code> in place.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L171-L175' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.jtprod' href='#NLPModels.jtprod'>#</a>
 <strong><code>NLPModels.jtprod</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>Jtv = jtprod(nlp, x, v, Jtv)</code></p>
 <p>Evaluate $\nabla c(x)^Tv$, the transposed-Jacobian-vector product at <code>x</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L178-L182' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.jtprod!' href='#NLPModels.jtprod!'>#</a>
 <strong><code>NLPModels.jtprod!</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>Jtv = jtprod!(nlp, x, v, Jtv)</code></p>
 <p>Evaluate $\nabla c(x)^Tv$, the transposed-Jacobian-vector product at <code>x</code> in place.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L185-L189' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.hess_coord' href='#NLPModels.hess_coord'>#</a>
 <strong><code>NLPModels.hess_coord</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0, y=zeros)</code></p>
@@ -377,6 +501,7 @@
 <script type="math/tex; mode=display"> \nabla^2L(x,y) = \sigma * \nabla^2 f(x) + \sum_{i=1}^m y_i\nabla^2 c_i(x), </script>
 </p>
 <p>with σ = obj_weight. Only the lower triangle is returned.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L231-L241' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.hess' href='#NLPModels.hess'>#</a>
 <strong><code>NLPModels.hess</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>Hx = hess(nlp, x; obj_weight=1.0, y=zeros)</code></p>
@@ -385,6 +510,7 @@
 <script type="math/tex; mode=display"> \nabla^2L(x,y) = \sigma * \nabla^2 f(x) + \sum_{i=1}^m y_i\nabla^2 c_i(x), </script>
 </p>
 <p>with σ = obj_weight. Only the lower triangle is returned.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L244-L254' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.hess_op' href='#NLPModels.hess_op'>#</a>
 <strong><code>NLPModels.hess_op</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>H = hess_op(nlp, x; obj_weight=1.0, y=zeros)</code></p>
@@ -393,6 +519,16 @@
 <script type="math/tex; mode=display"> \nabla^2L(x,y) = \sigma * \nabla^2 f(x) + \sum_{i=1}^m y_i\nabla^2 c_i(x), </script>
 </p>
 <p>with σ = obj_weight.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L281-L291' class='documenter-source'>source</a><br></p>
+<p><a id='NLPModels.hess_op!' href='#NLPModels.hess_op!'>#</a>
+<strong><code>NLPModels.hess_op!</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>H = hess_op!(nlp, x, Hv; obj_weight=1.0, y=zeros)</code></p>
+<p>Return the Lagrangian Hessian at <code>(x,y)</code> with objective function scaled by <code>obj_weight</code> as a linear operator, and storing the result on <code>Hv</code>. The resulting object may be used as if it were a matrix, e.g., <code>w = H * v</code>. The vector <code>Hv</code> is used as preallocated storage for the operation.  The linear operator H represents</p>
+<p>
+<script type="math/tex; mode=display"> \nabla^2L(x,y) = \sigma * \nabla^2 f(x) + \sum_{i=1}^m y_i\nabla^2 c_i(x), </script>
+</p>
+<p>with σ = obj_weight.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L298-L310' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.hprod' href='#NLPModels.hprod'>#</a>
 <strong><code>NLPModels.hprod</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>Hv = hprod(nlp, x, v; obj_weight=1.0, y=zeros)</code></p>
@@ -401,6 +537,7 @@
 <script type="math/tex; mode=display"> \nabla^2L(x,y) = \sigma * \nabla^2 f(x) + \sum_{i=1}^m y_i\nabla^2 c_i(x), </script>
 </p>
 <p>with σ = obj_weight.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L257-L266' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.hprod!' href='#NLPModels.hprod!'>#</a>
 <strong><code>NLPModels.hprod!</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0, y=zeros)</code></p>
@@ -409,6 +546,7 @@
 <script type="math/tex; mode=display"> \nabla^2L(x,y) = \sigma * \nabla^2 f(x) + \sum_{i=1}^m y_i\nabla^2 c_i(x), </script>
 </p>
 <p>with σ = obj_weight.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L269-L278' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.NLPtoMPB' href='#NLPModels.NLPtoMPB'>#</a>
 <strong><code>NLPModels.NLPtoMPB</code></strong> &mdash; <em>Function</em>.</p>
 <div class="code"><pre><span></span>mp = NLPtoMPB(nlp, solver)
@@ -428,22 +566,27 @@
 </pre></div>
 
 
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/nlp_to_mpb.jl#L124-L140' class='documenter-source'>source</a><br></p>
 <p><a id='LinearOperators.reset!' href='#LinearOperators.reset!'>#</a>
 <strong><code>LinearOperators.reset!</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>reset!(counters)</code></p>
 <p>Reset evaluation counters</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L45-L49' class='documenter-source'>source</a><br></p>
 <p>`reset!(nlp)</p>
 <p>Reset evaluation count in <code>nlp</code></p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/NLPModels.jl#L56-L60' class='documenter-source'>source</a><br></p>
 <p><a id='Derivative-check-1'></a></p>
 <h2 id="derivative-check">Derivative check</h2>
 <p><a id='NLPModels.gradient_check' href='#NLPModels.gradient_check'>#</a>
 <strong><code>NLPModels.gradient_check</code></strong> &mdash; <em>Function</em>.</p>
 <p>Check the first derivatives of the objective at <code>x</code> against centered finite differences.</p>
 <p>This function returns a dictionary indexed by components of the gradient for which the relative error exceeds <code>rtol</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/dercheck.jl#L8-L14' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.jacobian_check' href='#NLPModels.jacobian_check'>#</a>
 <strong><code>NLPModels.jacobian_check</code></strong> &mdash; <em>Function</em>.</p>
 <p>Check the first derivatives of the constraints at <code>x</code> against centered finite differences.</p>
 <p>This function returns a dictionary indexed by (j, i) tuples such that the relative error in the <code>i</code>-th partial derivative of the <code>j</code>-th constraint exceeds <code>rtol</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/dercheck.jl#L38-L45' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.hessian_check' href='#NLPModels.hessian_check'>#</a>
 <strong><code>NLPModels.hessian_check</code></strong> &mdash; <em>Function</em>.</p>
 <p>Check the second derivatives of the objective and each constraints at <code>x</code> against centered finite differences. This check does not rely on exactness of the first derivatives, only on objective and constraint values.</p>
@@ -459,6 +602,7 @@
 
 <p>e.g., as in <code>AmplModel</code>s. Only the sign of <code>sgn</code> is important.</p>
 <p>This function returns a dictionary indexed by functions. The 0-th function is the objective while the k-th function (for k &gt; 0) is the k-th constraint. The values of the dictionary are dictionaries indexed by tuples (i, j) such that the relative error in the second derivative ∂²fₖ/∂xᵢ∂xⱼ exceeds <code>rtol</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/dercheck.jl#L79-L100' class='documenter-source'>source</a><br></p>
 <p><a id='NLPModels.hessian_check_from_grad' href='#NLPModels.hessian_check_from_grad'>#</a>
 <strong><code>NLPModels.hessian_check_from_grad</code></strong> &mdash; <em>Function</em>.</p>
 <p>Check the second derivatives of the objective and each constraints at <code>x</code> against centered finite differences. This check assumes exactness of the first derivatives.</p>
@@ -474,83 +618,80 @@
 
 <p>e.g., as in <code>AmplModel</code>s. Only the sign of <code>sgn</code> is important.</p>
 <p>This function returns a dictionary indexed by functions. The 0-th function is the objective while the k-th function (for k &gt; 0) is the k-th constraint. The values of the dictionary are dictionaries indexed by tuples (i, j) such that the relative error in the second derivative ∂²fₖ/∂xᵢ∂xⱼ exceeds <code>rtol</code>.</p>
-          <aside class="copyright" role="note">
-            
-            Documentation built with
-            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
-            using the
-            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
-              Material
-            </a>
-            theme.
-          </aside>
-          
-            <footer class="footer">
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/03e5aa923020b17fd37367ea0f8309921f5d4386/src/dercheck.jl#L165-L186' class='documenter-source'>source</a><br></p>
               
-  <nav class="pagination" aria-label="Footer">
-    <div class="previous">
+            </article>
+          </div>
+        </div>
+      </main>
       
-        <a href="../tutorial/" title="Tutorial">
-          <span class="direction">
-            Previous
-          </span>
-          <div class="page">
-            <div class="button button-previous" role="button" aria-label="Previous">
-              <i class="icon icon-back"></i>
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../tutorial/" title="Tutorial" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
-            <div class="stretch">
-              <div class="title">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
                 Tutorial
-              </div>
+              </span>
             </div>
-          </div>
-        </a>
-      
-    </div>
-    <div class="next">
-      
-        <a href="../reference/" title="Reference">
-          <span class="direction">
-            Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
+          </a>
+        
+        
+          <a href="../reference/" title="Reference" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
                 Reference
-              </div>
+              </span>
             </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
             </div>
-          </div>
-        </a>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
       
     </div>
-  </nav>
-
-            </footer>
-          
-        </div>
-      </article>
-      <div class="results" role="status" aria-live="polite">
-        <div class="scrollable">
-          <div class="wrapper">
-            <div class="meta"></div>
-            <div class="list"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
-      var base_url = '..';
-      var repo_id  = 'JuliaSmoothOptimizers/NLPModels.jl';
-    </script>
-    <script src="../assets/javascripts/application-997097ee0c.js"></script>
+  </div>
+</footer>
+      
+    </div>
     
-      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+      <script src="../assets/javascripts/application-2afe21e0b2.js"></script>
+      <script>var config={url:{base:".."}},app=new Application(config);app.initialize()</script>
+      
+        <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+      
+        <script src="../assets/mathjaxhelper.js"></script>
+      
     
-      <script src="../assets/mathjaxhelper.js"></script>
     
+      
     
   </body>
 </html>
