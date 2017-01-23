@@ -217,7 +217,7 @@ end
 
 function objcons(nlp :: SimpleNLPModel, x :: Vector)
   if nlp.fc == NotImplemented
-    return obj(nlp, x), cons(nlp, x)
+    return obj(nlp, x), nlp.meta.ncon > 0 ? cons(nlp, x) : []
   else
     nlp.counters.neval_obj += 1
     nlp.counters.neval_cons += 1
@@ -227,7 +227,7 @@ end
 
 function objcons!(nlp :: SimpleNLPModel, x :: Vector, c :: Vector)
   if nlp.fc! == NotImplemented
-    return obj(nlp, x), cons!(nlp, x, c)
+    return obj(nlp, x), nlp.meta.ncon > 0 ? cons!(nlp, x, c) : []
   else
     nlp.counters.neval_obj += 1
     nlp.counters.neval_cons += 1

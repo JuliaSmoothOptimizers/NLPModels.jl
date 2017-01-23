@@ -123,7 +123,7 @@ Evaluate \$f(x)\$ and \$c(x)\$ at `x`. `c` is overwritten with the value of \$c(
 """
 function objcons!(nlp, x, c)
   f = obj(nlp, x)
-  cons!(nlp, x, c)
+  nlp.meta.ncon > 0 && cons!(nlp, x, c)
   return f, c
 end
 

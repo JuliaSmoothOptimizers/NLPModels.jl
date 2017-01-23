@@ -35,9 +35,20 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
 
     fs = [obj(nlp, x) for nlp in nlps]
     fmin = minimum(map(abs, fs))
-    for i = 1:N-1
+    for i = 1:N
       for j = i+1:N
         @test_approx_eq_eps fs[i] fs[j] rtol * max(fmin, 1.0)
+      end
+
+      # Test objcons for unconstrained problems
+      if m == 0
+        f, c = objcons(nlps[i], x)
+        @test fs[i] == f
+        @test c == []
+        f, _ = objcons!(nlps[i], x, c)
+        @test fs[i] == f
+        @test c == []
+        @test _ == []
       end
     end
 
