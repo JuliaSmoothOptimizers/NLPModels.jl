@@ -537,7 +537,7 @@
 <li>The function should be type-stable.</li>
 </ul>
 <p>For contrained problems, the function $c$ is required, and it must return an array even when m = 1, and $c_L$ and $c_U$ should be passed, otherwise the problem is ill-formed. For equality constraints, the corresponding index of $c_L$ and $c_U$ should be the same.</p>
-<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/f5f0490199ca37fd7a14fba771ba73d95d39afa7/src/autodiff_model.jl#L6-L43' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/fd51b951df1b5d35de3cfe1c87342192d12b6298/src/autodiff_model.jl#L6-L43' class='documenter-source'>source</a><br></p>
 <p><a id='Example-1'></a></p>
 <h3 id="example">Example</h3>
 <div class="code"><pre><span></span><span class="k">using</span> <span class="n">NLPModels</span>
@@ -564,9 +564,9 @@
 <p><a id='NLPModels.MathProgNLPModel' href='#NLPModels.MathProgNLPModel'>#</a>
 <strong><code>NLPModels.MathProgNLPModel</code></strong> &mdash; <em>Type</em>.</p>
 <p>Construct a <code>MathProgNLPModel</code> from a <code>MathProgModel</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/f5f0490199ca37fd7a14fba771ba73d95d39afa7/src/mpb_model.jl#L78' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/fd51b951df1b5d35de3cfe1c87342192d12b6298/src/mpb_model.jl#L78' class='documenter-source'>source</a><br></p>
 <p>Construct a <code>MathProgNLPModel</code> from a JuMP <code>Model</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/f5f0490199ca37fd7a14fba771ba73d95d39afa7/src/jump_model.jl#L3' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/fd51b951df1b5d35de3cfe1c87342192d12b6298/src/jump_model.jl#L3' class='documenter-source'>source</a><br></p>
 <p><a id='Example-2'></a></p>
 <h3 id="example_1">Example</h3>
 <div class="code"><pre><span></span><span class="k">using</span> <span class="n">NLPModels</span><span class="p">,</span> <span class="n">MathProgBase</span><span class="p">,</span> <span class="n">JuMP</span>
@@ -635,7 +635,7 @@
 </li>
 </ul>
 <p>For contrained problems, the function $c$ is required, and it must return an array even when m = 1, and $c_L$ and $c_U$ should be passed, otherwise the problem is ill-formed. For equality constraints, the corresponding index of $c_L$ and $c_U$ should be the same.</p>
-<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/f5f0490199ca37fd7a14fba771ba73d95d39afa7/src/simple_model.jl#L6-L100' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/fd51b951df1b5d35de3cfe1c87342192d12b6298/src/simple_model.jl#L6-L100' class='documenter-source'>source</a><br></p>
 <p><a id='Example-3'></a></p>
 <h3 id="example_2">Example</h3>
 <div class="code"><pre><span></span><span class="k">using</span> <span class="n">NLPModels</span>
@@ -677,7 +677,7 @@
 </p>
 <p>although no slack variables are introduced for equality constraints.</p>
 <p>The slack variables are implicitly ordered as [s(low), s(upp), s(rng)], where <code>low</code>, <code>upp</code> and <code>rng</code> represent the indices of the constraints of the form $c_L \leq c(x) &lt; \infty$, $-\infty &lt; c(x) \leq c_U$ and $c_L \leq c(x) \leq c_U$, respectively.</p>
-<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/f5f0490199ca37fd7a14fba771ba73d95d39afa7/src/slack_model.jl#L8-L35' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaSmoothOptimizers/NLPModels.jl/tree/fd51b951df1b5d35de3cfe1c87342192d12b6298/src/slack_model.jl#L8-L35' class='documenter-source'>source</a><br></p>
 <p><a id='Example-4'></a></p>
 <h3 id="example_3">Example</h3>
 <div class="code"><pre><span></span><span class="k">using</span> <span class="n">NLPModels</span>
