@@ -25,18 +25,18 @@ The main interfaces for user defined problems are
 ## ADNLPModel Tutorial
 
 ADNLPModel is simple to use and is useful for classrooms.
-It only needs the objective function $f$ and a starting point $x^0$ to be
+It only needs the objective function ``f`` and a starting point ``x^0`` to be
 well-defined.
-For constrained problems, you'll also need the constraints function $c$, and
-the constraints vectors $c_L$ and $c_U$, such that $c_L \leq c(x) \leq c_U$.
-Equality constraints will be automatically identified as those indices $i$ for
-which $c_{L_i} = c_{U_i}$.
+For constrained problems, you'll also need the constraints function ``c``, and
+the constraints vectors ``c_L`` and ``c_U``, such that ``c_L \leq c(x) \leq c_U``.
+Equality constraints will be automatically identified as those indices ``i`` for
+which ``c_{L_i} = c_{U_i}``.
 
 Let's define the famous Rosenbrock function
-\begin{align*}
+```math
 f(x) = (x_1 - 1)^2 + 100(x_2 - x_1^2)^2,
-\end{align*}
-with starting point $x^0 = (-1.2,1.0)$.
+```
+with starting point ``x^0 = (-1.2,1.0)``.
 
 ```@example adnlp
 using NLPModels
@@ -45,7 +45,7 @@ nlp = ADNLPModel(x->(x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2 , [-1.2; 1.0])
 ```
 
 This is enough to define the model.
-Let's get the objective function value at $x^0$, using only `nlp`.
+Let's get the objective function value at ``x^0``, using only `nlp`.
 
 ```@example adnlp
 fx = obj(nlp, nlp.meta.x0)
@@ -70,13 +70,12 @@ Let's do something a little more complex here, defining a function to try to
 solve this problem through steepest descent method with Armijo search.
 Namely, the method
 
-1. Given $x^0$, $\varepsilon > 0$, and $\eta \in (0,1)$. Set $k = 0$;
-2. If $\Vert \nabla f(x^k) \Vert < \varepsilon$ STOP with $x^* = x^k$;
-3. Compute $d^k = -\nabla f(x^k)$;
-4. Compute $\alpha_k \in (0,1]$ such that
-$ f(x^k + \alpha_kd^k) < f(x^k) + \alpha_k\eta \nabla f(x^k)^Td^k $
-5. Define $x^{k+1} = x^k + \alpha_kx^k$
-6. Update $k = k + 1$ and go to step 2.
+1. Given ``x^0``, ``\varepsilon > 0``, and ``\eta \in (0,1)``. Set ``k = 0``;
+2. If ``\Vert \nabla f(x^k) \Vert < \varepsilon`` STOP with ``x^* = x^k``;
+3. Compute ``d^k = -\nabla f(x^k)``;
+4. Compute ``\alpha_k \in (0,1]`` such that ``f(x^k + \alpha_kd^k) < f(x^k) + \alpha_k\eta \nabla f(x^k)^Td^k``
+5. Define ``x^{k+1} = x^k + \alpha_kx^k``
+6. Update ``k = k + 1`` and go to step 2.
 
 ```@example adnlp
 function steepest(nlp; itmax=100000, eta=1e-4, eps=1e-6, sigma=0.66)

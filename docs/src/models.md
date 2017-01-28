@@ -19,21 +19,6 @@ nlp = ADNLPModel(f, x)
 grad(nlp, x)
 ```
 
-### List of implemented functions
-
-```@eval
-using NLPModels
-open(joinpath(Pkg.dir("NLPModels"), "src", "autodiff_model.jl")) do f
-  fr = readall(f)
-  sout = []
-  for mtd in filter(x->contains(fr, "function $x"), names(NLPModels))
-    mtd == :ADNLPModel && continue
-    push!(sout, "[$mtd](/api/#NLPModels.$mtd)")
-  end
-  join(sout, ", ")
-end
-```
-
 ## MathProgNLPModel
 
 ```@docs
@@ -50,21 +35,6 @@ m = Model()
 nlp = MathProgNLPModel(m)
 x0 = [1.0; 0.5; 0.25; 0.125]
 grad(nlp, x0)
-```
-
-### List of implemented functions
-
-```@eval
-using NLPModels
-open(joinpath(Pkg.dir("NLPModels"), "src", "mpb_model.jl")) do f
-  fr = readall(f)
-  sout = []
-  for mtd in filter(x->contains(fr, "function $x"), names(NLPModels))
-    mtd == :MathProgNLPModel && continue
-    push!(sout, "[$mtd](/api/#NLPModels.$mtd)")
-  end
-  join(sout, ", ")
-end
 ```
 
 ## SimpleNLPModel
@@ -84,21 +54,6 @@ nlp = SimpleNLPModel(f, x, g=g)
 grad(nlp, x)
 ```
 
-### List of implemented functions
-
-```@eval
-using NLPModels
-open(joinpath(Pkg.dir("NLPModels"), "src", "autodiff_model.jl")) do f
-  fr = readall(f)
-  sout = []
-  for mtd in filter(x->contains(fr, "function $x"), names(NLPModels))
-    mtd == :ADNLPModel && continue
-    push!(sout, "[$mtd](/api/#NLPModels.$mtd)")
-  end
-  join(sout, ", ")
-end
-```
-
 ## SlackModel
 
 ```@docs
@@ -115,19 +70,4 @@ x = [2.0; 2.0]
 nlp = ADNLPModel(f, x, c=c, lcon=[0.0])
 nlp_slack = SlackModel(nlp)
 nlp_slack.meta.lvar
-```
-
-### List of implemented functions
-
-```@eval
-using NLPModels
-open(joinpath(Pkg.dir("NLPModels"), "src", "slack_model.jl")) do f
-  fr = readall(f)
-  sout = []
-  for mtd in filter(x->contains(fr, "function $x"), names(NLPModels))
-    mtd == :SlackModel && continue
-    push!(sout, "[$mtd](/api/#NLPModels.$mtd)")
-  end
-  join(sout, ", ")
-end
 ```
