@@ -3,6 +3,7 @@ using Documenter, NLPModels
 makedocs(
   modules = [NLPModels],
   doctest = false,
+  assets = ["assets/style.css"],
   format = :html,
   sitename = "NLPModels.jl",
   pages = Any["Home" => "index.md",
