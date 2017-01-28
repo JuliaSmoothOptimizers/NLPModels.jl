@@ -1,11 +1,20 @@
 using Documenter, NLPModels
 
 makedocs(
-  modules = [NLPModels]
+  modules = [NLPModels],
+  doctest = false,
+  format = :html,
+  sitename = "NLPModels.jl",
+  pages = Any["Home" => "index.md",
+              "Models" => "models.md",
+              "Tutorial" => "tutorial.md",
+              "API" => "api.md",
+              "Reference" => "reference.md"]
 )
 
-deploydocs(deps = Deps.pip("pygments", "mkdocs", "mkdocs-material", "python-markdown-math"),
+deploydocs(deps = nothing, make = nothing,
   repo = "github.com/JuliaSmoothOptimizers/NLPModels.jl.git",
+  target = "build",
   julia = "0.5",
   latest = "master"
 )

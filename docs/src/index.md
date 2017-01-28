@@ -8,32 +8,36 @@ optimization solvers in Julia.
 ## Introduction
 
 The general form of the optimization problem is
+```math
 \begin{align*}
-\min \quad & f(x) \\\\
-& c_i(x) = 0, \quad i \in E, \\\\
-& c_{L_i} \leq c_i(x) \leq c_{U_i}, \quad i \in I, \\\\
+\min \quad & f(x) \\
+& c_i(x) = 0, \quad i \in E, \\
+& c_{L_i} \leq c_i(x) \leq c_{U_i}, \quad i \in I, \\
 & \ell \leq x \leq u,
 \end{align*}
-where $f:\mathbb{R}^n\rightarrow\mathbb{R}$,
-$c:\mathbb{R}^n\rightarrow\mathbb{R}^m$,
-$E\cup I = \\{1,2,\dots,m\\}$, $E\cap I = \emptyset$,
+```
+where ``f:\mathbb{R}^n\rightarrow\mathbb{R}``,
+``c:\mathbb{R}^n\rightarrow\mathbb{R}^m``,
+``E\cup I = \{1,2,\dots,m\}``, ``E\cap I = \emptyset``,
 and
-$c_{L_i}, c_{U_i}, \ell_j, u_j \in \mathbb{R}\cup\\{\pm\infty\\}$
-for $i = 1,\dots,m$ and $j = 1,\dots,n$.
+``c_{L_i}, c_{U_i}, \ell_j, u_j \in \mathbb{R}\cup\{\pm\infty\}``
+for ``i = 1,\dots,m`` and ``j = 1,\dots,n``.
 
 For computational reasons, we write
+```math
 \begin{align*}
-\min \quad & f(x) \\\\
-& c_L \leq c(x) \leq c_U \\\\
+\min \quad & f(x) \\
+& c_L \leq c(x) \leq c_U \\
 & \ell \leq x \leq u,
 \end{align*}
-defining $c_{L_i} = c_{U_i}$ for all $i \in E$.
+```
+defining ``c_{L_i} = c_{U_i}`` for all ``i \in E``.
 The Lagrangian of this problem is defined as
-\begin{align*}
+```math
 L(x,\lambda,z^L,z^U;\sigma) = \sigma f(x) + c(x)^T\lambda  + \sum_{i=1}^n z_i^L(x_i-l_i) + \sum_{i=1}^nz_i^U(u_i-x_i),
-\end{align*}
-where $\sigma$ is a scaling parameter included for computational reasons.
-Notice that, for the Hessian, the variables $z^L$ and $z^U$ are not used.
+```
+where ``\sigma`` is a scaling parameter included for computational reasons.
+Notice that, for the Hessian, the variables ``z^L`` and ``z^U`` are not used.
 
 Optimization problems are represented by an instance/subtype of `AbstractNLPModel`.
 Such instances are composed of
@@ -129,9 +133,7 @@ Attribute   | Type               | Notes
 ## License
 
 This content is released under the [MIT](http://opensource.org/licenses/MIT) License.
-[![](http://upload.wikimedia.org/wikipedia/commons/c/c3/License_icon-mit.svg){
-height="40" }
-](http://opensource.org/licenses/MIT)
+[![](http://upload.wikimedia.org/wikipedia/commons/8/83/License_icon-mit.png) ](http://opensource.org/licenses/MIT)
 
 ## Contents
 

@@ -2,20 +2,22 @@
 
 As stated in the [home](home) page, we consider the nonlinear optimization
 problem in the following format:
+```math
 \begin{align*}
-\min \quad & f(x) \\\\
-& c_L \leq c(x) \leq c_U \\\\
+\min \quad & f(x) \\
+& c_L \leq c(x) \leq c_U \\
 & \ell \leq x \leq u.
 \end{align*}
+```
 To develop an optimization algorithm, we are usually worried not only with
-$f(x)$ and $c(x)$, but also with their derivatives.
+``f(x)`` and ``c(x)``, but also with their derivatives.
 Namely,
 
-- $\nabla f(x)$, the gradient of $f$ at the point $x$;
-- $\nabla^2 f(x)$, the Hessian of $f$ at the point $x$;
-- $J(x) = \nabla c(x)$, the Jacobian of $c$ at the point $x$;
-- $\nabla^2 f(x) + \sum_{i=1}^m \lambda_i \nabla^2 c_i(x)$,
-  the Hessian of the Lagrangian function at the point $(x,\lambda)$.
+- ``\nabla f(x)``, the gradient of ``f`` at the point ``x``;
+- ``\nabla^2 f(x)``, the Hessian of ``f`` at the point ``x``;
+- ``J(x) = \nabla c(x)``, the Jacobian of ``c`` at the point ``x``;
+- ``\nabla^2 f(x) + \sum_{i=1}^m \lambda_i \nabla^2 c_i(x)``,
+  the Hessian of the Lagrangian function at the point ``(x,\lambda)``.
 
 There are many ways to access some of these values, so here is a little
 reference guide.
@@ -35,12 +37,12 @@ NLPModels instances.
 
 | Function          | NLPModels function                                                                                                                                                                                   |
 |-------------------|-------------------------------------------|
-| $f(x)$            | [obj](api/#NLPModels.obj), [objgrad](api/#NLPModels.objgrad), [objgrad!](api/#NLPModels.objgrad!), [objcons](api/#NLPModels.objcons), [objcons!](api/#NLPModels.objcons!) |
-| $\nabla f(x)$     | [grad](api/#NLPModels.grad), [grad!](api/#NLPModels.grad!), [objgrad](api/#NLPModels.objgrad), [objgrad!](api/#NLPModels.objgrad!) |
-| $\nabla^2 f(x)$   | [hess](api/#NLPModels.hess), [hess_op](api/#NLPModels.hess_op), [hess_op!](api/#NLPModels.hess_op!), [hess_coord](api/#NLPModels.hess_coord), [hprod](api/#NLPModels.hprod), [hprod!](api/#NLPModels.hprod!) |
-| $c(x)$            | [cons](api/#NLPModels.cons), [cons!](api/#NLPModels.cons!), [objcons](api/#NLPModels.objcons), [objcons!](api/#NLPModels.objcons!) |
-| $J(x)$            | [jac](api/#NLPModels.jac), [jac_op](api/#NLPModels.jac_op), [jac_op!](api/#NLPModels.jac_op!), [jac_coord](api/#NLPModels.jac_coord), [jprod](api/#NLPModels.jprod), [jprod!](api/#NLPModels.jprod!), [jtprod](api/#NLPModels.jtprod), [jtprod!](api/#NLPModels.jtprod!) |
-| $\nabla^2 L(x,y)$ | [hess](api/#NLPModels.hess), [hess_op](api/#NLPModels.hess_op), [hess_coord](api/#NLPModels.hess_coord), [hprod](api/#NLPModels.hprod), [hprod!](api/#NLPModels.hprod!) |
+| ``f(x)``            | [obj](api/#NLPModels.obj), [objgrad](api/#NLPModels.objgrad), [objgrad!](api/#NLPModels.objgrad!), [objcons](api/#NLPModels.objcons), [objcons!](api/#NLPModels.objcons!) |
+| ``\nabla f(x)``     | [grad](api/#NLPModels.grad), [grad!](api/#NLPModels.grad!), [objgrad](api/#NLPModels.objgrad), [objgrad!](api/#NLPModels.objgrad!) |
+| ``\nabla^2 f(x)``   | [hess](api/#NLPModels.hess), [hess_op](api/#NLPModels.hess_op), [hess_op!](api/#NLPModels.hess_op!), [hess_coord](api/#NLPModels.hess_coord), [hprod](api/#NLPModels.hprod), [hprod!](api/#NLPModels.hprod!) |
+| ``c(x)``            | [cons](api/#NLPModels.cons), [cons!](api/#NLPModels.cons!), [objcons](api/#NLPModels.objcons), [objcons!](api/#NLPModels.objcons!) |
+| ``J(x)``            | [jac](api/#NLPModels.jac), [jac_op](api/#NLPModels.jac_op), [jac_op!](api/#NLPModels.jac_op!), [jac_coord](api/#NLPModels.jac_coord), [jprod](api/#NLPModels.jprod), [jprod!](api/#NLPModels.jprod!), [jtprod](api/#NLPModels.jtprod), [jtprod!](api/#NLPModels.jtprod!) |
+| ``\nabla^2 L(x,y)`` | [hess](api/#NLPModels.hess), [hess_op](api/#NLPModels.hess_op), [hess_coord](api/#NLPModels.hess_coord), [hprod](api/#NLPModels.hprod), [hprod!](api/#NLPModels.hprod!) |
 
 
 ## AbstractNLPModel functions
