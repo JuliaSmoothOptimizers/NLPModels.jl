@@ -8,7 +8,7 @@ import Compat.String
 using LinearOperators
 
 export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters
-export reset!, counters,
+export reset!, counters, sum_counters,
        obj, grad, grad!, objgrad, objgrad!, objcons, objcons!,
        cons, cons!, jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad,
        jac_coord, jac, jprod, jprod!, jtprod, jtprod!, jac_op, jac_op!,
@@ -41,6 +41,9 @@ for counter in fieldnames(Counters)
 end
 
 counters(nlp :: AbstractNLPModel) = nlp.counters
+
+sum_counters(c :: Counters) = sum(getfield(c, x) for x in fieldnames(Counters))
+sum_counters(nlp :: AbstractNLPModel) = sum_counters(counters(nlp))
 
 """`reset!(counters)`
 

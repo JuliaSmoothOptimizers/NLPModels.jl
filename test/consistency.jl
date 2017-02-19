@@ -18,6 +18,8 @@ function consistent_counters(nlps)
     V = [getfield(nlp.counters, field) for nlp in nlps]
     @test all(V .== V[1])
   end
+  V = [sum_counters(nlp) for nlp in nlps]
+  @test all(V .== V[1])
 end
 
 function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
