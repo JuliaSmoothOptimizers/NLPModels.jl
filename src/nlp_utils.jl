@@ -5,8 +5,8 @@ macro lencheck(l, vars...)
   for var in vars
     varname = string(var)
     push!(exprs,
-          :(if length($var) != $l
-              error(string($varname, " must have length ", $l))
+          :(if length($(esc(var))) != $(esc(l))
+                error(string($varname, " must have length ", $(esc(l))))
             end))
   end
   Expr(:block, exprs...)
@@ -17,8 +17,8 @@ macro rangecheck(lo, hi, vars...)
   for var in vars
     varname = string(var)
     push!(exprs,
-          :(if (length($var) > 0 && (any($var .< $lo) || any($var .> $hi)))
-              error(string($varname, " elements must be between ", $lo, " and ", $hi))
+          :(if (length($(esc(var))) > 0 && (any($(esc(var)) .< $(esc(lo))) || any($(esc(var)) .> $(esc(hi)))))
+            error(string($varname, " elements must be between ", $(esc(lo)), " and ", $(esc(hi))))
             end))
   end
   Expr(:block, exprs...)
