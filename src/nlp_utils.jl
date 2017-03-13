@@ -17,7 +17,7 @@ macro rangecheck(lo, hi, vars...)
   for var in vars
     varname = string(var)
     push!(exprs,
-          :(if (length($(esc(var))) > 0 && (any($(esc(var)) .< $(esc(lo))) || any($(esc(var)) .> $(esc(hi)))))
+          :(if (length($(esc(var))) > 0 && (any(broadcast(<, $(esc(var)), $(esc(lo)))) || any(broadcast(>, $(esc(var)), $(esc(hi))))))
             error(string($varname, " elements must be between ", $(esc(lo)), " and ", $(esc(hi))))
             end))
   end

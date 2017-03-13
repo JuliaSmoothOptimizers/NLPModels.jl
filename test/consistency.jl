@@ -6,7 +6,7 @@ function consistent_meta(nlps; rtol=1.0e-8)
     for i = 1:N-1
       fi = getfield(nlps[i].meta, field)
       fj = getfield(nlps[i+1].meta, field)
-      @test_approx_eq_eps fi fj rtol
+      @test isapprox(fi, fj, rtol=rtol)
     end
   end
 end
@@ -39,7 +39,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
     fmin = minimum(map(abs, fs))
     for i = 1:N
       for j = i+1:N
-        @test_approx_eq_eps fs[i] fs[j] rtol * max(fmin, 1.0)
+        @test isapprox(fs[i], fs[j], atol=rtol * max(fmin, 1.0))
       end
 
       # Test objcons for unconstrained problems
@@ -47,10 +47,10 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
         f, c = objcons(nlps[i], x)
         @test fs[i] == f
         @test c == []
-        f, _ = objcons!(nlps[i], x, c)
+        f, tmpc = objcons!(nlps[i], x, c)
         @test fs[i] == f
         @test c == []
-        @test _ == []
+        @test tmpc == []
       end
     end
 
@@ -58,19 +58,19 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
     gmin = minimum(map(norm, gs))
     for i = 1:N
       for j = i+1:N
-        @test_approx_eq_eps gs[i] gs[j] rtol * max(gmin, 1.0)
+        @test isapprox(gs[i], gs[j], atol=rtol * max(gmin, 1.0))
       end
-      _ = grad!(nlps[i], x, tmp_n)
-      @test_approx_eq_eps gs[i] tmp_n rtol * max(gmin, 1.0)
-      @test _ == tmp_n
+      tmpg = grad!(nlps[i], x, tmp_n)
+      @test isapprox(gs[i], tmp_n, atol=rtol * max(gmin, 1.0))
+      @test tmpg == tmp_n
 
       f, g = objgrad(nlps[i], x)
       @test fs[i] == f
       @test gs[i] == g
-      f, _ = objgrad!(nlps[i], x, g)
+      f, tmpg = objgrad!(nlps[i], x, g)
       @test fs[i] == f
       @test gs[i] == g
-      @test g == _
+      @test g == tmpg
     end
 
     Hs = Array{Any}(N)
@@ -81,23 +81,23 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
     Hmin = minimum(map(vecnorm, Hs))
     for i = 1:N
       for j = i+1:N
-        @test_approx_eq_eps Hs[i] Hs[j] rtol * max(Hmin, 1.0)
+        @test isapprox(Hs[i], Hs[j], atol=rtol * max(Hmin, 1.0))
       end
       σ = rand() - 0.5
       (I, J, V) = hess_coord(nlps[i], x, obj_weight=σ)
       tmp_h = sparse(I, J, V, n, n)
-      @test_approx_eq_eps σ*Hs[i] tmp_h rtol * max(Hmin, 1.0)
+      @test isapprox(σ*Hs[i], tmp_h, atol=rtol * max(Hmin, 1.0))
     end
 
     Hs = Any[hess(nlp, x) for nlp in nlps]
     Hmin = minimum(map(vecnorm, Hs))
     for i = 1:N
       for j = i+1:N
-        @test_approx_eq_eps Hs[i] Hs[j] rtol * max(Hmin, 1.0)
+        @test isapprox(Hs[i], Hs[j], atol=rtol * max(Hmin, 1.0))
       end
       σ = rand() - 0.5
       tmp_nn = hess(nlps[i], x, obj_weight=σ)
-      @test_approx_eq_eps σ*Hs[i] tmp_nn rtol * max(Hmin, 1.0)
+      @test isapprox(σ*Hs[i], tmp_nn, atol=rtol * max(Hmin, 1.0))
     end
 
     v = 10 * (rand(n) - 0.5)
@@ -106,17 +106,17 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
     Hvmin = minimum(map(norm, Hvs))
     for i = 1:N
       for j = i+1:N
-        @test_approx_eq_eps Hvs[i] Hvs[j] rtol * max(Hvmin, 1.0)
-        @test_approx_eq_eps Hvs[i] Hopvs[j] rtol * max(Hvmin, 1.0)
+        @test isapprox(Hvs[i], Hvs[j], atol=rtol * max(Hvmin, 1.0))
+        @test isapprox(Hvs[i], Hopvs[j], atol=rtol * max(Hvmin, 1.0))
       end
-      _ = hprod!(nlps[i], x, v, tmp_n)
-      @test_approx_eq_eps Hvs[i] tmp_n rtol * max(Hvmin, 1.0)
-      @test _ == tmp_n
+      tmphv = hprod!(nlps[i], x, v, tmp_n)
+      @test isapprox(Hvs[i], tmp_n, atol=rtol * max(Hvmin, 1.0))
+      @test tmphv == tmp_n
       fill!(tmp_n, 0)
       H = hess_op!(nlps[i], x, tmp_n)
       res = H * v
-      @test_approx_eq_eps res Hvs[i] rtol * max(Hvmin, 1.0)
-      @test_approx_eq_eps res tmp_n rtol * max(Hvmin, 1.0)
+      @test isapprox(res, Hvs[i], atol=rtol * max(Hvmin, 1.0))
+      @test isapprox(res, tmp_n, atol=rtol * max(Hvmin, 1.0))
     end
 
     if m > 0
@@ -125,9 +125,9 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
       cus = [nlp.meta.ucon for nlp in nlps]
       cmin = minimum(map(norm, cs))
       for i = 1:N
-        _ = cons!(nlps[i], x, tmp_m)
-        @test_approx_eq_eps cs[i] tmp_m rtol * max(cmin, 1.0)
-        @test _ == tmp_m
+        tmpc = cons!(nlps[i], x, tmp_m)
+        @test isapprox(cs[i], tmp_m, atol=rtol * max(cmin, 1.0))
+        @test tmpc == tmp_m
         ci, li, ui = copy(cs[i]), cls[i], cus[i]
         for k = 1:m
           if li[k] > -Inf
@@ -145,16 +145,16 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
               cj[k] -= uj[k]
             end
           end
-          @test_approx_eq_eps norm(ci) norm(cj) rtol * max(cmin, 1.0)
+          @test isapprox(norm(ci), norm(cj), atol=rtol * max(cmin, 1.0))
         end
 
         f, c = objcons(nlps[i], x)
         @test fs[i] == f
         @test cs[i] == c
-        f, _ = objcons!(nlps[i], x, c)
+        f, tmpc = objcons!(nlps[i], x, c)
         @test fs[i] == f
         @test cs[i] == c
-        @test c == _
+        @test c == tmpc
       end
 
       Js = Any[jac(nlp, x) for nlp in nlps]
@@ -162,44 +162,44 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
       for i = 1:N-1
         vi = vecnorm(Js[i])
         for j = i+1:N
-          @test_approx_eq_eps vi vecnorm(Js[j]) rtol * max(Jmin, 1.0)
+          @test isapprox(vi, vecnorm(Js[j]), atol=rtol * max(Jmin, 1.0))
         end
       end
 
       Jops = Any[jac_op(nlp, x) for nlp in nlps]
       Jps = Any[jprod(nlp, x, v) for nlp in nlps]
       for i = 1:N
-        @test_approx_eq_eps Jps[i] (Jops[i] * v) rtol * max(Jmin, 1.0)
+        @test isapprox(Jps[i], Jops[i] * v, atol=rtol * max(Jmin, 1.0))
         vi = norm(Jps[i])
         for j = i+1:N
-          @test_approx_eq_eps vi norm(Jps[j]) rtol * max(Jmin, 1.0)
+          @test isapprox(vi, norm(Jps[j]), atol=rtol * max(Jmin, 1.0))
         end
-        _ = jprod!(nlps[i], x, v, tmp_m)
-        @test _ == tmp_m
-        @test_approx_eq_eps Jps[i] tmp_m rtol * max(Jmin, 1.0)
+        tmpjv = jprod!(nlps[i], x, v, tmp_m)
+        @test tmpjv == tmp_m
+        @test isapprox(Jps[i], tmp_m, atol=rtol * max(Jmin, 1.0))
         fill!(tmp_m, 0)
         J = jac_op!(nlps[i], x, tmp_m, tmp_n)
         res = J * v
-        @test_approx_eq_eps res Jps[i] rtol * max(Jmin, 1.0)
-        @test_approx_eq_eps res tmp_m rtol * max(Jmin, 1.0)
+        @test isapprox(res, Jps[i], atol=rtol * max(Jmin, 1.0))
+        @test isapprox(res, tmp_m, atol=rtol * max(Jmin, 1.0))
       end
 
       w = 10 * (rand() - 0.5) * ones(m)
       Jtps = Any[jtprod(nlp, x, w) for nlp in nlps]
       for i = 1:N
-        @test_approx_eq_eps Jtps[i] (Jops[i]' * w) rtol * max(Jmin, 1.0)
+        @test isapprox(Jtps[i], Jops[i]' * w, atol=rtol * max(Jmin, 1.0))
         vi = norm(Jtps[i])
         for j = i+1:N
-          @test_approx_eq_eps vi norm(Jtps[j]) rtol * max(Jmin, 1.0)
+          @test isapprox(vi, norm(Jtps[j]), atol=rtol * max(Jmin, 1.0))
         end
-        _ = jtprod!(nlps[i], x, w, tmp_n)
-        @test_approx_eq_eps Jtps[i] tmp_n rtol * max(Jmin, 1.0)
-        @test _ == tmp_n
+        tmpjtv = jtprod!(nlps[i], x, w, tmp_n)
+        @test isapprox(Jtps[i], tmp_n, atol=rtol * max(Jmin, 1.0))
+        @test tmpjtv == tmp_n
         fill!(tmp_n, 0)
         J = jac_op!(nlps[i], x, tmp_m, tmp_n)
         res = J' * w
-        @test_approx_eq_eps res Jtps[i] rtol * max(Jmin, 1.0)
-        @test_approx_eq_eps res tmp_n rtol * max(Jmin, 1.0)
+        @test isapprox(res, Jtps[i], atol=rtol * max(Jmin, 1.0))
+        @test isapprox(res, tmp_n, atol=rtol * max(Jmin, 1.0))
       end
 
       y = (rand() - 0.5) * ones(m)
@@ -212,23 +212,23 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
       Lmin = minimum(map(vecnorm, Ls))
       for i = 1:N
         for j = i+1:N
-          @test_approx_eq_eps Ls[i] Ls[j] rtol * max(Lmin, 1.0)
+          @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
         end
         σ = rand() - 0.5
         (I, J, V) = hess_coord(nlps[i], x, obj_weight=σ, y=σ*y)
         tmp_h = sparse(I, J, V, n, n)
-        @test_approx_eq_eps σ*Ls[i] tmp_h rtol * max(Lmin, 1.0)
+        @test isapprox(σ*Ls[i], tmp_h, atol=rtol * max(Lmin, 1.0))
       end
 
       Ls = Any[hess(nlp, x, y=y) for nlp in nlps]
       Lmin = minimum(map(vecnorm, Ls))
       for i = 1:N
         for j = i+1:N
-          @test_approx_eq_eps Ls[i] Ls[j] rtol * max(Lmin, 1.0)
+          @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
         end
         σ = rand() - 0.5
         tmp_nn = hess(nlps[i], x, obj_weight=σ, y=σ*y)
-        @test_approx_eq_eps σ*Ls[i] tmp_nn rtol * max(Hmin, 1.0)
+        @test isapprox(σ*Ls[i], tmp_nn, atol=rtol * max(Hmin, 1.0))
       end
 
       Lps = Any[hprod(nlp, x, v, y=y) for nlp in nlps]
@@ -236,8 +236,8 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8)
       Lpmin = minimum(map(norm, Lps))
       for i = 1:N-1
         for j = i+1:N
-          @test_approx_eq_eps Lps[i] Lps[j] rtol * max(Lpmin, 1.0)
-          @test_approx_eq_eps Lps[i] Hopvs[j] rtol * max(Lpmin, 1.0)
+          @test isapprox(Lps[i], Lps[j], atol=rtol * max(Lpmin, 1.0))
+          @test isapprox(Lps[i], Hopvs[j], atol=rtol * max(Lpmin, 1.0))
         end
       end
     end

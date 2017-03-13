@@ -2,7 +2,7 @@ export has_bounds, bound_constrained, unconstrained, linearly_constrained,
       equality_constrained, inequality_constrained
 
 # Base type for an optimization model.
-abstract AbstractNLPModel
+@compat abstract type AbstractNLPModel end
 
 type Counters
   neval_obj    :: Int  # Number of objective evaluations.
@@ -23,7 +23,7 @@ type Counters
 end
 
 # Base type for metadata related to an optimization model.
-abstract AbstractNLPModelMeta
+@compat abstract type AbstractNLPModelMeta end
 
 immutable NLPModelMeta <: AbstractNLPModelMeta
 
@@ -140,22 +140,22 @@ immutable NLPModelMeta <: AbstractNLPModelMeta
     @lencheck nlnet lnet
     @rangecheck 1 ncon lin nln nnet lnet
 
-    ifix  = find(lvar .== uvar);
-    ilow  = find((lvar .> -Inf) & (uvar .== Inf));
-    iupp  = find((lvar .== -Inf) & (uvar .< Inf));
-    irng  = find((lvar .> -Inf) & (uvar .< Inf) & (lvar .< uvar));
-    ifree = find((lvar .== -Inf) & (uvar .== Inf));
-    iinf  = find(lvar .> uvar);
+    ifix  = find(lvar .== uvar)
+    ilow  = find((lvar .> -Inf) .& (uvar .== Inf))
+    iupp  = find((lvar .== -Inf) .& (uvar .< Inf))
+    irng  = find((lvar .> -Inf) .& (uvar .< Inf) .& (lvar .< uvar))
+    ifree = find((lvar .== -Inf) .& (uvar .== Inf))
+    iinf  = find(lvar .> uvar)
 
-    jfix  = find(lcon .== ucon);
-    jlow  = find((lcon .> -Inf) & (ucon .== Inf));
-    jupp  = find((lcon .== -Inf) & (ucon .< Inf));
-    jrng  = find((lcon .> -Inf) & (ucon .< Inf) & (lcon .< ucon));
-    jfree = find((lcon .== -Inf) & (ucon .== Inf));
-    jinf  = find(lcon .> ucon);
+    jfix  = find(lcon .== ucon)
+    jlow  = find((lcon .> -Inf) .& (ucon .== Inf))
+    jupp  = find((lcon .== -Inf) .& (ucon .< Inf))
+    jrng  = find((lcon .> -Inf) .& (ucon .< Inf) .& (lcon .< ucon))
+    jfree = find((lcon .== -Inf) .& (ucon .== Inf))
+    jinf  = find(lcon .> ucon)
 
-    nnzj = max(0, min(nnzj, nvar * ncon));
-    nnzh = max(0, min(nnzh, nvar * nvar));
+    nnzj = max(0, min(nnzj, nvar * ncon))
+    nnzh = max(0, min(nnzh, nvar * nvar))
 
     new(nvar, x0, lvar, uvar,
         ifix, ilow, iupp, irng, ifree, iinf,
@@ -200,19 +200,19 @@ function print(io :: IO, nlp :: NLPModelMeta)
   @printf(io, "ucon = "); dsp(nlp.ucon'); @printf(io, "\n")
   @printf(io, "x0 = ");   dsp(nlp.x0'); @printf(io, "\n")
   @printf(io, "y0 = ");   dsp(nlp.y0'); @printf(io, "\n")
-  @printf(io, "nnzh = %d\n", nlp.nnzh);
-  @printf(io, "nnzj = %d\n", nlp.nnzj);
+  @printf(io, "nnzh = %d\n", nlp.nnzh)
+  @printf(io, "nnzj = %d\n", nlp.nnzj)
   if nlp.nlin > 0
-    @printf(io, "linear constraints:    "); dsp(nlp.lin'); @printf(io, "\n");
+    @printf(io, "linear constraints:    "); dsp(nlp.lin'); @printf(io, "\n")
   end
   if nlp.nnln > 0
-    @printf(io, "nonlinear constraints: "); dsp(nlp.nln'); @printf(io, "\n");
+    @printf(io, "nonlinear constraints: "); dsp(nlp.nln'); @printf(io, "\n")
   end
   if nlp.nlnet > 0
-    @printf(io, "linear network constraints:   "); dsp(nlp.lnet'); @printf(io, "\n");
+    @printf(io, "linear network constraints:   "); dsp(nlp.lnet'); @printf(io, "\n")
   end
   if nlp.nnnet > 0
-    @printf(io, "nonlinear network constraints:   "); dsp(nlp.nnet'); @printf(io, "\n");
+    @printf(io, "nonlinear network constraints:   "); dsp(nlp.nnet'); @printf(io, "\n")
   end
 end
 
