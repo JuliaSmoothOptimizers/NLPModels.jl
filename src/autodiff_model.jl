@@ -64,15 +64,14 @@ function ADNLPModel(f::Function, x0::Vector; y0::Vector = [],
   for i = 1:ncon
     A += ForwardDiff.hessian(x->c(x)[i], x0) * (-1)^i
   end
-  nnzh = typeof(A) <: SparseMatrixCSC ? nnz(A) : length(A)
+  nnzh = nvar * (nvar + 1) / 2
   nnzj = 0
 
   if ncon > 0
     length(lcon) == 0 && (lcon = -Inf*ones(ncon))
     length(ucon) == 0 && (ucon =  Inf*ones(ncon))
     length(y0) == 0   && (y0 = zeros(ncon))
-    A = ForwardDiff.jacobian(c, x0)
-    nnzj = typeof(A) <: SparseMatrixCSC ? nnz(A) : length(A)
+    nnzj = nvar * ncon
   end
   nln = setdiff(1:ncon, lin)
 
@@ -112,7 +111,10 @@ end
 function jac_coord(nlp :: ADNLPModel, x :: Vector)
   nlp.counters.neval_jac += 1
   J = ForwardDiff.jacobian(nlp.c, x)
-  return typeof(J) <: Matrix ? findnz(sparse(J)) : findnz(J)
+  rows = [j for i = 1:nlp.meta.nvar for j = 1:nlp.meta.ncon]
+  cols = [i for i = 1:nlp.meta.nvar for j = 1:nlp.meta.ncon]
+  vals = [J[j,i] for i = 1:nlp.meta.nvar for j = 1:nlp.meta.ncon]
+  return rows, cols, vals
 end
 
 function jac(nlp :: ADNLPModel, x :: Vector)
@@ -155,8 +157,11 @@ function hess(nlp :: ADNLPModel, x :: Vector; obj_weight = 1.0, y :: Vector = []
 end
 
 function hess_coord(nlp :: ADNLPModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
-  Hx = sparse(hess(nlp, x, obj_weight=obj_weight, y=y))
-  return findnz(Hx)
+  H = hess(nlp, x, obj_weight=obj_weight, y=y)
+  rows = [i for j = 1:nlp.meta.nvar for i = j:nlp.meta.nvar]
+  cols = [j for j = 1:nlp.meta.nvar for i = j:nlp.meta.nvar]
+  vals = [H[i,j] for j = 1:nlp.meta.nvar for i = j:nlp.meta.nvar]
+  return rows, cols, vals
 end
 
 function hprod(nlp :: ADNLPModel, x :: Vector, v :: Vector;
