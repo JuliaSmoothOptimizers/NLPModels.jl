@@ -40,10 +40,7 @@ function MathProgBase.loadproblem!(m :: MathProgModel,
                                    l, u, lb, ub,
                                    sense,
                                    eval :: MathProgBase.AbstractNLPEvaluator)
-
-  # TODO: :JacVec is not yet available.
-  # [:Grad, :Jac, :JacVec, :Hess, :HessVec, :ExprGraph]
-  MathProgBase.initialize(eval, [:Grad, :Jac, :Hess, :HessVec, :ExprGraph])
+  # eval is initialized in the MathProgNLPModel constructor
   m.numVar = numVar
   m.numConstr = numConstr
   m.x = zeros(numVar)
@@ -64,6 +61,7 @@ MathProgBase.getobjval(m :: MathProgModel) = MathProgBase.eval_f(m.eval, m.x)
 type MathProgNLPModel <: AbstractNLPModel
   meta :: NLPModelMeta
   mpmodel :: MathProgModel
+  features :: Vector{Symbol}
   counters :: Counters      # Evaluation counters.
 
   jrows :: Vector{Int}      # Jacobian sparsity pattern.
@@ -76,7 +74,12 @@ type MathProgNLPModel <: AbstractNLPModel
 end
 
 "Construct a `MathProgNLPModel` from a `MathProgModel`."
-function MathProgNLPModel(mpmodel :: MathProgModel; name :: String="Generic")
+function MathProgNLPModel(mpmodel :: MathProgModel;
+                          name :: String="Generic",
+                          features :: Vector{Symbol}=[:Grad, :Jac, :Hess, :HessVec, :ExprGraph])
+
+  # TODO: :JacVec is not yet available.
+  MathProgBase.initialize(mpmodel.eval, features)
 
   nvar = mpmodel.numVar
   lvar = mpmodel.lvar
@@ -89,10 +92,22 @@ function MathProgNLPModel(mpmodel :: MathProgModel; name :: String="Generic")
   lcon = mpmodel.lcon
   ucon = mpmodel.ucon
 
-  jrows, jcols = MathProgBase.jac_structure(mpmodel.eval)
-  hrows, hcols = MathProgBase.hesslag_structure(mpmodel.eval)
-  nnzj = length(jrows)
-  nnzh = length(hrows)
+  if :Jac in features
+    jrows, jcols = MathProgBase.jac_structure(mpmodel.eval)
+    nnzj = length(jrows)
+  else
+    jrows = Int[]
+    jcols = Int[]
+    nnzj = 0
+  end
+  if :Hess in features
+    hrows, hcols = MathProgBase.hesslag_structure(mpmodel.eval)
+    nnzh = length(hrows)
+  else
+    hrows = Int[]
+    hcols = Int[]
+    nnzh = 0
+  end
 
   meta = NLPModelMeta(nvar,
                       x0=mpmodel.x,
@@ -112,15 +127,16 @@ function MathProgNLPModel(mpmodel :: MathProgModel; name :: String="Generic")
                       )
 
   return MathProgNLPModel(meta,
-                      mpmodel,
-                      Counters(),
-                      jrows,
-                      jcols,
-                      zeros(nnzj),  # jvals
-                      hrows,
-                      hcols,
-                      zeros(nnzh),  # hvals
-                      )
+                          mpmodel,
+                          features,
+                          Counters(),
+                          jrows,
+                          jcols,
+                          zeros(nnzj),  # jvals
+                          hrows,
+                          hcols,
+                          zeros(nnzh),  # hvals
+                          )
 end
 
 import Base.show
@@ -132,11 +148,13 @@ function obj(nlp :: MathProgNLPModel, x :: Array{Float64})
 end
 
 function grad(nlp :: MathProgNLPModel, x :: Array{Float64})
+  :Grad in nlp.features || throw(NotImplementedError("gradient not requested"))
   g = zeros(nlp.meta.nvar)
   return grad!(nlp, x, g)
 end
 
 function grad!(nlp :: MathProgNLPModel, x :: Array{Float64}, g :: Array{Float64})
+  :Grad in nlp.features || throw(NotImplementedError,("gradient not requested"))
   nlp.counters.neval_grad += 1
   MathProgBase.eval_grad_f(nlp.mpmodel.eval, g, x)
   return g
@@ -154,6 +172,7 @@ function cons!(nlp :: MathProgNLPModel, x :: Array{Float64}, c :: Array{Float64}
 end
 
 function jac_coord(nlp :: MathProgNLPModel, x :: Array{Float64})
+  :Jac in nlp.features || throw(NotImplementedError("Jacobian not requested"))
   nlp.counters.neval_jac += 1
   MathProgBase.eval_jac_g(nlp.mpmodel.eval, nlp.jvals, x)
   return (nlp.jrows, nlp.jcols, nlp.jvals)
@@ -222,6 +241,7 @@ end
 
 function hess_coord(nlp :: MathProgNLPModel, x :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+  :Hess in nlp.features || throw(NotImplementedError("Hessian not requested"))
   nlp.counters.neval_hess += 1
   MathProgBase.eval_hesslag(nlp.mpmodel.eval, nlp.hvals, x, obj_weight, y)
   return (nlp.hrows, nlp.hcols, nlp.hvals)
@@ -234,6 +254,7 @@ end
 
 function hprod(nlp :: MathProgNLPModel, x :: Array{Float64}, v :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+  :HessVec in nlp.features || throw(NotImplementedError("Hessian-vector products not requested"))
   hv = zeros(nlp.meta.nvar)
   return hprod!(nlp, x, v, hv, obj_weight=obj_weight, y=y)
 end
@@ -241,6 +262,7 @@ end
 function hprod!(nlp :: MathProgNLPModel, x :: Array{Float64}, v :: Array{Float64},
     hv :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+  :HessVec in nlp.features || throw(NotImplementedError("Hessian-vector products not requested"))
   nlp.counters.neval_hprod += 1
   MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, hv, x, v, obj_weight, y)
   return hv
