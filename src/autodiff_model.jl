@@ -148,7 +148,7 @@ function hess(nlp :: ADNLPModel, x :: Vector; obj_weight = 1.0, y :: Vector = []
   nlp.counters.neval_hess += 1
   Hx = obj_weight == 0.0 ? spzeros(nlp.meta.nvar, nlp.meta.nvar) :
        ForwardDiff.hessian(nlp.f, x) * obj_weight
-  for i = 1:length(y)
+  for i = 1:min(length(y), nlp.meta.ncon)
     if y[i] != 0.0
       Hx += ForwardDiff.hessian(x->nlp.c(x)[i], x) * y[i]
     end
@@ -176,7 +176,7 @@ function hprod!(nlp :: ADNLPModel, x :: Vector, v :: Vector, Hv :: Vector;
   n = nlp.meta.nvar
   Hv[1:n] = obj_weight == 0.0 ? zeros(nlp.meta.nvar) :
           ForwardDiff.hessian(nlp.f, x) * v * obj_weight
-  for i = 1:length(y)
+  for i = 1:min(length(y), nlp.meta.ncon)
     if y[i] != 0.0
       Hv[1:n] += ForwardDiff.hessian(x->nlp.c(x)[i], x) * v * y[i]
     end
