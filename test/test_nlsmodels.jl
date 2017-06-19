@@ -19,3 +19,4 @@ end
 include("test_autodiff_nls_model.jl")
 include("test_lls_model.jl")
 include("test_simple_nls_model.jl")
+include("test_viability_nls_model.jl")
