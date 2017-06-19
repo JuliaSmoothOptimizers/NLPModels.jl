@@ -76,3 +76,4 @@ include("test_mpb.jl")
 
 include("test_autodiff_model.jl")
 include("test_simple_model.jl")
+include("test_nlsmodels.jl")
