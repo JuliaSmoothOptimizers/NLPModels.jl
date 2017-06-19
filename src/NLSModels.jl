@@ -72,6 +72,7 @@ if Pkg.installed("ForwardDiff") != nothing
 end
 include("lls_model.jl")
 include("simple_nls_model.jl")
+include("viability_model.jl")
 
 # min ½‖F(x)‖²
 

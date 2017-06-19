@@ -121,7 +121,9 @@ function consistent_nls()
         Hip! = (x,i,v,Hiv)->fill!(Hiv, 0.0)
        )
     autodiff_model = ADNLSModel(x->A*x-b, zeros(n), m)
-    nlss = [lls_model, simple_nls_model, autodiff_model]
+    nlp = ADNLPModel(x->0, zeros(n), c=x->A*x-b, lcon=zeros(m), ucon=zeros(m))
+    viability_model = ViabilityModel(nlp)
+    nlss = [lls_model, simple_nls_model, autodiff_model, viability_model]
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
     consistent_nls_functions(nlss)
@@ -155,7 +157,9 @@ function consistent_nls()
 
     simple_nls_model = SimpleNLSModel(x0, m, F=F, F! =F!, J=J, Jp=Jp, Jp! =Jp!, Jtp=Jtp, Jtp! =Jtp!, Hi=Hi, Hip=Hip, Hip! =Hip!)
     autodiff_model = ADNLSModel(F, x0, m)
-    nlss = [simple_nls_model, autodiff_model]
+    nlp = ADNLPModel(x->0, x0, c=F, lcon=zeros(m), ucon=zeros(m))
+    viability_model = ViabilityModel(nlp)
+    nlss = [simple_nls_model, autodiff_model, viability_model]
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
     consistent_nls_functions(nlss)
