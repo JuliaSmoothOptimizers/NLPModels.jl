@@ -70,6 +70,7 @@ nls_meta(nls :: AbstractNLSModel) = nls.nls_meta
 if Pkg.installed("ForwardDiff") != nothing
   include("autodiff_nlsmodel.jl")
 end
+include("lls_model.jl")
 
 # min ½‖F(x)‖²
 
