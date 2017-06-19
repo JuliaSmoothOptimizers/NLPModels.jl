@@ -17,3 +17,4 @@ end
 @test_throws(NotImplementedError, hprod_residual!(model, [0], 1, [2], [3]))
 
 include("test_autodiff_nls_model.jl")
+include("test_lls_model.jl")
