@@ -22,8 +22,9 @@ export reset!, counters, sum_counters,
 import Base.push!
 import LinearOperators.reset!
 
-include("nlp_utils.jl");
-include("nlp_types.jl");
+include("nlp_utils.jl")
+include("nlp_types.jl")
+include("NLSModels.jl")
 
 type NotImplementedError <: Exception
   name :: Union{Symbol,Function,String}
