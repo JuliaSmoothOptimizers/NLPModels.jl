@@ -15,7 +15,7 @@ function consistent_counters(nlps)
   N = length(nlps)
   V = zeros(Int, N)
   for field in fieldnames(Counters)
-    V = [getfield(nlp.counters, field) for nlp in nlps]
+    V = [eval(field)(nlp) for nlp in nlps]
     @test all(V .== V[1])
   end
   V = [sum_counters(nlp) for nlp in nlps]
