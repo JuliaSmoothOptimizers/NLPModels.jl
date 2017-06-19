@@ -67,6 +67,10 @@ include("nls_meta.jl")
 
 nls_meta(nls :: AbstractNLSModel) = nls.nls_meta
 
+if Pkg.installed("ForwardDiff") != nothing
+  include("autodiff_nlsmodel.jl")
+end
+
 # min ½‖F(x)‖²
 
 # TODO: Add a regularization ½λ²‖V(x)‖²
