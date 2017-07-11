@@ -30,6 +30,8 @@ end
 NotImplemented(args...) = throw(NotImplementedError(""))
 
 function SimpleNLSModel(x0 :: AbstractVector, nequ :: Int;
+                        lvar :: Vector = fill(-Inf, length(x0)),
+                        uvar :: Vector = fill(Inf, length(x0)),
                         F :: Function = NotImplemented,
                         F! :: Function = NotImplemented,
                         J :: Function = NotImplemented,

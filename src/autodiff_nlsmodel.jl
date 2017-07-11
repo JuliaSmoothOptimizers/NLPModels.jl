@@ -14,7 +14,10 @@ type ADNLSModel <: AbstractNLSModel
   F :: Function
 end
 
-function ADNLSModel(F :: Function, x0 :: Vector, m :: Int)
+function ADNLSModel(F :: Function, x0 :: Vector, m :: Int;
+                    lvar :: Vector = fill(-Inf, length(x0)),
+                    uvar :: Vector = fill(Inf, length(x0))
+                   )
   nvar = length(x0)
 
   meta = NLPModelMeta(nvar, x0=x0)

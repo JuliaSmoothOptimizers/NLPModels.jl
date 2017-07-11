@@ -107,8 +107,10 @@ function consistent_nls()
     m, n = 50, 20
     A = rand(m, n)
     b = rand(m)
-    lls_model = LLSModel(A, b)
-    simple_nls_model = SimpleNLSModel(zeros(n), m,
+    lvar = -rand(n)
+    uvar = rand(n)
+    lls_model = LLSModel(A, b, lvar=lvar, uvar=uvar)
+    simple_nls_model = SimpleNLSModel(zeros(n), m, lvar=lvar, uvar=uvar,
         F    = x->A*x-b,
         F!   = (x,Fx)->Fx[:]=A*x-b,
         J    = x->A,
@@ -120,8 +122,9 @@ function consistent_nls()
         Hip  = (x,i,v)->zeros(n),
         Hip! = (x,i,v,Hiv)->fill!(Hiv, 0.0)
        )
-    autodiff_model = ADNLSModel(x->A*x-b, zeros(n), m)
-    nlp = ADNLPModel(x->0, zeros(n), c=x->A*x-b, lcon=zeros(m), ucon=zeros(m))
+    autodiff_model = ADNLSModel(x->A*x-b, zeros(n), m, lvar=lvar, uvar=uvar)
+    nlp = ADNLPModel(x->0, zeros(n), lvar=lvar, uvar=uvar, c=x->A*x-b,
+                     lcon=zeros(m), ucon=zeros(m))
     viability_model = ViabilityModel(nlp)
     nlss = [lls_model, simple_nls_model, autodiff_model, viability_model]
     consistent_nls_counters(nlss)
@@ -143,6 +146,8 @@ function consistent_nls()
 
   @testset "Consistency of Nonlinear problem" begin
     m, n = 10, 2
+    lvar = -rand(n)
+    uvar = rand(n)
     F(x) = [2 + 2i - exp(i*x[1]) - exp(i*x[2]) for i = 1:m]
     F!(x,Fx) = (Fx[:] = F(x))
     x0 = [0.3; 0.4]
@@ -155,9 +160,9 @@ function consistent_nls()
     Hip(x, i, v) = -i^2*[exp(i*x[1])*v[1]; exp(i*x[2])*v[2]]
     Hip!(x, i, v, Hiv) = (Hiv[:] = -i^2*[exp(i*x[1])*v[1]; exp(i*x[2])*v[2]])
 
-    simple_nls_model = SimpleNLSModel(x0, m, F=F, F! =F!, J=J, Jp=Jp, Jp! =Jp!, Jtp=Jtp, Jtp! =Jtp!, Hi=Hi, Hip=Hip, Hip! =Hip!)
-    autodiff_model = ADNLSModel(F, x0, m)
-    nlp = ADNLPModel(x->0, x0, c=F, lcon=zeros(m), ucon=zeros(m))
+    simple_nls_model = SimpleNLSModel(x0, m, lvar=lvar, uvar=uvar, F=F, F! =F!, J=J, Jp=Jp, Jp! =Jp!, Jtp=Jtp, Jtp! =Jtp!, Hi=Hi, Hip=Hip, Hip! =Hip!)
+    autodiff_model = ADNLSModel(F, x0, m, lvar=lvar, uvar=uvar)
+    nlp = ADNLPModel(x->0, x0, lvar=lvar, uvar=uvar, c=F, lcon=zeros(m), ucon=zeros(m))
     viability_model = ViabilityModel(nlp)
     nlss = [simple_nls_model, autodiff_model, viability_model]
     consistent_nls_counters(nlss)

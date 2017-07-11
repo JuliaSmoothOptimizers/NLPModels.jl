@@ -19,9 +19,7 @@ type ViabilityModel <: AbstractNLSModel
 end
 
 function ViabilityModel(nlp :: AbstractNLPModel; name=nlp.meta.name)
-  if has_bounds(nlp)
-    throw(ErrorException("Can't handle bounds"))
-  elseif !equality_constrained(nlp)
+  if !equality_constrained(nlp)
     if unconstrained(nlp)
       throw(ErrorException("Can't handle unconstrained problem"))
     else
@@ -30,7 +28,9 @@ function ViabilityModel(nlp :: AbstractNLPModel; name=nlp.meta.name)
   end
 
   m, n = nlp.meta.ncon, nlp.meta.nvar
-  meta = NLPModelMeta(n, x0=nlp.meta.x0, name=name)
+  # TODO: What is copied?
+  meta = NLPModelMeta(n, x0=nlp.meta.x0, name=name, lvar=nlp.meta.lvar,
+                      uvar=nlp.meta.uvar)
   nls_meta = NLSMeta(m, n)
 
   return ViabilityModel(meta, nls_meta, NLSCounters(), nlp)
