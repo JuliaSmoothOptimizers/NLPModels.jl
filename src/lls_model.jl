@@ -17,7 +17,7 @@ type LLSModel <: AbstractNLSModel
   b :: AbstractVector
 end
 
-function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVector, λ :: Real = 0.0)
+function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVector)
   m, n = size(A)
   if length(b) != m
     error("Incompatibility detected: A is $m×$n and b has lenght $(length(b))")
