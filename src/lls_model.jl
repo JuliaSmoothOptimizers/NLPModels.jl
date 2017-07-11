@@ -17,13 +17,15 @@ type LLSModel <: AbstractNLSModel
   b :: AbstractVector
 end
 
-function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVector)
+function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVector;
+                  lvar :: Vector = fill(-Inf, size(A, 2)),
+                  uvar :: Vector = fill(Inf, size(A, 2)))
   m, n = size(A)
   if length(b) != m
     error("Incompatibility detected: A is $m×$n and b has lenght $(length(b))")
   end
 
-  meta = NLPModelMeta(n, x0=zeros(n))
+  meta = NLPModelMeta(n, x0=zeros(n), lvar=lvar, uvar=uvar)
   nls_meta = NLSMeta(m, n)
 
   return LLSModel(meta, nls_meta, NLSCounters(), A, b)
