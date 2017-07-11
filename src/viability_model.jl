@@ -20,12 +20,12 @@ end
 
 function ViabilityModel(nlp :: AbstractNLPModel; name=nlp.meta.name)
   if has_bounds(nlp)
-    throw(ExceptionError("Can't handle bounds"))
+    throw(ErrorException("Can't handle bounds"))
   elseif !equality_constrained(nlp)
     if unconstrained(nlp)
-      throw(ExceptionError("Can't handle unconstrained problem"))
+      throw(ErrorException("Can't handle unconstrained problem"))
     else
-      throw(ExceptionError("Can't handle inequalities"))
+      throw(ErrorException("Can't handle inequalities"))
     end
   end
 
