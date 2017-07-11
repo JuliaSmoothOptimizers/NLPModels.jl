@@ -25,7 +25,7 @@ nls_counters(nls :: AbstractNLSModel) = nls.counters
 function sum_counters(c :: NLSCounters)
   s = sum_counters(c.counters)
   for field in fieldnames(NLSCounters)
-    if field == :counters; continue; end
+    field == :counters && continue
     s += getfield(c, field)
   end
   return s
@@ -33,7 +33,7 @@ end
 sum_counters(nls :: AbstractNLSModel) = sum_counters(nls_counters(nls))
 
 for counter in fieldnames(NLSCounters)
-  if counter == :counters; continue; end
+  counter == :counters && continue
   @eval begin
     $counter(nls :: AbstractNLSModel) = nls_counters(nls).$counter
     export $counter
@@ -56,7 +56,7 @@ end
 
 function reset!(nls_counters :: NLSCounters)
   for f in fieldnames(NLSCounters)
-    if f == :counters; continue; end
+    f == :counters && continue
     setfield!(nls_counters, f, 0)
   end
   reset!(nls_counters.counters)

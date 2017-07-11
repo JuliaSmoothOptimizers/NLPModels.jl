@@ -4,9 +4,7 @@ function consistent_nls_counters(nlss)
   N = length(nlss)
   V = zeros(Int, N)
   for field in fieldnames(NLSCounters)
-    if field == :counters
-      continue
-    end
+    field == :counters && continue
     V = [eval(field)(nls) for nls in nlss]
     @test all(V .== V[1])
   end
