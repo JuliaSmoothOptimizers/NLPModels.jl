@@ -18,6 +18,7 @@ type LLSModel <: AbstractNLSModel
 end
 
 function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVector;
+                  x0 :: Vector = zeros(size(A,2)),
                   lvar :: Vector = fill(-Inf, size(A, 2)),
                   uvar :: Vector = fill(Inf, size(A, 2)))
   m, n = size(A)
@@ -25,7 +26,7 @@ function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVecto
     error("Incompatibility detected: A is $m×$n and b has lenght $(length(b))")
   end
 
-  meta = NLPModelMeta(n, x0=zeros(n), lvar=lvar, uvar=uvar)
+  meta = NLPModelMeta(n, x0=x0, lvar=lvar, uvar=uvar)
   nls_meta = NLSMeta(m, n)
 
   return LLSModel(meta, nls_meta, NLSCounters(), A, b)
