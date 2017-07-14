@@ -15,6 +15,7 @@ type ADNLSModel <: AbstractNLSModel
 end
 
 function ADNLSModel(F :: Function, x0 :: Vector, m :: Int;
+                    name :: String = "Generic",
                     lvar :: Vector = fill(-Inf, length(x0)),
                     uvar :: Vector = fill(Inf, length(x0))
                    )
