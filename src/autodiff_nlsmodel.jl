@@ -21,7 +21,7 @@ function ADNLSModel(F :: Function, x0 :: Vector, m :: Int;
                    )
   nvar = length(x0)
 
-  meta = NLPModelMeta(nvar, x0=x0)
+  meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar)
   nls_meta = NLSMeta(m, nvar)
 
   return ADNLSModel(meta, nls_meta, NLSCounters(), F)
