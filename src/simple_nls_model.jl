@@ -43,7 +43,7 @@ function SimpleNLSModel(x0 :: AbstractVector, nequ :: Int;
                         Hip :: Function = NotImplemented,
                         Hip! :: Function = NotImplemented
                        )
-  meta = NLPModelMeta(length(x0), x0=x0)
+  meta = NLPModelMeta(length(x0), x0=x0, lvar=lvar, uvar=uvar)
   nls_meta = NLSMeta(nequ, length(x0))
 
   return SimpleNLSModel(meta, nls_meta, NLSCounters(), F, F!, J, Jp, Jp!, Jtp, Jtp!, Hi, Hip, Hip!)
