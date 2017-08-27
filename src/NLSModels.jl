@@ -147,7 +147,7 @@ end
 """
     Jx = jac_op_residual(nls, x)
 
-Computes J(x), the Jacobian of the residual at x, on linear operator form.
+Computes J(x), the Jacobian of the residual at x, in linear operator form.
 """
 function jac_op_residual(nls :: AbstractNLSModel, x :: AbstractVector)
   return LinearOperator{Float64}(nls_meta(nls).nequ, nls_meta(nls).nvar,
@@ -160,7 +160,7 @@ end
 """
     Jx = jac_op_residual!(nls, x, Jv, Jtv)
 
-Computes J(x), the Jacobian of the residual at x, on linear operator form. The
+Computes J(x), the Jacobian of the residual at x, in linear operator form. The
 vectors `Jv` and `Jtv` are used as preallocated storage for the operations.
 """
 function jac_op_residual!(nls :: AbstractNLSModel, x :: AbstractVector,
