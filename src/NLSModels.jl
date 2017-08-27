@@ -119,7 +119,7 @@ end
 """
     Jv = jprod_residual!(nls, x, v, Jv)
 
-Computes the product of the Jacobian of the residual at x and a vector, i.e.,  J(x)*v, storing it on `Jv`.
+Computes the product of the Jacobian of the residual at x and a vector, i.e.,  J(x)*v, storing it in `Jv`.
 """
 function jprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   throw(NotImplementedError("jprod_residual!"))
@@ -138,7 +138,7 @@ end
 """
     Jtv = jtprod_residual!(nls, x, v, Jtv)
 
-Computes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  J(x)'*v, storing it on `Jtv`.
+Computes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  J(x)'*v, storing it in `Jtv`.
 """
 function jtprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   throw(NotImplementedError("jtprod_residual!"))
@@ -147,7 +147,7 @@ end
 """
     Jx = jac_op_residual(nls, x)
 
-Computes J(x), the Jacobian of the residual at x, on Linear Operator form.
+Computes J(x), the Jacobian of the residual at x, on linear operator form.
 """
 function jac_op_residual(nls :: AbstractNLSModel, x :: AbstractVector)
   return LinearOperator{Float64}(nls_meta(nls).nequ, nls_meta(nls).nvar,
@@ -160,7 +160,7 @@ end
 """
     Jx = jac_op_residual!(nls, x, Jv, Jtv)
 
-Computes J(x), the Jacobian of the residual at x, on Linear Operator form. The
+Computes J(x), the Jacobian of the residual at x, on linear operator form. The
 vectors `Jv` and `Jtv` are used as preallocated storage for the operations.
 """
 function jac_op_residual!(nls :: AbstractNLSModel, x :: AbstractVector,
@@ -203,7 +203,7 @@ end
 """
     Hop = hess_op_residual(nls, x, i)
 
-Computes the Hessian of the i-th residual at x, in LinearOperator form.
+Computes the Hessian of the i-th residual at x, in linear operator form.
 """
 function hess_op_residual(nls :: AbstractNLSModel, x :: AbstractVector, i :: Int)
   return LinearOperator(nls_meta(nls).nvar, nls_meta(nls).nvar,
@@ -214,7 +214,7 @@ end
 """
     Hop = hess_op_residual!(nls, x, i, Hiv)
 
-Computes the Hessian of the i-th residual at x, in LinearOperator form. The vector `Hiv` is used as preallocated storage for the operation.
+Computes the Hessian of the i-th residual at x, in linear operator form. The vector `Hiv` is used as preallocated storage for the operation.
 """
 function hess_op_residual!(nls :: AbstractNLSModel, x :: AbstractVector, i :: Int, Hiv :: AbstractVector)
   return LinearOperator(nls_meta(nls).nvar, nls_meta(nls).nvar,

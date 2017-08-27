@@ -2,7 +2,7 @@ export FeasibilityModel
 
 # TODO: Extend to handle bounds
 """
-A viability model is created from a NLPModel of the form
+A feasibility model is created from a NLPModel of the form
 
     min f(x)
     s.t c(x) = 0
