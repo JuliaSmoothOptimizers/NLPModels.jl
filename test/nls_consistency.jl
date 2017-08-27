@@ -123,8 +123,8 @@ function consistent_nls()
     autodiff_model = ADNLSModel(x->A*x-b, zeros(n), m, lvar=lvar, uvar=uvar)
     nlp = ADNLPModel(x->0, zeros(n), lvar=lvar, uvar=uvar, c=x->A*x-b,
                      lcon=zeros(m), ucon=zeros(m))
-    feasibility_model = FeasibilityModel(nlp)
-    nlss = [lls_model, simple_nls_model, autodiff_model, feasibility_model]
+    feas_res_model = FeasibilityResidual(nlp)
+    nlss = [lls_model, simple_nls_model, autodiff_model, feas_res_model]
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
     consistent_nls_functions(nlss)
@@ -161,8 +161,8 @@ function consistent_nls()
     simple_nls_model = SimpleNLSModel(x0, m, lvar=lvar, uvar=uvar, F=F, F! =F!, J=J, Jp=Jp, Jp! =Jp!, Jtp=Jtp, Jtp! =Jtp!, Hi=Hi, Hip=Hip, Hip! =Hip!)
     autodiff_model = ADNLSModel(F, x0, m, lvar=lvar, uvar=uvar)
     nlp = ADNLPModel(x->0, x0, lvar=lvar, uvar=uvar, c=F, lcon=zeros(m), ucon=zeros(m))
-    feasibility_model = FeasibilityModel(nlp)
-    nlss = [simple_nls_model, autodiff_model, feasibility_model]
+    feas_res_model = FeasibilityResidual(nlp)
+    nlss = [simple_nls_model, autodiff_model, feas_res_model]
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
     consistent_nls_functions(nlss)
