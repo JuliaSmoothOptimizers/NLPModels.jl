@@ -84,7 +84,8 @@ include("feasibility_model.jl")
 Computes F(x), the residual at x.
 """
 function residual(nls :: AbstractNLSModel, x :: AbstractVector)
-  throw(NotImplementedError("residual"))
+  Fx = zeros(nls_meta(nls).nequ)
+  residual!(nls, x, Fx)
 end
 
 """
@@ -111,7 +112,8 @@ end
 Computes the product of the Jacobian of the residual at x and a vector, i.e.,  J(x)*v.
 """
 function jprod_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector)
-  throw(NotImplementedError("jprod_residual"))
+  Jv = zeros(nls_meta(nls).nequ)
+  jprod_residual!(nls, x, v, Jv)
 end
 
 """
@@ -129,7 +131,8 @@ end
 Computes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  J(x)'*v.
 """
 function jtprod_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector)
-  throw(NotImplementedError("jtprod_residual"))
+  Jtv = zeros(nls_meta(nls).nvar)
+  jtprod_residual!(nls, x, v, Jtv)
 end
 
 """
@@ -184,7 +187,8 @@ end
 Computes the product of the Hessian of the i-th residual at x, times the vector v.
 """
 function hprod_residual(nls :: AbstractNLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector)
-  throw(NotImplementedError("hprod_residual"))
+  Hv = zeros(nls_meta(nls).nvar)
+  hprod_residual!(nls, x, i, v, Hv)
 end
 
 """
@@ -225,9 +229,8 @@ function obj(nls :: AbstractNLSModel, x :: AbstractVector)
 end
 
 function grad(nls :: AbstractNLSModel, x :: AbstractVector)
-  nls_counters(nls).counters.neval_grad += 1
-  Fx = residual(nls, x)
-  return jtprod_residual(nls, x, Fx)
+  g = zeros(nls_meta(nls).nvar)
+  return grad!(nls, x, g)
 end
 
 function grad!(nls :: AbstractNLSModel, x :: AbstractVector, g :: AbstractVector)
@@ -237,11 +240,8 @@ function grad!(nls :: AbstractNLSModel, x :: AbstractVector, g :: AbstractVector
 end
 
 function objgrad(nls :: AbstractNLSModel, x :: AbstractVector)
-  nls_counters(nls).counters.neval_obj += 1
-  nls_counters(nls).counters.neval_grad += 1
-  Fx = residual(nls, x)
-  g = jtprod_residual(nls, x, Fx)
-  return 0.5*dot(Fx, Fx), g
+  g = zeros(nls_meta(nls).nvar)
+  return objgrad!(nls, x, g)
 end
 
 function objgrad!(nls :: AbstractNLSModel, x :: AbstractVector, g :: AbstractVector)
@@ -274,14 +274,8 @@ end
 function hprod(nls :: AbstractNLSModel, x :: AbstractVector, v ::
                AbstractVector; obj_weight :: Float64 = 1.0, y :: AbstractVector
                = Float64[])
-  nls_counters(nls).counters.neval_hprod += 1
-  Fx = residual(nls, x)
-  Hv = jtprod_residual(nls, x, jprod_residual(nls, x, v))
-  m = length(Fx)
-  for i = 1:m
-    Hv += Fx[i] * hprod_residual(nls, x, i, v)
-  end
-  return obj_weight * Hv
+  Hv = zeros(nls_meta(nls).nvar)
+  return hprod!(nls, x, v, Hv, obj_weight=obj_weight, y=y)
 end
 
 function hprod!(nls :: AbstractNLSModel, x :: AbstractVector, v ::

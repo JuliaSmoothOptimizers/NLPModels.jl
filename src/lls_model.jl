@@ -1,7 +1,6 @@
 export LLSModel,
-       residual, residual!, jac_residual, jprod_residual, jprod_residual!,
-       jtprod_residual, jtprod_residual!, jac_op_residual, hess_residual,
-       hprod_residual, hprod_residual!
+       residual!, jac_residual, jprod_residual!, jtprod_residual!,
+       jac_op_residual, hess_residual, hprod_residual!
 
 """
     nls = LLSModel(A, b)
@@ -32,11 +31,6 @@ function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVecto
   return LLSModel(meta, nls_meta, NLSCounters(), A, b)
 end
 
-function residual(nls :: LLSModel, x :: AbstractVector)
-  nls.counters.neval_residual += 1
-  return nls.A * x - nls.b
-end
-
 function residual!(nls :: LLSModel, x :: AbstractVector, Fx :: AbstractVector)
   nls.counters.neval_residual += 1
   Fx[:] = nls.A * x - nls.b
@@ -52,20 +46,10 @@ function jac_residual(nls :: LLSModel, x :: AbstractVector)
   end
 end
 
-function jprod_residual(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector)
-  nls.counters.neval_jprod_residual += 1
-  return nls.A * v
-end
-
 function jprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   nls.counters.neval_jprod_residual += 1
   Jv[:] = nls.A * v
   return Jv
-end
-
-function jtprod_residual(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector)
-  nls.counters.neval_jtprod_residual += 1
-  return nls.A' * v
 end
 
 function jtprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
@@ -78,12 +62,6 @@ function hess_residual(nls :: LLSModel, x :: AbstractVector, i :: Int)
   nls.counters.neval_hess_residual += 1
   n = size(nls.A, 2)
   return zeros(n, n)
-end
-
-function hprod_residual(nls :: LLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector)
-  nls.counters.neval_hprod_residual += 1
-  n = size(nls.A, 2)
-  return zeros(n)
 end
 
 function hprod_residual!(nls :: LLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
