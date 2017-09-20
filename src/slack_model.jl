@@ -86,6 +86,8 @@ for counter in fieldnames(Counters)
   end
 end
 
+sum_counters(nlp :: SlackModel) = sum_counters(nlp.model)
+
 function increment!(nlp :: SlackModel, s :: Symbol)
   increment!(nlp.model, s)
 end
