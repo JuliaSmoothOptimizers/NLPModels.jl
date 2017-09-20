@@ -67,7 +67,7 @@ include("test_qn_model.jl")
 @printf("Constraints, if any, must have been declared in the same order.\n")
 
 include("consistency.jl")
-@printf("%24s\tConsistency   Derivative Check   Slack variant\n", " ")
+@printf("%24s\tConsistency   Derivative Check   Quasi-Newton  Slack variant\n", " ")
 for problem in [:brownden, :hs5, :hs6, :hs10, :hs11, :hs14]
   consistency(problem)
 end
