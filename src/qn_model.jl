@@ -34,6 +34,12 @@ for counter in fieldnames(Counters)
   end
 end
 
+sum_counters(nlp :: QuasiNewtonModel) = sum_counters(nlp.model)
+
+function increment!(nlp :: QuasiNewtonModel, s :: Symbol)
+  increment!(nlp.model, s)
+end
+
 function reset!(nlp :: QuasiNewtonModel)
   reset!(nlp.model.counters)
   reset!(nlp.op)
