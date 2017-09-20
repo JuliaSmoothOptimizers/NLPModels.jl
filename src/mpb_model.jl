@@ -127,7 +127,7 @@ import Base.show
 show(nlp :: MathProgNLPModel) = show(nlp.mpmodel)
 
 function obj(nlp :: MathProgNLPModel, x :: Array{Float64})
-  nlp.counters.neval_obj += 1
+  increment!(nlp, :neval_obj)
   return MathProgBase.eval_f(nlp.mpmodel.eval, x)
 end
 
@@ -137,7 +137,7 @@ function grad(nlp :: MathProgNLPModel, x :: Array{Float64})
 end
 
 function grad!(nlp :: MathProgNLPModel, x :: Array{Float64}, g :: Array{Float64})
-  nlp.counters.neval_grad += 1
+  increment!(nlp, :neval_grad)
   MathProgBase.eval_grad_f(nlp.mpmodel.eval, g, x)
   return g
 end
@@ -148,13 +148,13 @@ function cons(nlp :: MathProgNLPModel, x :: Array{Float64})
 end
 
 function cons!(nlp :: MathProgNLPModel, x :: Array{Float64}, c :: Array{Float64})
-  nlp.counters.neval_cons += 1
+  increment!(nlp, :neval_cons)
   MathProgBase.eval_g(nlp.mpmodel.eval, c, x)
   return c
 end
 
 function jac_coord(nlp :: MathProgNLPModel, x :: Array{Float64})
-  nlp.counters.neval_jac += 1
+  increment!(nlp, :neval_jac)
   MathProgBase.eval_jac_g(nlp.mpmodel.eval, nlp.jvals, x)
   return (nlp.jrows, nlp.jcols, nlp.jvals)
 end
@@ -173,7 +173,7 @@ function jprod!(nlp :: MathProgNLPModel,
                 v :: Array{Float64},
                 Jv :: Array{Float64})
   nlp.counters.neval_jac -= 1
-  nlp.counters.neval_jprod += 1
+  increment!(nlp, :neval_jprod)
   Jv[:] = jac(nlp, x) * v
   return Jv
 end
@@ -188,7 +188,7 @@ function jtprod!(nlp :: MathProgNLPModel,
                 v :: Array{Float64},
                 Jtv :: Array{Float64})
   nlp.counters.neval_jac -= 1
-  nlp.counters.neval_jtprod += 1
+  increment!(nlp, :neval_jtprod)
   Jtv[1:nlp.meta.nvar] = jac(nlp, x)' * v
   return Jtv
 end
@@ -202,7 +202,7 @@ end
 #
 # "Evaluate the Jacobian-vector product at `x` in place."
 # function jprod!(nlp :: MathProgNLPModel, x :: Array{Float64}, v :: Array{Float64}, jv :: Array{Float64})
-#   nlp.counters.neval_jprod += 1
+#   increment!(nlp, :neval_jprod)
 #   MathProgBase.eval_jac_prod(nlp.mpmodel.eval, jv, x, v)
 #   return jv
 # end
@@ -215,14 +215,14 @@ end
 #
 # "Evaluate the transposed-Jacobian-vector product at `x` in place."
 # function jtprod!(nlp :: MathProgNLPModel, x :: Array{Float64}, v :: Array{Float64}, jtv :: Array{Float64})
-#   nlp.counters.neval_jtprod += 1
+#   increment!(nlp, :neval_jtprod)
 #   MathProgBase.eval_jac_prod_t(nlp.mpmodel.eval, jtv, x, v)
 #   return jtv
 # end
 
 function hess_coord(nlp :: MathProgNLPModel, x :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
-  nlp.counters.neval_hess += 1
+  increment!(nlp, :neval_hess)
   MathProgBase.eval_hesslag(nlp.mpmodel.eval, nlp.hvals, x, obj_weight, y)
   return (nlp.hrows, nlp.hcols, nlp.hvals)
 end
@@ -241,7 +241,7 @@ end
 function hprod!(nlp :: MathProgNLPModel, x :: Array{Float64}, v :: Array{Float64},
     hv :: Array{Float64};
     obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
-  nlp.counters.neval_hprod += 1
+  increment!(nlp, :neval_hprod)
   MathProgBase.eval_hesslag_prod(nlp.mpmodel.eval, hv, x, v, obj_weight, y)
   return hv
 end

@@ -1,4 +1,4 @@
-export AbstractNLSModel, nls_meta, NLSCounters, nls_counters, reset!,
+export AbstractNLSModel, nls_meta, NLSCounters, reset!,
        residual, residual!, jac_residual, jprod_residual, jprod_residual!,
        jtprod_residual, jtprod_residual!, jac_op_residual, jac_op_residual!,
        hess_residual, hprod_residual, hprod_residual!, hess_op_residual,
@@ -20,7 +20,13 @@ type NLSCounters
   end
 end
 
-nls_counters(nls :: AbstractNLSModel) = nls.counters
+function increment!(nls :: AbstractNLSModel, s :: Symbol)
+  if s in fieldnames(NLSCounters)
+    setfield!(nls.counters, s, getfield(nls.counters, s) + 1)
+  else
+    setfield!(nls.counters.counters, s, getfield(nls.counters.counters, s) + 1)
+  end
+end
 
 function sum_counters(c :: NLSCounters)
   s = sum_counters(c.counters)
@@ -30,19 +36,19 @@ function sum_counters(c :: NLSCounters)
   end
   return s
 end
-sum_counters(nls :: AbstractNLSModel) = sum_counters(nls_counters(nls))
+sum_counters(nls :: AbstractNLSModel) = sum_counters(nls.counters)
 
 for counter in fieldnames(NLSCounters)
   counter == :counters && continue
   @eval begin
-    $counter(nls :: AbstractNLSModel) = nls_counters(nls).$counter
+    $counter(nls :: AbstractNLSModel) = nls.counters.$counter
     export $counter
   end
 end
 
 for counter in fieldnames(Counters)
   @eval begin
-    $counter(nls :: AbstractNLSModel) = nls_counters(nls).counters.$counter
+    $counter(nls :: AbstractNLSModel) = nls.counters.counters.$counter
     export $counter
   end
 end
@@ -50,7 +56,7 @@ end
 import NLPModels: reset!
 
 function reset!(nls :: AbstractNLSModel)
-  reset!(nls_counters(nls))
+  reset!(nls.counters)
   return nls
 end
 
@@ -60,7 +66,7 @@ function reset!(nls_counters :: NLSCounters)
     setfield!(nls_counters, f, 0)
   end
   reset!(nls_counters.counters)
-  return counters
+  return nls_counters
 end
 
 include("nls_meta.jl")
@@ -223,7 +229,7 @@ function hess_op_residual!(nls :: AbstractNLSModel, x :: AbstractVector, i :: In
 end
 
 function obj(nls :: AbstractNLSModel, x :: AbstractVector)
-  nls_counters(nls).counters.neval_obj += 1
+  increment!(nls, :neval_obj)
   Fx = residual(nls, x)
   return 0.5*dot(Fx, Fx)
 end
@@ -234,7 +240,7 @@ function grad(nls :: AbstractNLSModel, x :: AbstractVector)
 end
 
 function grad!(nls :: AbstractNLSModel, x :: AbstractVector, g :: AbstractVector)
-  nls_counters(nls).counters.neval_grad += 1
+  increment!(nls, :neval_grad)
   Fx = residual(nls, x)
   return jtprod_residual!(nls, x, Fx, g)
 end
@@ -245,8 +251,8 @@ function objgrad(nls :: AbstractNLSModel, x :: AbstractVector)
 end
 
 function objgrad!(nls :: AbstractNLSModel, x :: AbstractVector, g :: AbstractVector)
-  nls_counters(nls).counters.neval_obj += 1
-  nls_counters(nls).counters.neval_grad += 1
+  increment!(nls, :neval_obj)
+  increment!(nls, :neval_grad)
   Fx = residual(nls, x)
   jtprod_residual!(nls, x, Fx, g)
   return 0.5*dot(Fx, Fx), g
@@ -254,7 +260,7 @@ end
 
 function hess(nls :: AbstractNLSModel, x :: AbstractVector; obj_weight ::
               Float64 = 1.0, y :: AbstractVector = Float64[])
-  nls_counters(nls).counters.neval_hess += 1
+  increment!(nls, :neval_hess)
   Fx = residual(nls, x)
   Jx = jac_residual(nls, x)
   Hx = tril(Jx'*Jx)
@@ -281,7 +287,7 @@ end
 function hprod!(nls :: AbstractNLSModel, x :: AbstractVector, v ::
                 AbstractVector, Hv :: AbstractVector; obj_weight :: Float64 =
                 1.0, y :: AbstractVector = Float64[])
-  nls_counters(nls).counters.neval_hprod += 1
+  increment!(nls, :neval_hprod)
   Fx = residual(nls, x)
   Jv = jprod_residual(nls, x, v)
   jtprod_residual!(nls, x, Jv, Hv)

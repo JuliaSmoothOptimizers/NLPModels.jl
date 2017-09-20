@@ -83,33 +83,33 @@ function ADNLPModel(f::Function, x0::Vector; y0::Vector = [],
 end
 
 function obj(nlp :: ADNLPModel, x :: Vector)
-  nlp.counters.neval_obj += 1
+  increment!(nlp, :neval_obj)
   return nlp.f(x)
 end
 
 function grad(nlp :: ADNLPModel, x :: Vector)
-  nlp.counters.neval_grad += 1
+  increment!(nlp, :neval_grad)
   return ForwardDiff.gradient(nlp.f, x)
 end
 
 function grad!(nlp :: ADNLPModel, x :: Vector, g :: Vector)
-  nlp.counters.neval_grad += 1
+  increment!(nlp, :neval_grad)
   ForwardDiff.gradient!(view(g, 1:length(x)), nlp.f, x)
 end
 
 function cons(nlp :: ADNLPModel, x :: Vector)
-  nlp.counters.neval_cons += 1
+  increment!(nlp, :neval_cons)
   return nlp.c(x)
 end
 
 function cons!(nlp :: ADNLPModel, x :: Vector, c :: Vector)
-  nlp.counters.neval_cons += 1
+  increment!(nlp, :neval_cons)
   c[1:nlp.meta.ncon] = nlp.c(x)
   return c
 end
 
 function jac_coord(nlp :: ADNLPModel, x :: Vector)
-  nlp.counters.neval_jac += 1
+  increment!(nlp, :neval_jac)
   J = ForwardDiff.jacobian(nlp.c, x)
   rows = [j for i = 1:nlp.meta.nvar for j = 1:nlp.meta.ncon]
   cols = [i for i = 1:nlp.meta.nvar for j = 1:nlp.meta.ncon]
@@ -118,34 +118,34 @@ function jac_coord(nlp :: ADNLPModel, x :: Vector)
 end
 
 function jac(nlp :: ADNLPModel, x :: Vector)
-  nlp.counters.neval_jac += 1
+  increment!(nlp, :neval_jac)
   return ForwardDiff.jacobian(nlp.c, x)
 end
 
 function jprod(nlp :: ADNLPModel, x :: Vector, v :: Vector)
-  nlp.counters.neval_jprod += 1
+  increment!(nlp, :neval_jprod)
   return ForwardDiff.jacobian(nlp.c, x) * v
 end
 
 function jprod!(nlp :: ADNLPModel, x :: Vector, v :: Vector, Jv :: Vector)
-  nlp.counters.neval_jprod += 1
+  increment!(nlp, :neval_jprod)
   Jv[1:nlp.meta.ncon] = ForwardDiff.jacobian(nlp.c, x) * v
   return Jv
 end
 
 function jtprod(nlp :: ADNLPModel, x :: Vector, v :: Vector)
-  nlp.counters.neval_jtprod += 1
+  increment!(nlp, :neval_jtprod)
   return ForwardDiff.jacobian(nlp.c, x)' * v
 end
 
 function jtprod!(nlp :: ADNLPModel, x :: Vector, v :: Vector, Jtv :: Vector)
-  nlp.counters.neval_jtprod += 1
+  increment!(nlp, :neval_jtprod)
   Jtv[1:nlp.meta.nvar] = ForwardDiff.jacobian(nlp.c, x)' * v
   return Jtv
 end
 
 function hess(nlp :: ADNLPModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
-  nlp.counters.neval_hess += 1
+  increment!(nlp, :neval_hess)
   Hx = obj_weight == 0.0 ? spzeros(nlp.meta.nvar, nlp.meta.nvar) :
        ForwardDiff.hessian(nlp.f, x) * obj_weight
   for i = 1:min(length(y), nlp.meta.ncon)
@@ -172,7 +172,7 @@ end
 
 function hprod!(nlp :: ADNLPModel, x :: Vector, v :: Vector, Hv :: Vector;
     obj_weight = 1.0, y :: Vector = [])
-  nlp.counters.neval_hprod += 1
+  increment!(nlp, :neval_hprod)
   n = nlp.meta.nvar
   Hv[1:n] = obj_weight == 0.0 ? zeros(nlp.meta.nvar) :
           ForwardDiff.hessian(nlp.f, x) * v * obj_weight

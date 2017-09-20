@@ -52,55 +52,55 @@ end
 SimpleNLSModel(nvar :: Int, nequ :: Int; kwargs...) = SimpleNLSModel(zeros(nvar), nequ; kwargs...)
 
 function residual(nls :: SimpleNLSModel, x :: AbstractVector)
-  nls.counters.neval_residual += 1
+  increment!(nls, :neval_residual)
   return nls.F(x)
 end
 
 function residual!(nls :: SimpleNLSModel, x :: AbstractVector, Fx :: AbstractVector)
-  nls.counters.neval_residual += 1
+  increment!(nls, :neval_residual)
   nls.F!(x, Fx)
   return Fx
 end
 
 function jac_residual(nls :: SimpleNLSModel, x :: AbstractVector)
-  nls.counters.neval_jac_residual += 1
+  increment!(nls, :neval_jac_residual)
   return nls.J(x)
 end
 
 function jprod_residual(nls :: SimpleNLSModel, x :: AbstractVector, v :: AbstractVector)
-  nls.counters.neval_jprod_residual += 1
+  increment!(nls, :neval_jprod_residual)
   return nls.Jp(x, v)
 end
 
 function jprod_residual!(nls :: SimpleNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
-  nls.counters.neval_jprod_residual += 1
+  increment!(nls, :neval_jprod_residual)
   nls.Jp!(x, v, Jv)
   return Jv
 end
 
 function jtprod_residual(nls :: SimpleNLSModel, x :: AbstractVector, v :: AbstractVector)
-  nls.counters.neval_jtprod_residual += 1
+  increment!(nls, :neval_jtprod_residual)
   return nls.Jtp(x, v)
 end
 
 function jtprod_residual!(nls :: SimpleNLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
-  nls.counters.neval_jtprod_residual += 1
+  increment!(nls, :neval_jtprod_residual)
   nls.Jtp!(x, v, Jtv)
   return Jtv
 end
 
 function hess_residual(nls :: SimpleNLSModel, x :: AbstractVector, i :: Int)
-  nls.counters.neval_hess_residual += 1
+  increment!(nls, :neval_hess_residual)
   return nls.Hi(x, i)
 end
 
 function hprod_residual(nls :: SimpleNLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector)
-  nls.counters.neval_hprod_residual += 1
+  increment!(nls, :neval_hprod_residual)
   return nls.Hip(x, i, v)
 end
 
 function hprod_residual!(nls :: SimpleNLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
-  nls.counters.neval_hprod_residual += 1
+  increment!(nls, :neval_hprod_residual)
   nls.Hip!(x, i, v, Hiv)
   return Hiv
 end
