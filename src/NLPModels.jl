@@ -8,7 +8,7 @@ import Compat.String
 using LinearOperators
 
 export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters
-export reset!, counters, sum_counters,
+export reset!, sum_counters,
        obj, grad, grad!, objgrad, objgrad!, objcons, objcons!,
        cons, cons!, jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad,
        jac_coord, jac, jprod, jprod!, jtprod, jtprod!, jac_op, jac_op!,
@@ -32,7 +32,6 @@ end
 
 Base.showerror(io::IO, e::NotImplementedError) = print(io, e.name, " not implemented")
 
-
 # simple default API for retrieving counters
 for counter in fieldnames(Counters)
   @eval begin
@@ -41,10 +40,25 @@ for counter in fieldnames(Counters)
   end
 end
 
-counters(nlp :: AbstractNLPModel) = nlp.counters
+"""`increment!(nlp, s)`
 
+Increment counter `s` of problem `nlp`.
+"""
+function increment!(nlp :: AbstractNLPModel, s :: Symbol)
+  setfield!(nlp.counters, s, getfield(nlp.counters, s) + 1)
+end
+
+"""`sum_counters(counters)`
+
+Sum all counters of `counters`.
+"""
 sum_counters(c :: Counters) = sum(getfield(c, x) for x in fieldnames(Counters))
-sum_counters(nlp :: AbstractNLPModel) = sum_counters(counters(nlp))
+
+"""`sum_counters(nlp)`
+
+Sum all counters of problem `nlp`.
+"""
+sum_counters(nlp :: AbstractNLPModel) = sum_counters(nlp.counters)
 
 """`reset!(counters)`
 

@@ -171,17 +171,17 @@ function SimpleNLPModel(f::Function, x0::Vector; y0::Vector = [],
 end
 
 function obj(nlp :: SimpleNLPModel, x :: Vector)
-  nlp.counters.neval_obj += 1
+  increment!(nlp, :neval_obj)
   return nlp.f(x)
 end
 
 function grad(nlp :: SimpleNLPModel, x :: Vector)
-  nlp.counters.neval_grad += 1
+  increment!(nlp, :neval_grad)
   return nlp.g(x)
 end
 
 function grad!(nlp :: SimpleNLPModel, x :: Vector, g :: Vector)
-  nlp.counters.neval_grad += 1
+  increment!(nlp, :neval_grad)
   return nlp.g!(x, g)
 end
 
@@ -189,8 +189,8 @@ function objgrad(nlp :: SimpleNLPModel, x :: Vector)
   if nlp.fg == NotImplemented
     return obj(nlp, x), grad(nlp, x)
   else
-    nlp.counters.neval_obj += 1
-    nlp.counters.neval_grad += 1
+    increment!(nlp, :neval_obj)
+    increment!(nlp, :neval_grad)
     return nlp.fg(x)
   end
 end
@@ -199,19 +199,19 @@ function objgrad!(nlp :: SimpleNLPModel, x :: Vector, g :: Vector)
   if nlp.fg! == NotImplemented
     return obj(nlp, x), grad!(nlp, x, g)
   else
-    nlp.counters.neval_obj += 1
-    nlp.counters.neval_grad += 1
+    increment!(nlp, :neval_obj)
+    increment!(nlp, :neval_grad)
     return nlp.fg!(x, g)
   end
 end
 
 function cons(nlp :: SimpleNLPModel, x :: Vector)
-  nlp.counters.neval_cons += 1
+  increment!(nlp, :neval_cons)
   return nlp.c(x)
 end
 
 function cons!(nlp :: SimpleNLPModel, x :: Vector, c :: Vector)
-  nlp.counters.neval_cons += 1
+  increment!(nlp, :neval_cons)
   return nlp.c!(x, c)
 end
 
@@ -219,8 +219,8 @@ function objcons(nlp :: SimpleNLPModel, x :: Vector)
   if nlp.fc == NotImplemented
     return obj(nlp, x), nlp.meta.ncon > 0 ? cons(nlp, x) : []
   else
-    nlp.counters.neval_obj += 1
-    nlp.counters.neval_cons += 1
+    increment!(nlp, :neval_obj)
+    increment!(nlp, :neval_cons)
     return nlp.fc(x)
   end
 end
@@ -229,45 +229,45 @@ function objcons!(nlp :: SimpleNLPModel, x :: Vector, c :: Vector)
   if nlp.fc! == NotImplemented
     return obj(nlp, x), nlp.meta.ncon > 0 ? cons!(nlp, x, c) : []
   else
-    nlp.counters.neval_obj += 1
-    nlp.counters.neval_cons += 1
+    increment!(nlp, :neval_obj)
+    increment!(nlp, :neval_cons)
     return nlp.fc!(x, c)
   end
 end
 
 function jac_coord(nlp :: SimpleNLPModel, x :: Vector)
-  nlp.counters.neval_jac += 1
+  increment!(nlp, :neval_jac)
   return nlp.Jcoord(x)
 end
 
 function jac(nlp :: SimpleNLPModel, x :: Vector)
-  nlp.counters.neval_jac += 1
+  increment!(nlp, :neval_jac)
   return nlp.J(x)
 end
 
 function jprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector)
-  nlp.counters.neval_jprod += 1
+  increment!(nlp, :neval_jprod)
   return nlp.Jp(x, v)
 end
 
 function jprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Jv :: Vector)
-  nlp.counters.neval_jprod += 1
+  increment!(nlp, :neval_jprod)
   return nlp.Jp!(x, v, Jv)
 end
 
 function jtprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector)
-  nlp.counters.neval_jtprod += 1
+  increment!(nlp, :neval_jtprod)
   return nlp.Jtp(x, v)
 end
 
 function jtprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Jtv :: Vector)
-  nlp.counters.neval_jtprod += 1
+  increment!(nlp, :neval_jtprod)
   return nlp.Jtp!(x, v, Jtv)
 end
 
 function hess(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0,
       y :: Vector = zeros(nlp.meta.ncon))
-  nlp.counters.neval_hess += 1
+  increment!(nlp, :neval_hess)
   if nlp.meta.ncon > 0
     return nlp.H(x, obj_weight=obj_weight, y=y)
   else
@@ -277,7 +277,7 @@ end
 
 function hess_coord(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0,
       y :: Vector = zeros(nlp.meta.ncon))
-  nlp.counters.neval_hess += 1
+  increment!(nlp, :neval_hess)
   if nlp.meta.ncon > 0
     return nlp.Hcoord(x, obj_weight=obj_weight, y=y)
   else
@@ -287,7 +287,7 @@ end
 
 function hprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector;
     obj_weight = 1.0, y :: Vector = zeros(nlp.meta.ncon))
-  nlp.counters.neval_hprod += 1
+  increment!(nlp, :neval_hprod)
   if nlp.meta.ncon > 0
     return nlp.Hp(x, v, obj_weight=obj_weight, y=y)
   else
@@ -297,7 +297,7 @@ end
 
 function hprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Hv :: Vector;
     obj_weight = 1.0, y :: Vector = zeros(nlp.meta.ncon))
-  nlp.counters.neval_hprod += 1
+  increment!(nlp, :neval_hprod)
   if nlp.meta.ncon > 0
     return nlp.Hp!(x, v, Hv, obj_weight=obj_weight, y=y)
   else

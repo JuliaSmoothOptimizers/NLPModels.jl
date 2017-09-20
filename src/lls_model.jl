@@ -32,13 +32,13 @@ function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVecto
 end
 
 function residual!(nls :: LLSModel, x :: AbstractVector, Fx :: AbstractVector)
-  nls.counters.neval_residual += 1
+  increment!(nls, :neval_residual)
   Fx[:] = nls.A * x - nls.b
   return Fx
 end
 
 function jac_residual(nls :: LLSModel, x :: AbstractVector)
-  nls.counters.neval_jac_residual += 1
+  increment!(nls, :neval_jac_residual)
   if isa(nls.A, LinearOperator)
     error("Jacobian is a LinearOperator. Use `jac_op_residual` instead.")
   else
@@ -47,25 +47,25 @@ function jac_residual(nls :: LLSModel, x :: AbstractVector)
 end
 
 function jprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
-  nls.counters.neval_jprod_residual += 1
+  increment!(nls, :neval_jprod_residual)
   Jv[:] = nls.A * v
   return Jv
 end
 
 function jtprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
-  nls.counters.neval_jtprod_residual += 1
+  increment!(nls, :neval_jtprod_residual)
   Jtv[:] = nls.A' * v
   return Jtv
 end
 
 function hess_residual(nls :: LLSModel, x :: AbstractVector, i :: Int)
-  nls.counters.neval_hess_residual += 1
+  increment!(nls, :neval_hess_residual)
   n = size(nls.A, 2)
   return zeros(n, n)
 end
 
 function hprod_residual!(nls :: LLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
-  nls.counters.neval_hprod_residual += 1
+  increment!(nls, :neval_hprod_residual)
   fill!(Hiv, 0.0)
   return Hiv
 end
