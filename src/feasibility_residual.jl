@@ -32,8 +32,10 @@ function FeasibilityResidual(nlp :: AbstractNLPModel; name=nlp.meta.name)
   meta = NLPModelMeta(n, x0=nlp.meta.x0, name=name, lvar=nlp.meta.lvar,
                       uvar=nlp.meta.uvar)
   nls_meta = NLSMeta(m, n)
+  nls = FeasibilityResidual(meta, nls_meta, NLSCounters(), nlp)
+  finalizer(nls, nlp -> finalize(nls.nlp))
 
-  return FeasibilityResidual(meta, nls_meta, NLSCounters(), nlp)
+  return nls
 end
 
 function residual(nls :: FeasibilityResidual, x :: AbstractVector)
