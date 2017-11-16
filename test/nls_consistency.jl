@@ -109,16 +109,16 @@ function consistent_nls()
     uvar = rand(n)
     lls_model = LLSModel(A, b, lvar=lvar, uvar=uvar)
     simple_nls_model = SimpleNLSModel(zeros(n), m, lvar=lvar, uvar=uvar,
-        F    = x->A*x-b,
-        F!   = (x,Fx)->Fx[:]=A*x-b,
-        J    = x->A,
-        Jp   = (x,v)->A*v,
-        Jp!  = (x,v,Jv)->Jv[:]=A*v,
-        Jtp  = (x,v)->A'*v,
-        Jtp! = (x,v,Jtv)->Jtv[:]=A'*v,
-        Hi   = (x,i)->zeros(n,n),
-        Hip  = (x,i,v)->zeros(n),
-        Hip! = (x,i,v,Hiv)->fill!(Hiv, 0.0)
+        F     = x->A*x-b,
+        F!    = (x,Fx)->Fx[:]=A*x-b,
+        JF    = x->A,
+        JFp   = (x,v)->A*v,
+        JFp!  = (x,v,Jv)->Jv[:]=A*v,
+        JFtp  = (x,v)->A'*v,
+        JFtp! = (x,v,Jtv)->Jtv[:]=A'*v,
+        Hi    = (x,i)->zeros(n,n),
+        Hip   = (x,i,v)->zeros(n),
+        Hip!  = (x,i,v,Hiv)->fill!(Hiv, 0.0)
        )
     autodiff_model = ADNLSModel(x->A*x-b, zeros(n), m, lvar=lvar, uvar=uvar)
     nlp = ADNLPModel(x->0, zeros(n), lvar=lvar, uvar=uvar, c=x->A*x-b,
@@ -149,16 +149,19 @@ function consistent_nls()
     F(x) = [2 + 2i - exp(i*x[1]) - exp(i*x[2]) for i = 1:m]
     F!(x,Fx) = (Fx[:] = F(x))
     x0 = [0.3; 0.4]
-    J(x) = [-i*exp(i*x[j]) for i = 1:m, j = 1:2]
-    Jp(x, v) = J(x)*v
-    Jp!(x, v, Jv) = (Jv[:] = J(x)*v)
-    Jtp(x, v) = J(x)'*v
-    Jtp!(x, v, Jtv) = (Jtv[:] = J(x)'*v)
+    JF(x) = [-i*exp(i*x[j]) for i = 1:m, j = 1:2]
+    JFp(x, v) = JF(x)*v
+    JFp!(x, v, Jv) = (Jv[:] = JF(x)*v)
+    JFtp(x, v) = JF(x)'*v
+    JFtp!(x, v, Jtv) = (Jtv[:] = JF(x)'*v)
     Hi(x, i) = [-i^2*exp(i*x[1])  0.0; 0.0  -i^2*exp(i*x[2])]
     Hip(x, i, v) = -i^2*[exp(i*x[1])*v[1]; exp(i*x[2])*v[2]]
     Hip!(x, i, v, Hiv) = (Hiv[:] = -i^2*[exp(i*x[1])*v[1]; exp(i*x[2])*v[2]])
 
-    simple_nls_model = SimpleNLSModel(x0, m, lvar=lvar, uvar=uvar, F=F, F! =F!, J=J, Jp=Jp, Jp! =Jp!, Jtp=Jtp, Jtp! =Jtp!, Hi=Hi, Hip=Hip, Hip! =Hip!)
+    simple_nls_model = SimpleNLSModel(x0, m, lvar=lvar, uvar=uvar, F=F,
+                                      F! =F!, JF=JF, JFp=JFp, JFp! =JFp!,
+                                      JFtp=JFtp, JFtp! =JFtp!,
+                                      Hi=Hi, Hip=Hip, Hip! =Hip!)
     autodiff_model = ADNLSModel(F, x0, m, lvar=lvar, uvar=uvar)
     nlp = ADNLPModel(x->0, x0, lvar=lvar, uvar=uvar, c=F, lcon=zeros(m), ucon=zeros(m))
     feas_res_model = FeasibilityResidual(nlp)
