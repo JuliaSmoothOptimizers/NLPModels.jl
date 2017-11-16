@@ -160,8 +160,8 @@ function consistent_nls()
 
     simple_nls_model = SimpleNLSModel(x0, m, lvar=lvar, uvar=uvar, F=F,
                                       F! =F!, JF=JF, JFp=JFp, JFp! =JFp!,
-                                      JFtp=JFtp, JFtp! =JFtp!,
-                                      Hi=Hi, Hip=Hip, Hip! =Hip!)
+                                      JFtp=JFtp, JFtp! =JFtp!, Hi=Hi,
+                                      Hip=Hip, Hip! =Hip!)
     autodiff_model = ADNLSModel(F, x0, m, lvar=lvar, uvar=uvar)
     nlp = ADNLPModel(x->0, x0, lvar=lvar, uvar=uvar, c=F, lcon=zeros(m), ucon=zeros(m))
     feas_res_model = FeasibilityResidual(nlp)
@@ -182,6 +182,56 @@ function consistent_nls()
     nlps = [nlss; ADNLPModel(f, zeros(n))]
     consistent_functions(nlps, nloops=10)
   end
+
+  @testset "Consistency of Nonlinear problem with constraints" begin
+    m, n = 10, 2
+    lvar = -rand(n)
+    uvar = rand(n)
+    F(x) = [2 + 2i - exp(i*x[1]) - exp(i*x[2]) for i = 1:m]
+    F!(x,Fx) = (Fx[:] = F(x))
+    x0 = [0.3; 0.4]
+    JF(x) = [-i*exp(i*x[j]) for i = 1:m, j = 1:2]
+    JFp(x, v) = JF(x)*v
+    JFp!(x, v, Jv) = (Jv[:] = JF(x)*v)
+    JFtp(x, v) = JF(x)'*v
+    JFtp!(x, v, Jtv) = (Jtv[:] = JF(x)'*v)
+    Hi(x, i) = [-i^2*exp(i*x[1])  0.0; 0.0  -i^2*exp(i*x[2])]
+    Hip(x, i, v) = -i^2*[exp(i*x[1])*v[1]; exp(i*x[2])*v[2]]
+    Hip!(x, i, v, Hiv) = (Hiv[:] = -i^2*[exp(i*x[1])*v[1]; exp(i*x[2])*v[2]])
+    c(x) = [x[1]^2 - x[2]^2; 2 * x[1] * x[2]; x[1] + x[2]]
+    lcon = [0.0; -1.0; -Inf]
+    ucon = [Inf;  1.0;  0.0]
+    c!(x, cx) = (cx[:] = c(x))
+    Jc(x) = [2 * x[1]  -2 * x[2]; 2 * x[2]  2 * x[1]; 1.0  1.0]
+    Jcoord(x) = findnz(Jc(x))
+    Jp(x, v) = Jc(x) * v
+    Jp!(x, v, Jv) = (Jv[:] = Jp(x, v))
+    Jtp(x, v) = Jc(x)' * v
+    Jtp!(x, v, Jtv) = (Jtv[:] = Jtp(x, v))
+    Hc(x, y) = 2 * [y[1]  y[2]; y[2] -y[1]]
+    Hcp(x, y, v) = Hc(x, y) * v
+    Hcp!(x, y, v, Hv) = (Hv[:] = Hc(x, y) * v)
+
+    simple_nls_model = SimpleNLSModel(x0, m, lvar=lvar, uvar=uvar, F=F,
+                                      F! =F!, JF=JF, JFp=JFp, JFp! =JFp!,
+                                      JFtp=JFtp, JFtp! =JFtp!, Hi=Hi,
+                                      Hip=Hip, Hip! =Hip!, c=c,
+                                      lcon=lcon, ucon=ucon, c! =c!,
+                                      J=Jc, Jcoord=Jcoord, Jp=Jp, Jp!
+                                      =Jp!, Jtp=Jtp, Jtp! =Jtp!, Hc=Hc,
+                                      Hcp=Hcp, Hcp! =Hcp!)
+    autodiff_model = ADNLSModel(F, x0, m, lvar=lvar, uvar=uvar,
+                                lcon=lcon, ucon=ucon, c=c)
+    nlp = ADNLPModel(x->0, x0, lvar=lvar, uvar=uvar, c=F, lcon=zeros(m), ucon=zeros(m))
+    nlss = [simple_nls_model, autodiff_model]
+    consistent_nls_counters(nlss)
+    consistent_counters(nlss)
+    consistent_nls_functions(nlss)
+    consistent_nls_counters(nlss)
+    consistent_counters(nlss)
+    consistent_functions(nlss, nloops=10)
+  end
+
 end
 
 consistent_nls()

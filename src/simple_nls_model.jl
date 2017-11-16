@@ -195,7 +195,7 @@ function hess(nls :: SimpleNLSModel, x :: Vector; obj_weight = 1.0, y :: Vector 
     end
   end
   if length(y) > 0
-    Hx += nls.Hc(x, y=y)
+    Hx += nls.Hc(x, y)
   end
   return tril(Hx)
 end
@@ -209,7 +209,7 @@ function hprod(nls :: SimpleNLSModel, x :: Vector, v :: Vector;
     obj_weight = 1.0, y :: Vector = [])
   increment!(nls, :neval_hprod)
   n = nls.meta.nvar
-  Hv = length(y) > 0 ? nls.Hcp(x, v, y=y) : zeros(n)
+  Hv = length(y) > 0 ? nls.Hcp(x, y, v) : zeros(n)
   if obj_weight != 0.0
     Fx = residual(nls, x)
     Jv = jprod_residual(nls, x, v)
@@ -229,7 +229,7 @@ function hprod!(nls :: SimpleNLSModel, x :: Vector, v :: Vector, Hv :: Vector;
   increment!(nls, :neval_hprod)
   n = nls.meta.nvar
   if length(y) > 0
-    nls.Hcp!(x, v, Hv, y=y)
+    nls.Hcp!(x, y, v, Hv)
   else
     @views fill!(Hv[1:n], 0.0)
   end
