@@ -6,7 +6,7 @@ export LLSModel,
     nls = LLSModel(A, b; lvar, uvar, C, lcon, ucon)
 
 Creates a Linear Least Squares model ½‖Ax - b‖² with optional bounds
-`lvar ≦ x ≦ y` and optional linear constraints `lcon ≦ C ≦ ucon`.
+`lvar ≦ x ≦ y` and optional linear constraints `lcon ≦ Cx ≦ ucon`.
 """
 type LLSModel <: AbstractNLSModel
   meta :: NLPModelMeta
@@ -32,7 +32,7 @@ function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVecto
   end
   ncon = size(C, 1)
   if !(ncon == length(lcon) == length(ucon) == length(y0))
-    error("The number of lines in C must be the same length as lcon, ucon and y0")
+    error("The number of rows in C must be the same length as lcon, ucon and y0")
   end
   nnzj = n * ncon
 
