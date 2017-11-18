@@ -3,9 +3,10 @@ export LLSModel,
        jac_op_residual, hess_residual, hprod_residual!
 
 """
-    nls = LLSModel(A, b)
+    nls = LLSModel(A, b; lvar, uvar, C, lcon, ucon)
 
-Creates a Linear Least Squares model ½‖Ax - b‖²
+Creates a Linear Least Squares model ½‖Ax - b‖² with optional bounds
+`lvar ≦ x ≦ y` and optional linear constraints `lcon ≦ C ≦ ucon`.
 """
 type LLSModel <: AbstractNLSModel
   meta :: NLPModelMeta
@@ -14,21 +15,32 @@ type LLSModel <: AbstractNLSModel
 
   A :: Union{AbstractMatrix, LinearOperator}
   b :: AbstractVector
+  C :: Union{AbstractMatrix, LinearOperator}
 end
 
 function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVector;
                   x0 :: Vector = zeros(size(A,2)),
                   lvar :: Vector = fill(-Inf, size(A, 2)),
-                  uvar :: Vector = fill(Inf, size(A, 2)))
+                  uvar :: Vector = fill(Inf, size(A, 2)),
+                  C :: Union{AbstractMatrix, LinearOperator} = Matrix{Float64}(0,0),
+                  lcon :: Vector = Float64[],
+                  ucon :: Vector = Float64[],
+                  y0 :: Vector = zeros(size(C,1)))
   m, n = size(A)
   if length(b) != m
-    error("Incompatibility detected: A is $m×$n and b has lenght $(length(b))")
+    error("Incompatibility detected: A is $m×$n and b has length $(length(b))")
   end
+  ncon = size(C, 1)
+  if !(ncon == length(lcon) == length(ucon) == length(y0))
+    error("The number of lines in C must be the same length as lcon, ucon and y0")
+  end
+  nnzj = n * ncon
 
-  meta = NLPModelMeta(n, x0=x0, lvar=lvar, uvar=uvar)
+  meta = NLPModelMeta(n, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0,
+                      lcon=lcon, ucon=ucon, nnzj=nnzj)
   nls_meta = NLSMeta(m, n)
 
-  return LLSModel(meta, nls_meta, NLSCounters(), A, b)
+  return LLSModel(meta, nls_meta, NLSCounters(), A, b, C)
 end
 
 function residual!(nls :: LLSModel, x :: AbstractVector, Fx :: AbstractVector)
@@ -68,4 +80,84 @@ function hprod_residual!(nls :: LLSModel, x :: AbstractVector, i :: Int, v :: Ab
   increment!(nls, :neval_hprod_residual)
   fill!(Hiv, 0.0)
   return Hiv
+end
+
+function cons(nls :: LLSModel, x :: Vector)
+  increment!(nls, :neval_cons)
+  return nls.C * x
+end
+
+function cons!(nls :: LLSModel, x :: Vector, c :: Vector)
+  increment!(nls, :neval_cons)
+  c[1:nls.meta.ncon] = nls.C * x
+  return c
+end
+
+function jac_coord(nls :: LLSModel, x :: Vector)
+  increment!(nls, :neval_jac)
+  if isa(nls.C, AbstractMatrix)
+    return findnz(J)
+  else
+    return findnz(full(J))
+  end
+end
+
+function jac(nls :: LLSModel, x :: Vector)
+  increment!(nls, :neval_jac)
+  return nls.C
+end
+
+function jprod(nls :: LLSModel, x :: Vector, v :: Vector)
+  increment!(nls, :neval_jprod)
+  return nls.C * v
+end
+
+function jprod!(nls :: LLSModel, x :: Vector, v :: Vector, Jv :: Vector)
+  increment!(nls, :neval_jprod)
+  Jv[1:nls.meta.ncon] = nls.C * v
+  return Jv
+end
+
+function jtprod(nls :: LLSModel, x :: Vector, v :: Vector)
+  increment!(nls, :neval_jtprod)
+  return nls.C' * v
+end
+
+function jtprod!(nls :: LLSModel, x :: Vector, v :: Vector, Jtv :: Vector)
+  increment!(nls, :neval_jtprod)
+  Jtv[1:nls.meta.nvar] = nls.C' * v
+  return Jtv
+end
+
+function hess(nls :: LLSModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
+  increment!(nls, :neval_hess)
+  if obj_weight != 0.0
+    return tril(obj_weight * (nls.A' * nls.A))
+  else
+    n = length(x)
+    return zeros(n, n)
+  end
+end
+
+function hess_coord(nls :: LLSModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
+  H = hess(nls, x, obj_weight=obj_weight, y=y)
+  return findnz(H)
+end
+
+function hprod(nls :: LLSModel, x :: Vector, v :: Vector;
+    obj_weight = 1.0, y :: Vector = [])
+  Hv = zeros(nls.meta.nvar)
+  return hprod!(nls, x, v, Hv, obj_weight=obj_weight, y=y)
+end
+
+function hprod!(nls :: LLSModel, x :: Vector, v :: Vector, Hv :: Vector;
+    obj_weight = 1.0, y :: Vector = [])
+  increment!(nls, :neval_hprod)
+  n = length(x)
+  if obj_weight != 0.0
+    Hv[1:n] .= obj_weight * (nls.A' * (nls.A * v) )
+  else
+    Hv[1:n] .= 0.0
+  end
+  return Hv
 end

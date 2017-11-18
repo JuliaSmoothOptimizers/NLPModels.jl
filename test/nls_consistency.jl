@@ -142,6 +142,52 @@ function consistent_nls()
     consistent_functions(nlps, nloops=10)
   end
 
+  @testset "Consistency of Linear problem with linear constraints" begin
+    m, n, ne = 50, 20, 30
+    A = rand(m, n)
+    b = rand(m)
+    lvar = -rand(n)
+    uvar = rand(n)
+    C = rand(ne, n)
+    lcon = -rand(ne)
+    ucon = rand(ne)
+    lls_model = LLSModel(A, b, lvar=lvar, uvar=uvar, C=C, lcon=lcon,
+                         ucon=ucon)
+    simple_nls_model = SimpleNLSModel(zeros(n), m, lvar=lvar, uvar=uvar,
+                                      lcon=lcon, ucon=ucon,
+        F     = x->A*x-b,
+        F!    = (x,Fx)->Fx[:]=A*x-b,
+        JF    = x->A,
+        JFp   = (x,v)->A*v,
+        JFp!  = (x,v,Jv)->Jv[:]=A*v,
+        JFtp  = (x,v)->A'*v,
+        JFtp! = (x,v,Jtv)->Jtv[:]=A'*v,
+        Hi    = (x,i)->zeros(n,n),
+        Hip   = (x,i,v)->zeros(n),
+        Hip!  = (x,i,v,Hiv)->fill!(Hiv, 0.0),
+        c     = x->C*x,
+        c!    = (x,cx)->(cx[:]=C*x),
+        J     = x->C,
+        Jcoord= x->findnz(C),
+        Jp    = (x,v)->C*v,
+        Jp!   = (x,v,Jv)->Jv[:]=C*v,
+        Jtp   = (x,v)->C'*v,
+        Jtp!  = (x,v,Jtv)->Jtv[:]=C'*v,
+        Hc    = (x,y)->zeros(n,n),
+        Hcp   = (x,y,v)->zeros(n),
+        Hcp!  = (x,y,v,Hv)->Hv[:]=zeros(n))
+    autodiff_model = ADNLSModel(x->A*x-b, zeros(n), m, lvar=lvar,
+                                uvar=uvar, c=x->C*x, lcon=lcon,
+                                ucon=ucon)
+    nlss = [lls_model, simple_nls_model, autodiff_model]
+    consistent_nls_counters(nlss)
+    consistent_counters(nlss)
+    consistent_nls_functions(nlss)
+    consistent_nls_counters(nlss)
+    consistent_counters(nlss)
+    consistent_functions(nlss, nloops=10)
+  end
+
   @testset "Consistency of Nonlinear problem" begin
     m, n = 10, 2
     lvar = -rand(n)
