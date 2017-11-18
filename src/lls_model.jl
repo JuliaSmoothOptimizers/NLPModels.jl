@@ -96,7 +96,7 @@ end
 function jac_coord(nls :: LLSModel, x :: Vector)
   increment!(nls, :neval_jac)
   if isa(nls.C, LinearOperator)
-    error("hess is not defined for LinearOperators")
+    error("jac_coord is not defined for LinearOperators")
   end
   return findnz(nls.C)
 end
