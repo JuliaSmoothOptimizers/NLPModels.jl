@@ -95,11 +95,10 @@ end
 
 function jac_coord(nls :: LLSModel, x :: Vector)
   increment!(nls, :neval_jac)
-  if isa(nls.C, AbstractMatrix)
-    return findnz(J)
-  else
-    return findnz(full(J))
+  if isa(nls.C, LinearOperator)
+    error("hess is not defined for LinearOperators")
   end
+  return findnz(nls.C)
 end
 
 function jac(nls :: LLSModel, x :: Vector)
@@ -132,6 +131,9 @@ end
 function hess(nls :: LLSModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
   increment!(nls, :neval_hess)
   if obj_weight != 0.0
+    if isa(nls.A, LinearOperator)
+      error("hess is not defined for LinearOperators")
+    end
     return tril(obj_weight * (nls.A' * nls.A))
   else
     n = length(x)
