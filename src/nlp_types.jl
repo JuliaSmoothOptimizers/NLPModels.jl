@@ -2,7 +2,7 @@ export has_bounds, bound_constrained, unconstrained, linearly_constrained,
       equality_constrained, inequality_constrained
 
 # Base type for an optimization model.
-@compat abstract type AbstractNLPModel end
+abstract type AbstractNLPModel end
 
 type Counters
   neval_obj    :: Int  # Number of objective evaluations.
@@ -23,7 +23,7 @@ type Counters
 end
 
 # Base type for metadata related to an optimization model.
-@compat abstract type AbstractNLPModelMeta end
+abstract type AbstractNLPModelMeta end
 
 immutable NLPModelMeta <: AbstractNLPModelMeta
 

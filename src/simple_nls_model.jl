@@ -40,8 +40,6 @@ type SimpleNLSModel <: AbstractNLSModel
   Hcp! :: Function
 end
 
-NotImplemented(args...) = throw(NotImplementedError(""))
-
 function SimpleNLSModel(x0 :: AbstractVector, nequ :: Int;
                         lvar :: Vector = fill(-Inf, length(x0)),
                         uvar :: Vector = fill(Inf, length(x0)),

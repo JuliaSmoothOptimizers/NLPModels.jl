@@ -29,8 +29,8 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
         @test isapprox(Fs[i], Fs[j], rtol=rtol)
       end
 
-      _ = residual!(nlss[i], x, tmp_m)
-      @test _ == Fs[i]
+      r = residual!(nlss[i], x, tmp_m)
+      @test r == Fs[i]
       @test Fs[i] == tmp_m
     end
 
@@ -53,8 +53,8 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
         @test isapprox(Jps[i], Jps[j], rtol=rtol)
       end
 
-      _ = jprod_residual!(nlss[i], x, v, tmp_m)
-      @test _ == Jps[i]
+      jps = jprod_residual!(nlss[i], x, v, tmp_m)
+      @test jps == Jps[i]
       @test Jps[i] == tmp_m
       @test Jps[i] == J_ops[i] * v
       @test Jps[i] == J_ops_inplace[i] * v
@@ -68,8 +68,8 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
         @test isapprox(Jtps[i], Jtps[j], rtol=rtol)
       end
 
-      _ = jtprod_residual!(nlss[i], x, v, tmp_n)
-      @test _ == Jtps[i]
+      jtps = jtprod_residual!(nlss[i], x, v, tmp_n)
+      @test jtps == Jtps[i]
       @test Jtps[i] == tmp_n
       @test Jtps[i] == J_ops[i]' * v
       @test Jtps[i] == J_ops_inplace[i]' * v
@@ -89,8 +89,8 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
           @test isapprox(Hvs[i], Hvs[j], rtol=rtol)
         end
 
-        _ = hprod_residual!(nlss[i], x, k, v, tmp_n)
-        @test _ == Hvs[i]
+        hvs = hprod_residual!(nlss[i], x, k, v, tmp_n)
+        @test hvs == Hvs[i]
         @test Hvs[i] == tmp_n
         @test Hvs[i] == Hops[i] * v
         @test Hvs[i] == Hops_inplace[i] * v

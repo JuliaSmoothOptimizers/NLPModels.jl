@@ -1,5 +1,3 @@
-import Compat.view
-
 export SimpleNLPModel, obj, grad, grad!, cons, cons!, jac_coord, jac, jprod,
        jprod!, jtprod, jtprod!, hess, hprod, hprod!
 

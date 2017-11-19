@@ -1,3 +1,2 @@
-julia 0.5
-Compat 0.17
+julia 0.6
 LinearOperators 0.2.0
