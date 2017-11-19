@@ -1,4 +1,4 @@
-using Base.Test, Compat, Ipopt, JuMP, MathProgBase, NLPModels, LinearOperators
+using Base.Test, Ipopt, JuMP, MathProgBase, NLPModels, LinearOperators
 
 # Including problems so that they won't be multiply loaded
 for problem in [:brownden, :genrose, :hs5, :hs6, :hs10, :hs11, :hs14, :hs15]

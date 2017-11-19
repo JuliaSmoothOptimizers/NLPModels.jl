@@ -2,9 +2,6 @@ __precompile__()  # due to optional dependencies
 
 module NLPModels
 
-using Compat
-import Compat.String
-
 using LinearOperators
 
 export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters

@@ -1,6 +1,6 @@
 export QuasiNewtonModel, LBFGSModel, LSR1Model
 
-@compat abstract type QuasiNewtonModel <: AbstractNLPModel end
+abstract type QuasiNewtonModel <: AbstractNLPModel end
 
 type LBFGSModel <: QuasiNewtonModel
   meta :: NLPModelMeta

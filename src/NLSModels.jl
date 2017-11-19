@@ -4,7 +4,7 @@ export AbstractNLSModel, nls_meta, NLSCounters, reset!,
        hess_residual, hprod_residual, hprod_residual!, hess_op_residual,
        hess_op_residual!, NotImplementedError
 
-abstract AbstractNLSModel <: AbstractNLPModel
+abstract type AbstractNLSModel <: AbstractNLPModel end
 
 type NLSCounters
   counters :: Counters

@@ -10,7 +10,7 @@ type ModelReader <: MathProgBase.AbstractMathProgSolver
 end
 
 type MathProgModel <: MathProgBase.AbstractMathProgModel
-  eval :: @compat Union{MathProgBase.AbstractNLPEvaluator, Void}
+  eval :: Union{MathProgBase.AbstractNLPEvaluator, Void}
   numVar :: Int
   numConstr :: Int
   x :: Vector{Float64}
