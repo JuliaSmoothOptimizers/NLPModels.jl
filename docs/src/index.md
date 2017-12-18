@@ -2,7 +2,7 @@
 
 This package provides general guidelines to represent optimization problems in
 Julia and a standardized API to evaluate the functions and their derivatives.
-The main objective is to be able to rely on that [API](api) when designing
+The main objective is to be able to rely on that [API](api.html) when designing
 optimization solvers in Julia.
 
 ## Introduction
@@ -42,9 +42,23 @@ Notice that, for the Hessian, the variables ``z^L`` and ``z^U`` are not used.
 Optimization problems are represented by an instance/subtype of `AbstractNLPModel`.
 Such instances are composed of
 
-- an instance of [`NLPModelMeta`](#attributes), which provides information about the problem,
+- an instance of [`NLPModelMeta`](#Attributes-1), which provides information about the problem,
   including the number of variables, constraints, bounds on the variables, etc.
 - other data specific to the provenance of the problem.
+
+## Nonlinear Least Squares
+
+A special type of `NLPModels` are the `NLSModels`, i.e., Nonlinear Least
+Squares models. In these problems, the function ``f(x)`` is given by
+``\Vert F(x)\Vert^2``, where ``F`` is referred as the residual function.
+The individual value of ``F``, as well as of its derivatives are also
+available.
+
+## Tools
+
+There are a few tools to use on `NLPModels`, for instance to query
+whether the problem is constrained or not, and to get the number of
+function evaluations.
 
 ## Install
 
@@ -52,7 +66,8 @@ Install NLPModels.jl with the following commands.
 ```julia
 Pkg.add("NLPModels")
 ```
-If you want the `ADNLPModel` or the `MathProgNLPModel`, you also need the
+If you want the automatic differentiations models or the
+`MathProgNLPModel`, you also need
 ```julia
 Pkg.add("ForwardDiff")
 Pkg.add("MathProgBase")
@@ -65,7 +80,8 @@ Pkg.add("JuMP")
 
 ## Usage
 
-See the [Models](models), or the [Tutorial](tutorial), or the [API](api).
+See the [models](models.html), the [tools](tools.html), the
+[tutorial](tutorial.html), or the [API](api.html).
 
 ## Internal Interfaces
 
@@ -80,6 +96,18 @@ See the [Models](models), or the [Tutorial](tutorial), or the [API](api).
  - [`SimpleNLPModel`](@ref): Only uses user defined functions.
  - [`SlackModel`](@ref): Creates an equality constrained problem with bounds
     on the variables using an existing NLPModel.
+ - [`LBFGSModel`](@ref): Creates a model using a LBFGS approximation to
+   the Hessian using an existing NLPModel.
+ - [`LSR1Model`](@ref): Creates a model using a LSR1 approximation to
+   the Hessian using an existing NLPModel.
+ - [`ADNLSModel`](@ref): Similar to `ADNLPModel`, but for nonlinear
+   least squares.
+ - [`FeasibilityResidual`](@ref): Creates a nonlinear least squares
+   model from an equality constrained problem in which the residual
+   function is the constraints function.
+ - [`LLSModel`](@ref): Creates a linear least squares model.
+ - [`SimpleNLSModel`](@ref): Similar to `SimpleNLPModel`, but for
+   nonlinear least squares.
 
 ## External Interfaces
 

@@ -5,6 +5,21 @@ export ADNLSModel,
        jac_op_residual, hess_residual, hprod_residual!, cons, cons!, jac_coord,
        jac, jprod, jprod!, jtprod, jtprod!, hess, hess_coord, hprod, hprod!
 
+"""ADNLSModel is an Nonlinear Least Squares model using ForwardDiff to
+compute the derivatives.
+
+````
+ADNLSModel(F, x0, m; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,
+  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = "Generic")
+````
+
+  - `F :: Function` - The residual function \$F\$;
+  - `x0 :: Vector` - The initial point of the problem;
+  - `m :: Int` - The dimension of \$F(x)\$, i.e., the number of
+  equations in the nonlinear system.
+
+The other parameters are as in `ADNLPModel`.
+"""
 type ADNLSModel <: AbstractNLSModel
   meta :: NLPModelMeta
   nls_meta :: NLSMeta

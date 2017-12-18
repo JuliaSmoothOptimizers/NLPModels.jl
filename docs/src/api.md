@@ -37,12 +37,27 @@ NLPModels instances.
 
 | Function          | NLPModels function                                                                                                                                                                                   |
 |-------------------|-------------------------------------------|
-| ``f(x)``            | [obj](api/#NLPModels.obj), [objgrad](api/#NLPModels.objgrad), [objgrad!](api/#NLPModels.objgrad!), [objcons](api/#NLPModels.objcons), [objcons!](api/#NLPModels.objcons!) |
-| ``\nabla f(x)``     | [grad](api/#NLPModels.grad), [grad!](api/#NLPModels.grad!), [objgrad](api/#NLPModels.objgrad), [objgrad!](api/#NLPModels.objgrad!) |
-| ``\nabla^2 f(x)``   | [hess](api/#NLPModels.hess), [hess_op](api/#NLPModels.hess_op), [hess_op!](api/#NLPModels.hess_op!), [hess_coord](api/#NLPModels.hess_coord), [hprod](api/#NLPModels.hprod), [hprod!](api/#NLPModels.hprod!) |
-| ``c(x)``            | [cons](api/#NLPModels.cons), [cons!](api/#NLPModels.cons!), [objcons](api/#NLPModels.objcons), [objcons!](api/#NLPModels.objcons!) |
-| ``J(x)``            | [jac](api/#NLPModels.jac), [jac_op](api/#NLPModels.jac_op), [jac_op!](api/#NLPModels.jac_op!), [jac_coord](api/#NLPModels.jac_coord), [jprod](api/#NLPModels.jprod), [jprod!](api/#NLPModels.jprod!), [jtprod](api/#NLPModels.jtprod), [jtprod!](api/#NLPModels.jtprod!) |
-| ``\nabla^2 L(x,y)`` | [hess](api/#NLPModels.hess), [hess_op](api/#NLPModels.hess_op), [hess_coord](api/#NLPModels.hess_coord), [hprod](api/#NLPModels.hprod), [hprod!](api/#NLPModels.hprod!) |
+| ``f(x)``            | [obj](api.html#NLPModels.obj), [objgrad](api.html#NLPModels.objgrad), [objgrad!](api.html#NLPModels.objgrad!), [objcons](api.html#NLPModels.objcons), [objcons!](api.html#NLPModels.objcons!) |
+| ``\nabla f(x)``     | [grad](api.html#NLPModels.grad), [grad!](api.html#NLPModels.grad!), [objgrad](api.html#NLPModels.objgrad), [objgrad!](api.html#NLPModels.objgrad!) |
+| ``\nabla^2 f(x)``   | [hess](api.html#NLPModels.hess), [hess_op](api.html#NLPModels.hess_op), [hess_op!](api.html#NLPModels.hess_op!), [hess_coord](api.html#NLPModels.hess_coord), [hprod](api.html#NLPModels.hprod), [hprod!](api.html#NLPModels.hprod!) |
+| ``c(x)``            | [cons](api.html#NLPModels.cons), [cons!](api.html#NLPModels.cons!), [objcons](api.html#NLPModels.objcons), [objcons!](api.html#NLPModels.objcons!) |
+| ``J(x)``            | [jac](api.html#NLPModels.jac), [jac_op](api.html#NLPModels.jac_op), [jac_op!](api.html#NLPModels.jac_op!), [jac_coord](api.html#NLPModels.jac_coord), [jprod](api.html#NLPModels.jprod), [jprod!](api.html#NLPModels.jprod!), [jtprod](api.html#NLPModels.jtprod), [jtprod!](api.html#NLPModels.jtprod!) |
+| ``\nabla^2 L(x,y)`` | [hess](api.html#NLPModels.hess), [hess_op](api.html#NLPModels.hess_op), [hess_coord](api.html#NLPModels.hess_coord), [hprod](api.html#NLPModels.hprod), [hprod!](api.html#NLPModels.hprod!) |
+
+## API for NLSModels
+
+For the Nonlinear Least Squares models, ``f(x) = \Vert F(x)\Vert^2``,
+and these models have additional function to access the residual value
+and its derivatives. Namely,
+
+- ``J_F(x) = \nabla F(x)``
+- ``\nabla^2 F_i(x)``
+
+| Function            | function |
+|---------------------|---|
+| ``F(x)``            | [residual](api.html#NLPModels.residual), [residual!](api.html#NLPModels.residual!) |
+| ``J_F(x)``          | [jac_residual](api.html#NLPModels.jac_residual), [jprod_residual](api.html#NLPModels.jprod_residual), [jprod_residual!](api.html#NLPModels.jprod_residual!), [jtprod_residual](api.html#NLPModels.jtprod_residual), [jtprod_residual!](api.html#NLPModels.jtprod_residual!), [jac_op_residual](api.html#NLPModels.jac_op_residual), [jac_op_residual!](api.html#NLPModels.jac_op_residual!) |
+| ``\nabla^2 F_i(x)`` | [hess_residual](api.html#NLPModels.hess_residual), [hprod_residual](api.html#NLPModels.hprod_residual), [hprod_residual!](api.html#NLPModels.hprod_residual!), [hess_op_residual](api.html#NLPModels.hess_op_residual), [hess_op_residual!](api.html#NLPModels.hess_op_residual!) |
 
 
 ## AbstractNLPModel functions
@@ -73,6 +88,25 @@ hprod
 hprod!
 NLPtoMPB
 reset!
+```
+
+## AbstractNLSModel
+
+```@docs
+residual
+residual!
+jac_residual
+jprod_residual
+jprod_residual!
+jtprod_residual
+jtprod_residual!
+jac_op_residual
+jac_op_residual!
+hess_residual
+hprod_residual
+hprod_residual!
+hess_op_residual
+hess_op_residual!
 ```
 
 ## Derivative check

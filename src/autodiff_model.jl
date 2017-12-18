@@ -3,7 +3,7 @@ using ForwardDiff
 export ADNLPModel, obj, grad, grad!, cons, cons!, jac_coord, jac, jprod,
        jprod!, jtprod, jtprod!, hess, hprod, hprod!
 
-"""ADNLPModel is an AbstractNLPModel using ForwardDiff to computer the
+"""ADNLPModel is an AbstractNLPModel using ForwardDiff to compute the
 derivatives.
 In this interface, the objective function \$f\$ and an initial estimate are
 required. If there are constraints, the function
@@ -12,7 +12,7 @@ required. If there are constraints, the function
 inital estimate to the Lagrangian multipliers can also be provided.
 
 ````
-ADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,
+ADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,
   c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = "Generic")
 ````
 

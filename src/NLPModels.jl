@@ -32,6 +32,10 @@ Base.showerror(io::IO, e::NotImplementedError) = print(io, e.name, " not impleme
 # simple default API for retrieving counters
 for counter in fieldnames(Counters)
   @eval begin
+    """`$($counter)(nlp)`
+
+    Get the number of `$(split("$($counter)", "_")[2])` evaluations.
+    """
     $counter(nlp :: AbstractNLPModel) = nlp.counters.$counter
     export $counter
   end
