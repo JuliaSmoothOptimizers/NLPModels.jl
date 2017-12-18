@@ -41,6 +41,10 @@ sum_counters(nls :: AbstractNLSModel) = sum_counters(nls.counters)
 for counter in fieldnames(NLSCounters)
   counter == :counters && continue
   @eval begin
+    """`$($counter)(nlp)`
+
+    Get the number of `$(split("$($counter)", "_")[2])` evaluations.
+    """
     $counter(nls :: AbstractNLSModel) = nls.counters.$counter
     export $counter
   end
