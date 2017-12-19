@@ -50,7 +50,7 @@ Such instances are composed of
 
 A special type of `NLPModels` are the `NLSModels`, i.e., Nonlinear Least
 Squares models. In these problems, the function ``f(x)`` is given by
-``\Vert F(x)\Vert^2``, where ``F`` is referred as the residual function.
+``\frac{1}{2}\Vert F(x)\Vert^2``, where ``F`` is referred as the residual function.
 The individual value of ``F``, as well as of its derivatives are also
 available.
 
