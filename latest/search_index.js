@@ -25,11 +25,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "index.html#Nonlinear-Least-Squares-1",
+    "page": "Home",
+    "title": "Nonlinear Least Squares",
+    "category": "section",
+    "text": "A special type of NLPModels are the NLSModels, i.e., Nonlinear Least Squares models. In these problems, the function f(x) is given by frac12Vert F(x)Vert^2, where F is referred as the residual function. The individual value of F, as well as of its derivatives are also available."
+},
+
+{
+    "location": "index.html#Tools-1",
+    "page": "Home",
+    "title": "Tools",
+    "category": "section",
+    "text": "There are a few tools to use on NLPModels, for instance to query whether the problem is constrained or not, and to get the number of function evaluations."
+},
+
+{
     "location": "index.html#Install-1",
     "page": "Home",
     "title": "Install",
     "category": "section",
-    "text": "Install NLPModels.jl with the following commands.Pkg.add(\"NLPModels\")If you want the ADNLPModel or the MathProgNLPModel, you also need thePkg.add(\"ForwardDiff\")\nPkg.add(\"MathProgBase\")respectively. In addition, if you want to create a MathProgNLPModel from a JuMP model, you'll needPkg.add(\"JuMP\")"
+    "text": "Install NLPModels.jl with the following commands.Pkg.add(\"NLPModels\")If you want the automatic differentiations models or the MathProgNLPModel, you also needPkg.add(\"ForwardDiff\")\nPkg.add(\"MathProgBase\")respectively. In addition, if you want to create a MathProgNLPModel from a JuMP model, you'll needPkg.add(\"JuMP\")"
 },
 
 {
@@ -37,7 +53,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Usage",
     "category": "section",
-    "text": "See the Models, or the Tutorial, or the API."
+    "text": "See the models, the tools, the tutorial, or the API."
 },
 
 {
@@ -45,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Internal Interfaces",
     "category": "section",
-    "text": "ADNLPModel: Uses ForwardDiff to compute the derivatives. It has a very simple interface, though it isn't very efficient for larger problems.\nMathProgNLPModel: Uses a MathProgModel, derived from a AbstractMathProgModel model. For instance, JuMP.jl models can be used.\nSimpleNLPModel: Only uses user defined functions.\nSlackModel: Creates an equality constrained problem with bounds  on the variables using an existing NLPModel."
+    "text": "ADNLPModel: Uses ForwardDiff to compute the derivatives. It has a very simple interface, though it isn't very efficient for larger problems.\nMathProgNLPModel: Uses a MathProgModel, derived from a AbstractMathProgModel model. For instance, JuMP.jl models can be used.\nSimpleNLPModel: Only uses user defined functions.\nSlackModel: Creates an equality constrained problem with bounds  on the variables using an existing NLPModel.\nLBFGSModel: Creates a model using a LBFGS approximation to the Hessian using an existing NLPModel.\nLSR1Model: Creates a model using a LSR1 approximation to the Hessian using an existing NLPModel.\nADNLSModel: Similar to ADNLPModel, but for nonlinear least squares.\nFeasibilityResidual: Creates a nonlinear least squares model from an equality constrained problem in which the residual function is the constraints function.\nLLSModel: Creates a linear least squares model.\nSimpleNLSModel: Similar to SimpleNLPModel, but for nonlinear least squares."
 },
 
 {
@@ -93,7 +109,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Models",
     "title": "Models",
     "category": "section",
-    "text": "There are currently three models implemented in this package, besides the external ones."
+    "text": "The following general models are implemented in this package:ADNLPModel\nMathProgNLPModel\nSimpleNLPModel\nDerived Models\nSlackModel\nLBFGSModel\nLSR1ModelIn addition, the following nonlinear least squares models are implemented in this package:ADNLSModel\nFeasibilityResidual\nLLSModel\nSimpleNLSModelThere are other external models implemented. In particular,AmplModel\nCUTEstModelThere are currently three models implemented in this package, besides the external ones."
 },
 
 {
@@ -101,7 +117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Models",
     "title": "NLPModels.ADNLPModel",
     "category": "Type",
-    "text": "ADNLPModel is an AbstractNLPModel using ForwardDiff to computer the derivatives. In this interface, the objective function f and an initial estimate are required. If there are constraints, the function cmathbbR^nrightarrowmathbbR^m  and the vectors c_L and c_U also need to be passed. Bounds on the variables and an inital estimate to the Lagrangian multipliers can also be provided.\n\nADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,\n  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = \"Generic\")\n\nf :: Function - The objective function f;\nx0 :: Vector - The initial point of the problem;\nlvar :: Vector - ell, the lower bound of the variables;\nuvar :: Vector - u, the upper bound of the variables;\nc :: Function - The constraints function c;\ny0 :: Vector - The initial value of the Lagrangian estimates;\nlcon :: Vector - c_L, the lower bounds of the constraints function;\nucon :: Vector - c_U, the upper bounds of the constraints function;\nname :: String - A name for the model.\n\nThe functions follow the same restrictions of ForwardDiff functions, summarised here:\n\nThe function can only be composed of generic Julia functions;\nThe function must accept only one argument;\nThe function's argument must accept a subtype of Vector;\nThe function should be type-stable.\n\nFor contrained problems, the function c is required, and it must return an array even when m = 1, and c_L and c_U should be passed, otherwise the problem is ill-formed. For equality constraints, the corresponding index of c_L and c_U should be the same.\n\n\n\n"
+    "text": "ADNLPModel is an AbstractNLPModel using ForwardDiff to compute the derivatives. In this interface, the objective function f and an initial estimate are required. If there are constraints, the function cmathbbR^nrightarrowmathbbR^m  and the vectors c_L and c_U also need to be passed. Bounds on the variables and an inital estimate to the Lagrangian multipliers can also be provided.\n\nADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,\n  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = \"Generic\")\n\nf :: Function - The objective function f;\nx0 :: Vector - The initial point of the problem;\nlvar :: Vector - ell, the lower bound of the variables;\nuvar :: Vector - u, the upper bound of the variables;\nc :: Function - The constraints function c;\ny0 :: Vector - The initial value of the Lagrangian estimates;\nlcon :: Vector - c_L, the lower bounds of the constraints function;\nucon :: Vector - c_U, the upper bounds of the constraints function;\nname :: String - A name for the model.\n\nThe functions follow the same restrictions of ForwardDiff functions, summarised here:\n\nThe function can only be composed of generic Julia functions;\nThe function must accept only one argument;\nThe function's argument must accept a subtype of Vector;\nThe function should be type-stable.\n\nFor contrained problems, the function c is required, and it must return an array even when m = 1, and c_L and c_U should be passed, otherwise the problem is ill-formed. For equality constraints, the corresponding index of c_L and c_U should be the same.\n\n\n\n"
 },
 
 {
@@ -169,6 +185,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "models.html#Derived-Models-1",
+    "page": "Models",
+    "title": "Derived Models",
+    "category": "section",
+    "text": "The following models are created from any given model, making some modification to that model."
+},
+
+{
     "location": "models.html#NLPModels.SlackModel",
     "page": "Models",
     "title": "NLPModels.SlackModel",
@@ -190,6 +214,334 @@ var documenterSearchIndex = {"docs": [
     "title": "Example",
     "category": "section",
     "text": "using NLPModels\nf(x) = x[1]^2 + 4x[2]^2\nc(x) = [x[1]*x[2] - 1]\nx = [2.0; 2.0]\nnlp = ADNLPModel(f, x, c=c, lcon=[0.0])\nnlp_slack = SlackModel(nlp)\nnlp_slack.meta.lvar"
+},
+
+{
+    "location": "models.html#NLPModels.LBFGSModel",
+    "page": "Models",
+    "title": "NLPModels.LBFGSModel",
+    "category": "Type",
+    "text": "Construct a LBFGSModel from another type of model.\n\n\n\n"
+},
+
+{
+    "location": "models.html#LBFGSModel-1",
+    "page": "Models",
+    "title": "LBFGSModel",
+    "category": "section",
+    "text": "NLPModels.LBFGSModel"
+},
+
+{
+    "location": "models.html#NLPModels.LSR1Model",
+    "page": "Models",
+    "title": "NLPModels.LSR1Model",
+    "category": "Type",
+    "text": "Construct a LSR1Model from another type of nlp.\n\n\n\n"
+},
+
+{
+    "location": "models.html#LSR1Model-1",
+    "page": "Models",
+    "title": "LSR1Model",
+    "category": "section",
+    "text": "NLPModels.LSR1Model"
+},
+
+{
+    "location": "models.html#NLPModels.ADNLSModel",
+    "page": "Models",
+    "title": "NLPModels.ADNLSModel",
+    "category": "Type",
+    "text": "ADNLSModel is an Nonlinear Least Squares model using ForwardDiff to compute the derivatives.\n\nADNLSModel(F, x0, m; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,\n  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = \"Generic\")\n\nF :: Function - The residual function F;\nx0 :: Vector - The initial point of the problem;\nm :: Int - The dimension of F(x), i.e., the number of\n\nequations in the nonlinear system.\n\nThe other parameters are as in ADNLPModel.\n\n\n\n"
+},
+
+{
+    "location": "models.html#ADNLSModel-1",
+    "page": "Models",
+    "title": "ADNLSModel",
+    "category": "section",
+    "text": "NLPModels.ADNLSModelusing NLPModels\nF(x) = [x[1] - 1; 10*(x[2] - x[1]^2)]\nnlp = ADNLSModel(F, [-1.2; 1.0], 2)\nresidual(nlp, nlp.meta.x0)"
+},
+
+{
+    "location": "models.html#NLPModels.FeasibilityResidual",
+    "page": "Models",
+    "title": "NLPModels.FeasibilityResidual",
+    "category": "Type",
+    "text": "A feasibility residual model is created from a NLPModel of the form\n\nmin f(x)\ns.t c(x) = 0\n\nby defining the function F(x) = c(x). If the problem has bounds on the variables or more constraints, an error is thrown.\n\n\n\n"
+},
+
+{
+    "location": "models.html#FeasibilityResidual-1",
+    "page": "Models",
+    "title": "FeasibilityResidual",
+    "category": "section",
+    "text": "NLPModels.FeasibilityResidual"
+},
+
+{
+    "location": "models.html#NLPModels.LLSModel",
+    "page": "Models",
+    "title": "NLPModels.LLSModel",
+    "category": "Type",
+    "text": "nls = LLSModel(A, b; lvar, uvar, C, lcon, ucon)\n\nCreates a Linear Least Squares model ½‖Ax - b‖² with optional bounds lvar ≦ x ≦ y and optional linear constraints lcon ≦ Cx ≦ ucon.\n\n\n\n"
+},
+
+{
+    "location": "models.html#LLSModel-1",
+    "page": "Models",
+    "title": "LLSModel",
+    "category": "section",
+    "text": "NLPModels.LLSModel"
+},
+
+{
+    "location": "models.html#NLPModels.SimpleNLSModel",
+    "page": "Models",
+    "title": "NLPModels.SimpleNLSModel",
+    "category": "Type",
+    "text": "nls = SimpleNLSModel(n;  F=F, F! =F!, JF=JF, JFp=JFp, JFp! =JFp!,\nJFtp=JFtp, JFtp! =JFtp!)\nnls = SimpleNLSModel(x0; F=F, F! =F!, JF=JF, JFp=JFp, JFp! =JFp!,\nJFtp=JFtp, JFtp! =JFtp!)\n\nCreates a Nonlinear Linear Least Squares model to minimize ‖F(x)‖². If JF = JF(x) is passed, the Jacobian is available.\n\n\n\n"
+},
+
+{
+    "location": "models.html#SimpleNLSModel-1",
+    "page": "Models",
+    "title": "SimpleNLSModel",
+    "category": "section",
+    "text": "NLPModels.SimpleNLSModel"
+},
+
+{
+    "location": "tools.html#",
+    "page": "Tools",
+    "title": "Tools",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "tools.html#Tools-1",
+    "page": "Tools",
+    "title": "Tools",
+    "category": "section",
+    "text": ""
+},
+
+{
+    "location": "tools.html#Functions-evaluations-1",
+    "page": "Tools",
+    "title": "Functions evaluations",
+    "category": "section",
+    "text": "After calling one the API functions to get a function value, the number of times that function was called is stored inside the NLPModel. For instanceusing NLPModels\nnlp = ADNLPModel(x -> dot(x, x), zeros(2))\nfor i = 1:100\n    obj(nlp, rand(2))\nend\nneval_obj(nlp)Some counters are available for all models, some are specific. In particular, there are additional specific counters for the nonlinear least squares models.Counter Description\nneval_obj Objective\nneval_grad Gradient\nneval_cons Constraints\nneval_jcon One constraint - unused\nneval_jgrad Gradient of one constraints - unused\nneval_jac Jacobian\nneval_jprod Product of Jacobian and vector\nneval_jtprod Product of transposed Jacobian and vector\nneval_hess Hessian\nneval_hprod Product of Hessian and vector\nneval_jhprod Product of Hessian of j-th function and vector\nneval_residual Residual function of nonlinear least squares model\nneval_jac_residual Jacobian of the residual\nneval_jprod_residual Product of Jacobian of residual and vector\nneval_jtprod_residual Product of transposed Jacobian of residual and vector\nneval_hess_residual Hessian of a residual component\nneval_hprod_residual Product of Hessian of a residual component and vectorTo get the sum of all counters called for a problem, use sum_counters.using NLPModels\nnlp = ADNLPModel(x -> dot(x, x), zeros(2))\nobj(nlp, rand(2))\ngrad(nlp, rand(2))\nsum_counters(nlp)"
+},
+
+{
+    "location": "tools.html#Querying-problem-type-1",
+    "page": "Tools",
+    "title": "Querying problem type",
+    "category": "section",
+    "text": "There are some variable for querying the problem type:bound_constrained: True for problems with bounded variables and no other constraints.\nequality_constrained: True when problem is constrained only by equalities.\nhas_bounds: True when not all variables are free.\ninequality_constrained: True when problem is constrained by inequalities.\nlinearly_constrained: True when problem is constrained by equalities or inequalities known to be linear.\nunconstrained: True when problem is not constrained."
+},
+
+{
+    "location": "tools.html#NLPModels.neval_obj",
+    "page": "Tools",
+    "title": "NLPModels.neval_obj",
+    "category": "Function",
+    "text": "NLPModels.neval_obj(nlp)\n\nGet the number of obj evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_grad",
+    "page": "Tools",
+    "title": "NLPModels.neval_grad",
+    "category": "Function",
+    "text": "NLPModels.neval_grad(nlp)\n\nGet the number of grad evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_cons",
+    "page": "Tools",
+    "title": "NLPModels.neval_cons",
+    "category": "Function",
+    "text": "NLPModels.neval_cons(nlp)\n\nGet the number of cons evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_jcon",
+    "page": "Tools",
+    "title": "NLPModels.neval_jcon",
+    "category": "Function",
+    "text": "NLPModels.neval_jcon(nlp)\n\nGet the number of jcon evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_jgrad",
+    "page": "Tools",
+    "title": "NLPModels.neval_jgrad",
+    "category": "Function",
+    "text": "NLPModels.neval_jgrad(nlp)\n\nGet the number of jgrad evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_jac",
+    "page": "Tools",
+    "title": "NLPModels.neval_jac",
+    "category": "Function",
+    "text": "NLPModels.neval_jac(nlp)\n\nGet the number of jac evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_jprod",
+    "page": "Tools",
+    "title": "NLPModels.neval_jprod",
+    "category": "Function",
+    "text": "NLPModels.neval_jprod(nlp)\n\nGet the number of jprod evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_jtprod",
+    "page": "Tools",
+    "title": "NLPModels.neval_jtprod",
+    "category": "Function",
+    "text": "NLPModels.neval_jtprod(nlp)\n\nGet the number of jtprod evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_hess",
+    "page": "Tools",
+    "title": "NLPModels.neval_hess",
+    "category": "Function",
+    "text": "NLPModels.neval_hess(nlp)\n\nGet the number of hess evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_hprod",
+    "page": "Tools",
+    "title": "NLPModels.neval_hprod",
+    "category": "Function",
+    "text": "NLPModels.neval_hprod(nlp)\n\nGet the number of hprod evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_jhprod",
+    "page": "Tools",
+    "title": "NLPModels.neval_jhprod",
+    "category": "Function",
+    "text": "NLPModels.neval_jhprod(nlp)\n\nGet the number of jhprod evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_residual",
+    "page": "Tools",
+    "title": "NLPModels.neval_residual",
+    "category": "Function",
+    "text": "NLPModels.neval_residual(nlp)\n\nGet the number of residual evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_jac_residual",
+    "page": "Tools",
+    "title": "NLPModels.neval_jac_residual",
+    "category": "Function",
+    "text": "NLPModels.neval_jac_residual(nlp)\n\nGet the number of jac evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_jprod_residual",
+    "page": "Tools",
+    "title": "NLPModels.neval_jprod_residual",
+    "category": "Function",
+    "text": "NLPModels.neval_jprod_residual(nlp)\n\nGet the number of jprod evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_jtprod_residual",
+    "page": "Tools",
+    "title": "NLPModels.neval_jtprod_residual",
+    "category": "Function",
+    "text": "NLPModels.neval_jtprod_residual(nlp)\n\nGet the number of jtprod evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_hess_residual",
+    "page": "Tools",
+    "title": "NLPModels.neval_hess_residual",
+    "category": "Function",
+    "text": "NLPModels.neval_hess_residual(nlp)\n\nGet the number of hess evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.neval_hprod_residual",
+    "page": "Tools",
+    "title": "NLPModels.neval_hprod_residual",
+    "category": "Function",
+    "text": "NLPModels.neval_hprod_residual(nlp)\n\nGet the number of hprod evaluations.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.sum_counters",
+    "page": "Tools",
+    "title": "NLPModels.sum_counters",
+    "category": "Function",
+    "text": "sum_counters(counters)\n\nSum all counters of counters.\n\n\n\nsum_counters(nlp)\n\nSum all counters of problem nlp.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.bound_constrained",
+    "page": "Tools",
+    "title": "NLPModels.bound_constrained",
+    "category": "Function",
+    "text": "bound_constrained(nlp)\nbound_constrained(meta)\n\nReturns whether the problem has bounds on the variables and no other constraints.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.equality_constrained",
+    "page": "Tools",
+    "title": "NLPModels.equality_constrained",
+    "category": "Function",
+    "text": "equality_constrained(nlp)\nequality_constrained(meta)\n\nReturns whether the problem's constraints are all equalities. Unconstrained problems return false.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.has_bounds",
+    "page": "Tools",
+    "title": "NLPModels.has_bounds",
+    "category": "Function",
+    "text": "has_bounds(nlp)\nhas_bounds(meta)\n\nReturns whether the problem has bounds on the variables.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.inequality_constrained",
+    "page": "Tools",
+    "title": "NLPModels.inequality_constrained",
+    "category": "Function",
+    "text": "inequality_constrained(nlp)\ninequality_constrained(meta)\n\nReturns whether the problem's constraints are all inequalities. Unconstrained problems return true.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.linearly_constrained",
+    "page": "Tools",
+    "title": "NLPModels.linearly_constrained",
+    "category": "Function",
+    "text": "linearly_constrained(nlp)\nlinearly_constrained(meta)\n\nReturns whether the problem's constraints are known to be all linear.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#NLPModels.unconstrained",
+    "page": "Tools",
+    "title": "NLPModels.unconstrained",
+    "category": "Function",
+    "text": "unconstrained(nlp)\nunconstrained(meta)\n\nReturns whether the problem in unconstrained.\n\n\n\n"
+},
+
+{
+    "location": "tools.html#Docs-1",
+    "page": "Tools",
+    "title": "Docs",
+    "category": "section",
+    "text": "neval_obj\nneval_grad\nneval_cons\nneval_jcon\nneval_jgrad\nneval_jac\nneval_jprod\nneval_jtprod\nneval_hess\nneval_hprod\nneval_jhprod\nneval_residual\nneval_jac_residual\nneval_jprod_residual\nneval_jtprod_residual\nneval_hess_residual\nneval_hprod_residual\nsum_counters\nbound_constrained\nequality_constrained\nhas_bounds\ninequality_constrained\nlinearly_constrained\nunconstrained"
 },
 
 {
@@ -246,6 +598,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Reference guide",
     "category": "section",
     "text": "The following naming should be easy enough to follow. If not, click on the link and go to the description.! means inplace;\n_coord means coordinate format;\nprod means matrix-vector product;\n_op means operator (as in LinearOperators.jl).Feel free to open an issue to suggest other methods that should apply to all NLPModels instances.Function NLPModels function\nf(x) obj, objgrad, objgrad!, objcons, objcons!\nnabla f(x) grad, grad!, objgrad, objgrad!\nnabla^2 f(x) hess, hess_op, hess_op!, hess_coord, hprod, hprod!\nc(x) cons, cons!, objcons, objcons!\nJ(x) jac, jac_op, jac_op!, jac_coord, jprod, jprod!, jtprod, jtprod!\nnabla^2 L(xy) hess, hess_op, hess_coord, hprod, hprod!"
+},
+
+{
+    "location": "api.html#API-for-NLSModels-1",
+    "page": "API",
+    "title": "API for NLSModels",
+    "category": "section",
+    "text": "For the Nonlinear Least Squares models, f(x) = Vert F(x)Vert^2, and these models have additional function to access the residual value and its derivatives. Namely,J_F(x) = nabla F(x)\nnabla^2 F_i(x)Function function\nF(x) residual, residual!\nJ_F(x) jac_residual, jprod_residual, jprod_residual!, jtprod_residual, jtprod_residual!, jac_op_residual, jac_op_residual!\nnabla^2 F_i(x) hess_residual, hprod_residual, hprod_residual!, hess_op_residual, hess_op_residual!"
 },
 
 {
@@ -454,6 +814,126 @@ var documenterSearchIndex = {"docs": [
     "title": "AbstractNLPModel functions",
     "category": "section",
     "text": "obj\ngrad\ngrad!\nobjgrad\nobjgrad!\ncons\ncons!\nobjcons\nobjcons!\njac_coord\njac\njac_op\njac_op!\njprod\njprod!\njtprod\njtprod!\nhess_coord\nhess\nhess_op\nhess_op!\nhprod\nhprod!\nNLPtoMPB\nreset!"
+},
+
+{
+    "location": "api.html#NLPModels.residual",
+    "page": "API",
+    "title": "NLPModels.residual",
+    "category": "Function",
+    "text": "Fx = residual(nls, x)\n\nComputes F(x), the residual at x.\n\n\n\n"
+},
+
+{
+    "location": "api.html#NLPModels.residual!",
+    "page": "API",
+    "title": "NLPModels.residual!",
+    "category": "Function",
+    "text": "Fx = residual!(nls, x, Fx)\n\nComputes F(x), the residual at x.\n\n\n\n"
+},
+
+{
+    "location": "api.html#NLPModels.jac_residual",
+    "page": "API",
+    "title": "NLPModels.jac_residual",
+    "category": "Function",
+    "text": "Jx = jac_residual(nls, x)\n\nComputes J(x), the Jacobian of the residual at x.\n\n\n\n"
+},
+
+{
+    "location": "api.html#NLPModels.jprod_residual",
+    "page": "API",
+    "title": "NLPModels.jprod_residual",
+    "category": "Function",
+    "text": "Jv = jprod_residual(nls, x, v)\n\nComputes the product of the Jacobian of the residual at x and a vector, i.e.,  J(x)*v.\n\n\n\n"
+},
+
+{
+    "location": "api.html#NLPModels.jprod_residual!",
+    "page": "API",
+    "title": "NLPModels.jprod_residual!",
+    "category": "Function",
+    "text": "Jv = jprod_residual!(nls, x, v, Jv)\n\nComputes the product of the Jacobian of the residual at x and a vector, i.e.,  J(x)*v, storing it in Jv.\n\n\n\n"
+},
+
+{
+    "location": "api.html#NLPModels.jtprod_residual",
+    "page": "API",
+    "title": "NLPModels.jtprod_residual",
+    "category": "Function",
+    "text": "Jtv = jtprod_residual(nls, x, v)\n\nComputes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  J(x)'*v.\n\n\n\n"
+},
+
+{
+    "location": "api.html#NLPModels.jtprod_residual!",
+    "page": "API",
+    "title": "NLPModels.jtprod_residual!",
+    "category": "Function",
+    "text": "Jtv = jtprod_residual!(nls, x, v, Jtv)\n\nComputes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  J(x)'*v, storing it in Jtv.\n\n\n\n"
+},
+
+{
+    "location": "api.html#NLPModels.jac_op_residual",
+    "page": "API",
+    "title": "NLPModels.jac_op_residual",
+    "category": "Function",
+    "text": "Jx = jac_op_residual(nls, x)\n\nComputes J(x), the Jacobian of the residual at x, in linear operator form.\n\n\n\n"
+},
+
+{
+    "location": "api.html#NLPModels.jac_op_residual!",
+    "page": "API",
+    "title": "NLPModels.jac_op_residual!",
+    "category": "Function",
+    "text": "Jx = jac_op_residual!(nls, x, Jv, Jtv)\n\nComputes J(x), the Jacobian of the residual at x, in linear operator form. The vectors Jv and Jtv are used as preallocated storage for the operations.\n\n\n\n"
+},
+
+{
+    "location": "api.html#NLPModels.hess_residual",
+    "page": "API",
+    "title": "NLPModels.hess_residual",
+    "category": "Function",
+    "text": "Hi = hess_residual(nls, x, i)\n\nComputes the Hessian of the i-th residual at x.\n\n\n\n"
+},
+
+{
+    "location": "api.html#NLPModels.hprod_residual",
+    "page": "API",
+    "title": "NLPModels.hprod_residual",
+    "category": "Function",
+    "text": "Hiv = hprod_residual(nls, x, i, v)\n\nComputes the product of the Hessian of the i-th residual at x, times the vector v.\n\n\n\n"
+},
+
+{
+    "location": "api.html#NLPModels.hprod_residual!",
+    "page": "API",
+    "title": "NLPModels.hprod_residual!",
+    "category": "Function",
+    "text": "Hiv = hprod_residual!(nls, x, i, v, Hiv)\n\nComputes the product of the Hessian of the i-th residual at x, times the vector v, and stores it in vector Hiv.\n\n\n\n"
+},
+
+{
+    "location": "api.html#NLPModels.hess_op_residual",
+    "page": "API",
+    "title": "NLPModels.hess_op_residual",
+    "category": "Function",
+    "text": "Hop = hess_op_residual(nls, x, i)\n\nComputes the Hessian of the i-th residual at x, in linear operator form.\n\n\n\n"
+},
+
+{
+    "location": "api.html#NLPModels.hess_op_residual!",
+    "page": "API",
+    "title": "NLPModels.hess_op_residual!",
+    "category": "Function",
+    "text": "Hop = hess_op_residual!(nls, x, i, Hiv)\n\nComputes the Hessian of the i-th residual at x, in linear operator form. The vector Hiv is used as preallocated storage for the operation.\n\n\n\n"
+},
+
+{
+    "location": "api.html#AbstractNLSModel-1",
+    "page": "API",
+    "title": "AbstractNLSModel",
+    "category": "section",
+    "text": "residual\nresidual!\njac_residual\njprod_residual\njprod_residual!\njtprod_residual\njtprod_residual!\njac_op_residual\njac_op_residual!\nhess_residual\nhprod_residual\nhprod_residual!\nhess_op_residual\nhess_op_residual!"
 },
 
 {
