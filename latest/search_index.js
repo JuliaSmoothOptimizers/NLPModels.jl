@@ -116,7 +116,7 @@ var documenterSearchIndex = {"docs": [
     "location": "models.html#NLPModels.ADNLPModel",
     "page": "Models",
     "title": "NLPModels.ADNLPModel",
-    "category": "Type",
+    "category": "type",
     "text": "ADNLPModel is an AbstractNLPModel using ForwardDiff to compute the derivatives. In this interface, the objective function f and an initial estimate are required. If there are constraints, the function cmathbbR^nrightarrowmathbbR^m  and the vectors c_L and c_U also need to be passed. Bounds on the variables and an inital estimate to the Lagrangian multipliers can also be provided.\n\nADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,\n  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = \"Generic\")\n\nf :: Function - The objective function f;\nx0 :: Vector - The initial point of the problem;\nlvar :: Vector - ell, the lower bound of the variables;\nuvar :: Vector - u, the upper bound of the variables;\nc :: Function - The constraints function c;\ny0 :: Vector - The initial value of the Lagrangian estimates;\nlcon :: Vector - c_L, the lower bounds of the constraints function;\nucon :: Vector - c_U, the upper bounds of the constraints function;\nname :: String - A name for the model.\n\nThe functions follow the same restrictions of ForwardDiff functions, summarised here:\n\nThe function can only be composed of generic Julia functions;\nThe function must accept only one argument;\nThe function\'s argument must accept a subtype of Vector;\nThe function should be type-stable.\n\nFor contrained problems, the function c is required, and it must return an array even when m = 1, and c_L and c_U should be passed, otherwise the problem is ill-formed. For equality constraints, the corresponding index of c_L and c_U should be the same.\n\n\n\n"
 },
 
@@ -140,7 +140,7 @@ var documenterSearchIndex = {"docs": [
     "location": "models.html#NLPModels.MathProgNLPModel",
     "page": "Models",
     "title": "NLPModels.MathProgNLPModel",
-    "category": "Type",
+    "category": "type",
     "text": "Construct a MathProgNLPModel from a MathProgModel.\n\n\n\nConstruct a MathProgNLPModel from a JuMP Model.\n\n\n\n"
 },
 
@@ -164,7 +164,7 @@ var documenterSearchIndex = {"docs": [
     "location": "models.html#NLPModels.SimpleNLPModel",
     "page": "Models",
     "title": "NLPModels.SimpleNLPModel",
-    "category": "Type",
+    "category": "type",
     "text": "SimpleNLPModel is an AbstractNLPModel that uses only user-defined functions. In this interface, the objective function f and an initial estimate are required. If the user wants to use derivatives, they need to be passed. The same goes for the Hessian and Hessian-Vector product. For constraints, cmathbbR^nrightarrowmathbbR^m  and the vectors c_L and c_U also need to be passed. Bounds on the variables and an inital estimate to the Lagrangian multipliers can also be provided. The user can also pass the Jacobian and the Lagrangian Hessian and Hessian-Vector product.\n\nSimpleNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,\n  lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = \"Generic\",\n  [list of functions])\n\nf :: Function - The objective function f;\nx0 :: Vector - The initial point of the problem;\nlvar :: Vector - ell, the lower bound of the variables;\nuvar :: Vector - u, the upper bound of the variables;\ny0 :: Vector - The initial value of the Lagrangian estimates;\nlcon :: Vector - c_L, the lower bounds of the constraints function;\nucon :: Vector - c_U, the upper bounds of the constraints function;\nname :: String - A name for the model.\n\nAll functions passed have a direct correlation with a NLP function. You don\'t have to define any more than you need, but calling an undefined function will throw a NotImplementedError. The list is\n\ng and g!: nabla f(x), the gradient of the objective function; see grad.\ngx = g(x) gx = g!(x, gx)\nH: The lower triangle of the Hessian of the objective function or of the Lagrangian; see hess.\nHx = H(x; obj_weight=1.0) # if the problem is unconstrained Hx = H(x; obj_weight=1.0, y=zeros) # if the problem is constrained\nHcoord - The lower triangle of the Hessian of the objective function or of the Lagrangian, in triplet format; see hess_coord.\n(rows,cols,vals) = Hcoord(x; obj_weight=1.0) # if the problem is unconstrained (rows,cols,vals) = Hcoord(x; obj_weight=1.0, y=zeros) # if the problem is constrained\nHp and Hp! - The product of the Hessian of the objective function or of the Lagrangian by a vector; see hprod.\nHv = Hp(x, v, obj_weight=1.0) # if the problem is unconstrained Hv = Hp!(x, v, Hv, obj_weight=1.0) # if the problem is unconstrained Hv = Hp(x, v, obj_weight=1.0, y=zeros) # if the problem is constrained Hv = Hp!(x, v, Hv, obj_weight=1.0, y=zeros) # if the problem is constrained\nc and c! - c(x), the constraints function; see cons.\ncx = c(x) cx = c!(x, cx)\nJ - J(x), the Jacobian of the constraints; see jac.\nJx = J(x)\nJcoord - J(x), the Jacobian of the constraints, in triplet format; see jac_coord.\n(rows,cols,vals) = Jcoord(x)\nJp and Jp! - The Jacobian-vector product; see jprod.\nJv = Jp(x, v) Jv = Jp!(x, v, Jv)\nJtp and Jtp! - The Jacobian-transposed-vector product; see jtprod.\nJtv = Jtp(x, v) Jtv = Jtp!(x, v, Jtv)\n\nFor contrained problems, the function c is required, and it must return an array even when m = 1, and c_L and c_U should be passed, otherwise the problem is ill-formed. For equality constraints, the corresponding index of c_L and c_U should be the same.\n\n\n\n"
 },
 
@@ -196,7 +196,7 @@ var documenterSearchIndex = {"docs": [
     "location": "models.html#NLPModels.SlackModel",
     "page": "Models",
     "title": "NLPModels.SlackModel",
-    "category": "Type",
+    "category": "type",
     "text": "A model whose only inequality constraints are bounds.\n\nGiven a model, this type represents a second model in which slack variables are introduced so as to convert linear and nonlinear inequality constraints to equality constraints and bounds. More precisely, if the original model has the form\n\n\\[ \\min f(x)  \\mbox{ s. t. }  c_L \\leq c(x) \\leq c_U \\mbox{ and } \\ell \\leq x \\leq u, \\]\n\nthe new model appears to the user as\n\n\\[ \\min f(X)  \\mbox{ s. t. }  g(X) = 0 \\mbox{ and } L \\leq X \\leq U. \\]\n\nThe unknowns X = (x s) contain the original variables and slack variables s. The latter are such that the new model has the general form\n\n\\[ \\min f(x)  \\mbox{ s. t. }  c(x) - s = 0, c_L \\leq s \\leq c_U \\mbox{ and } \\ell \\leq x \\leq u, \\]\n\nalthough no slack variables are introduced for equality constraints.\n\nThe slack variables are implicitly ordered as [s(low), s(upp), s(rng)], where low, upp and rng represent the indices of the constraints of the form c_L leq c(x)  infty, -infty  c(x) leq c_U and c_L leq c(x) leq c_U, respectively.\n\n\n\n"
 },
 
@@ -220,7 +220,7 @@ var documenterSearchIndex = {"docs": [
     "location": "models.html#NLPModels.LBFGSModel",
     "page": "Models",
     "title": "NLPModels.LBFGSModel",
-    "category": "Type",
+    "category": "type",
     "text": "Construct a LBFGSModel from another type of model.\n\n\n\n"
 },
 
@@ -236,7 +236,7 @@ var documenterSearchIndex = {"docs": [
     "location": "models.html#NLPModels.LSR1Model",
     "page": "Models",
     "title": "NLPModels.LSR1Model",
-    "category": "Type",
+    "category": "type",
     "text": "Construct a LSR1Model from another type of nlp.\n\n\n\n"
 },
 
@@ -252,7 +252,7 @@ var documenterSearchIndex = {"docs": [
     "location": "models.html#NLPModels.ADNLSModel",
     "page": "Models",
     "title": "NLPModels.ADNLSModel",
-    "category": "Type",
+    "category": "type",
     "text": "ADNLSModel is an Nonlinear Least Squares model using ForwardDiff to compute the derivatives.\n\nADNLSModel(F, x0, m; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,\n  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = \"Generic\")\n\nF :: Function - The residual function F;\nx0 :: Vector - The initial point of the problem;\nm :: Int - The dimension of F(x), i.e., the number of\n\nequations in the nonlinear system.\n\nThe other parameters are as in ADNLPModel.\n\n\n\n"
 },
 
@@ -268,7 +268,7 @@ var documenterSearchIndex = {"docs": [
     "location": "models.html#NLPModels.FeasibilityResidual",
     "page": "Models",
     "title": "NLPModels.FeasibilityResidual",
-    "category": "Type",
+    "category": "type",
     "text": "A feasibility residual model is created from a NLPModel of the form\n\nmin f(x)\ns.t c(x) = 0\n\nby defining the function F(x) = c(x). If the problem has bounds on the variables or more constraints, an error is thrown.\n\n\n\n"
 },
 
@@ -284,7 +284,7 @@ var documenterSearchIndex = {"docs": [
     "location": "models.html#NLPModels.LLSModel",
     "page": "Models",
     "title": "NLPModels.LLSModel",
-    "category": "Type",
+    "category": "type",
     "text": "nls = LLSModel(A, b; lvar, uvar, C, lcon, ucon)\n\nCreates a Linear Least Squares model ½‖Ax - b‖² with optional bounds lvar ≦ x ≦ y and optional linear constraints lcon ≦ Cx ≦ ucon.\n\n\n\n"
 },
 
@@ -300,7 +300,7 @@ var documenterSearchIndex = {"docs": [
     "location": "models.html#NLPModels.SimpleNLSModel",
     "page": "Models",
     "title": "NLPModels.SimpleNLSModel",
-    "category": "Type",
+    "category": "type",
     "text": "nls = SimpleNLSModel(n;  F=F, F! =F!, JF=JF, JFp=JFp, JFp! =JFp!,\nJFtp=JFtp, JFtp! =JFtp!)\nnls = SimpleNLSModel(x0; F=F, F! =F!, JF=JF, JFp=JFp, JFp! =JFp!,\nJFtp=JFtp, JFtp! =JFtp!)\n\nCreates a Nonlinear Linear Least Squares model to minimize ‖F(x)‖². If JF = JF(x) is passed, the Jacobian is available.\n\n\n\n"
 },
 
@@ -348,7 +348,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_obj",
     "page": "Tools",
     "title": "NLPModels.neval_obj",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_obj(nlp)\n\nGet the number of obj evaluations.\n\n\n\n"
 },
 
@@ -356,7 +356,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_grad",
     "page": "Tools",
     "title": "NLPModels.neval_grad",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_grad(nlp)\n\nGet the number of grad evaluations.\n\n\n\n"
 },
 
@@ -364,7 +364,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_cons",
     "page": "Tools",
     "title": "NLPModels.neval_cons",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_cons(nlp)\n\nGet the number of cons evaluations.\n\n\n\n"
 },
 
@@ -372,7 +372,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_jcon",
     "page": "Tools",
     "title": "NLPModels.neval_jcon",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_jcon(nlp)\n\nGet the number of jcon evaluations.\n\n\n\n"
 },
 
@@ -380,7 +380,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_jgrad",
     "page": "Tools",
     "title": "NLPModels.neval_jgrad",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_jgrad(nlp)\n\nGet the number of jgrad evaluations.\n\n\n\n"
 },
 
@@ -388,7 +388,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_jac",
     "page": "Tools",
     "title": "NLPModels.neval_jac",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_jac(nlp)\n\nGet the number of jac evaluations.\n\n\n\n"
 },
 
@@ -396,7 +396,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_jprod",
     "page": "Tools",
     "title": "NLPModels.neval_jprod",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_jprod(nlp)\n\nGet the number of jprod evaluations.\n\n\n\n"
 },
 
@@ -404,7 +404,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_jtprod",
     "page": "Tools",
     "title": "NLPModels.neval_jtprod",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_jtprod(nlp)\n\nGet the number of jtprod evaluations.\n\n\n\n"
 },
 
@@ -412,7 +412,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_hess",
     "page": "Tools",
     "title": "NLPModels.neval_hess",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_hess(nlp)\n\nGet the number of hess evaluations.\n\n\n\n"
 },
 
@@ -420,7 +420,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_hprod",
     "page": "Tools",
     "title": "NLPModels.neval_hprod",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_hprod(nlp)\n\nGet the number of hprod evaluations.\n\n\n\n"
 },
 
@@ -428,7 +428,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_jhprod",
     "page": "Tools",
     "title": "NLPModels.neval_jhprod",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_jhprod(nlp)\n\nGet the number of jhprod evaluations.\n\n\n\n"
 },
 
@@ -436,7 +436,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_residual",
     "page": "Tools",
     "title": "NLPModels.neval_residual",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_residual(nlp)\n\nGet the number of residual evaluations.\n\n\n\n"
 },
 
@@ -444,7 +444,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_jac_residual",
     "page": "Tools",
     "title": "NLPModels.neval_jac_residual",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_jac_residual(nlp)\n\nGet the number of jac evaluations.\n\n\n\n"
 },
 
@@ -452,7 +452,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_jprod_residual",
     "page": "Tools",
     "title": "NLPModels.neval_jprod_residual",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_jprod_residual(nlp)\n\nGet the number of jprod evaluations.\n\n\n\n"
 },
 
@@ -460,7 +460,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_jtprod_residual",
     "page": "Tools",
     "title": "NLPModels.neval_jtprod_residual",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_jtprod_residual(nlp)\n\nGet the number of jtprod evaluations.\n\n\n\n"
 },
 
@@ -468,7 +468,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_hess_residual",
     "page": "Tools",
     "title": "NLPModels.neval_hess_residual",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_hess_residual(nlp)\n\nGet the number of hess evaluations.\n\n\n\n"
 },
 
@@ -476,7 +476,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.neval_hprod_residual",
     "page": "Tools",
     "title": "NLPModels.neval_hprod_residual",
-    "category": "Function",
+    "category": "function",
     "text": "NLPModels.neval_hprod_residual(nlp)\n\nGet the number of hprod evaluations.\n\n\n\n"
 },
 
@@ -484,7 +484,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.sum_counters",
     "page": "Tools",
     "title": "NLPModels.sum_counters",
-    "category": "Function",
+    "category": "function",
     "text": "sum_counters(counters)\n\nSum all counters of counters.\n\n\n\nsum_counters(nlp)\n\nSum all counters of problem nlp.\n\n\n\n"
 },
 
@@ -492,7 +492,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.bound_constrained",
     "page": "Tools",
     "title": "NLPModels.bound_constrained",
-    "category": "Function",
+    "category": "function",
     "text": "bound_constrained(nlp)\nbound_constrained(meta)\n\nReturns whether the problem has bounds on the variables and no other constraints.\n\n\n\n"
 },
 
@@ -500,7 +500,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.equality_constrained",
     "page": "Tools",
     "title": "NLPModels.equality_constrained",
-    "category": "Function",
+    "category": "function",
     "text": "equality_constrained(nlp)\nequality_constrained(meta)\n\nReturns whether the problem\'s constraints are all equalities. Unconstrained problems return false.\n\n\n\n"
 },
 
@@ -508,7 +508,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.has_bounds",
     "page": "Tools",
     "title": "NLPModels.has_bounds",
-    "category": "Function",
+    "category": "function",
     "text": "has_bounds(nlp)\nhas_bounds(meta)\n\nReturns whether the problem has bounds on the variables.\n\n\n\n"
 },
 
@@ -516,7 +516,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.inequality_constrained",
     "page": "Tools",
     "title": "NLPModels.inequality_constrained",
-    "category": "Function",
+    "category": "function",
     "text": "inequality_constrained(nlp)\ninequality_constrained(meta)\n\nReturns whether the problem\'s constraints are all inequalities. Unconstrained problems return true.\n\n\n\n"
 },
 
@@ -524,7 +524,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.linearly_constrained",
     "page": "Tools",
     "title": "NLPModels.linearly_constrained",
-    "category": "Function",
+    "category": "function",
     "text": "linearly_constrained(nlp)\nlinearly_constrained(meta)\n\nReturns whether the problem\'s constraints are known to be all linear.\n\n\n\n"
 },
 
@@ -532,7 +532,7 @@ var documenterSearchIndex = {"docs": [
     "location": "tools.html#NLPModels.unconstrained",
     "page": "Tools",
     "title": "NLPModels.unconstrained",
-    "category": "Function",
+    "category": "function",
     "text": "unconstrained(nlp)\nunconstrained(meta)\n\nReturns whether the problem in unconstrained.\n\n\n\n"
 },
 
@@ -612,7 +612,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.obj",
     "page": "API",
     "title": "NLPModels.obj",
-    "category": "Function",
+    "category": "function",
     "text": "f = obj(nlp, x)\n\nEvaluate f(x), the objective function of nlp at x.\n\n\n\n"
 },
 
@@ -620,7 +620,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.grad",
     "page": "API",
     "title": "NLPModels.grad",
-    "category": "Function",
+    "category": "function",
     "text": "g = grad(nlp, x)\n\nEvaluate nabla f(x), the gradient of the objective function at x.\n\n\n\n"
 },
 
@@ -628,7 +628,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.grad!",
     "page": "API",
     "title": "NLPModels.grad!",
-    "category": "Function",
+    "category": "function",
     "text": "g = grad!(nlp, x, g)\n\nEvaluate nabla f(x), the gradient of the objective function at x in place.\n\n\n\n"
 },
 
@@ -636,7 +636,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.objgrad",
     "page": "API",
     "title": "NLPModels.objgrad",
-    "category": "Function",
+    "category": "function",
     "text": "f, g = objgrad(nlp, x)\n\nEvaluate f(x) and nabla f(x) at x.\n\n\n\n"
 },
 
@@ -644,7 +644,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.objgrad!",
     "page": "API",
     "title": "NLPModels.objgrad!",
-    "category": "Function",
+    "category": "function",
     "text": "f, g = objgrad!(nlp, x, g)\n\nEvaluate f(x) and nabla f(x) at x. g is overwritten with the value of nabla f(x).\n\n\n\n"
 },
 
@@ -652,7 +652,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.cons",
     "page": "API",
     "title": "NLPModels.cons",
-    "category": "Function",
+    "category": "function",
     "text": "c = cons(nlp, x)\n\nEvaluate c(x), the constraints at x.\n\n\n\n"
 },
 
@@ -660,7 +660,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.cons!",
     "page": "API",
     "title": "NLPModels.cons!",
-    "category": "Function",
+    "category": "function",
     "text": "c = cons!(nlp, x, c)\n\nEvaluate c(x), the constraints at x in place.\n\n\n\n"
 },
 
@@ -668,7 +668,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.objcons",
     "page": "API",
     "title": "NLPModels.objcons",
-    "category": "Function",
+    "category": "function",
     "text": "f, c = objcons(nlp, x)\n\nEvaluate f(x) and c(x) at x.\n\n\n\n"
 },
 
@@ -676,7 +676,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.objcons!",
     "page": "API",
     "title": "NLPModels.objcons!",
-    "category": "Function",
+    "category": "function",
     "text": "f = objcons!(nlp, x, c)\n\nEvaluate f(x) and c(x) at x. c is overwritten with the value of c(x).\n\n\n\n"
 },
 
@@ -684,7 +684,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jac_coord",
     "page": "API",
     "title": "NLPModels.jac_coord",
-    "category": "Function",
+    "category": "function",
     "text": "(rows,cols,vals) = jac_coord(nlp, x)\n\nEvaluate nabla c(x), the constraint\'s Jacobian at x in sparse coordinate format.\n\n\n\n"
 },
 
@@ -692,7 +692,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jac",
     "page": "API",
     "title": "NLPModels.jac",
-    "category": "Function",
+    "category": "function",
     "text": "Jx = jac(nlp, x)\n\nEvaluate nabla c(x), the constraint\'s Jacobian at x as a sparse matrix.\n\n\n\n"
 },
 
@@ -700,7 +700,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jac_op",
     "page": "API",
     "title": "NLPModels.jac_op",
-    "category": "Function",
+    "category": "function",
     "text": "J = jac_op(nlp, x)\n\nReturn the Jacobian at x as a linear operator. The resulting object may be used as if it were a matrix, e.g., J * v or J\' * v.\n\n\n\n"
 },
 
@@ -708,7 +708,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jac_op!",
     "page": "API",
     "title": "NLPModels.jac_op!",
-    "category": "Function",
+    "category": "function",
     "text": "J = jac_op!(nlp, x, Jv, Jtv)\n\nReturn the Jacobian at x as a linear operator. The resulting object may be used as if it were a matrix, e.g., J * v or J\' * v. The values Jv and Jtv are used as preallocated storage for the operations.\n\n\n\n"
 },
 
@@ -716,7 +716,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jprod",
     "page": "API",
     "title": "NLPModels.jprod",
-    "category": "Function",
+    "category": "function",
     "text": "Jv = jprod(nlp, x, v)\n\nEvaluate nabla c(x)v, the Jacobian-vector product at x.\n\n\n\n"
 },
 
@@ -724,7 +724,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jprod!",
     "page": "API",
     "title": "NLPModels.jprod!",
-    "category": "Function",
+    "category": "function",
     "text": "Jv = jprod!(nlp, x, v, Jv)\n\nEvaluate nabla c(x)v, the Jacobian-vector product at x in place.\n\n\n\n"
 },
 
@@ -732,7 +732,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jtprod",
     "page": "API",
     "title": "NLPModels.jtprod",
-    "category": "Function",
+    "category": "function",
     "text": "Jtv = jtprod(nlp, x, v, Jtv)\n\nEvaluate nabla c(x)^Tv, the transposed-Jacobian-vector product at x.\n\n\n\n"
 },
 
@@ -740,7 +740,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jtprod!",
     "page": "API",
     "title": "NLPModels.jtprod!",
-    "category": "Function",
+    "category": "function",
     "text": "Jtv = jtprod!(nlp, x, v, Jtv)\n\nEvaluate nabla c(x)^Tv, the transposed-Jacobian-vector product at x in place.\n\n\n\n"
 },
 
@@ -748,7 +748,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.hess_coord",
     "page": "API",
     "title": "NLPModels.hess_coord",
-    "category": "Function",
+    "category": "function",
     "text": "(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0, y=zeros)\n\nEvaluate the Lagrangian Hessian at (x,y) in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\n\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\]\n\nwith σ = obj_weight. Only the lower triangle is returned.\n\n\n\n"
 },
 
@@ -756,7 +756,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.hess",
     "page": "API",
     "title": "NLPModels.hess",
-    "category": "Function",
+    "category": "function",
     "text": "Hx = hess(nlp, x; obj_weight=1.0, y=zeros)\n\nEvaluate the Lagrangian Hessian at (x,y) as a sparse matrix, with objective function scaled by obj_weight, i.e.,\n\n\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\]\n\nwith σ = obj_weight. Only the lower triangle is returned.\n\n\n\n"
 },
 
@@ -764,7 +764,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.hess_op",
     "page": "API",
     "title": "NLPModels.hess_op",
-    "category": "Function",
+    "category": "function",
     "text": "H = hess_op(nlp, x; obj_weight=1.0, y=zeros)\n\nReturn the Lagrangian Hessian at (x,y) with objective function scaled by obj_weight as a linear operator. The resulting object may be used as if it were a matrix, e.g., H * v. The linear operator H represents\n\n\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\]\n\nwith σ = obj_weight.\n\n\n\n"
 },
 
@@ -772,7 +772,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.hess_op!",
     "page": "API",
     "title": "NLPModels.hess_op!",
-    "category": "Function",
+    "category": "function",
     "text": "H = hess_op!(nlp, x, Hv; obj_weight=1.0, y=zeros)\n\nReturn the Lagrangian Hessian at (x,y) with objective function scaled by obj_weight as a linear operator, and storing the result on Hv. The resulting object may be used as if it were a matrix, e.g., w = H * v. The vector Hv is used as preallocated storage for the operation.  The linear operator H represents\n\n\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\]\n\nwith σ = obj_weight.\n\n\n\n"
 },
 
@@ -780,7 +780,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.hprod",
     "page": "API",
     "title": "NLPModels.hprod",
-    "category": "Function",
+    "category": "function",
     "text": "Hv = hprod(nlp, x, v; obj_weight=1.0, y=zeros)\n\nEvaluate the product of the Lagrangian Hessian at (x,y) with the vector v, with objective function scaled by obj_weight, i.e.,\n\n\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\]\n\nwith σ = obj_weight.\n\n\n\n"
 },
 
@@ -788,7 +788,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.hprod!",
     "page": "API",
     "title": "NLPModels.hprod!",
-    "category": "Function",
+    "category": "function",
     "text": "Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0, y=zeros)\n\nEvaluate the product of the Lagrangian Hessian at (x,y) with the vector v in place, with objective function scaled by obj_weight, i.e.,\n\n\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\]\n\nwith σ = obj_weight.\n\n\n\n"
 },
 
@@ -796,7 +796,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.NLPtoMPB",
     "page": "API",
     "title": "NLPModels.NLPtoMPB",
-    "category": "Function",
+    "category": "function",
     "text": "mp = NLPtoMPB(nlp, solver)\n\nReturn a MathProgBase model corresponding to an AbstractNLPModel.\n\nArguments\n\nnlp::AbstractNLPModel\nsolver::AbstractMathProgSolver a solver instance, e.g., IpoptSolver()\n\nCurrently, all models are treated as nonlinear models.\n\nReturn values\n\nThe function returns a MathProgBase model mpbmodel such that it should be possible to call\n\nMathProgBase.optimize!(mpbmodel)\n\n\n\n"
 },
 
@@ -804,7 +804,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#LinearOperators.reset!",
     "page": "API",
     "title": "LinearOperators.reset!",
-    "category": "Function",
+    "category": "function",
     "text": "reset!(counters)\n\nReset evaluation counters\n\n\n\n`reset!(nlp)\n\nReset evaluation count in nlp\n\n\n\n"
 },
 
@@ -820,7 +820,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.residual",
     "page": "API",
     "title": "NLPModels.residual",
-    "category": "Function",
+    "category": "function",
     "text": "Fx = residual(nls, x)\n\nComputes F(x), the residual at x.\n\n\n\n"
 },
 
@@ -828,7 +828,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.residual!",
     "page": "API",
     "title": "NLPModels.residual!",
-    "category": "Function",
+    "category": "function",
     "text": "Fx = residual!(nls, x, Fx)\n\nComputes F(x), the residual at x.\n\n\n\n"
 },
 
@@ -836,7 +836,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jac_residual",
     "page": "API",
     "title": "NLPModels.jac_residual",
-    "category": "Function",
+    "category": "function",
     "text": "Jx = jac_residual(nls, x)\n\nComputes J(x), the Jacobian of the residual at x.\n\n\n\n"
 },
 
@@ -844,7 +844,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jprod_residual",
     "page": "API",
     "title": "NLPModels.jprod_residual",
-    "category": "Function",
+    "category": "function",
     "text": "Jv = jprod_residual(nls, x, v)\n\nComputes the product of the Jacobian of the residual at x and a vector, i.e.,  J(x)*v.\n\n\n\n"
 },
 
@@ -852,7 +852,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jprod_residual!",
     "page": "API",
     "title": "NLPModels.jprod_residual!",
-    "category": "Function",
+    "category": "function",
     "text": "Jv = jprod_residual!(nls, x, v, Jv)\n\nComputes the product of the Jacobian of the residual at x and a vector, i.e.,  J(x)*v, storing it in Jv.\n\n\n\n"
 },
 
@@ -860,7 +860,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jtprod_residual",
     "page": "API",
     "title": "NLPModels.jtprod_residual",
-    "category": "Function",
+    "category": "function",
     "text": "Jtv = jtprod_residual(nls, x, v)\n\nComputes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  J(x)\'*v.\n\n\n\n"
 },
 
@@ -868,7 +868,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jtprod_residual!",
     "page": "API",
     "title": "NLPModels.jtprod_residual!",
-    "category": "Function",
+    "category": "function",
     "text": "Jtv = jtprod_residual!(nls, x, v, Jtv)\n\nComputes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  J(x)\'*v, storing it in Jtv.\n\n\n\n"
 },
 
@@ -876,7 +876,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jac_op_residual",
     "page": "API",
     "title": "NLPModels.jac_op_residual",
-    "category": "Function",
+    "category": "function",
     "text": "Jx = jac_op_residual(nls, x)\n\nComputes J(x), the Jacobian of the residual at x, in linear operator form.\n\n\n\n"
 },
 
@@ -884,7 +884,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jac_op_residual!",
     "page": "API",
     "title": "NLPModels.jac_op_residual!",
-    "category": "Function",
+    "category": "function",
     "text": "Jx = jac_op_residual!(nls, x, Jv, Jtv)\n\nComputes J(x), the Jacobian of the residual at x, in linear operator form. The vectors Jv and Jtv are used as preallocated storage for the operations.\n\n\n\n"
 },
 
@@ -892,7 +892,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.hess_residual",
     "page": "API",
     "title": "NLPModels.hess_residual",
-    "category": "Function",
+    "category": "function",
     "text": "Hi = hess_residual(nls, x, i)\n\nComputes the Hessian of the i-th residual at x.\n\n\n\n"
 },
 
@@ -900,7 +900,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.hprod_residual",
     "page": "API",
     "title": "NLPModels.hprod_residual",
-    "category": "Function",
+    "category": "function",
     "text": "Hiv = hprod_residual(nls, x, i, v)\n\nComputes the product of the Hessian of the i-th residual at x, times the vector v.\n\n\n\n"
 },
 
@@ -908,7 +908,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.hprod_residual!",
     "page": "API",
     "title": "NLPModels.hprod_residual!",
-    "category": "Function",
+    "category": "function",
     "text": "Hiv = hprod_residual!(nls, x, i, v, Hiv)\n\nComputes the product of the Hessian of the i-th residual at x, times the vector v, and stores it in vector Hiv.\n\n\n\n"
 },
 
@@ -916,7 +916,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.hess_op_residual",
     "page": "API",
     "title": "NLPModels.hess_op_residual",
-    "category": "Function",
+    "category": "function",
     "text": "Hop = hess_op_residual(nls, x, i)\n\nComputes the Hessian of the i-th residual at x, in linear operator form.\n\n\n\n"
 },
 
@@ -924,7 +924,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.hess_op_residual!",
     "page": "API",
     "title": "NLPModels.hess_op_residual!",
-    "category": "Function",
+    "category": "function",
     "text": "Hop = hess_op_residual!(nls, x, i, Hiv)\n\nComputes the Hessian of the i-th residual at x, in linear operator form. The vector Hiv is used as preallocated storage for the operation.\n\n\n\n"
 },
 
@@ -940,7 +940,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.gradient_check",
     "page": "API",
     "title": "NLPModels.gradient_check",
-    "category": "Function",
+    "category": "function",
     "text": "Check the first derivatives of the objective at x against centered finite differences.\n\nThis function returns a dictionary indexed by components of the gradient for which the relative error exceeds rtol.\n\n\n\n"
 },
 
@@ -948,7 +948,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.jacobian_check",
     "page": "API",
     "title": "NLPModels.jacobian_check",
-    "category": "Function",
+    "category": "function",
     "text": "Check the first derivatives of the constraints at x against centered finite differences.\n\nThis function returns a dictionary indexed by (j, i) tuples such that the relative error in the i-th partial derivative of the j-th constraint exceeds rtol.\n\n\n\n"
 },
 
@@ -956,7 +956,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.hessian_check",
     "page": "API",
     "title": "NLPModels.hessian_check",
-    "category": "Function",
+    "category": "function",
     "text": "Check the second derivatives of the objective and each constraints at x against centered finite differences. This check does not rely on exactness of the first derivatives, only on objective and constraint values.\n\nThe sgn arguments refers to the formulation of the Lagrangian in the problem. It should have a positive value if the Lagrangian is formulated as\n\nL(x,y) = f(x) + ∑ yⱼ cⱼ(x)\n\ne.g., as in JuMPNLPModels, and a negative value if the Lagrangian is formulated as\n\nL(x,y) = f(x) - ∑ yⱼ cⱼ(x)\n\ne.g., as in AmplModels. Only the sign of sgn is important.\n\nThis function returns a dictionary indexed by functions. The 0-th function is the objective while the k-th function (for k > 0) is the k-th constraint. The values of the dictionary are dictionaries indexed by tuples (i, j) such that the relative error in the second derivative ∂²fₖ/∂xᵢ∂xⱼ exceeds rtol.\n\n\n\n"
 },
 
@@ -964,7 +964,7 @@ var documenterSearchIndex = {"docs": [
     "location": "api.html#NLPModels.hessian_check_from_grad",
     "page": "API",
     "title": "NLPModels.hessian_check_from_grad",
-    "category": "Function",
+    "category": "function",
     "text": "Check the second derivatives of the objective and each constraints at x against centered finite differences. This check assumes exactness of the first derivatives.\n\nThe sgn arguments refers to the formulation of the Lagrangian in the problem. It should have a positive value if the Lagrangian is formulated as\n\nL(x,y) = f(x) + ∑ yⱼ cⱼ(x)\n\ne.g., as in JuMPNLPModels, and a negative value if the Lagrangian is formulated as\n\nL(x,y) = f(x) - ∑ yⱼ cⱼ(x)\n\ne.g., as in AmplModels. Only the sign of sgn is important.\n\nThis function returns a dictionary indexed by functions. The 0-th function is the objective while the k-th function (for k > 0) is the k-th constraint. The values of the dictionary are dictionaries indexed by tuples (i, j) such that the relative error in the second derivative ∂²fₖ/∂xᵢ∂xⱼ exceeds rtol.\n\n\n\n"
 },
 
