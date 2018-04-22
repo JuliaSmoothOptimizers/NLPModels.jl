@@ -6,7 +6,7 @@ export AbstractNLSModel, nls_meta, NLSCounters, reset!,
 
 abstract type AbstractNLSModel <: AbstractNLPModel end
 
-type NLSCounters
+mutable struct NLSCounters
   counters :: Counters
   neval_residual        :: Int
   neval_jac_residual    :: Int
@@ -163,7 +163,7 @@ function jac_op_residual(nls :: AbstractNLSModel, x :: AbstractVector)
   return LinearOperator{Float64}(nls_meta(nls).nequ, nls_meta(nls).nvar,
                                  false, false,
                                  v -> jprod_residual(nls, x, v),
-                                 Nullable{Function}(),
+                                 nothing,
                                  v -> jtprod_residual(nls, x, v))
 end
 
@@ -178,7 +178,7 @@ function jac_op_residual!(nls :: AbstractNLSModel, x :: AbstractVector,
   return LinearOperator{Float64}(nls_meta(nls).nequ, nls_meta(nls).nvar,
                                  false, false,
                                  v -> jprod_residual!(nls, x, v, Jv),
-                                 Nullable{Function}(),
+                                 nothing,
                                  v -> jtprod_residual!(nls, x, v, Jtv))
 end
 

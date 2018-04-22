@@ -20,7 +20,7 @@ ADNLSModel(F, x0, m; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,
 
 The other parameters are as in `ADNLPModel`.
 """
-type ADNLSModel <: AbstractNLSModel
+mutable struct ADNLSModel <: AbstractNLSModel
   meta :: NLPModelMeta
   nls_meta :: NLSMeta
   counters :: NLSCounters

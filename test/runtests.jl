@@ -16,7 +16,7 @@ print(ADNLPModel(x->0, zeros(10), c=x->[0.0;0.0;0.0], lcon=[0.0;0.0;-Inf],
 @test_throws(ErrorException, NLPModelMeta(0))
 
 # Default methods should throw NotImplementedError.
-type DummyModel <: AbstractNLPModel
+mutable struct DummyModel <: AbstractNLPModel
   meta :: NLPModelMeta
 end
 model = DummyModel(NLPModelMeta(1))

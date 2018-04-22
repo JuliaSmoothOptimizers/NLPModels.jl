@@ -11,7 +11,7 @@ by defining the function F(x) = c(x). If the problem has
 bounds on the variables or more constraints, an error
 is thrown.
 """
-type FeasibilityResidual <: AbstractNLSModel
+mutable struct FeasibilityResidual <: AbstractNLSModel
   meta :: NLPModelMeta
   nls_meta :: NLSMeta
   counters :: NLSCounters

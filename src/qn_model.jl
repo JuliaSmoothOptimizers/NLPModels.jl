@@ -2,13 +2,13 @@ export QuasiNewtonModel, LBFGSModel, LSR1Model
 
 abstract type QuasiNewtonModel <: AbstractNLPModel end
 
-type LBFGSModel <: QuasiNewtonModel
+mutable struct LBFGSModel <: QuasiNewtonModel
   meta :: NLPModelMeta
   model :: AbstractNLPModel
   op :: LBFGSOperator
 end
 
-type LSR1Model <: QuasiNewtonModel
+mutable struct LSR1Model <: QuasiNewtonModel
   meta :: NLPModelMeta
   model :: AbstractNLPModel
   op :: LSR1Operator

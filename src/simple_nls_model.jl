@@ -12,7 +12,7 @@ export SimpleNLSModel,
 Creates a Nonlinear Linear Least Squares model to minimize ‖F(x)‖².
 If JF = JF(x) is passed, the Jacobian is available.
 """
-type SimpleNLSModel <: AbstractNLSModel
+mutable struct SimpleNLSModel <: AbstractNLSModel
   meta :: NLPModelMeta
   nls_meta :: NLSMeta
   counters :: NLSCounters
