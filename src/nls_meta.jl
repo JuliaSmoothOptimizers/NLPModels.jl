@@ -8,7 +8,7 @@ export NLSMeta
 #
 # TODO: Extend
 
-immutable NLSMeta
+struct NLSMeta
   nequ :: Int
   nvar :: Int
   x0 :: Array{Float64,1}

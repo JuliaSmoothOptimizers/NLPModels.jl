@@ -4,7 +4,7 @@ export has_bounds, bound_constrained, unconstrained, linearly_constrained,
 # Base type for an optimization model.
 abstract type AbstractNLPModel end
 
-type Counters
+mutable struct Counters
   neval_obj    :: Int  # Number of objective evaluations.
   neval_grad   :: Int  # Number of objective gradient evaluations.
   neval_cons   :: Int  # Number of constraint vector evaluations.
@@ -25,7 +25,7 @@ end
 # Base type for metadata related to an optimization model.
 abstract type AbstractNLPModelMeta end
 
-immutable NLPModelMeta <: AbstractNLPModelMeta
+struct NLPModelMeta <: AbstractNLPModelMeta
 
   # A composite type that represents the main features of
   # the optimization problem

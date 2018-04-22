@@ -6,10 +6,10 @@ export MathProgNLPModel,
        cons, cons!, jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
        hess_coord, hess, hprod, hprod!
 
-type ModelReader <: MathProgBase.AbstractMathProgSolver
+mutable struct ModelReader <: MathProgBase.AbstractMathProgSolver
 end
 
-type MathProgModel <: MathProgBase.AbstractMathProgModel
+mutable struct MathProgModel <: MathProgBase.AbstractMathProgModel
   eval :: Union{MathProgBase.AbstractNLPEvaluator, Void}
   numVar :: Int
   numConstr :: Int
@@ -61,7 +61,7 @@ MathProgBase.status(m :: MathProgModel) = m.status
 MathProgBase.getsolution(m :: MathProgModel) = m.x
 MathProgBase.getobjval(m :: MathProgModel) = MathProgBase.eval_f(m.eval, m.x)
 
-type MathProgNLPModel <: AbstractNLPModel
+mutable struct MathProgNLPModel <: AbstractNLPModel
   meta :: NLPModelMeta
   mpmodel :: MathProgModel
   counters :: Counters      # Evaluation counters.

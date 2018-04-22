@@ -32,7 +32,7 @@ The slack variables are implicitly ordered as [s(low), s(upp), s(rng)], where
 \$c_L \\leq c(x) < \\infty\$, \$-\\infty < c(x) \\leq c_U\$ and
 \$c_L \\leq c(x) \\leq c_U\$, respectively.
 """
-type SlackModel <: AbstractNLPModel
+mutable struct SlackModel <: AbstractNLPModel
   meta :: NLPModelMeta
   model :: AbstractNLPModel
 end

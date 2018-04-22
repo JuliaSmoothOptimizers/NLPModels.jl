@@ -23,7 +23,7 @@ include("nlp_utils.jl")
 include("nlp_types.jl")
 include("NLSModels.jl")
 
-type NotImplementedError <: Exception
+mutable struct NotImplementedError <: Exception
   name :: Union{Symbol,Function,String}
 end
 
@@ -218,7 +218,7 @@ function jac_op(nlp :: AbstractNLPModel, x :: Vector{Float64})
   return LinearOperator{Float64}(nlp.meta.ncon, nlp.meta.nvar,
                         false, false,
                         v -> jprod(nlp, x, v),
-                        Nullable{Function}(),
+                        nothing,
                         v -> jtprod(nlp, x, v))
 end
 
@@ -234,7 +234,7 @@ function jac_op!(nlp :: AbstractNLPModel, x :: Vector{Float64},
   return LinearOperator{Float64}(nlp.meta.ncon, nlp.meta.nvar,
                         false, false,
                         v -> jprod!(nlp, x, v, Jv),
-                        Nullable{Function}(),
+                        nothing,
                         v -> jtprod!(nlp, x, v, Jtv))
 end
 

@@ -8,7 +8,7 @@ import MathProgBase.SolverInterface
 export NLPModelEvaluator, NLPtoMPB
 
 
-type NLPModelEvaluator{T <: AbstractNLPModel} <: SolverInterface.AbstractNLPEvaluator
+mutable struct NLPModelEvaluator{T <: AbstractNLPModel} <: SolverInterface.AbstractNLPEvaluator
   nlp :: T
 end
 

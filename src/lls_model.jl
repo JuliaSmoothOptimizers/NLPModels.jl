@@ -8,7 +8,7 @@ export LLSModel,
 Creates a Linear Least Squares model ½‖Ax - b‖² with optional bounds
 `lvar ≦ x ≦ y` and optional linear constraints `lcon ≦ Cx ≦ ucon`.
 """
-type LLSModel <: AbstractNLSModel
+mutable struct LLSModel <: AbstractNLSModel
   meta :: NLPModelMeta
   nls_meta :: NLSMeta
   counters :: NLSCounters

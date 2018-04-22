@@ -1,4 +1,4 @@
-type DummyNLSModel <: AbstractNLSModel
+mutable struct DummyNLSModel <: AbstractNLSModel
 end
 
 model = DummyNLSModel()

@@ -95,7 +95,7 @@ and \$c_L\$ and \$c_U\$ should be passed, otherwise the problem is ill-formed.
 For equality constraints, the corresponding index of \$c_L\$ and \$c_U\$ should be the
 same.
 """
-type SimpleNLPModel <: AbstractNLPModel
+mutable struct SimpleNLPModel <: AbstractNLPModel
   meta :: NLPModelMeta
 
   counters :: Counters

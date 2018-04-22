@@ -40,7 +40,7 @@ and \$c_L\$ and \$c_U\$ should be passed, otherwise the problem is ill-formed.
 For equality constraints, the corresponding index of \$c_L\$ and \$c_U\$ should be the
 same.
 """
-type ADNLPModel <: AbstractNLPModel
+mutable struct ADNLPModel <: AbstractNLPModel
   meta :: NLPModelMeta
 
   counters :: Counters
