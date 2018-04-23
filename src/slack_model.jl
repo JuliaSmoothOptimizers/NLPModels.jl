@@ -32,8 +32,9 @@ The slack variables are implicitly ordered as [s(low), s(upp), s(rng)], where
 \$c_L \\leq c(x) < \\infty\$, \$-\\infty < c(x) \\leq c_U\$ and
 \$c_L \\leq c(x) \\leq c_U\$, respectively.
 """
-mutable struct SlackModel <: AbstractNLPModel
+mutable struct SlackModel <: AbstractNLSModel
   meta :: NLPModelMeta
+  nls_meta :: NLSMeta
   model :: AbstractNLPModel
 end
 
@@ -71,7 +72,15 @@ function SlackModel(model :: AbstractNLPModel)
     nln=model.meta.nln,
   )
 
-  return SlackModel(meta, model)
+  nls_meta = if isa(model, AbstractNLSModel)
+    NLSMeta(model.nls_meta.nequ,
+            model.meta.nvar + ns,
+            [model.meta.x0; zeros(ns)])
+  else
+    NLSMeta(0, 0)
+  end
+
+  return SlackModel(meta, nls_meta, model)
 end
 
 import Base.show
@@ -80,6 +89,14 @@ import Base.show
 
 # retrieve counters from underlying model
 for counter in fieldnames(Counters)
+  @eval begin
+    $counter(nlp :: SlackModel) = $counter(nlp.model)
+    export $counter
+  end
+end
+
+for counter in fieldnames(NLSCounters)
+  counter == :Counters && continue
   @eval begin
     $counter(nlp :: SlackModel) = $counter(nlp.model)
     export $counter
@@ -114,6 +131,19 @@ function grad!(nlp :: SlackModel, x :: AbstractVector, g :: AbstractVector)
   grad!(nlp.model, x[1:n], g)
   @views g[n+1:n+ns] .= 0
   return g
+end
+
+function objgrad(nlp :: SlackModel, x :: Array{Float64})
+  g = zeros(nlp.meta.nvar)
+  return objgrad!(nlp, x, g)
+end
+
+function objgrad!(nlp :: SlackModel, x :: Array{Float64}, g :: Array{Float64})
+  n = nlp.model.meta.nvar
+  ns = nlp.meta.nvar - n
+  f, _ = objgrad!(nlp.model, x[1:n], g)
+  g[n+1:n+ns] = 0
+  return f, g
 end
 
 function cons(nlp :: SlackModel, x :: AbstractVector)
@@ -230,4 +260,75 @@ function hprod!(nlp :: SlackModel, x :: AbstractVector, v :: AbstractVector,
   hprod!(nlp.model, x[1:n], v[1:n], hv, obj_weight=obj_weight, y=y)
   @views hv[n+1:nlp.meta.nvar] .= 0
   return hv
+end
+
+# NLS API in case Slack in called on top of an NLSModel
+function residual(nlp :: SlackModel, x :: AbstractVector)
+  return residual(nlp.model, x[1:nlp.model.meta.nvar])
+end
+
+function residual!(nlp :: SlackModel, x :: AbstractVector, Fx :: AbstractVector)
+  return residual!(nlp.model, x[1:nlp.model.meta.nvar], Fx)
+end
+
+function jac_residual(nlp :: SlackModel, x :: AbstractVector)
+  n = nlp.model.meta.nvar
+  ns = nlp.meta.nvar - n
+  ne = nlp.nls_meta.nequ
+  Jx = jac_residual(nlp.model, x[1:n])
+  if issparse(Jx)
+    return [Jx spzeros(ne, ns)]
+  else
+    return [Jx zeros(ne, ns)]
+  end
+end
+
+function jprod_residual(nlp :: SlackModel, x :: AbstractVector, v :: AbstractVector)
+  return jprod_residual(nlp.model, x[1:nlp.model.meta.nvar],
+                        v[1:nlp.model.meta.nvar])
+end
+
+function jprod_residual!(nlp :: SlackModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
+  return jprod_residual!(nlp.model, x[1:nlp.model.meta.nvar],
+                         v[1:nlp.model.meta.nvar], Jv)
+end
+
+function jtprod_residual(nlp :: SlackModel, x :: AbstractVector, v :: AbstractVector)
+  n = nlp.model.meta.nvar
+  ns = nlp.meta.nvar - n
+  return [jtprod_residual(nlp.model, x[1:n], v); zeros(ns)]
+end
+
+function jtprod_residual!(nlp :: SlackModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
+  n = nlp.model.meta.nvar
+  ns = nlp.meta.nvar - n
+  @views jtprod_residual!(nlp.model, x[1:n], v, Jtv[1:n])
+  Jtv[n+1:n+ns] = 0
+  return Jtv
+end
+
+function hess_residual(nlp :: SlackModel, x :: AbstractVector, i :: Int)
+  n = nlp.model.meta.nvar
+  ns = nlp.meta.nvar - n
+  ne = nlp.nls_meta.nequ
+  Hx = hess_residual(nlp.model, x[1:n], i)
+  if issparse(Hx)
+    return [Hx spzeros(ne, ns); spzeros(ns, ne + ns)]
+  else
+    return [Hx zeros(ne, ns); zeros(ns, ne + ns)]
+  end
+end
+
+function hprod_residual(nlp :: SlackModel, x :: AbstractVector, i :: Int, v :: AbstractVector)
+  n = nlp.model.meta.nvar
+  ns = nlp.meta.nvar - n
+  return [hprod_residual(nlp.model, x[1:n], i, v[1:n]); zeros(ns)]
+end
+
+function hprod_residual!(nlp :: SlackModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hv :: AbstractVector)
+  n = nlp.model.meta.nvar
+  ns = nlp.meta.nvar - n
+  @views hprod_residual!(nlp.model, x[1:n], i, v[1:n], Hv[1:n])
+  Hv[n+1:n+ns] = 0
+  return Hv
 end

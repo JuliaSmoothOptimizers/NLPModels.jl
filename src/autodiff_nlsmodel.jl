@@ -57,7 +57,7 @@ ADNLSModel(F :: Function, n :: Int, m :: Int; kwargs...) = ADNLSModel(F, zeros(n
 
 function residual!(nls :: ADNLSModel, x :: AbstractVector, Fx :: AbstractVector)
   increment!(nls, :neval_residual)
-  Fx[:] = nls.F(x)
+  Fx[1:nls.nls_meta.nequ] = nls.F(x)
   return Fx
 end
 
@@ -68,13 +68,13 @@ end
 
 function jprod_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nls, :neval_jprod_residual)
-  Jv[:] = ForwardDiff.jacobian(nls.F, x) * v
+  Jv[1:nls.nls_meta.nequ] = ForwardDiff.jacobian(nls.F, x) * v
   return Jv
 end
 
 function jtprod_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nls, :neval_jtprod_residual)
-  Jtv[:] = ForwardDiff.jacobian(nls.F, x)' * v
+  Jtv[1:nls.meta.nvar] = ForwardDiff.jacobian(nls.F, x)' * v
   return Jtv
 end
 
@@ -85,7 +85,7 @@ end
 
 function hprod_residual!(nls :: ADNLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
   increment!(nls, :neval_hprod_residual)
-  Hiv[:] = ForwardDiff.hessian(x->nls.F(x)[i], x) * v
+  Hiv[1:nls.meta.nvar] = ForwardDiff.hessian(x->nls.F(x)[i], x) * v
   return Hiv
 end
 
