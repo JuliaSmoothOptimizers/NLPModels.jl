@@ -1,4 +1,5 @@
-__precompile__()  # due to optional dependencies
+#See JuliaSmoothOptimizers/NLPModels.jl/issues/113
+#__precompile__()
 
 module NLPModels
 
