@@ -26,7 +26,7 @@ MathProgBase.eval_grad_f(d::NLPModelEvaluator, g, x) = copy!(g, grad(d.nlp, x))
 MathProgBase.eval_g(d::NLPModelEvaluator, g, x) = copy!(g, cons(d.nlp, x))
 
 function MathProgBase.jac_structure(d::NLPModelEvaluator)
-  rows, cols, _ = jac_coord(d.nlp, d.nlp.meta.x0)
+  rows, cols, _ = jac_coord(d.nlp, [0.317i for i = 1:d.nlp.meta.nvar])
   return rows, cols
 end
 
