@@ -46,7 +46,8 @@ function MathProgBase.eval_jac_prod_t(d::NLPModelEvaluator, y, x, w)
 end
 
 function MathProgBase.hesslag_structure(d::NLPModelEvaluator)
-  rows, cols, _ = hess_coord(d.nlp, d.nlp.meta.x0, y=ones(d.nlp.meta.ncon))
+  rows, cols, _ = hess_coord(d.nlp, [0.317i for i = 1:d.nlp.meta.nvar],
+                             y=[0.618i for i = 1:d.nlp.meta.ncon])
   return rows, cols
 end
 
