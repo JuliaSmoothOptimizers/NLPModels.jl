@@ -71,10 +71,10 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
 
         if !(objgrad in exclude)
           f, g = objgrad(nlps[i], x)
-          @test fs[i] == f
+          @test isapprox(fs[i], f, atol=rtol * max(abs(f), 1.0))
           @test gs[i] == g
           f, tmpg = objgrad!(nlps[i], x, g)
-          @test fs[i] == f
+          @test isapprox(fs[i], f, atol=rtol * max(abs(f), 1.0))
           @test gs[i] == g
           @test g == tmpg
         end

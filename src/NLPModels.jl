@@ -344,7 +344,7 @@ conscale(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("conscale"))
 
 if Pkg.installed("MathProgBase") != nothing
-  include("mpb_model.jl")
+  include("nlsmpb_model.jl")
   include("nlp_to_mpb.jl")
   if Pkg.installed("JuMP") != nothing
     include("jump_model.jl")
