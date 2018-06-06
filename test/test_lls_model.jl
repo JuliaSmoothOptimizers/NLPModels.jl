@@ -5,10 +5,10 @@ function lls_test()
     nls = LLSModel(A, b)
     x = rand(3)
 
-    @test A * x - b == residual(nls, x)
-    @test A == jac_residual(nls, x)
+    @test isapprox(A * x - b, residual(nls, x), rtol=1e-8)
+    @test isapprox(A, jac_residual(nls, x), rtol=1e-8)
     for i = 1:10
-      @test zeros(3, 3) == hess_residual(nls, x, i)
+      @test isapprox(zeros(3, 3), hess_residual(nls, x, i), rtol=1e-8)
     end
   end
 end

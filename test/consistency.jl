@@ -47,10 +47,10 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
           # Test objcons for unconstrained problems
           if m == 0
             f, c = objcons(nlps[i], x)
-            @test fs[i] == f
+            @test isapprox(fs[i], f, rtol=rtol)
             @test c == []
             f, tmpc = objcons!(nlps[i], x, c)
-            @test fs[i] == f
+            @test isapprox(fs[i], f, rtol=rtol)
             @test c == []
             @test tmpc == []
           end
@@ -67,16 +67,16 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
         end
         tmpg = grad!(nlps[i], x, tmp_n)
         @test isapprox(gs[i], tmp_n, atol=rtol * max(gmin, 1.0))
-        @test tmpg == tmp_n
+        @test isapprox(tmpg, tmp_n, atol=rtol * max(gmin, 1.0))
 
         if !(objgrad in exclude)
           f, g = objgrad(nlps[i], x)
           @test isapprox(fs[i], f, atol=rtol * max(abs(f), 1.0))
-          @test gs[i] == g
+          @test isapprox(gs[i], g, atol=rtol * max(gmin, 1.0))
           f, tmpg = objgrad!(nlps[i], x, g)
           @test isapprox(fs[i], f, atol=rtol * max(abs(f), 1.0))
-          @test gs[i] == g
-          @test g == tmpg
+          @test isapprox(gs[i], g, atol=rtol * max(gmin, 1.0))
+          @test isapprox(g, tmpg, atol=rtol * max(gmin, 1.0))
         end
       end
     end
@@ -125,7 +125,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
         end
         tmphv = hprod!(nlps[i], x, v, tmp_n)
         @test isapprox(Hvs[i], tmp_n, atol=rtol * max(Hvmin, 1.0))
-        @test tmphv == tmp_n
+        @test isapprox(tmphv, tmp_n, atol=rtol * max(Hvmin, 1.0))
         fill!(tmp_n, 0)
         H = hess_op!(nlps[i], x, tmp_n)
         res = H * v
@@ -143,7 +143,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
         for i = 1:N
           tmpc = cons!(nlps[i], x, tmp_m)
           @test isapprox(cs[i], tmp_m, atol=rtol * max(cmin, 1.0))
-          @test tmpc == tmp_m
+          @test isapprox(tmpc, tmp_m, atol=rtol * max(cmin, 1.0))
           ci, li, ui = copy(cs[i]), cls[i], cus[i]
           for k = 1:m
             if li[k] > -Inf
@@ -166,12 +166,12 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
 
           if !(objcons in exclude)
             f, c = objcons(nlps[i], x)
-            @test fs[i] == f
-            @test cs[i] == c
+            @test isapprox(fs[i], f, atol=rtol * max(abs(f), 1.0))
+            @test isapprox(cs[i],c, atol=rtol * max(cmin, 1.0))
             f, tmpc = objcons!(nlps[i], x, c)
-            @test fs[i] == f
-            @test cs[i] == c
-            @test c == tmpc
+            @test isapprox(fs[i], f, atol=rtol * max(abs(f), 1.0))
+            @test isapprox(cs[i],c, atol=rtol * max(cmin, 1.0))
+            @test isapprox(c, tmpc, atol=rtol * max(cmin, 1.0))
           end
         end
       end
@@ -197,7 +197,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
             @test isapprox(vi, norm(Jps[j]), atol=rtol * max(Jmin, 1.0))
           end
           tmpjv = jprod!(nlps[i], x, v, tmp_m)
-          @test tmpjv == tmp_m
+          @test isapprox(tmpjv, tmp_m, atol=rtol * max(Jmin, 1.0))
           @test isapprox(Jps[i], tmp_m, atol=rtol * max(Jmin, 1.0))
           fill!(tmp_m, 0)
           J = jac_op!(nlps[i], x, tmp_m, tmp_n)
@@ -218,7 +218,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
           end
           tmpjtv = jtprod!(nlps[i], x, w, tmp_n)
           @test isapprox(Jtps[i], tmp_n, atol=rtol * max(Jmin, 1.0))
-          @test tmpjtv == tmp_n
+          @test isapprox(tmpjtv, tmp_n, atol=rtol * max(Jmin, 1.0))
           fill!(tmp_n, 0)
           J = jac_op!(nlps[i], x, tmp_m, tmp_n)
           res = J' * w
@@ -255,7 +255,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
             @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
           end
           σ = rand() - 0.5
-          tmp_nn = hess(nlps[i], x, obj_weight=σ, y=σ*y)
+          tmp_nn = hess(nlps[i], x, obj_weight = σ, y=σ*y)
           @test isapprox(σ*Ls[i], tmp_nn, atol=rtol * max(Hmin, 1.0))
         end
       end

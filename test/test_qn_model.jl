@@ -1,7 +1,7 @@
 using LinearOperators
 
 function check_qn_model(qnmodel)
-
+  rtol  = 1e-8
   model = qnmodel.model
   @assert typeof(qnmodel) <: NLPModels.QuasiNewtonModel
   @assert qnmodel.meta.nvar == model.meta.nvar
@@ -9,31 +9,31 @@ function check_qn_model(qnmodel)
 
   x = rand(qnmodel.meta.nvar)
 
-  @assert obj(model, x) == obj(qnmodel, x)
+  @assert isapprox(obj(model, x), obj(qnmodel, x), rtol=rtol)
   @assert neval_obj(model) == 2
 
-  @assert grad(model, x) == grad(qnmodel, x)
+  @assert isapprox(grad(model, x), grad(qnmodel, x), rtol=rtol)
   @assert neval_grad(model) == 2
 
-  @assert cons(model, x) == cons(qnmodel, x)
+  @assert isapprox(cons(model, x), cons(qnmodel, x), rtol=rtol)
   @assert neval_cons(model) == 2
 
-  @assert jac(model, x) == jac(qnmodel, x)
+  @assert isapprox(jac(model, x), jac(qnmodel, x), rtol=rtol)
   @assert neval_jac(model) == 2
 
   v = rand(qnmodel.meta.nvar)
   u = rand(qnmodel.meta.ncon)
 
-  @assert jprod(model, x, v) == jprod(qnmodel, x, v)
+  @assert isapprox(jprod(model, x, v), jprod(qnmodel, x, v), rtol=rtol)
   @assert neval_jprod(model) == 2
 
-  @assert jtprod(model, x, u) == jtprod(qnmodel, x, u)
+  @assert isapprox(jtprod(model, x, u), jtprod(qnmodel, x, u), rtol=rtol)
   @assert neval_jtprod(model) == 2
 
   H = hess_op(qnmodel, x)
   @assert typeof(H) <: LinearOperators.AbstractLinearOperator
   @assert size(H) == (model.meta.nvar, model.meta.nvar)
-  @assert H * v == hprod(qnmodel, x, v)
+  @assert isapprox(H * v, hprod(qnmodel, x, v), rtol=rtol)
 
   g = grad(qnmodel, x)
   gp = grad(qnmodel, x - g)
