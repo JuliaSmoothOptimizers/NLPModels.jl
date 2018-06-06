@@ -1,7 +1,7 @@
 using Base.Test, Ipopt, JuMP, MathProgBase, NLPModels, LinearOperators
 
 # Including problems so that they won't be multiply loaded
-for problem in [:brownden, :genrose, :hs5, :hs6, :hs10, :hs11, :hs14, :hs15]
+for problem in [:brownden, :genrose, :hs5, :hs6, :hs10, :hs11, :hs14, :hs15, :hs30, :hs43, :mgh35, :mgh07]
   include("$problem.jl")
 end
 
@@ -39,6 +39,9 @@ end
 @test_throws(NotImplementedError, ghjvprod!(model, [0], [1], [2], [3]))
 @assert isa(hess_op(model, [0.]), LinearOperator)
 @assert isa(jac_op(model, [0.]), LinearOperator)
+
+# Tests of MathProgNLSModel with constraints and user-defined functions
+include("test_mathprognlsmodel.jl")
 
 # ADNLPModel with no functions
 model = ADNLPModel(x->dot(x,x), zeros(2), name="square")

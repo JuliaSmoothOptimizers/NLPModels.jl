@@ -20,7 +20,8 @@ function MathProgNLSModel(cmodel :: JuMP.Model,
   ev = cmodel.internalModel.eval
 
   Fmodel = JuMP.Model()
-  @objective(Fmodel, Min, 0.0)
+  @NLobjective(Fmodel, Min, 0.0)
+  Fmodel.nlpdata.user_operators = cmodel.nlpdata.user_operators
   @variable(Fmodel, x[1:MathProgBase.numvar(cmodel)])
   for Fi in F
     expr = ev.subexpressions_as_julia_expressions[Fi.index]
