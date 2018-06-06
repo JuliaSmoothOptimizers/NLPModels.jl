@@ -4,7 +4,7 @@ function feasibility_nls_test()
                      lcon=zeros(2), ucon=zeros(2))
     nls = FeasibilityResidual(nlp)
 
-    @test residual(nls, ones(2)) == zeros(2)
+    @test isapprox(residual(nls, ones(2)), zeros(2), rtol=1e-8)
   end
 end
 

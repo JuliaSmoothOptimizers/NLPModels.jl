@@ -30,8 +30,8 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
       end
 
       r = residual!(nlss[i], x, tmp_m)
-      @test r == Fs[i]
-      @test Fs[i] == tmp_m
+      @test isapprox(r, Fs[i], rtol=rtol)
+      @test isapprox(Fs[i], tmp_m, rtol=rtol)
     end
 
     Js = Any[jac_residual(nls, x) for nls in nlss]
@@ -54,10 +54,10 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
       end
 
       jps = jprod_residual!(nlss[i], x, v, tmp_m)
-      @test jps == Jps[i]
-      @test Jps[i] == tmp_m
-      @test Jps[i] == J_ops[i] * v
-      @test Jps[i] == J_ops_inplace[i] * v
+      @test isapprox(jps, Jps[i], rtol=rtol)
+      @test isapprox(Jps[i], tmp_m, rtol=rtol)
+      @test isapprox(Jps[i], J_ops[i] * v, rtol=rtol)
+      @test isapprox(Jps[i], J_ops_inplace[i] * v, rtol=rtol)
     end
 
     v = rand(m)
@@ -69,10 +69,10 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
       end
 
       jtps = jtprod_residual!(nlss[i], x, v, tmp_n)
-      @test jtps == Jtps[i]
-      @test Jtps[i] == tmp_n
-      @test Jtps[i] == J_ops[i]' * v
-      @test Jtps[i] == J_ops_inplace[i]' * v
+      @test isapprox(jtps, Jtps[i], rtol=rtol)
+      @test isapprox(Jtps[i], tmp_n, rtol=rtol)
+      @test isapprox(Jtps[i], J_ops[i]' * v, rtol=rtol)
+      @test isapprox(Jtps[i], J_ops_inplace[i]' * v, rtol=rtol)
     end
 
     v = rand(n)
@@ -90,10 +90,10 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
         end
 
         hvs = hprod_residual!(nlss[i], x, k, v, tmp_n)
-        @test hvs == Hvs[i]
-        @test Hvs[i] == tmp_n
-        @test Hvs[i] == Hops[i] * v
-        @test Hvs[i] == Hops_inplace[i] * v
+        @test isapprox(hvs, Hvs[i], rtol=rtol)
+        @test isapprox(Hvs[i], tmp_n, rtol=rtol)
+        @test isapprox(Hvs[i], Hops[i] * v, rtol=rtol)
+        @test isapprox(Hvs[i], Hops_inplace[i] * v, rtol=rtol)
       end
     end
 

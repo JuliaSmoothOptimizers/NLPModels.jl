@@ -4,7 +4,7 @@ function simple_nls_test()
     JF(x) = [1.0 0.0; -2*x[1] 1.0]
     nls = SimpleNLSModel(2, 2, F=F, JF=JF)
 
-    @test residual(nls, ones(2)) == zeros(2)
+    @test isapprox(residual(nls, ones(2)), zeros(2), rtol=1e-8)
   end
 end
 
