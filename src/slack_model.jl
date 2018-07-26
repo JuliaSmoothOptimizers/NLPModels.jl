@@ -335,12 +335,11 @@ end
 function hess_residual(nlp :: SlackModel, x :: AbstractVector, i :: Int)
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
-  ne = nlp.nls_meta.nequ
   Hx = hess_residual(nlp.model, x[1:n], i)
   if issparse(Hx)
-    return [Hx spzeros(ne, ns); spzeros(ns, ne + ns)]
+    return [Hx spzeros(n, ns); spzeros(ns, n + ns)]
   else
-    return [Hx zeros(ne, ns); zeros(ns, ne + ns)]
+    return [Hx zeros(n, ns); zeros(ns, n + ns)]
   end
 end
 
