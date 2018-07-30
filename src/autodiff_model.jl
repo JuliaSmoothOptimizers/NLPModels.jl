@@ -95,6 +95,7 @@ end
 function grad!(nlp :: ADNLPModel, x :: Vector, g :: Vector)
   increment!(nlp, :neval_grad)
   ForwardDiff.gradient!(view(g, 1:length(x)), nlp.f, x)
+  return g
 end
 
 function cons(nlp :: ADNLPModel, x :: Vector)
