@@ -211,11 +211,7 @@ function consistent_nls()
     autodiff_model = ADNLSModel(F, x0, m, lvar=lvar, uvar=uvar)
     nlp = ADNLPModel(x->0, x0, lvar=lvar, uvar=uvar, c=F, lcon=zeros(m), ucon=zeros(m))
     feas_res_model = FeasibilityResidual(nlp)
-    jmodel = JuMP.Model()
-    @variable(jmodel, x[i=1:2], start=x0[i])
-    @NLexpression(jmodel, exprF[i=1:m], 2 + 2i - exp(i * x[1]) - exp(i * x[2]))
-    mpnlp = MathProgNLSModel(jmodel, exprF)
-    nlss = [simple_nls_model, autodiff_model, feas_res_model, mpnlp]
+    nlss = [simple_nls_model, autodiff_model, feas_res_model]
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
     consistent_nls_functions(nlss)
@@ -272,14 +268,7 @@ function consistent_nls()
                                       Hcp=Hcp, Hcp! =Hcp!)
     autodiff_model = ADNLSModel(F, x0, m, lvar=lvar, uvar=uvar,
                                 lcon=lcon, ucon=ucon, c=c)
-    jmodel = JuMP.Model()
-    @variable(jmodel, x[i=1:2], start=x0[i])
-    @NLexpression(jmodel, exprF[i=1:m], 2 + 2i - exp(i * x[1]) - exp(i * x[2]))
-    @NLconstraint(jmodel, x[1]^2 - x[2]^2 >= 0.0)
-    @NLconstraint(jmodel, -1.0 <= 2 * x[1] * x[2] <= 1.0)
-    @NLconstraint(jmodel, x[1] + x[2] <= 0.0)
-    mpnlp = MathProgNLSModel(jmodel, exprF)
-    nlss = [simple_nls_model, autodiff_model, mpnlp]
+    nlss = [simple_nls_model, autodiff_model]
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
     consistent_nls_functions(nlss)

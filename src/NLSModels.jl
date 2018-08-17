@@ -77,9 +77,7 @@ include("nls_meta.jl")
 
 nls_meta(nls :: AbstractNLSModel) = nls.nls_meta
 
-if Pkg.installed("ForwardDiff") != nothing
-  include("autodiff_nlsmodel.jl")
-end
+include("autodiff_nlsmodel.jl")
 include("lls_model.jl")
 include("simple_nls_model.jl")
 include("feasibility_residual.jl")

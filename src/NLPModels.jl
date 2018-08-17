@@ -1,5 +1,5 @@
 #See JuliaSmoothOptimizers/NLPModels.jl/issues/113
-#__precompile__()
+__precompile__()
 
 module NLPModels
 
@@ -343,16 +343,7 @@ lagscale(::AbstractNLPModel, ::Float64) =
 conscale(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("conscale"))
 
-if Pkg.installed("MathProgBase") != nothing
-  include("nlsmpb_model.jl")
-  include("nlp_to_mpb.jl")
-  if Pkg.installed("JuMP") != nothing
-    include("jump_model.jl")
-  end
-end
-if Pkg.installed("ForwardDiff") != nothing
-  include("autodiff_model.jl")
-end
+include("autodiff_model.jl")
 include("simple_model.jl")
 include("slack_model.jl")
 include("qn_model.jl")
