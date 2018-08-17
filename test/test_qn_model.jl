@@ -43,17 +43,16 @@ function check_qn_model(qnmodel)
   reset!(qnmodel)
 end
 
-for problem in [:hs10, :hs11, :hs14, :hs15]
-  problem_s = string(problem)
-  isdefined(problem) || include("$problem_s.jl")
-  problem_f = eval(problem)
-  nlp_jump = MathProgNLPModel(problem_f())
-  @printf("Checking LBFGS formulation of %-8s\t", problem_s)
-  qn_model = LBFGSModel(nlp_jump)
+for problem in ["hs10", "hs11", "hs14"]
+  isdefined(Symbol(problem)) || include("$problem.jl")
+  problem_f = eval(Symbol(problem * "_autodiff"))
+  nlp = problem_f()
+  @printf("Checking LBFGS formulation of %-8s\t", problem)
+  qn_model = LBFGSModel(nlp)
   check_qn_model(qn_model)
   @printf("✓\n")
-  @printf("Checking LSR1 formulation of %-8s\t", problem_s)
-  qn_model = LSR1Model(nlp_jump)
+  @printf("Checking LSR1 formulation of %-8s\t", problem)
+  qn_model = LSR1Model(nlp)
   check_qn_model(qn_model)
   @printf("✓\n")
 end

@@ -37,23 +37,6 @@
 # D. Orban, Montreal, 08/2015.
 
 "Generalized Rosenbrock model in size `n`"
-function genrose(n :: Int=500)
-
-  n < 2 && error("genrose: number of variables must be ≥ 2")
-
-  nlp = Model()
-
-  @variable(nlp, x[i=1:n], start=(i/(n+1)))
-
-  @NLobjective(
-    nlp,
-    Min,
-    1.0 + 100 * sum((x[i+1] - x[i]^2)^2 for i=1:n-1) + sum((x[i] - 1.0)^2 for i=1:n-1)
-  )
-
-  return nlp
-end
-
 function genrose_autodiff(n :: Int=500)
 
   n < 2 && error("genrose: number of variables must be ≥ 2")

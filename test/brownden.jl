@@ -6,23 +6,7 @@
 #   ACM Transactions on Mathematical Software, vol. 7(1), pp. 17-41, 1981
 #
 #   classification SUR2-AN-4-0
-
-function brownden()
-
-  nlp = Model()
-
-  @variable(nlp, x[1:4])
-  setvalue(x, [25.0; 5.0; -5.0; -1.0])
-
-  @NLobjective(
-    nlp,
-    Min,
-    sum( ((x[1] + x[2] * i/5 - exp(i/5))^2 + (x[3] + x[4]*sin(i/5) -
-      cos(i/5))^2)^2 for i = 1:20)
-  )
-
-  return nlp
-end
+using ForwardDiff
 
 function brownden_autodiff()
 
