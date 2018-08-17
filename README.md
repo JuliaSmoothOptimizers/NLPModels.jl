@@ -39,22 +39,17 @@ details on the models, a tutorial and the API.
 Pkg.add("NLPModels")
 ```
 
-### Optional Dependencies
+## External models
 
-If you want to use a model with automatic differentiation, you'll need
-```julia
-Pkg.add("ForwardDiff")
-```
-If you want to create a NLPModel from a [MathProgBase](https://github.com/JuliaOpt/MathProgBase.jl)
-model or vice-versa, you'll need
-```julia
-Pkg.add("MathProgBase")
-```
-If you want to create a model from a [JuMP](https://github.com/JuliaOpt/JuMP.jl)
-model, you'll need
-```julia
-Pkg.add("JuMP")
-```
+In addition to the models available in this package, there are some external models
+for specific needs:
+
+- [AmplNLReader.jl](https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl): Interface
+  for [AMPL](http://www.ampl.com/);
+- [CUTEst.jl](https://github.com/JuliaSmoothOptimizers/CUTEst.jl): Interface for CUTEst
+  problems;
+- [NLPJuMPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPJuMPModels.jl):
+  Converts MathProgBase/JuMP models to and from NLPModels.
 
 ## Main Methods
 
