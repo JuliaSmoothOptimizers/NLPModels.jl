@@ -3,7 +3,7 @@
 
 nlp = ADNLPModel(x-&gt;(x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2 , [-1.2; 1.0])</code></pre><pre><code class="language-none">NLPModels.ADNLPModel(Minimization problem Generic
 nvar = 2, ncon = 0 (0 linear)
-, NLPModels.Counters(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ex-adnlp.#1, NLPModels.#115)</code></pre></div><p>This is enough to define the model. Let&#39;s get the objective function value at <span>$x^0$</span>, using only <code>nlp</code>.</p><div><pre><code class="language-julia">fx = obj(nlp, nlp.meta.x0)
+, NLPModels.Counters(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ex-adnlp.#1, NLPModels.#91)</code></pre></div><p>This is enough to define the model. Let&#39;s get the objective function value at <span>$x^0$</span>, using only <code>nlp</code>.</p><div><pre><code class="language-julia">fx = obj(nlp, nlp.meta.x0)
 println(&quot;fx = $fx&quot;)</code></pre><pre><code class="language-none">fx = 24.199999999999996</code></pre></div><p>Done. Let&#39;s try the gradient and Hessian.</p><div><pre><code class="language-julia">gx = grad(nlp, nlp.meta.x0)
 Hx = hess(nlp, nlp.meta.x0)
 println(&quot;gx = $gx&quot;)
@@ -60,17 +60,14 @@ x = [0.999996, 0.999991]</code></pre></div><p>Also, notice how we can reuse the 
 x0 = [2.0; 1.0]
 nlp = ADNLPModel(f, x0)
 
-x, fx, ngx, optimal, iter = steepest(nlp)</code></pre><pre><code class="language-none">([1.93185, 0.517638], 1.2842480268876117e-14, 9.402834701778815e-7, true, 120)</code></pre></div><p>Even using a different model.</p><div><pre><code class="language-julia">using OptimizationProblems # Defines a lot of JuMP models
+x, fx, ngx, optimal, iter = steepest(nlp)</code></pre><pre><code class="language-none">([1.93185, 0.517638], 1.2842480268876117e-14, 9.402834701778815e-7, true, 120)</code></pre></div><p>Even using a different model.</p><pre><code class="language-">using OptimizationProblems # Defines a lot of JuMP models
 
 nlp = MathProgNLPModel(woods())
 x, fx, ngx, optimal, iter = steepest(nlp)
 println(&quot;fx = $fx&quot;)
 println(&quot;ngx = $ngx&quot;)
 println(&quot;optimal = $optimal&quot;)
-println(&quot;iter = $iter&quot;)</code></pre><pre><code class="language-none">fx = 1.0000000000002167
-ngx = 9.893253859340887e-7
-optimal = true
-iter = 12016</code></pre></div><p>For constrained minimization, you need the constraints vector and bounds too. Bounds on the variables can be passed through a new vector.</p><div><pre><code class="language-julia">f(x) = (x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2
+println(&quot;iter = $iter&quot;)</code></pre><p>For constrained minimization, you need the constraints vector and bounds too. Bounds on the variables can be passed through a new vector.</p><div><pre><code class="language-julia">f(x) = (x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2
 x0 = [-1.2; 1.0]
 lvar = [-Inf; 0.1]
 uvar = [0.5; 0.5]
