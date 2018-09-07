@@ -17,13 +17,13 @@ ADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,
 ````
 
   - `f :: Function` - The objective function \$f\$;
-  - `x0 :: Vector` - The initial point of the problem;
-  - `lvar :: Vector` - \$\\ell\$, the lower bound of the variables;
-  - `uvar :: Vector` - \$u\$, the upper bound of the variables;
+  - `x0 :: AbstractVector` - The initial point of the problem;
+  - `lvar :: AbstractVector` - \$\\ell\$, the lower bound of the variables;
+  - `uvar :: AbstractVector` - \$u\$, the upper bound of the variables;
   - `c :: Function` - The constraints function \$c\$;
-  - `y0 :: Vector` - The initial value of the Lagrangian estimates;
-  - `lcon :: Vector` - \$c_L\$, the lower bounds of the constraints function;
-  - `ucon :: Vector` - \$c_U\$, the upper bounds of the constraints function;
+  - `y0 :: AbstractVector` - The initial value of the Lagrangian estimates;
+  - `lcon :: AbstractVector` - \$c_L\$, the lower bounds of the constraints function;
+  - `ucon :: AbstractVector` - \$c_U\$, the upper bounds of the constraints function;
   - `name :: String` - A name for the model.
 
 The functions follow the same restrictions of ForwardDiff functions, summarised
@@ -31,7 +31,7 @@ here:
 
   - The function can only be composed of generic Julia functions;
   - The function must accept only one argument;
-  - The function's argument must accept a subtype of Vector;
+  - The function's argument must accept a subtype of AbstractVector;
   - The function should be type-stable.
 
 For contrained problems, the function \$c\$ is required, and it must return
@@ -50,10 +50,10 @@ mutable struct ADNLPModel <: AbstractNLPModel
   c :: Function
 end
 
-function ADNLPModel(f::Function, x0::Vector; y0::Vector = [],
-    lvar::Vector = [], uvar::Vector = [], lcon::Vector = [], ucon::Vector = [],
+function ADNLPModel(f::Function, x0::AbstractVector; y0::AbstractVector = [],
+    lvar::AbstractVector = [], uvar::AbstractVector = [], lcon::AbstractVector = [], ucon::AbstractVector = [],
     c::Function = (args...)->throw(NotImplementedError("cons")),
-    name::String = "Generic", lin::Vector{Int}=Int[])
+    name::String = "Generic", lin::AbstractVector{Int}=Int[])
 
   nvar = length(x0)
   length(lvar) == 0 && (lvar = -Inf*ones(nvar))
@@ -82,34 +82,34 @@ function ADNLPModel(f::Function, x0::Vector; y0::Vector = [],
   return ADNLPModel(meta, Counters(), f, c)
 end
 
-function obj(nlp :: ADNLPModel, x :: Vector)
+function obj(nlp :: ADNLPModel, x :: AbstractVector)
   increment!(nlp, :neval_obj)
   return nlp.f(x)
 end
 
-function grad(nlp :: ADNLPModel, x :: Vector)
+function grad(nlp :: ADNLPModel, x :: AbstractVector)
   increment!(nlp, :neval_grad)
   return ForwardDiff.gradient(nlp.f, x)
 end
 
-function grad!(nlp :: ADNLPModel, x :: Vector, g :: Vector)
+function grad!(nlp :: ADNLPModel, x :: AbstractVector, g :: AbstractVector)
   increment!(nlp, :neval_grad)
   ForwardDiff.gradient!(view(g, 1:length(x)), nlp.f, x)
   return g
 end
 
-function cons(nlp :: ADNLPModel, x :: Vector)
+function cons(nlp :: ADNLPModel, x :: AbstractVector)
   increment!(nlp, :neval_cons)
   return nlp.c(x)
 end
 
-function cons!(nlp :: ADNLPModel, x :: Vector, c :: Vector)
+function cons!(nlp :: ADNLPModel, x :: AbstractVector, c :: AbstractVector)
   increment!(nlp, :neval_cons)
   c[1:nlp.meta.ncon] = nlp.c(x)
   return c
 end
 
-function jac_coord(nlp :: ADNLPModel, x :: Vector)
+function jac_coord(nlp :: ADNLPModel, x :: AbstractVector)
   increment!(nlp, :neval_jac)
   J = ForwardDiff.jacobian(nlp.c, x)
   rows = [j for i = 1:nlp.meta.nvar for j = 1:nlp.meta.ncon]
@@ -118,34 +118,34 @@ function jac_coord(nlp :: ADNLPModel, x :: Vector)
   return rows, cols, vals
 end
 
-function jac(nlp :: ADNLPModel, x :: Vector)
+function jac(nlp :: ADNLPModel, x :: AbstractVector)
   increment!(nlp, :neval_jac)
   return ForwardDiff.jacobian(nlp.c, x)
 end
 
-function jprod(nlp :: ADNLPModel, x :: Vector, v :: Vector)
+function jprod(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector)
   increment!(nlp, :neval_jprod)
   return ForwardDiff.jacobian(nlp.c, x) * v
 end
 
-function jprod!(nlp :: ADNLPModel, x :: Vector, v :: Vector, Jv :: Vector)
+function jprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nlp, :neval_jprod)
   Jv[1:nlp.meta.ncon] = ForwardDiff.jacobian(nlp.c, x) * v
   return Jv
 end
 
-function jtprod(nlp :: ADNLPModel, x :: Vector, v :: Vector)
+function jtprod(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector)
   increment!(nlp, :neval_jtprod)
   return ForwardDiff.jacobian(nlp.c, x)' * v
 end
 
-function jtprod!(nlp :: ADNLPModel, x :: Vector, v :: Vector, Jtv :: Vector)
+function jtprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nlp, :neval_jtprod)
   Jtv[1:nlp.meta.nvar] = ForwardDiff.jacobian(nlp.c, x)' * v
   return Jtv
 end
 
-function hess(nlp :: ADNLPModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
+function hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = [])
   increment!(nlp, :neval_hess)
   Hx = obj_weight == 0.0 ? spzeros(nlp.meta.nvar, nlp.meta.nvar) :
        ForwardDiff.hessian(nlp.f, x) * obj_weight
@@ -157,7 +157,7 @@ function hess(nlp :: ADNLPModel, x :: Vector; obj_weight = 1.0, y :: Vector = []
   return tril(Hx)
 end
 
-function hess_coord(nlp :: ADNLPModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
+function hess_coord(nlp :: ADNLPModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = [])
   H = hess(nlp, x, obj_weight=obj_weight, y=y)
   rows = [i for j = 1:nlp.meta.nvar for i = j:nlp.meta.nvar]
   cols = [j for j = 1:nlp.meta.nvar for i = j:nlp.meta.nvar]
@@ -165,14 +165,14 @@ function hess_coord(nlp :: ADNLPModel, x :: Vector; obj_weight = 1.0, y :: Vecto
   return rows, cols, vals
 end
 
-function hprod(nlp :: ADNLPModel, x :: Vector, v :: Vector;
-    obj_weight = 1.0, y :: Vector = [])
+function hprod(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector;
+    obj_weight = 1.0, y :: AbstractVector = [])
   Hv = zeros(nlp.meta.nvar)
   return hprod!(nlp, x, v, Hv, obj_weight=obj_weight, y=y)
 end
 
-function hprod!(nlp :: ADNLPModel, x :: Vector, v :: Vector, Hv :: Vector;
-    obj_weight = 1.0, y :: Vector = [])
+function hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
+    obj_weight = 1.0, y :: AbstractVector = [])
   increment!(nlp, :neval_hprod)
   n = nlp.meta.nvar
   Hv[1:n] = obj_weight == 0.0 ? zeros(nlp.meta.nvar) :

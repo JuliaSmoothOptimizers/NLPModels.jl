@@ -4,13 +4,13 @@ export SimpleNLPModel, obj, grad, grad!, cons, cons!, jac_coord, jac, jprod,
 """SimpleNLPModel is an AbstractNLPModel that uses only user-defined functions.
 In this interface, the objective function \$f\$ and an initial estimate are
 required. If the user wants to use derivatives, they need to be passed. The
-same goes for the Hessian and Hessian-Vector product.
+same goes for the Hessian and Hessian-AbstractVector product.
 For constraints,
 \$c:\\mathbb{R}^n\\rightarrow\\mathbb{R}^m\$  and the vectors
 \$c_L\$ and \$c_U\$ also need to be passed. Bounds on the variables and an
 inital estimate to the Lagrangian multipliers can also be provided.
 The user can also pass the Jacobian and the Lagrangian Hessian and
-Hessian-Vector product.
+Hessian-AbstractVector product.
 
 ````
 SimpleNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,
@@ -19,12 +19,12 @@ SimpleNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,
 ````
 
   - `f :: Function` - The objective function \$f\$;
-  - `x0 :: Vector` - The initial point of the problem;
-  - `lvar :: Vector` - \$\\ell\$, the lower bound of the variables;
-  - `uvar :: Vector` - \$u\$, the upper bound of the variables;
-  - `y0 :: Vector` - The initial value of the Lagrangian estimates;
-  - `lcon :: Vector` - \$c_L\$, the lower bounds of the constraints function;
-  - `ucon :: Vector` - \$c_U\$, the upper bounds of the constraints function;
+  - `x0 :: AbstractVector` - The initial point of the problem;
+  - `lvar :: AbstractVector` - \$\\ell\$, the lower bound of the variables;
+  - `uvar :: AbstractVector` - \$u\$, the upper bound of the variables;
+  - `y0 :: AbstractVector` - The initial value of the Lagrangian estimates;
+  - `lcon :: AbstractVector` - \$c_L\$, the lower bounds of the constraints function;
+  - `ucon :: AbstractVector` - \$c_U\$, the upper bounds of the constraints function;
   - `name :: String` - A name for the model.
 
 All functions passed have a direct correlation with a NLP function. You don't
@@ -124,8 +124,8 @@ end
 
 NotImplemented(args...; kwargs...) = throw(NotImplementedError(""))
 
-function SimpleNLPModel(f::Function, x0::Vector; y0::Vector = [],
-    lvar::Vector = [], uvar::Vector = [], lcon::Vector = [], ucon::Vector = [],
+function SimpleNLPModel(f::Function, x0::AbstractVector; y0::AbstractVector = [],
+    lvar::AbstractVector = [], uvar::AbstractVector = [], lcon::AbstractVector = [], ucon::AbstractVector = [],
     nnzh::Int = 0, nnzj::Int = 0,
     g::Function = NotImplemented,
     g!::Function = NotImplemented,
@@ -146,7 +146,7 @@ function SimpleNLPModel(f::Function, x0::Vector; y0::Vector = [],
     Jtp::Function = NotImplemented,
     Jtp!::Function = NotImplemented,
     name::String = "Generic",
-    lin::Vector{Int} = Int[])
+    lin::AbstractVector{Int} = Int[])
 
   nvar = length(x0)
   length(lvar) == 0 && (lvar = -Inf*ones(nvar))
@@ -168,22 +168,22 @@ function SimpleNLPModel(f::Function, x0::Vector; y0::Vector = [],
                         Hp!, c, c!, fc, fc!, J, Jcoord, Jp, Jp!, Jtp, Jtp!)
 end
 
-function obj(nlp :: SimpleNLPModel, x :: Vector)
+function obj(nlp :: SimpleNLPModel, x :: AbstractVector)
   increment!(nlp, :neval_obj)
   return nlp.f(x)
 end
 
-function grad(nlp :: SimpleNLPModel, x :: Vector)
+function grad(nlp :: SimpleNLPModel, x :: AbstractVector)
   increment!(nlp, :neval_grad)
   return nlp.g(x)
 end
 
-function grad!(nlp :: SimpleNLPModel, x :: Vector, g :: Vector)
+function grad!(nlp :: SimpleNLPModel, x :: AbstractVector, g :: AbstractVector)
   increment!(nlp, :neval_grad)
   return nlp.g!(x, g)
 end
 
-function objgrad(nlp :: SimpleNLPModel, x :: Vector)
+function objgrad(nlp :: SimpleNLPModel, x :: AbstractVector)
   if nlp.fg == NotImplemented
     return obj(nlp, x), grad(nlp, x)
   else
@@ -193,7 +193,7 @@ function objgrad(nlp :: SimpleNLPModel, x :: Vector)
   end
 end
 
-function objgrad!(nlp :: SimpleNLPModel, x :: Vector, g :: Vector)
+function objgrad!(nlp :: SimpleNLPModel, x :: AbstractVector, g :: AbstractVector)
   if nlp.fg! == NotImplemented
     return obj(nlp, x), grad!(nlp, x, g)
   else
@@ -203,17 +203,17 @@ function objgrad!(nlp :: SimpleNLPModel, x :: Vector, g :: Vector)
   end
 end
 
-function cons(nlp :: SimpleNLPModel, x :: Vector)
+function cons(nlp :: SimpleNLPModel, x :: AbstractVector)
   increment!(nlp, :neval_cons)
   return nlp.c(x)
 end
 
-function cons!(nlp :: SimpleNLPModel, x :: Vector, c :: Vector)
+function cons!(nlp :: SimpleNLPModel, x :: AbstractVector, c :: AbstractVector)
   increment!(nlp, :neval_cons)
   return nlp.c!(x, c)
 end
 
-function objcons(nlp :: SimpleNLPModel, x :: Vector)
+function objcons(nlp :: SimpleNLPModel, x :: AbstractVector)
   if nlp.fc == NotImplemented
     return obj(nlp, x), nlp.meta.ncon > 0 ? cons(nlp, x) : []
   else
@@ -223,7 +223,7 @@ function objcons(nlp :: SimpleNLPModel, x :: Vector)
   end
 end
 
-function objcons!(nlp :: SimpleNLPModel, x :: Vector, c :: Vector)
+function objcons!(nlp :: SimpleNLPModel, x :: AbstractVector, c :: AbstractVector)
   if nlp.fc! == NotImplemented
     return obj(nlp, x), nlp.meta.ncon > 0 ? cons!(nlp, x, c) : []
   else
@@ -233,38 +233,38 @@ function objcons!(nlp :: SimpleNLPModel, x :: Vector, c :: Vector)
   end
 end
 
-function jac_coord(nlp :: SimpleNLPModel, x :: Vector)
+function jac_coord(nlp :: SimpleNLPModel, x :: AbstractVector)
   increment!(nlp, :neval_jac)
   return nlp.Jcoord(x)
 end
 
-function jac(nlp :: SimpleNLPModel, x :: Vector)
+function jac(nlp :: SimpleNLPModel, x :: AbstractVector)
   increment!(nlp, :neval_jac)
   return nlp.J(x)
 end
 
-function jprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector)
+function jprod(nlp :: SimpleNLPModel, x :: AbstractVector, v :: AbstractVector)
   increment!(nlp, :neval_jprod)
   return nlp.Jp(x, v)
 end
 
-function jprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Jv :: Vector)
+function jprod!(nlp :: SimpleNLPModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nlp, :neval_jprod)
   return nlp.Jp!(x, v, Jv)
 end
 
-function jtprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector)
+function jtprod(nlp :: SimpleNLPModel, x :: AbstractVector, v :: AbstractVector)
   increment!(nlp, :neval_jtprod)
   return nlp.Jtp(x, v)
 end
 
-function jtprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Jtv :: Vector)
+function jtprod!(nlp :: SimpleNLPModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nlp, :neval_jtprod)
   return nlp.Jtp!(x, v, Jtv)
 end
 
-function hess(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0,
-      y :: Vector = zeros(nlp.meta.ncon))
+function hess(nlp :: SimpleNLPModel, x :: AbstractVector; obj_weight = 1.0,
+      y :: AbstractVector = zeros(nlp.meta.ncon))
   increment!(nlp, :neval_hess)
   if nlp.meta.ncon > 0
     return nlp.H(x, obj_weight=obj_weight, y=y)
@@ -273,8 +273,8 @@ function hess(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0,
   end
 end
 
-function hess_coord(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0,
-      y :: Vector = zeros(nlp.meta.ncon))
+function hess_coord(nlp :: SimpleNLPModel, x :: AbstractVector; obj_weight = 1.0,
+      y :: AbstractVector = zeros(nlp.meta.ncon))
   increment!(nlp, :neval_hess)
   if nlp.meta.ncon > 0
     return nlp.Hcoord(x, obj_weight=obj_weight, y=y)
@@ -283,8 +283,8 @@ function hess_coord(nlp :: SimpleNLPModel, x :: Vector; obj_weight = 1.0,
   end
 end
 
-function hprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector;
-    obj_weight = 1.0, y :: Vector = zeros(nlp.meta.ncon))
+function hprod(nlp :: SimpleNLPModel, x :: AbstractVector, v :: AbstractVector;
+    obj_weight = 1.0, y :: AbstractVector = zeros(nlp.meta.ncon))
   increment!(nlp, :neval_hprod)
   if nlp.meta.ncon > 0
     return nlp.Hp(x, v, obj_weight=obj_weight, y=y)
@@ -293,8 +293,8 @@ function hprod(nlp :: SimpleNLPModel, x :: Vector, v :: Vector;
   end
 end
 
-function hprod!(nlp :: SimpleNLPModel, x :: Vector, v :: Vector, Hv :: Vector;
-    obj_weight = 1.0, y :: Vector = zeros(nlp.meta.ncon))
+function hprod!(nlp :: SimpleNLPModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
+    obj_weight = 1.0, y :: AbstractVector = zeros(nlp.meta.ncon))
   increment!(nlp, :neval_hprod)
   if nlp.meta.ncon > 0
     return nlp.Hp!(x, v, Hv, obj_weight=obj_weight, y=y)
