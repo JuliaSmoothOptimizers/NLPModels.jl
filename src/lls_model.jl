@@ -19,13 +19,13 @@ mutable struct LLSModel <: AbstractNLSModel
 end
 
 function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVector;
-                  x0 :: Vector = zeros(size(A,2)),
-                  lvar :: Vector = fill(-Inf, size(A, 2)),
-                  uvar :: Vector = fill(Inf, size(A, 2)),
+                  x0 :: AbstractVector = zeros(size(A,2)),
+                  lvar :: AbstractVector = fill(-Inf, size(A, 2)),
+                  uvar :: AbstractVector = fill(Inf, size(A, 2)),
                   C :: Union{AbstractMatrix, LinearOperator} = Matrix{Float64}(0,0),
-                  lcon :: Vector = Float64[],
-                  ucon :: Vector = Float64[],
-                  y0 :: Vector = zeros(size(C,1)))
+                  lcon :: AbstractVector = Float64[],
+                  ucon :: AbstractVector = Float64[],
+                  y0 :: AbstractVector = zeros(size(C,1)))
   m, n = size(A)
   if length(b) != m
     error("Incompatibility detected: A is $m×$n and b has length $(length(b))")
@@ -82,18 +82,18 @@ function hprod_residual!(nls :: LLSModel, x :: AbstractVector, i :: Int, v :: Ab
   return Hiv
 end
 
-function cons(nls :: LLSModel, x :: Vector)
+function cons(nls :: LLSModel, x :: AbstractVector)
   increment!(nls, :neval_cons)
   return nls.C * x
 end
 
-function cons!(nls :: LLSModel, x :: Vector, c :: Vector)
+function cons!(nls :: LLSModel, x :: AbstractVector, c :: AbstractVector)
   increment!(nls, :neval_cons)
   c[1:nls.meta.ncon] = nls.C * x
   return c
 end
 
-function jac_coord(nls :: LLSModel, x :: Vector)
+function jac_coord(nls :: LLSModel, x :: AbstractVector)
   increment!(nls, :neval_jac)
   if isa(nls.C, LinearOperator)
     error("jac_coord is not defined for LinearOperators")
@@ -101,34 +101,34 @@ function jac_coord(nls :: LLSModel, x :: Vector)
   return findnz(nls.C)
 end
 
-function jac(nls :: LLSModel, x :: Vector)
+function jac(nls :: LLSModel, x :: AbstractVector)
   increment!(nls, :neval_jac)
   return nls.C
 end
 
-function jprod(nls :: LLSModel, x :: Vector, v :: Vector)
+function jprod(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector)
   increment!(nls, :neval_jprod)
   return nls.C * v
 end
 
-function jprod!(nls :: LLSModel, x :: Vector, v :: Vector, Jv :: Vector)
+function jprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nls, :neval_jprod)
   Jv[1:nls.meta.ncon] = nls.C * v
   return Jv
 end
 
-function jtprod(nls :: LLSModel, x :: Vector, v :: Vector)
+function jtprod(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector)
   increment!(nls, :neval_jtprod)
   return nls.C' * v
 end
 
-function jtprod!(nls :: LLSModel, x :: Vector, v :: Vector, Jtv :: Vector)
+function jtprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nls, :neval_jtprod)
   Jtv[1:nls.meta.nvar] = nls.C' * v
   return Jtv
 end
 
-function hess(nls :: LLSModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
+function hess(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = [])
   increment!(nls, :neval_hess)
   if obj_weight != 0.0
     if isa(nls.A, LinearOperator)
@@ -141,19 +141,19 @@ function hess(nls :: LLSModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
   end
 end
 
-function hess_coord(nls :: LLSModel, x :: Vector; obj_weight = 1.0, y :: Vector = [])
+function hess_coord(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = [])
   H = hess(nls, x, obj_weight=obj_weight, y=y)
   return findnz(H)
 end
 
-function hprod(nls :: LLSModel, x :: Vector, v :: Vector;
-    obj_weight = 1.0, y :: Vector = [])
+function hprod(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector;
+    obj_weight = 1.0, y :: AbstractVector = [])
   Hv = zeros(nls.meta.nvar)
   return hprod!(nls, x, v, Hv, obj_weight=obj_weight, y=y)
 end
 
-function hprod!(nls :: LLSModel, x :: Vector, v :: Vector, Hv :: Vector;
-    obj_weight = 1.0, y :: Vector = [])
+function hprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
+    obj_weight = 1.0, y :: AbstractVector = [])
   increment!(nls, :neval_hprod)
   n = length(x)
   if obj_weight != 0.0

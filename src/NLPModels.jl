@@ -215,7 +215,7 @@ Return the Jacobian at `x` as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`.
 """
-function jac_op(nlp :: AbstractNLPModel, x :: Vector{Float64})
+function jac_op(nlp :: AbstractNLPModel, x :: AbstractVector{Float64})
   return LinearOperator{Float64}(nlp.meta.ncon, nlp.meta.nvar,
                         false, false,
                         v -> jprod(nlp, x, v),
@@ -230,8 +230,8 @@ The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`. The values `Jv` and `Jtv` are used as preallocated storage for the
 operations.
 """
-function jac_op!(nlp :: AbstractNLPModel, x :: Vector{Float64},
-                 Jv :: Vector{Float64}, Jtv :: Vector{Float64})
+function jac_op!(nlp :: AbstractNLPModel, x :: AbstractVector{Float64},
+                 Jv :: AbstractVector{Float64}, Jtv :: AbstractVector{Float64})
   return LinearOperator{Float64}(nlp.meta.ncon, nlp.meta.nvar,
                         false, false,
                         v -> jprod!(nlp, x, v, Jv),
@@ -308,8 +308,8 @@ matrix, e.g., `H * v`. The linear operator H represents
 
 with σ = obj_weight.
 """
-function hess_op(nlp :: AbstractNLPModel, x :: Vector{Float64};
-                 obj_weight :: Float64=1.0, y :: Vector{Float64}=zeros(nlp.meta.ncon))
+function hess_op(nlp :: AbstractNLPModel, x :: AbstractVector{Float64};
+                 obj_weight :: Float64=1.0, y :: AbstractVector{Float64}=zeros(nlp.meta.ncon))
   return LinearOperator(nlp.meta.nvar, nlp.meta.nvar,
                         true, true,
                         v -> hprod(nlp, x, v; obj_weight=obj_weight, y=y))
@@ -327,8 +327,8 @@ represents
 
 with σ = obj_weight.
 """
-function hess_op!(nlp :: AbstractNLPModel, x :: Vector{Float64}, Hv :: Vector{Float64};
-                 obj_weight :: Float64=1.0, y :: Vector{Float64}=zeros(nlp.meta.ncon))
+function hess_op!(nlp :: AbstractNLPModel, x :: AbstractVector{Float64}, Hv :: AbstractVector{Float64};
+                 obj_weight :: Float64=1.0, y :: AbstractVector{Float64}=zeros(nlp.meta.ncon))
   return LinearOperator(nlp.meta.nvar, nlp.meta.nvar,
                         true, true,
                         v -> hprod!(nlp, x, v, Hv; obj_weight=obj_weight, y=y))

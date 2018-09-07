@@ -42,7 +42,7 @@ function genrose_autodiff(n :: Int=500)
   n < 2 && error("genrose: number of variables must be ≥ 2")
 
   x0 = [i/(n+1) for i = 1:n]
-  f(x::Vector) = begin
+  f(x::AbstractVector) = begin
     s = 1.0
     for i = 1:n-1
       s += 100 * (x[i+1]-x[i]^2)^2 + (x[i]-1)^2

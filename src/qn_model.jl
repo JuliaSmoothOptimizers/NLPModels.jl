@@ -58,10 +58,10 @@ for meth in (:jprod!, :jtprod!)
 end
 
 # the following methods are affected by the Hessian approximation
-hess_op(nlp :: QuasiNewtonModel, x :: Vector{Float64}; kwargs...) = nlp.op
-hprod(nlp :: QuasiNewtonModel, x :: Vector{Float64}, v :: Vector{Float64}; kwargs...) = nlp.op * v
-function hprod!(nlp :: QuasiNewtonModel, x :: Vector{Float64},
-                v :: Vector{Float64}, Hv :: Vector{Float64}; kwargs...)
+hess_op(nlp :: QuasiNewtonModel, x :: AbstractVector{Float64}; kwargs...) = nlp.op
+hprod(nlp :: QuasiNewtonModel, x :: AbstractVector{Float64}, v :: AbstractVector{Float64}; kwargs...) = nlp.op * v
+function hprod!(nlp :: QuasiNewtonModel, x :: AbstractVector{Float64},
+                v :: AbstractVector{Float64}, Hv :: AbstractVector{Float64}; kwargs...)
   Hv[1:nlp.meta.nvar] .= nlp.op * v
   return Hv
 end
