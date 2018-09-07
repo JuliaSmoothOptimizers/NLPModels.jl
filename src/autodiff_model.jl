@@ -50,8 +50,8 @@ mutable struct ADNLPModel <: AbstractNLPModel
   c :: Function
 end
 
-function ADNLPModel(f::Function, x0::AbstractVector; y0::AbstractVector = [],
-    lvar::AbstractVector = [], uvar::AbstractVector = [], lcon::AbstractVector = [], ucon::AbstractVector = [],
+function ADNLPModel(f::Function, x0::AbstractVector; y0::AbstractVector = Float64[],
+    lvar::AbstractVector = Float64[], uvar::AbstractVector = Float64[], lcon::AbstractVector = Float64[], ucon::AbstractVector = Float64[],
     c::Function = (args...)->throw(NotImplementedError("cons")),
     name::String = "Generic", lin::AbstractVector{Int}=Int[])
 
@@ -145,7 +145,7 @@ function jtprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jt
   return Jtv
 end
 
-function hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = [])
+function hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
   increment!(nlp, :neval_hess)
   Hx = obj_weight == 0.0 ? spzeros(nlp.meta.nvar, nlp.meta.nvar) :
        ForwardDiff.hessian(nlp.f, x) * obj_weight
@@ -157,7 +157,7 @@ function hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight = 1.0, y :: Abs
   return tril(Hx)
 end
 
-function hess_coord(nlp :: ADNLPModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = [])
+function hess_coord(nlp :: ADNLPModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
   H = hess(nlp, x, obj_weight=obj_weight, y=y)
   rows = [i for j = 1:nlp.meta.nvar for i = j:nlp.meta.nvar]
   cols = [j for j = 1:nlp.meta.nvar for i = j:nlp.meta.nvar]
@@ -166,13 +166,13 @@ function hess_coord(nlp :: ADNLPModel, x :: AbstractVector; obj_weight = 1.0, y 
 end
 
 function hprod(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector;
-    obj_weight = 1.0, y :: AbstractVector = [])
+    obj_weight = 1.0, y :: AbstractVector = Float64[])
   Hv = zeros(nlp.meta.nvar)
   return hprod!(nlp, x, v, Hv, obj_weight=obj_weight, y=y)
 end
 
 function hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
-    obj_weight = 1.0, y :: AbstractVector = [])
+    obj_weight = 1.0, y :: AbstractVector = Float64[])
   increment!(nlp, :neval_hprod)
   n = nlp.meta.nvar
   Hv[1:n] = obj_weight == 0.0 ? zeros(nlp.meta.nvar) :

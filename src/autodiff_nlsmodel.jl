@@ -133,7 +133,7 @@ function jtprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jt
   return Jtv
 end
 
-function hess(nls :: ADNLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = [])
+function hess(nls :: ADNLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
   increment!(nls, :neval_hess)
   Fx = residual(nls, x)
   Jx = jac_residual(nls, x)
@@ -152,19 +152,19 @@ function hess(nls :: ADNLSModel, x :: AbstractVector; obj_weight = 1.0, y :: Abs
   return tril(Hx)
 end
 
-function hess_coord(nls :: ADNLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = [])
+function hess_coord(nls :: ADNLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
   H = hess(nls, x, obj_weight=obj_weight, y=y)
   return findnz(H)
 end
 
 function hprod(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector;
-    obj_weight = 1.0, y :: AbstractVector = [])
+    obj_weight = 1.0, y :: AbstractVector = Float64[])
   Hv = zeros(nls.meta.nvar)
   return hprod!(nls, x, v, Hv, obj_weight=obj_weight, y=y)
 end
 
 function hprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
-    obj_weight = 1.0, y :: AbstractVector = [])
+    obj_weight = 1.0, y :: AbstractVector = Float64[])
   increment!(nls, :neval_hprod)
   n = nls.meta.nvar
   if obj_weight != 0.0

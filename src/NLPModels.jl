@@ -133,7 +133,7 @@ Evaluate \$f(x)\$ and \$c(x)\$ at `x`.
 """
 function objcons(nlp, x)
   f = obj(nlp, x)
-  c = nlp.meta.ncon > 0 ? cons(nlp, x) : []
+  c = nlp.meta.ncon > 0 ? cons(nlp, x) : Float64[]
   return f, c
 end
 
