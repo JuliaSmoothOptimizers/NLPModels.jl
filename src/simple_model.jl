@@ -124,8 +124,8 @@ end
 
 NotImplemented(args...; kwargs...) = throw(NotImplementedError(""))
 
-function SimpleNLPModel(f::Function, x0::AbstractVector; y0::AbstractVector = [],
-    lvar::AbstractVector = [], uvar::AbstractVector = [], lcon::AbstractVector = [], ucon::AbstractVector = [],
+function SimpleNLPModel(f::Function, x0::AbstractVector; y0::AbstractVector = Float64[],
+    lvar::AbstractVector = Float64[], uvar::AbstractVector = Float64[], lcon::AbstractVector = Float64[], ucon::AbstractVector = Float64[],
     nnzh::Int = 0, nnzj::Int = 0,
     g::Function = NotImplemented,
     g!::Function = NotImplemented,
@@ -215,7 +215,7 @@ end
 
 function objcons(nlp :: SimpleNLPModel, x :: AbstractVector)
   if nlp.fc == NotImplemented
-    return obj(nlp, x), nlp.meta.ncon > 0 ? cons(nlp, x) : []
+    return obj(nlp, x), nlp.meta.ncon > 0 ? cons(nlp, x) : Float64[]
   else
     increment!(nlp, :neval_obj)
     increment!(nlp, :neval_cons)
@@ -225,7 +225,7 @@ end
 
 function objcons!(nlp :: SimpleNLPModel, x :: AbstractVector, c :: AbstractVector)
   if nlp.fc! == NotImplemented
-    return obj(nlp, x), nlp.meta.ncon > 0 ? cons!(nlp, x, c) : []
+    return obj(nlp, x), nlp.meta.ncon > 0 ? cons!(nlp, x, c) : Float64[]
   else
     increment!(nlp, :neval_obj)
     increment!(nlp, :neval_cons)

@@ -128,7 +128,7 @@ function jtprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jtv 
   return Jtv
 end
 
-function hess(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = [])
+function hess(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
   increment!(nls, :neval_hess)
   if obj_weight != 0.0
     if isa(nls.A, LinearOperator)
@@ -141,19 +141,19 @@ function hess(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: Abstr
   end
 end
 
-function hess_coord(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = [])
+function hess_coord(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
   H = hess(nls, x, obj_weight=obj_weight, y=y)
   return findnz(H)
 end
 
 function hprod(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector;
-    obj_weight = 1.0, y :: AbstractVector = [])
+    obj_weight = 1.0, y :: AbstractVector = Float64[])
   Hv = zeros(nls.meta.nvar)
   return hprod!(nls, x, v, Hv, obj_weight=obj_weight, y=y)
 end
 
 function hprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
-    obj_weight = 1.0, y :: AbstractVector = [])
+    obj_weight = 1.0, y :: AbstractVector = Float64[])
   increment!(nls, :neval_hprod)
   n = length(x)
   if obj_weight != 0.0
