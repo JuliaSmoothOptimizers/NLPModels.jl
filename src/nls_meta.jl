@@ -11,10 +11,10 @@ export NLSMeta
 struct NLSMeta
   nequ :: Int
   nvar :: Int
-  x0 :: Array{Float64,1}
+  x0 :: Vector
 end
 
 function NLSMeta(nequ :: Int, nvar :: Int;
-                 x0 = zeros(nvar))
+                 x0 :: AbstractVector = zeros(nvar))
   return NLSMeta(nequ, nvar, x0)
 end

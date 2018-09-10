@@ -12,7 +12,7 @@ This function returns a dictionary indexed by components of the gradient for
 which the relative error exceeds `rtol`.
 """
 function gradient_check(nlp :: AbstractNLPModel;
-                        x :: AbstractVector{Float64}=nlp.meta.x0,
+                        x :: AbstractVector=nlp.meta.x0,
                         atol :: Float64=1.0e-6, rtol :: Float64=1.0e-4)
 
   # Optimal-ish step for second-order centered finite differences.
@@ -43,7 +43,7 @@ relative error in the `i`-th partial derivative of the `j`-th constraint
 exceeds `rtol`.
 """
 function jacobian_check(nlp :: AbstractNLPModel;
-                        x :: AbstractVector{Float64}=nlp.meta.x0,
+                        x :: AbstractVector=nlp.meta.x0,
                         atol :: Float64=1.0e-6, rtol :: Float64=1.0e-4)
 
   # Fast exit if there are no constraints.
@@ -98,7 +98,7 @@ values of the dictionary are dictionaries indexed by tuples (i, j) such that
 the relative error in the second derivative ∂²fₖ/∂xᵢ∂xⱼ exceeds `rtol`.
 """
 function hessian_check(nlp :: AbstractNLPModel;
-                       x :: AbstractVector{Float64}=nlp.meta.x0,
+                       x :: AbstractVector=nlp.meta.x0,
                        atol :: Float64=1.0e-6, rtol :: Float64=1.0e-4,
                        sgn :: Int=1)
 
@@ -184,7 +184,7 @@ values of the dictionary are dictionaries indexed by tuples (i, j) such that
 the relative error in the second derivative ∂²fₖ/∂xᵢ∂xⱼ exceeds `rtol`.
 """
 function hessian_check_from_grad(nlp :: AbstractNLPModel;
-                                 x :: AbstractVector{Float64}=nlp.meta.x0,
+                                 x :: AbstractVector=nlp.meta.x0,
                                  atol :: Float64=1.0e-6, rtol :: Float64=1.0e-4,
                                  sgn :: Int=1)
 

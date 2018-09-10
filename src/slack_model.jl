@@ -97,17 +97,17 @@ function reset!(nlp :: SlackModel)
   return nlp
 end
 
-function obj(nlp :: SlackModel, x :: Array{Float64})
+function obj(nlp :: SlackModel, x :: AbstractVector)
   # f(X) = f(x)
   return obj(nlp.model, x[1:nlp.model.meta.nvar])
 end
 
-function grad(nlp :: SlackModel, x :: Array{Float64})
+function grad(nlp :: SlackModel, x :: AbstractVector)
   g = zeros(nlp.meta.nvar)
   return grad!(nlp, x, g)
 end
 
-function grad!(nlp :: SlackModel, x :: Array{Float64}, g :: Array{Float64})
+function grad!(nlp :: SlackModel, x :: AbstractVector, g :: AbstractVector)
   # ∇f(X) = [∇f(x) ; 0]
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
@@ -116,12 +116,12 @@ function grad!(nlp :: SlackModel, x :: Array{Float64}, g :: Array{Float64})
   return g
 end
 
-function cons(nlp :: SlackModel, x :: Array{Float64})
+function cons(nlp :: SlackModel, x :: AbstractVector)
   c = zeros(nlp.meta.ncon)
   return cons!(nlp, x, c)
 end
 
-function cons!(nlp :: SlackModel, x :: Array{Float64}, c :: Array{Float64})
+function cons!(nlp :: SlackModel, x :: AbstractVector, c :: AbstractVector)
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   nlow = length(nlp.model.meta.jlow)
@@ -134,7 +134,7 @@ function cons!(nlp :: SlackModel, x :: Array{Float64}, c :: Array{Float64})
   return c
 end
 
-function jac_coord(nlp :: SlackModel, x :: Array{Float64})
+function jac_coord(nlp :: SlackModel, x :: AbstractVector)
   # J(X) = [J(x)  -I]
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
@@ -147,16 +147,16 @@ function jac_coord(nlp :: SlackModel, x :: Array{Float64})
           collect([jvals ; -ones(ns)]))
 end
 
-function jac(nlp :: SlackModel, x :: Array{Float64})
+function jac(nlp :: SlackModel, x :: AbstractVector)
   return sparse(jac_coord(nlp, x)..., nlp.meta.ncon, nlp.meta.nvar)
 end
 
-function jprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64})
+function jprod(nlp :: SlackModel, x :: AbstractVector, v :: AbstractVector)
   jv = zeros(nlp.meta.ncon)
   return jprod!(nlp, x, v, jv)
 end
 
-function jprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}, jv :: Array{Float64})
+function jprod!(nlp :: SlackModel, x :: AbstractVector, v :: AbstractVector, jv :: AbstractVector)
   # J(X) V = [J(x)  -I] [vₓ] = J(x) vₓ - vₛ
   #                     [vₛ]
   n = nlp.model.meta.nvar
@@ -179,12 +179,12 @@ function jprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}, jv 
   return jv
 end
 
-function jtprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64})
+function jtprod(nlp :: SlackModel, x :: AbstractVector, v :: AbstractVector)
   jtv = zeros(nlp.meta.nvar)
   return jtprod!(nlp, x, v, jtv)
 end
 
-function jtprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}, jtv :: Array{Float64})
+function jtprod!(nlp :: SlackModel, x :: AbstractVector, v :: AbstractVector, jtv :: AbstractVector)
   # J(X)ᵀ v = [J(x)ᵀ] v = [J(x)ᵀ v]
   #           [ -I  ]     [  -v   ]
   n = nlp.model.meta.nvar
@@ -198,21 +198,21 @@ function jtprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64}, jt
   return jtv
 end
 
-function hess_coord(nlp :: SlackModel, x :: Array{Float64};
-    obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+function hess_coord(nlp :: SlackModel, x :: AbstractVector;
+    obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
   # ∇²f(X) = [∇²f(x)  0]
   #          [0       0]
   n = nlp.model.meta.nvar
   return hess_coord(nlp.model, x[1:n], obj_weight=obj_weight, y=y)
 end
 
-function hess(nlp :: SlackModel, x :: Array{Float64};
-    obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+function hess(nlp :: SlackModel, x :: AbstractVector;
+    obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
   return sparse(hess_coord(nlp, x, y=y, obj_weight=obj_weight)..., nlp.meta.nvar, nlp.meta.nvar)
 end
 
-function hprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64};
-    obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+function hprod(nlp :: SlackModel, x :: AbstractVector, v :: AbstractVector;
+    obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
   # ∇²f(X) V = [∇²f(x)  0] [vₓ] = [∇²f(x) vₓ]
   #            [0       0] [vₛ]   [    0    ]
   n = nlp.model.meta.nvar
@@ -221,9 +221,9 @@ function hprod(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64};
   return hprod!(nlp, x, v, hv, obj_weight=obj_weight, y=y)
 end
 
-function hprod!(nlp :: SlackModel, x :: Array{Float64}, v :: Array{Float64},
-    hv :: Array{Float64};
-    obj_weight :: Float64=1.0, y :: Array{Float64}=zeros(nlp.meta.ncon))
+function hprod!(nlp :: SlackModel, x :: AbstractVector, v :: AbstractVector,
+    hv :: AbstractVector;
+    obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   # using hv[1:n] doesn't seem to work here
