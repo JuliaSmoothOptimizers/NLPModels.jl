@@ -44,16 +44,16 @@ struct NLPModelMeta <: AbstractNLPModelMeta
   # bound or general constraint is not present.
 
   nvar :: Int               # number of variables
-  x0   :: Array{Float64,1}  # initial guess
-  lvar :: Array{Float64,1}  # vector of lower bounds
-  uvar :: Array{Float64,1}  # vector of upper bounds
+  x0   :: Vector    # initial guess
+  lvar :: Vector    # vector of lower bounds
+  uvar :: Vector    # vector of upper bounds
 
-  ifix  :: Array{Int,1}     # indices of fixed variables
-  ilow  :: Array{Int,1}     # indices of variables with lower bound only
-  iupp  :: Array{Int,1}     # indices of variables with upper bound only
-  irng  :: Array{Int,1}     # indices of variables with lower and upper bound (range)
-  ifree :: Array{Int,1}     # indices of free variables
-  iinf  :: Array{Int,1}     # indices of infeasible bounds
+  ifix  :: Vector{Int}     # indices of fixed variables
+  ilow  :: Vector{Int}     # indices of variables with lower bound only
+  iupp  :: Vector{Int}     # indices of variables with upper bound only
+  irng  :: Vector{Int}     # indices of variables with lower and upper bound (range)
+  ifree :: Vector{Int}     # indices of free variables
+  iinf  :: Vector{Int}     # indices of infeasible bounds
 
   nbv   :: Int              # number of linear binary variables
   niv   :: Int              # number of linear non-binary integer variables
@@ -66,16 +66,16 @@ struct NLPModelMeta <: AbstractNLPModelMeta
   nwv   :: Int              # number of linear network (arc) variables
 
   ncon :: Int               # number of general constraints
-  y0   :: Array{Float64,1}  # initial Lagrange multipliers
-  lcon :: Array{Float64,1}  # vector of constraint lower bounds
-  ucon :: Array{Float64,1}  # vector of constraint upper bounds
+  y0   :: Vector    # initial Lagrange multipliers
+  lcon :: Vector    # vector of constraint lower bounds
+  ucon :: Vector    # vector of constraint upper bounds
 
-  jfix  :: Array{Int,1}     # indices of equality constraints
-  jlow  :: Array{Int,1}     # indices of constraints of the form c(x) ≥ cl
-  jupp  :: Array{Int,1}     # indices of constraints of the form c(x) ≤ cu
-  jrng  :: Array{Int,1}     # indices of constraints of the form cl ≤ c(x) ≤ cu
-  jfree :: Array{Int,1}     # indices of "free" constraints (there shouldn't be any)
-  jinf  :: Array{Int,1}     # indices of the visibly infeasible constraints
+  jfix  :: Vector{Int}     # indices of equality constraints
+  jlow  :: Vector{Int}     # indices of constraints of the form c(x) ≥ cl
+  jupp  :: Vector{Int}     # indices of constraints of the form c(x) ≤ cu
+  jrng  :: Vector{Int}     # indices of constraints of the form cl ≤ c(x) ≤ cu
+  jfree :: Vector{Int}     # indices of "free" constraints (there shouldn't be any)
+  jinf  :: Vector{Int}     # indices of the visibly infeasible constraints
 
   nnzo :: Int               # number of nonzeros in all objectives gradients
   nnzj :: Int               # number of nonzeros in the sparse Jacobian
@@ -86,10 +86,10 @@ struct NLPModelMeta <: AbstractNLPModelMeta
   nnnet :: Int              # number of nonlinear network constraints
   nlnet :: Int              # number of linear network constraints
 
-  lin   :: Array{Int,1}     # indices of linear constraints
-  nln   :: Array{Int,1}     # indices of nonlinear constraints
-  nnet  :: Array{Int,1}     # indices of nonlinear network constraints
-  lnet  :: Array{Int,1}     # indices of linear network constraints
+  lin   :: Vector{Int}     # indices of linear constraints
+  nln   :: Vector{Int}     # indices of nonlinear constraints
+  nnet  :: Vector{Int}     # indices of nonlinear network constraints
+  lnet  :: Vector{Int}     # indices of linear network constraints
 
   minimize :: Bool          # true if optimize == minimize
   nlo  :: Int               # number of nonlinear objectives
@@ -116,10 +116,10 @@ struct NLPModelMeta <: AbstractNLPModelMeta
                         nnzo=nvar,
                         nnzj=nvar * ncon,
                         nnzh=nvar * (nvar + 1) / 2,
-                        lin=Int64[],
+                        lin=Int[],
                         nln=1:ncon,
-                        nnet=Int64[],
-                        lnet=Int64[],
+                        nnet=Int[],
+                        lnet=Int[],
                         nlin=length(lin),
                         nnln=length(nln),
                         nnnet=length(nnet),
