@@ -3,7 +3,10 @@ __precompile__()
 
 module NLPModels
 
+using LinearAlgebra
 using LinearOperators
+using Printf
+using SparseArrays
 
 export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters
 export reset!, sum_counters,
@@ -216,11 +219,12 @@ The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`.
 """
 function jac_op(nlp :: AbstractNLPModel, x :: AbstractVector)
-  return LinearOperator{Float64}(nlp.meta.ncon, nlp.meta.nvar,
-                        false, false,
-                        v -> jprod(nlp, x, v),
-                        nothing,
-                        v -> jtprod(nlp, x, v))
+  prod = v -> jprod(nlp, x, v)
+  ctprod = v -> jtprod(nlp, x, v)
+  F1 = typeof(prod)
+  F3 = typeof(ctprod)
+  return LinearOperator{Float64,F1,Nothing,F3}(nlp.meta.ncon, nlp.meta.nvar,
+                                               false, false, prod, nothing, ctprod)
 end
 
 """`J = jac_op!(nlp, x, Jv, Jtv)`
@@ -232,11 +236,12 @@ operations.
 """
 function jac_op!(nlp :: AbstractNLPModel, x :: AbstractVector,
                  Jv :: AbstractVector, Jtv :: AbstractVector)
-  return LinearOperator{Float64}(nlp.meta.ncon, nlp.meta.nvar,
-                        false, false,
-                        v -> jprod!(nlp, x, v, Jv),
-                        nothing,
-                        v -> jtprod!(nlp, x, v, Jtv))
+  prod = v -> jprod!(nlp, x, v, Jv)
+  ctprod = v -> jtprod!(nlp, x, v, Jtv)
+  F1 = typeof(prod)
+  F3 = typeof(ctprod)
+  return LinearOperator{Float64,F1,Nothing,F3}(nlp.meta.ncon, nlp.meta.nvar,
+                                               false, false, prod, nothing, ctprod)
 end
 
 jth_hprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer) =
@@ -310,9 +315,10 @@ with σ = obj_weight.
 """
 function hess_op(nlp :: AbstractNLPModel, x :: AbstractVector;
                  obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
-  return LinearOperator(nlp.meta.nvar, nlp.meta.nvar,
-                        true, true,
-                        v -> hprod(nlp, x, v; obj_weight=obj_weight, y=y))
+  prod = v -> hprod(nlp, x, v; obj_weight=obj_weight, y=y)
+  F = typeof(prod)
+  return LinearOperator{Float64,F,Nothing,Nothing}(nlp.meta.nvar, nlp.meta.nvar,
+                                                   true, true, prod, nothing, nothing)
 end
 
 """`H = hess_op!(nlp, x, Hv; obj_weight=1.0, y=zeros)`
@@ -329,9 +335,10 @@ with σ = obj_weight.
 """
 function hess_op!(nlp :: AbstractNLPModel, x :: AbstractVector, Hv :: AbstractVector;
                  obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
-  return LinearOperator(nlp.meta.nvar, nlp.meta.nvar,
-                        true, true,
-                        v -> hprod!(nlp, x, v, Hv; obj_weight=obj_weight, y=y))
+  prod = v -> hprod!(nlp, x, v, Hv; obj_weight=obj_weight, y=y)
+  F = typeof(prod)
+  return LinearOperator{Float64,F,Nothing,Nothing}(nlp.meta.nvar, nlp.meta.nvar,
+                                                   true, true, prod, nothing, nothing)
 end
 
 push!(nlp :: AbstractNLPModel, args...; kwargs...) =

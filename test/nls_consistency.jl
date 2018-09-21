@@ -1,4 +1,4 @@
-include(joinpath(Pkg.dir("NLPModels"), "test", "consistency.jl"))
+include("consistency.jl")
 
 function consistent_nls_counters(nlss)
   N = length(nlss)
@@ -21,7 +21,7 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
   tmp_m = zeros(m)
 
   for k = 1:nloops
-    x = 10 * (rand(n) - 0.5)
+    x = 10 .* (rand(n) .- 0.5)
 
     Fs = Any[residual(nls, x) for nls in nlss]
     for i = 1:N

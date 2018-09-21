@@ -44,7 +44,11 @@ function check_qn_model(qnmodel)
 end
 
 for problem in ["hs10", "hs11", "hs14"]
-  isdefined(Symbol(problem)) || include("$problem.jl")
+  try
+    eval(Symbol(problem))
+  catch
+    include("$problem.jl")
+  end
   problem_f = eval(Symbol(problem * "_autodiff"))
   nlp = problem_f()
   @printf("Checking LBFGS formulation of %-8s\t", problem)
