@@ -140,19 +140,19 @@ struct NLPModelMeta <: AbstractNLPModelMeta
     @lencheck nlnet lnet
     @rangecheck 1 ncon lin nln nnet lnet
 
-    ifix  = find(lvar .== uvar)
-    ilow  = find((lvar .> -Inf) .& (uvar .== Inf))
-    iupp  = find((lvar .== -Inf) .& (uvar .< Inf))
-    irng  = find((lvar .> -Inf) .& (uvar .< Inf) .& (lvar .< uvar))
-    ifree = find((lvar .== -Inf) .& (uvar .== Inf))
-    iinf  = find(lvar .> uvar)
+    ifix  = findall(lvar .== uvar)
+    ilow  = findall((lvar .> -Inf) .& (uvar .== Inf))
+    iupp  = findall((lvar .== -Inf) .& (uvar .< Inf))
+    irng  = findall((lvar .> -Inf) .& (uvar .< Inf) .& (lvar .< uvar))
+    ifree = findall((lvar .== -Inf) .& (uvar .== Inf))
+    iinf  = findall(lvar .> uvar)
 
-    jfix  = find(lcon .== ucon)
-    jlow  = find((lcon .> -Inf) .& (ucon .== Inf))
-    jupp  = find((lcon .== -Inf) .& (ucon .< Inf))
-    jrng  = find((lcon .> -Inf) .& (ucon .< Inf) .& (lcon .< ucon))
-    jfree = find((lcon .== -Inf) .& (ucon .== Inf))
-    jinf  = find(lcon .> ucon)
+    jfix  = findall(lcon .== ucon)
+    jlow  = findall((lcon .> -Inf) .& (ucon .== Inf))
+    jupp  = findall((lcon .== -Inf) .& (ucon .< Inf))
+    jrng  = findall((lcon .> -Inf) .& (ucon .< Inf) .& (lcon .< ucon))
+    jfree = findall((lcon .== -Inf) .& (ucon .== Inf))
+    jinf  = findall(lcon .> ucon)
 
     nnzj = max(0, min(nnzj, nvar * ncon))
     nnzh = max(0, min(nnzh, nvar * nvar))

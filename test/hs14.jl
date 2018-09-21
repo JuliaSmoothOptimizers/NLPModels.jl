@@ -30,7 +30,7 @@ function hs14_simple()
   Jtp(x, v) = J(x)' * v
   Jtp!(x, v, w) = begin w[1:2] = J(x)' * v end
 
-  H(x) = 2*eye(2)
+  H(x) = 2 * Matrix(1.0I, 2, 2)
   C(x, y) = [-0.5  0.0; 0.0  -2.0]*y[1]
   W(x; obj_weight=1.0, y=zeros(1)) = tril(obj_weight*H(x) + C(x,y))
   Wcoord(x; obj_weight=1.0, y=zeros(1)) = findnz(sparse(W(x; obj_weight=obj_weight, y=y)))

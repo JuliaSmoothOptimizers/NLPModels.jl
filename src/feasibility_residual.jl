@@ -33,7 +33,7 @@ function FeasibilityResidual(nlp :: AbstractNLPModel; name=nlp.meta.name)
                       uvar=nlp.meta.uvar)
   nls_meta = NLSMeta(m, n)
   nls = FeasibilityResidual(meta, nls_meta, NLSCounters(), nlp)
-  finalizer(nls, nlp -> finalize(nls.nlp))
+  finalizer(nlp -> finalize(nls.nlp), nls)
 
   return nls
 end

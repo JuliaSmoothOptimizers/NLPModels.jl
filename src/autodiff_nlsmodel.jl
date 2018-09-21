@@ -103,7 +103,8 @@ end
 function jac_coord(nls :: ADNLSModel, x :: AbstractVector)
   increment!(nls, :neval_jac)
   J = ForwardDiff.jacobian(nls.c, x)
-  return findnz(J)
+  I = findall(!iszero, J)
+  return (getindex.(I, 1), getindex.(I, 2), J[I])
 end
 
 function jac(nls :: ADNLSModel, x :: AbstractVector)
@@ -154,7 +155,8 @@ end
 
 function hess_coord(nls :: ADNLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
   H = hess(nls, x, obj_weight=obj_weight, y=y)
-  return findnz(H)
+  I = findall(!iszero, H)
+  return (getindex.(I, 1), getindex.(I, 2), H[I])
 end
 
 function hprod(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector;

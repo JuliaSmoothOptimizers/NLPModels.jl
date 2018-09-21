@@ -33,7 +33,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
   tmp_nn = zeros(n,n)
 
   for k = 1 : nloops
-    x = 10 * (rand(n) - 0.5)
+    x = 10 * (rand(n) .- 0.5)
 
     if !(obj in exclude)
       fs = [obj(nlp, x) for nlp in nlps]
@@ -82,12 +82,12 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
     end
 
     if !(hess_coord in exclude)
-      Hs = Array{Any}(N)
+      Hs = Vector{Any}(undef, N)
       for i = 1:N
         (I, J, V) = hess_coord(nlps[i], x)
         Hs[i] = sparse(I, J, V, n, n)
       end
-      Hmin = minimum(map(vecnorm, Hs))
+      Hmin = minimum(map(norm, Hs))
       for i = 1:N
         for j = i+1:N
           @test isapprox(Hs[i], Hs[j], atol=rtol * max(Hmin, 1.0))
@@ -101,7 +101,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
 
     if !(hess in exclude)
       Hs = Any[hess(nlp, x) for nlp in nlps]
-      Hmin = minimum(map(vecnorm, Hs))
+      Hmin = minimum(map(norm, Hs))
       for i = 1:N
         for j = i+1:N
           @test isapprox(Hs[i], Hs[j], atol=rtol * max(Hmin, 1.0))
@@ -112,7 +112,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
       end
     end
 
-    v = 10 * (rand(n) - 0.5)
+    v = 10 * (rand(n) .- 0.5)
 
     if !(hprod in exclude)
       Hvs = Any[hprod(nlp, x, v) for nlp in nlps]
@@ -178,11 +178,11 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
 
       if !(jac in exclude)
         Js = Any[jac(nlp, x) for nlp in nlps]
-        Jmin = minimum(map(vecnorm, Js))
+        Jmin = minimum(map(norm, Js))
         for i = 1:N-1
-          vi = vecnorm(Js[i])
+          vi = norm(Js[i])
           for j = i+1:N
-            @test isapprox(vi, vecnorm(Js[j]), atol=rtol * max(Jmin, 1.0))
+              @test isapprox(vi, norm(Js[j]), atol=rtol * max(Jmin, 1.0))
           end
         end
       end
@@ -227,15 +227,15 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
         end
       end
 
-      y = (rand() - 0.5) * ones(m)
+      y = (rand() .- 0.5) .* ones(m)
 
       if !(hess_coord in exclude)
-        Ls = Array{Any}(N)
+        Ls = Vector{Any}(undef, N)
         for i = 1:N
           (I, J, V) = hess_coord(nlps[i], x, y=y)
           Ls[i] = sparse(I, J, V, n, n)
         end
-        Lmin = minimum(map(vecnorm, Ls))
+        Lmin = minimum(map(norm, Ls))
         for i = 1:N
           for j = i+1:N
             @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
@@ -249,7 +249,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
 
       if !(hess in exclude)
         Ls = Any[hess(nlp, x, y=y) for nlp in nlps]
-        Lmin = minimum(map(vecnorm, Ls))
+        Lmin = minimum(map(norm, Ls))
         for i = 1:N
           for j = i+1:N
             @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
@@ -315,8 +315,8 @@ end
 
 function consistency(problem :: String; nloops=100, rtol=1.0e-8)
   @printf("Checking problem %-20s", problem)
-  nlp_autodiff = eval(parse("$(problem)_autodiff"))()
-  nlp_simple = eval(parse("$(problem)_simple"))()
+  nlp_autodiff = eval(Meta.parse("$(problem)_autodiff"))()
+  nlp_simple = eval(Meta.parse("$(problem)_simple"))()
   nlps = [nlp_autodiff; nlp_simple]
 
   consistent_nlps(nlps, nloops=nloops, rtol=rtol)

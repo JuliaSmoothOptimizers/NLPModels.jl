@@ -112,7 +112,7 @@ function grad!(nlp :: SlackModel, x :: AbstractVector, g :: AbstractVector)
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   grad!(nlp.model, x[1:n], g)
-  g[n+1:n+ns] = 0
+  @views g[n+1:n+ns] .= 0
   return g
 end
 
@@ -128,9 +128,9 @@ function cons!(nlp :: SlackModel, x :: AbstractVector, c :: AbstractVector)
   nupp = length(nlp.model.meta.jupp)
   nrng = length(nlp.model.meta.jrng)
   cons!(nlp.model, x[1:n], c)
-  c[nlp.model.meta.jlow] -= x[n+1:n+nlow]
-  c[nlp.model.meta.jupp] -= x[n+nlow+1:n+nlow+nupp]
-  c[nlp.model.meta.jrng] -= x[n+nlow+nupp+1:n+nlow+nupp+nrng]
+  @views c[nlp.model.meta.jlow] -= x[n+1:n+nlow]
+  @views c[nlp.model.meta.jupp] -= x[n+nlow+1:n+nlow+nupp]
+  @views c[nlp.model.meta.jrng] -= x[n+nlow+nupp+1:n+nlow+nupp+nrng]
   return c
 end
 
@@ -192,9 +192,9 @@ function jtprod!(nlp :: SlackModel, x :: AbstractVector, v :: AbstractVector, jt
   nupp = length(nlp.model.meta.jupp)
   nrng = length(nlp.model.meta.jrng)
   jtprod!(nlp.model, x[1:n], v, jtv)
-  jtv[n+1:n+nlow] = -v[nlp.model.meta.jlow]
-  jtv[n+nlow+1:n+nlow+nupp] = -v[nlp.model.meta.jupp]
-  jtv[n+nlow+nupp+1:nlp.meta.nvar] = -v[nlp.model.meta.jrng]
+  @views jtv[n+1:n+nlow] = -v[nlp.model.meta.jlow]
+  @views jtv[n+nlow+1:n+nlow+nupp] = -v[nlp.model.meta.jupp]
+  @views jtv[n+nlow+nupp+1:nlp.meta.nvar] = -v[nlp.model.meta.jrng]
   return jtv
 end
 
@@ -228,6 +228,6 @@ function hprod!(nlp :: SlackModel, x :: AbstractVector, v :: AbstractVector,
   ns = nlp.meta.nvar - n
   # using hv[1:n] doesn't seem to work here
   hprod!(nlp.model, x[1:n], v[1:n], hv, obj_weight=obj_weight, y=y)
-  hv[n+1:nlp.meta.nvar] = 0
+  @views hv[n+1:nlp.meta.nvar] .= 0
   return hv
 end
