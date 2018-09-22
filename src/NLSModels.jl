@@ -280,7 +280,8 @@ end
 function hess_coord(nls :: AbstractNLSModel, x :: AbstractVector; obj_weight ::
                     Float64 = 1.0, y :: AbstractVector = Float64[])
   Hx = hess(nls, x, obj_weight=obj_weight)
-  return findnz(Hx)
+  I = findall(!iszero, Hx)
+  return (getindex.(I, 1), getindex.(I, 2), Hx[I])
 end
 
 function hprod(nls :: AbstractNLSModel, x :: AbstractVector, v ::
