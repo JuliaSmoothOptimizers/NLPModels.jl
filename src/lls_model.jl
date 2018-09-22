@@ -22,7 +22,7 @@ function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVecto
                   x0 :: AbstractVector = zeros(size(A,2)),
                   lvar :: AbstractVector = fill(-Inf, size(A, 2)),
                   uvar :: AbstractVector = fill(Inf, size(A, 2)),
-                  C :: Union{AbstractMatrix, LinearOperator} = Matrix{Float64}(0,0),
+                  C :: Union{AbstractMatrix, LinearOperator} = Matrix{Float64}(undef, 0, 0),
                   lcon :: AbstractVector = Float64[],
                   ucon :: AbstractVector = Float64[],
                   y0 :: AbstractVector = zeros(size(C,1)))
@@ -98,7 +98,8 @@ function jac_coord(nls :: LLSModel, x :: AbstractVector)
   if isa(nls.C, LinearOperator)
     error("jac_coord is not defined for LinearOperators")
   end
-  return findnz(nls.C)
+  I = findall(!iszero, nls.C)
+  return (getindex.(I, 1), getindex.(I, 2), nls.C[I])
 end
 
 function jac(nls :: LLSModel, x :: AbstractVector)
@@ -143,7 +144,8 @@ end
 
 function hess_coord(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
   H = hess(nls, x, obj_weight=obj_weight, y=y)
-  return findnz(H)
+  I = findall(!iszero, H)
+  return (getindex.(I, 1), getindex.(I, 2), H[I])
 end
 
 function hprod(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector;
