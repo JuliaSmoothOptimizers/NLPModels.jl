@@ -200,8 +200,12 @@ end
 
 function hess_coord(nls :: SimpleNLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
   H = hess(nls, x, obj_weight=obj_weight, y=y)
-  I = findall(!iszero, H)
-  return (getindex.(I, 1), getindex.(I, 2), H[I])
+  if isa(H, SparseMatrixCSC)
+    return findnz(H)
+  else
+    I = findall(!iszero, H)
+    return (getindex.(I, 1), getindex.(I, 2), H[I])
+  end
 end
 
 function hprod(nls :: SimpleNLSModel, x :: AbstractVector, v :: AbstractVector;
