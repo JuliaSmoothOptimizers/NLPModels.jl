@@ -98,8 +98,12 @@ function jac_coord(nls :: LLSModel, x :: AbstractVector)
   if isa(nls.C, LinearOperator)
     error("jac_coord is not defined for LinearOperators")
   end
-  I = findall(!iszero, nls.C)
-  return (getindex.(I, 1), getindex.(I, 2), nls.C[I])
+  if isa(nls.C, SparseMatrixCSC)
+    return findnz(nls.C)
+  else
+    I = findall(!iszero, nls.C)
+    return (getindex.(I, 1), getindex.(I, 2), nls.C[I])
+  end
 end
 
 function jac(nls :: LLSModel, x :: AbstractVector)
@@ -144,8 +148,12 @@ end
 
 function hess_coord(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
   H = hess(nls, x, obj_weight=obj_weight, y=y)
-  I = findall(!iszero, H)
-  return (getindex.(I, 1), getindex.(I, 2), H[I])
+  if isa(H, SparseMatrixCSC)
+    return findnz(H)
+  else
+    I = findall(!iszero, H)
+    return (getindex.(I, 1), getindex.(I, 2), H[I])
+  end
 end
 
 function hprod(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector;
