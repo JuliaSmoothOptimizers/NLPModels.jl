@@ -1,13 +1,13 @@
-# Tools
+# [Tools](@id tools-section)
 
 ## Functions evaluations
 
-After calling one the [API](api) functions to get a function value, the
+After calling one the [API](@ref) functions to get a function value, the
 number of times that function was called is stored inside the
 `NLPModel`. For instance
 
 ```@example
-using NLPModels
+using NLPModels, LinearAlgebra
 nlp = ADNLPModel(x -> dot(x, x), zeros(2))
 for i = 1:100
     obj(nlp, rand(2))
@@ -43,7 +43,7 @@ To get the sum of all counters called for a problem, use
 [`sum_counters`](@ref).
 
 ```@example
-using NLPModels
+using NLPModels, LinearAlgebra
 nlp = ADNLPModel(x -> dot(x, x), zeros(2))
 obj(nlp, rand(2))
 grad(nlp, rand(2))
