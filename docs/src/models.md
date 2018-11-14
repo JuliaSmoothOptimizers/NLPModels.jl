@@ -1,26 +1,27 @@
 # Models
 
 The following general models are implemented in this package:
-- [ADNLPModel](#ADNLPModel-1)
-- [MathProgNLPModel](#MathProgNLPModel-1)
-- [SimpleNLPModel](#SimpleNLPModel-1)
-- [Derived Models](#Derived-Models-1)
-  - [SlackModel](#SlackModel-1)
-  - [LBFGSModel](#LBFGSModel-1)
-  - [LSR1Model](#LSR1Model-1)
+- [ADNLPModel](@ref)
+- [SimpleNLPModel](@ref)
+- [Derived Models](@ref)
+  - [SlackModel](@ref)
+  - [LBFGSModel](@ref)
+  - [LSR1Model](@ref)
 
 In addition, the following nonlinear least squares models are
 implemented in this package:
-- [ADNLSModel](#ADNLSModel-1)
-- [FeasibilityResidual](#FeasibilityResidual-1)
-- [LLSModel](#LLSModel-1)
-- [SimpleNLSModel](#SimpleNLSModel-1)
+- [ADNLSModel](@ref)
+- [FeasibilityResidual](@ref)
+- [LLSModel](@ref)
+- [SimpleNLSModel](@ref)
 
 There are other external models implemented. In particular,
 - [AmplModel](https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl)
 - [CUTEstModel](https://github.com/JuliaSmoothOptimizers/CUTEstModel.jl)
+- [MathProgNLPModel and MathProgNLSModel](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl)
+  using `JuMP/MPB`.
 
-There are currently three models implemented in this package, besides the
+There are currently two models implemented in this package, besides the
 external ones.
 
 ## ADNLPModel
@@ -37,24 +38,6 @@ f(x) = sum(x.^4)
 x = [1.0; 0.5; 0.25; 0.125]
 nlp = ADNLPModel(f, x)
 grad(nlp, x)
-```
-
-## MathProgNLPModel
-
-```@docs
-NLPModels.MathProgNLPModel
-```
-
-### Example
-
-```@example
-using NLPModels, MathProgBase, JuMP
-m = Model()
-@variable(m, x[1:4])
-@NLobjective(m, Min, sum(x[i]^4 for i=1:4))
-nlp = MathProgNLPModel(m)
-x0 = [1.0; 0.5; 0.25; 0.125]
-grad(nlp, x0)
 ```
 
 ## SimpleNLPModel

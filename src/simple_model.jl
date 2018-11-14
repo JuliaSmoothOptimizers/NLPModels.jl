@@ -33,61 +33,61 @@ throw a `NotImplementedError`.
 The list is
 
   - `g` and `g!`: \$\\nabla f(x)\$, the gradient of the objective function;
-    see [grad](api/#grad).
+  see [`grad`](@ref).
 
-    gx = g(x)
-    gx = g!(x, gx)
+        gx = g(x)
+        gx = g!(x, gx)
 
   - `H`: The lower triangle of the Hessian of the objective function or of the
     Lagrangian;
-    see [hess](api/#hess).
+    see [`hess`](@ref).
 
-    Hx = H(x; obj_weight=1.0) # if the problem is unconstrained
-    Hx = H(x; obj_weight=1.0, y=zeros) # if the problem is constrained
+        Hx = H(x; obj_weight=1.0) # if the problem is unconstrained
+        Hx = H(x; obj_weight=1.0, y=zeros) # if the problem is constrained
 
   - `Hcoord` - The lower triangle of the Hessian of the objective function
     or of the Lagrangian, in triplet format;
-    see [hess_coord](api/#hess_coord).
+    see [`hess_coord`](@ref).
 
-    (rows,cols,vals) = Hcoord(x; obj_weight=1.0) # if the problem is unconstrained
-    (rows,cols,vals) = Hcoord(x; obj_weight=1.0, y=zeros) # if the problem is constrained
+        (rows,cols,vals) = Hcoord(x; obj_weight=1.0) # if the problem is unconstrained
+        (rows,cols,vals) = Hcoord(x; obj_weight=1.0, y=zeros) # if the problem is constrained
 
   - `Hp` and `Hp!` - The product of the Hessian of the objective function or of
     the Lagrangian by a vector;
-    see [hprod](api/#hprod).
+    see [`hprod`](@ref).
 
-    Hv = Hp(x, v, obj_weight=1.0) # if the problem is unconstrained
-    Hv = Hp!(x, v, Hv, obj_weight=1.0) # if the problem is unconstrained
-    Hv = Hp(x, v, obj_weight=1.0, y=zeros) # if the problem is constrained
-    Hv = Hp!(x, v, Hv, obj_weight=1.0, y=zeros) # if the problem is constrained
+        Hv = Hp(x, v, obj_weight=1.0) # if the problem is unconstrained
+        Hv = Hp!(x, v, Hv, obj_weight=1.0) # if the problem is unconstrained
+        Hv = Hp(x, v, obj_weight=1.0, y=zeros) # if the problem is constrained
+        Hv = Hp!(x, v, Hv, obj_weight=1.0, y=zeros) # if the problem is constrained
 
   - `c` and `c!` - \$c(x)\$, the constraints function;
-    see [cons](api/#cons).
+  see [`cons`](@ref).
 
-    cx = c(x)
-    cx = c!(x, cx)
+        cx = c(x)
+        cx = c!(x, cx)
 
   - `J` - \$J(x)\$, the Jacobian of the constraints;
-    see [jac](api/#jac).
+  see [`jac`](@ref).
 
-    Jx = J(x)
+        Jx = J(x)
 
   - `Jcoord` - \$J(x)\$, the Jacobian of the constraints, in triplet format;
-    see [jac_coord](api/#jac_coord).
+  see [`jac_coord`](@ref).
 
-    (rows,cols,vals) = Jcoord(x)
+        (rows,cols,vals) = Jcoord(x)
 
   - `Jp` and `Jp!` - The Jacobian-vector product;
-    see [jprod](api/#jprod).
+  see [`jprod`](@ref).
 
-    Jv = Jp(x, v)
-    Jv = Jp!(x, v, Jv)
+        Jv = Jp(x, v)
+        Jv = Jp!(x, v, Jv)
 
   - `Jtp` and `Jtp!` - The Jacobian-transposed-vector product;
-    see [jtprod](api/#jtprod).
+  see [`jtprod`](@ref).
 
-    Jtv = Jtp(x, v)
-    Jtv = Jtp!(x, v, Jtv)
+        Jtv = Jtp(x, v)
+        Jtv = Jtp!(x, v, Jtv)
 
 For contrained problems, the function \$c\$ is required, and it must return
 an array even when m = 1,

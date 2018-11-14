@@ -17,9 +17,9 @@ NLPModels.jl was created for two purposes:
 
 The main interfaces for user defined problems are
 
-- [ADNLPModel](models/#adnlpmodel), which defines a model easily, using automatic
+- [ADNLPModel](@ref), which defines a model easily, using automatic
   differentiation.
-- [SimpleNLPModel](models/#simplenlpmodel), which allows users to handle all functions themselves,
+- [SimpleNLPModel](@ref), which allows users to handle all functions themselves,
   giving
 
 ## ADNLPModel Tutorial
@@ -78,6 +78,8 @@ Namely, the method
 6. Update ``k = k + 1`` and go to step 2.
 
 ```@example adnlp
+using LinearAlgebra
+
 function steepest(nlp; itmax=100000, eta=1e-4, eps=1e-6, sigma=0.66)
   x = nlp.meta.x0
   fx = obj(nlp, x)
@@ -118,7 +120,7 @@ Newton step.
 
 ```@example adnlp
 g(x) = grad(nlp, x)
-H(x) = hess(nlp, x) + triu(hess(nlp, x)', 1)
+H(x) = Symmetric(hess(nlp, x), :L)
 x = nlp.meta.x0
 d = -H(x)\g(x)
 ```
@@ -127,6 +129,7 @@ or a few
 
 ```@example adnlp
 for i = 1:5
+  global x
   x = x - H(x)\g(x)
   println("x = $x")
 end
@@ -135,17 +138,19 @@ end
 Also, notice how we can reuse the method.
 
 ```@example adnlp
-f(x) = (x[1]^2 + x[2]^2 - 4)^2 + (x[1]*x[2] - 1)^2
-x0 = [2.0; 1.0]
+f(x) = (x[1]^2 + x[2]^2 - 5)^2 + (x[1]*x[2] - 2)^2
+x0 = [3.0; 2.0]
 nlp = ADNLPModel(f, x0)
 
 x, fx, ngx, optimal, iter = steepest(nlp)
 ```
 
-Even using a different model.
+Even using a different model. In this case, a model from
+[NLPModelsJuMP](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl) implemented in
+[OptimizationProblems](https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl).
 
 ```@example adnlp
-using OptimizationProblems # Defines a lot of JuMP models
+using NLPModelsJuMP, OptimizationProblems
 
 nlp = MathProgNLPModel(woods())
 x, fx, ngx, optimal, iter = steepest(nlp)
@@ -204,7 +209,7 @@ grad(nlp, nlp.meta.x0)
 Nothing. So you have to be careful on how you're defining it.
 You should probably check your derivatives.
 If the function is simply defined, you can try using automatic differentiation.
-Alternatively, you can use the [derivative checker](dercheck).
+Alternatively, you can use the [Derivative Checker](@ref).
 
 ```@example slp
 gradient_check(nlp)

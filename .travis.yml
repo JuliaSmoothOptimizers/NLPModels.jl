@@ -13,30 +13,25 @@ matrix:
   allow_failures:
     - julia: nightly
 
-sudo: required
-
-git:
-  depth: 9999
-
 notifications:
-  email: false
-
-addons:
-  apt_packages:
-    - gfortran
+  email:
+    recipients: abel.s.siqueira@gmail.com
+    on_success: never
+    on_failure: change
 
 branches:
   only:
     - master
 
-before_install:
-  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-
-script:
-  - julia --check-bounds=yes -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("NLPModels"); Pkg.test("NLPModels"; coverage=true)'
+jobs:
+  include:
+    - stage: Documentation
+      julia: 1.0
+      os: linux
+      script:
+        - julia --project=docs -e 'using Pkg; Pkg.instantiate(); Pkg.add(PackageSpec(path=pwd()))'
+        - julia --project=docs docs/make.jl
+      after_success: skip
 
 after_success:
-  - julia -e 'using Pkg; for pkg in ["Documenter", "JuMP", "ForwardDiff"] Pkg.add(pkg); end'
-  - julia -e 'using Pkg; Pkg.clone("https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl")'
-  - julia -e 'using Pkg; cd(Pkg.dir("NLPModels")); include(joinpath("docs", "make.jl"))'
   - julia -e 'using Pkg; cd(Pkg.dir("NLPModels")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
