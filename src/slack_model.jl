@@ -1,4 +1,4 @@
-export SlackModel,
+export SlackModel, ConvertToSlackModel,
        reset!,
        obj, grad, grad!,
        cons, cons!, jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
@@ -68,8 +68,15 @@ function slack_meta(meta :: NLPModelMeta)
   )
 end
 
-"Construct a `SlackModel` from another type of model."
-function SlackModel(model :: AbstractNLPModel)
+"""
+    ConvertToSlackModel(model)
+
+Convert an NLPModel or NLSModel to a SlackModel, without using specialized information
+about the type of `model`.
+
+You may want `SlackModel(model)` instead.
+"""
+function ConvertToSlackModel(model :: AbstractNLPModel)
   model.meta.ncon == length(model.meta.jfix) && return model
 
   meta = slack_meta(model.meta)
@@ -77,7 +84,7 @@ function SlackModel(model :: AbstractNLPModel)
   return SlackModel(meta, NLSMeta(0, 0), model)
 end
 
-function SlackModel(model :: AbstractNLSModel)
+function ConvertToSlackModel(model :: AbstractNLSModel)
   ns = model.meta.ncon - length(model.meta.jfix)
   ns == 0 && return model
 
@@ -87,6 +94,19 @@ function SlackModel(model :: AbstractNLSModel)
                      [model.meta.x0; zeros(ns)])
 
   return SlackModel(meta, nls_meta, model)
+end
+
+"""
+    SlackModel(nlp)
+
+Convert an NLPModel or NLSModel `nlp` to a model whose only inequality constraints are
+bounds. Specialized models are returned depending on `nlp` type, otherwise a wrapper is
+created trough model `SlackModel`.
+"""
+function SlackModel(nlp :: AbstractNLPModel)
+  nlp.meta.ncon == length(nlp.meta.jfix) && return nlp
+
+  ConvertToSlackModel(nlp)
 end
 
 import Base.show
@@ -371,4 +391,27 @@ function hess_op_residual!(nls :: SlackModel, x :: AbstractVector, i :: Int, Hiv
   F = typeof(prod)
   return LinearOperator{Float64,F,Nothing,Nothing}(nls_meta(nls).nvar, nls_meta(nls).nvar,
                                                    true, true, prod, nothing, nothing)
+end
+
+function SlackModel(nlp :: ADNLPModel)
+  nlp.meta.ncon == length(nlp.meta.jfix) && return nlp
+
+  meta = slack_meta(nlp.meta)
+  n, m = nlp.meta.nvar, nlp.meta.ncon
+
+  f(x) = nlp.f(@view x[1:n])
+
+  nlow = length(nlp.meta.jlow)
+  nupp = length(nlp.meta.jupp)
+  nrng = length(nlp.meta.jrng)
+
+  c(x) = begin
+    cx = nlp.c(@view x[1:n])
+    cx[nlp.meta.jlow] .-= @view x[n+1:n+nlow]
+    cx[nlp.meta.jupp] .-= @view x[n+nlow+1:n+nlow+nupp]
+    cx[nlp.meta.jrng] .-= @view x[n+nlow+nupp+1:n+nlow+nupp+nrng]
+    return cx
+  end
+
+  return ADNLPModel(meta, deepcopy(nlp.counters), f, c)
 end
