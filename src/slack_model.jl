@@ -150,7 +150,7 @@ function objgrad!(nlp :: SlackModel, x :: Array{Float64}, g :: Array{Float64})
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   f, _ = objgrad!(nlp.model, x[1:n], g)
-  g[n+1:n+ns] = 0
+  g[n+1:n+ns] .= 0
   return f, g
 end
 
@@ -311,25 +311,27 @@ function jtprod_residual!(nlp :: SlackModel, x :: AbstractVector, v :: AbstractV
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   @views jtprod_residual!(nlp.model, x[1:n], v, Jtv[1:n])
-  Jtv[n+1:n+ns] = 0
+  Jtv[n+1:n+ns] .= 0
   return Jtv
 end
 
 function jac_op_residual(nls :: SlackModel, x :: AbstractVector)
-  return LinearOperator{Float64}(nls_meta(nls).nequ, nls_meta(nls).nvar,
-                                 false, false,
-                                 v -> jprod_residual(nls, x, v),
-                                 nothing,
-                                 v -> jtprod_residual(nls, x, v))
+  prod = @closure v -> jprod_residual(nls, x, v)
+  ctprod = @closure v -> jtprod_residual(nls, x, v)
+  F1 = typeof(prod)
+  F3 = typeof(ctprod)
+  return LinearOperator{Float64,F1,Nothing,F3}(nls_meta(nls).nequ, nls_meta(nls).nvar,
+                                               false, false, prod, nothing, ctprod)
 end
 
 function jac_op_residual!(nls :: SlackModel, x :: AbstractVector,
                           Jv :: AbstractVector, Jtv :: AbstractVector)
-  return LinearOperator{Float64}(nls_meta(nls).nequ, nls_meta(nls).nvar,
-                                 false, false,
-                                 v -> jprod_residual!(nls, x, v, Jv),
-                                 nothing,
-                                 v -> jtprod_residual!(nls, x, v, Jtv))
+  prod = @closure v -> jprod_residual!(nls, x, v, Jv)
+  ctprod = @closure v -> jtprod_residual!(nls, x, v, Jtv)
+  F1 = typeof(prod)
+  F3 = typeof(ctprod)
+  return LinearOperator{Float64,F1,Nothing,F3}(nls_meta(nls).nequ, nls_meta(nls).nvar,
+                                               false, false, prod, nothing, ctprod)
 end
 
 function hess_residual(nlp :: SlackModel, x :: AbstractVector, i :: Int)
@@ -353,18 +355,20 @@ function hprod_residual!(nlp :: SlackModel, x :: AbstractVector, i :: Int, v :: 
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   @views hprod_residual!(nlp.model, x[1:n], i, v[1:n], Hv[1:n])
-  Hv[n+1:n+ns] = 0
+  Hv[n+1:n+ns] .= 0
   return Hv
 end
 
 function hess_op_residual(nls :: SlackModel, x :: AbstractVector, i :: Int)
-  return LinearOperator(nls_meta(nls).nvar, nls_meta(nls).nvar,
-                        true, true,
-                        v -> hprod_residual(nls, x, i, v))
+  prod = @closure v -> hprod_residual(nls, x, i, v)
+  F = typeof(prod)
+  return LinearOperator{Float64,F,Nothing,Nothing}(nls_meta(nls).nvar, nls_meta(nls).nvar,
+                                                   true, true, prod, nothing, nothing)
 end
 
 function hess_op_residual!(nls :: SlackModel, x :: AbstractVector, i :: Int, Hiv :: AbstractVector)
-  return LinearOperator(nls_meta(nls).nvar, nls_meta(nls).nvar,
-                        true, true,
-                        v -> hprod_residual!(nls, x, i, v, Hiv))
+  prod = @closure v -> hprod_residual!(nls, x, i, v, Hiv)
+  F = typeof(prod)
+  return LinearOperator{Float64,F,Nothing,Nothing}(nls_meta(nls).nvar, nls_meta(nls).nvar,
+                                                   true, true, prod, nothing, nothing)
 end
