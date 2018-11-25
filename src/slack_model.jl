@@ -429,3 +429,44 @@ function SlackModel(nls :: ADNLSModel)
 
   return ADNLSModel(meta, nls_meta, deepcopy(nls.counters), F, c)
 end
+
+function SlackModel(nls :: LLSModel)
+  ns = nls.meta.ncon - length(nls.meta.jfix)
+  ns == 0 && return nls
+
+  meta = slack_meta(nls.meta)
+  n, m, ne = nls.meta.nvar, nls.meta.ncon, nls.nls_meta.nequ
+  nls_meta = NLSMeta(ne,
+                     nls.meta.nvar + ns,
+                     [nls.meta.x0; zeros(ns)])
+
+  local A
+  if nls.A isa AbstractSparseMatrix
+    A = [nls.A -spzeros(ne, ns)]
+  elseif nls.A isa AbstractMatrix
+    A = [nls.A -zeros(ne, ns)]
+  else
+    A = [nls.A -opZeros(ne, ns)]
+  end
+
+  jlow = nls.meta.jlow
+  jupp = nls.meta.jupp
+  jrng = nls.meta.jrng
+  J = [jlow; jupp; jrng]
+
+  local C
+  if nls.C isa AbstractSparseMatrix
+    C = [nls.C -spzeros(m, ns)]
+    for (j,i) = enumerate(J)
+      C[i,n+j] = -1.0
+    end
+  elseif nls.C isa AbstractMatrix
+    C = [nls.C -zeros(m, ns)]
+    for (j,i) = enumerate(J)
+      C[i,n+j] = -1.0
+    end
+  else
+    C = [nls.C -opExtension(J, m)]
+  end
+  return LLSModel(meta, nls_meta, deepcopy(nls.counters), A, nls.b, C)
+end

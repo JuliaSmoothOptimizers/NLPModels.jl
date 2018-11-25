@@ -325,7 +325,6 @@ function consistent_nls()
     ucon = [Inf;  1.0;  0.0; 0.0]
     adnls = ADNLSModel(x -> A*x - b, x0, 3, c=x -> C*x, lcon=lcon, ucon=ucon)
     lls = LLSModel(A, b, x0=x0, C=C, lcon=lcon, ucon=ucon)
-    lls2 = LLSModel(A, b, x0=x0, C=C, lcon=lcon, ucon=ucon)
 
     nlss = [SlackModel(adnls), SlackModel(lls)]
     consistent_nls_counters(nlss)
@@ -342,6 +341,7 @@ function consistent_nls()
     b = rand(m)
     lls = LLSModel(A, b)
     lls2 = LLSModel(LinearOperator(A), b)
+    lls3 = LLSModel(sparse(A), b)
     nlss = [lls, lls2]
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
@@ -357,9 +357,14 @@ function consistent_nls()
     lcon, ucon = lcon[I], ucon[I]
     lls  = LLSModel(A, b, C=C, lcon=lcon, ucon=ucon)
     lls2 = LLSModel(LinearOperator(A), b, C=C, lcon=lcon, ucon=ucon)
-    lls3 = LLSModel(A, b, C=LinearOperator(C), lcon=lcon, ucon=ucon)
-    lls4 = LLSModel(LinearOperator(A), b, C=LinearOperator(C), lcon=lcon, ucon=ucon)
-    nlss = [lls, lls2, lls3, lls4]
+    lls3 = LLSModel(sparse(A), b, C=C, lcon=lcon, ucon=ucon)
+    lls4 = LLSModel(A, b, C=LinearOperator(C), lcon=lcon, ucon=ucon)
+    lls5 = LLSModel(LinearOperator(A), b, C=LinearOperator(C), lcon=lcon, ucon=ucon)
+    lls6 = LLSModel(sparse(A), b, C=LinearOperator(C), lcon=lcon, ucon=ucon)
+    lls7 = LLSModel(A, b, C=C, lcon=lcon, ucon=ucon)
+    lls8 = LLSModel(LinearOperator(A), b, C=sparse(C), lcon=lcon, ucon=ucon)
+    lls9 = LLSModel(sparse(A), b, C=sparse(C), lcon=lcon, ucon=ucon)
+    nlss = [lls, lls2, lls3, lls4, lls5, lls6, lls7, lls8, lls9]
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
     consistent_nls_functions(nlss, exclude=[jac_residual])
