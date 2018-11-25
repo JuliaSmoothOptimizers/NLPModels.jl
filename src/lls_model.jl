@@ -45,7 +45,7 @@ end
 
 function residual!(nls :: LLSModel, x :: AbstractVector, Fx :: AbstractVector)
   increment!(nls, :neval_residual)
-  Fx[:] = nls.A * x - nls.b
+  Fx[1:nls.nls_meta.nequ] = nls.A * x - nls.b
   return Fx
 end
 
@@ -60,13 +60,13 @@ end
 
 function jprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nls, :neval_jprod_residual)
-  Jv[:] = nls.A * v
+  Jv[1:nls.nls_meta.nequ] = nls.A * v
   return Jv
 end
 
 function jtprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nls, :neval_jtprod_residual)
-  Jtv[:] = nls.A' * v
+  Jtv[1:nls.meta.nvar] = nls.A' * v
   return Jtv
 end
 

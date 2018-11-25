@@ -104,9 +104,9 @@ end
 
 for problem in ["hs10", "hs11", "hs14"]
   @printf("Checking slack formulation of %-8s\t", problem)
-  problem_f = eval(Symbol(problem * "_autodiff"))
+  problem_f = eval(Symbol(problem * "_simple"))
   nlp = problem_f()
-  slack_model = ConvertToSlackModel(nlp)
+  slack_model = SlackModel(nlp)
   check_slack_model(slack_model)
   @printf("✓\n")
 end

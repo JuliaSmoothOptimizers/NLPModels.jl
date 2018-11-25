@@ -1,4 +1,4 @@
-export SlackModel, ConvertToSlackModel,
+export SlackModel
        reset!,
        obj, grad, grad!,
        cons, cons!, jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
@@ -68,33 +68,6 @@ function slack_meta(meta :: NLPModelMeta)
   )
 end
 
-"""
-    ConvertToSlackModel(model)
-
-Convert an NLPModel or NLSModel to a SlackModel, without using specialized information
-about the type of `model`.
-
-You may want `SlackModel(model)` instead.
-"""
-function ConvertToSlackModel(model :: AbstractNLPModel)
-  model.meta.ncon == length(model.meta.jfix) && return model
-
-  meta = slack_meta(model.meta)
-
-  return SlackModel(meta, NLSMeta(0, 0), model)
-end
-
-function ConvertToSlackModel(model :: AbstractNLSModel)
-  ns = model.meta.ncon - length(model.meta.jfix)
-  ns == 0 && return model
-
-  meta = slack_meta(model.meta)
-  nls_meta = NLSMeta(model.nls_meta.nequ,
-                     model.meta.nvar + ns,
-                     [model.meta.x0; zeros(ns)])
-
-  return SlackModel(meta, nls_meta, model)
-end
 
 """
     SlackModel(nlp)
@@ -106,7 +79,21 @@ created trough model `SlackModel`.
 function SlackModel(nlp :: AbstractNLPModel)
   nlp.meta.ncon == length(nlp.meta.jfix) && return nlp
 
-  ConvertToSlackModel(nlp)
+  meta = slack_meta(nlp.meta)
+
+  return SlackModel(meta, NLSMeta(0, 0), nlp)
+end
+
+function SlackModel(nls :: AbstractNLSModel)
+  ns = nls.meta.ncon - length(nls.meta.jfix)
+  ns == 0 && return nls
+
+  meta = slack_meta(nls.meta)
+  nls_meta = NLSMeta(nls.nls_meta.nequ,
+                     nls.meta.nvar + ns,
+                     [nls.meta.x0; zeros(ns)])
+
+  return SlackModel(meta, nls_meta, nls)
 end
 
 import Base.show
@@ -414,4 +401,31 @@ function SlackModel(nlp :: ADNLPModel)
   end
 
   return ADNLPModel(meta, deepcopy(nlp.counters), f, c)
+end
+
+function SlackModel(nls :: ADNLSModel)
+  ns = nls.meta.ncon - length(nls.meta.jfix)
+  ns == 0 && return nls
+
+  meta = slack_meta(nls.meta)
+  n, m = nls.meta.nvar, nls.meta.ncon
+  nls_meta = NLSMeta(nls.nls_meta.nequ,
+                     nls.meta.nvar + ns,
+                     [nls.meta.x0; zeros(ns)])
+
+  F(x) = nls.F(@view x[1:n])
+
+  nlow = length(nls.meta.jlow)
+  nupp = length(nls.meta.jupp)
+  nrng = length(nls.meta.jrng)
+
+  c(x) = begin
+    cx = nls.c(@view x[1:n])
+    cx[nls.meta.jlow] .-= @view x[n+1:n+nlow]
+    cx[nls.meta.jupp] .-= @view x[n+nlow+1:n+nlow+nupp]
+    cx[nls.meta.jrng] .-= @view x[n+nlow+nupp+1:n+nlow+nupp+nrng]
+    return cx
+  end
+
+  return ADNLSModel(meta, nls_meta, deepcopy(nls.counters), F, c)
 end

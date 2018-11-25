@@ -306,6 +306,25 @@ function consistent_nls()
     consistent_functions(nlss, nloops=10)
   end
 
+  @testset "Consistency of slack variant for linear problem" begin
+    A = [1.0 0.0; 1.0 2.0; 2.0 1.0]
+    b = [1.0; 3.0; 2.0]
+    C = [1.0 1.0; 1.0 -1.0; 2.0 1.0; 1.0 2.0]
+    x0 = ones(2)
+    lcon = [0.0; -1.0; -Inf; 0.0]
+    ucon = [Inf;  1.0;  0.0; 0.0]
+    adnls = ADNLSModel(x -> A*x - b, x0, 3, c=x -> C*x, lcon=lcon, ucon=ucon)
+    lls = LLSModel(A, b, x0=x0, C=C, lcon=lcon, ucon=ucon)
+
+    nlss = [SlackModel(adnls), SlackModel(lls)]
+    consistent_nls_counters(nlss)
+    consistent_counters(nlss)
+    consistent_nls_functions(nlss)
+    consistent_nls_counters(nlss)
+    consistent_counters(nlss)
+    consistent_functions(nlss, nloops=10)
+  end
+
 end
 
 consistent_nls()
