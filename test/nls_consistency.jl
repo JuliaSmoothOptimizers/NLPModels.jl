@@ -1,3 +1,5 @@
+using Random
+
 include("consistency.jl")
 
 function consistent_nls_counters(nlss)
@@ -12,7 +14,7 @@ function consistent_nls_counters(nlss)
   @test all(V .== V[1])
 end
 
-function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
+function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8, exclude=[])
   N = length(nlss)
   n = nls_meta(nlss[1]).nvar
   m = nls_meta(nlss[1]).nequ
@@ -23,77 +25,85 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
   for k = 1:nloops
     x = 10 .* (rand(n) .- 0.5)
 
-    Fs = Any[residual(nls, x) for nls in nlss]
-    for i = 1:N
-      for j = i+1:N
-        @test isapprox(Fs[i], Fs[j], rtol=rtol)
-      end
-
-      r = residual!(nlss[i], x, tmp_m)
-      @test isapprox(r, Fs[i], rtol=rtol)
-      @test isapprox(Fs[i], tmp_m, rtol=rtol)
-    end
-
-    Js = Any[jac_residual(nls, x) for nls in nlss]
-    for i = 1:N
-      for j = i+1:N
-        @test isapprox(Js[i], Js[j], rtol=rtol)
-      end
-    end
-
-    J_ops = Any[jac_op_residual(nls, x) for nls in nlss]
-    Jv, Jtv = zeros(m), zeros(n)
-    J_ops_inplace = Any[jac_op_residual!(nls, x, Jv, Jtv) for nls in nlss]
-
-    v = rand(n)
-
-    Jps = Any[jprod_residual(nls, x, v) for nls in nlss]
-    for i = 1:N
-      for j = i+1:N
-        @test isapprox(Jps[i], Jps[j], rtol=rtol)
-      end
-
-      jps = jprod_residual!(nlss[i], x, v, tmp_m)
-      @test isapprox(jps, Jps[i], rtol=rtol)
-      @test isapprox(Jps[i], tmp_m, rtol=rtol)
-      @test isapprox(Jps[i], J_ops[i] * v, rtol=rtol)
-      @test isapprox(Jps[i], J_ops_inplace[i] * v, rtol=rtol)
-    end
-
-    v = rand(m)
-
-    Jtps = Any[jtprod_residual(nls, x, v) for nls in nlss]
-    for i = 1:N
-      for j = i+1:N
-        @test isapprox(Jtps[i], Jtps[j], rtol=rtol)
-      end
-
-      jtps = jtprod_residual!(nlss[i], x, v, tmp_n)
-      @test isapprox(jtps, Jtps[i], rtol=rtol)
-      @test isapprox(Jtps[i], tmp_n, rtol=rtol)
-      @test isapprox(Jtps[i], J_ops[i]' * v, rtol=rtol)
-      @test isapprox(Jtps[i], J_ops_inplace[i]' * v, rtol=rtol)
-    end
-
-    v = rand(n)
-
-    for k = 1:m
-      Hs = Any[hess_residual(nls, x, k) for nls in nlss]
-      Hvs = Any[hprod_residual(nls, x, k, v) for nls in nlss]
-      Hops = Any[hess_op_residual(nls, x, k) for nls in nlss]
-      Hiv = zeros(n)
-      Hops_inplace = Any[hess_op_residual!(nls, x, k, Hiv) for nls in nlss]
+    if !(residual in exclude)
+      Fs = Any[residual(nls, x) for nls in nlss]
       for i = 1:N
         for j = i+1:N
-          @test isapprox(Hs[i], Hs[j], rtol=rtol)
-          @test isapprox(Hvs[i], Hvs[j], rtol=rtol)
+          @test isapprox(Fs[i], Fs[j], rtol=rtol)
         end
 
-        hvs = hprod_residual!(nlss[i], x, k, v, tmp_n)
-        @test isapprox(hvs, Hvs[i], rtol=rtol)
-        @test isapprox(Hvs[i], tmp_n, rtol=rtol)
-        @test isapprox(Hvs[i], Hops[i] * v, rtol=rtol)
-        @test isapprox(Hvs[i], Hops_inplace[i] * v, rtol=rtol)
+        r = residual!(nlss[i], x, tmp_m)
+        @test isapprox(r, Fs[i], rtol=rtol)
+        @test isapprox(Fs[i], tmp_m, rtol=rtol)
+      end
+    end
+
+    if !(jac_residual in exclude)
+      Js = Any[jac_residual(nls, x) for nls in nlss]
+      for i = 1:N
+        for j = i+1:N
+          @test isapprox(Js[i], Js[j], rtol=rtol)
+        end
+      end
+    end
+
+    if intersect([jac_op_residual, jprod_residual, jtprod_residual],  exclude) == []
+      J_ops = Any[jac_op_residual(nls, x) for nls in nlss]
+      Jv, Jtv = zeros(m), zeros(n)
+      J_ops_inplace = Any[jac_op_residual!(nls, x, Jv, Jtv) for nls in nlss]
+
+      v = rand(n)
+
+      Jps = Any[jprod_residual(nls, x, v) for nls in nlss]
+      for i = 1:N
+        for j = i+1:N
+          @test isapprox(Jps[i], Jps[j], rtol=rtol)
+        end
+
+        jps = jprod_residual!(nlss[i], x, v, tmp_m)
+        @test isapprox(jps, Jps[i], rtol=rtol)
+        @test isapprox(Jps[i], tmp_m, rtol=rtol)
+        @test isapprox(Jps[i], J_ops[i] * v, rtol=rtol)
+        @test isapprox(Jps[i], J_ops_inplace[i] * v, rtol=rtol)
+      end
+
+      v = rand(m)
+
+      Jtps = Any[jtprod_residual(nls, x, v) for nls in nlss]
+      for i = 1:N
+        for j = i+1:N
+          @test isapprox(Jtps[i], Jtps[j], rtol=rtol)
+        end
+
+        jtps = jtprod_residual!(nlss[i], x, v, tmp_n)
+        @test isapprox(jtps, Jtps[i], rtol=rtol)
+        @test isapprox(Jtps[i], tmp_n, rtol=rtol)
+        @test isapprox(Jtps[i], J_ops[i]' * v, rtol=rtol)
+        @test isapprox(Jtps[i], J_ops_inplace[i]' * v, rtol=rtol)
+      end
+    end
+
+    if intersect([hess_residual, hprod_residual, hess_op_residual], exclude) == []
+      v = rand(n)
+
+      for k = 1:m
+        Hs = Any[hess_residual(nls, x, k) for nls in nlss]
+        Hvs = Any[hprod_residual(nls, x, k, v) for nls in nlss]
+        Hops = Any[hess_op_residual(nls, x, k) for nls in nlss]
+        Hiv = zeros(n)
+        Hops_inplace = Any[hess_op_residual!(nls, x, k, Hiv) for nls in nlss]
+        for i = 1:N
+          for j = i+1:N
+            @test isapprox(Hs[i], Hs[j], rtol=rtol)
+            @test isapprox(Hvs[i], Hvs[j], rtol=rtol)
+          end
+
+          hvs = hprod_residual!(nlss[i], x, k, v, tmp_n)
+          @test isapprox(hvs, Hvs[i], rtol=rtol)
+          @test isapprox(Hvs[i], tmp_n, rtol=rtol)
+          @test isapprox(Hvs[i], Hops[i] * v, rtol=rtol)
+          @test isapprox(Hvs[i], Hops_inplace[i] * v, rtol=rtol)
+        end
       end
     end
 
@@ -315,6 +325,7 @@ function consistent_nls()
     ucon = [Inf;  1.0;  0.0; 0.0]
     adnls = ADNLSModel(x -> A*x - b, x0, 3, c=x -> C*x, lcon=lcon, ucon=ucon)
     lls = LLSModel(A, b, x0=x0, C=C, lcon=lcon, ucon=ucon)
+    lls2 = LLSModel(A, b, x0=x0, C=C, lcon=lcon, ucon=ucon)
 
     nlss = [SlackModel(adnls), SlackModel(lls)]
     consistent_nls_counters(nlss)
@@ -323,6 +334,47 @@ function consistent_nls()
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
     consistent_functions(nlss, nloops=10)
+  end
+
+  @testset "Consistency of LLS with Matrix and LinearOperator" begin
+    m, n = 50, 20
+    A = rand(m, n)
+    b = rand(m)
+    lls = LLSModel(A, b)
+    lls2 = LLSModel(LinearOperator(A), b)
+    nlss = [lls, lls2]
+    consistent_nls_counters(nlss)
+    consistent_counters(nlss)
+    consistent_nls_functions(nlss, exclude=[jac_residual])
+    consistent_nls_counters(nlss)
+    consistent_counters(nlss)
+
+    nc = 10
+    C = rand(4nc, n)
+    lcon = [   zeros(nc); -ones(nc); fill(-Inf,nc); zeros(nc)]
+    ucon = [fill(Inf,nc);  ones(nc);     zeros(nc); zeros(nc)]
+    I = randperm(4nc)
+    lcon, ucon = lcon[I], ucon[I]
+    lls  = LLSModel(A, b, C=C, lcon=lcon, ucon=ucon)
+    lls2 = LLSModel(LinearOperator(A), b, C=C, lcon=lcon, ucon=ucon)
+    lls3 = LLSModel(A, b, C=LinearOperator(C), lcon=lcon, ucon=ucon)
+    lls4 = LLSModel(LinearOperator(A), b, C=LinearOperator(C), lcon=lcon, ucon=ucon)
+    nlss = [lls, lls2, lls3, lls4]
+    consistent_nls_counters(nlss)
+    consistent_counters(nlss)
+    consistent_nls_functions(nlss, exclude=[jac_residual])
+    consistent_nls_counters(nlss)
+    consistent_counters(nlss)
+
+    for nls in nlss
+      reset!(nls)
+    end
+    nlss = [SlackModel(nls) for nls in nlss]
+    consistent_nls_counters(nlss)
+    consistent_counters(nlss)
+    consistent_nls_functions(nlss, exclude=[jac_residual])
+    consistent_nls_counters(nlss)
+    consistent_counters(nlss)
   end
 
 end
