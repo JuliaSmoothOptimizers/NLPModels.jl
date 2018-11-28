@@ -17,9 +17,11 @@ print(ADNLPModel(x->0, zeros(10), c=x->[0.0;0.0;0.0], lcon=[0.0;0.0;-Inf],
 
 # Default methods should throw NotImplementedError.
 mutable struct DummyModel <: AbstractNLPModel
-  meta :: NLPModelMeta
+  meta     :: NLPModelMeta
+  σfs      :: Vector
+  counters :: Counters
 end
-model = DummyModel(NLPModelMeta(1))
+model = DummyModel(NLPModelMeta(1), [1.0], Counters())
 @test_throws(NotImplementedError, lagscale(model, 1.0))
 for meth in [:obj, :grad, :cons,  :jac, :jac_coord, :hess, :hess_coord, :varscale, :conscale]
   @eval @test_throws(NotImplementedError, $meth(model, [0]))
@@ -72,7 +74,4 @@ for problem in ["brownden", "hs5", "hs6", "hs10", "hs11", "hs14"]
 end
 
 include("test_autodiff_model.jl")
-include("test_simple_model.jl")
 include("test_view_subarray.jl")
-include("test_nlsmodels.jl")
-include("nls_consistency.jl")

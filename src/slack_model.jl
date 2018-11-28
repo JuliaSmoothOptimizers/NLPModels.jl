@@ -37,6 +37,7 @@ mutable struct SlackModel <: AbstractNLPModel
   model :: AbstractNLPModel
 end
 
+acceptsObjective(::SlackModel) = true
 
 "Construct a `SlackModel` from another type of model."
 function SlackModel(model :: AbstractNLPModel)

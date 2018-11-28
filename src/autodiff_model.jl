@@ -1,7 +1,10 @@
 using ForwardDiff
 
 export ADNLPModel, obj, grad, grad!, cons, cons!, jac_coord, jac, jprod,
-       jprod!, jtprod, jtprod!, hess, hprod, hprod!
+       jprod!, jtprod, jtprod!, hess, hprod, hprod!,
+       residual!, jac_residual, jprod_residual!, jtprod_residual!,
+       jac_op_residual, hess_residual, hprod_residual!, cons, cons!, jac_coord,
+       jac, jprod, jprod!, jtprod, jtprod!, hess, hess_coord, hprod, hprod!
 
 """ADNLPModel is an AbstractNLPModel using ForwardDiff to compute the
 derivatives.
@@ -46,24 +49,44 @@ mutable struct ADNLPModel <: AbstractNLPModel
   counters :: Counters
 
   # Functions
-  f :: Function
-  c :: Function
+  fs   :: Array{Function}
+  σfs  :: Array{Float64}
+  F    :: Function
+  σnls :: Float64
+  A    :: Union{AbstractMatrix,AbstractLinearOperator}
+  b    :: AbstractVector
+  σls  :: Float64
+  c    :: Function
 end
 
-function ADNLPModel(f::Function, x0::AbstractVector; y0::AbstractVector = Float64[],
-    lvar::AbstractVector = Float64[], uvar::AbstractVector = Float64[], lcon::AbstractVector = Float64[], ucon::AbstractVector = Float64[],
-    c::Function = (args...)->throw(NotImplementedError("cons")),
-    name::String = "Generic", lin::AbstractVector{Int}=Int[])
+acceptsObjective(::ADNLPModel) = true
+acceptsNLS(::ADNLPModel) = true
+acceptsLS(::ADNLPModel) = true
+acceptsMultipleObjective(::ADNLPModel) = true
+
+function ADNLPModel(fs::Array{Function}, σfs::Vector,
+                    F::Function, nlsequ::Int, σnls::Float64,
+                    A::Union{AbstractMatrix,AbstractLinearOperator}, b::AbstractVector, σls::Float64,
+                    x0::AbstractVector; y0::AbstractVector = [],
+                    lvar::AbstractVector = Float64[], uvar::AbstractVector = Float64[],
+                    lcon::AbstractVector = Float64[], ucon::AbstractVector = Float64[],
+                    c::Function = (args...)->throw(NotImplementedError("cons")),
+                    name::String = "Generic", lin::AbstractVector{Int}=Int[])
 
   nvar = length(x0)
   length(lvar) == 0 && (lvar = -Inf*ones(nvar))
   length(uvar) == 0 && (uvar =  Inf*ones(nvar))
   ncon = maximum([length(lcon); length(ucon); length(y0)])
 
-  A = ForwardDiff.hessian(f, x0)
-  for i = 1:ncon
-    A += ForwardDiff.hessian(x->c(x)[i], x0) * (-1)^i
-  end
+  nobjs = length(fs)
+  @assert nobjs == length(σfs)
+  llsrows = size(A,1)
+  @assert llsrows == length(b)
+  @assert all(σfs .!= 0.0)
+  @assert nlsequ == 0 || σnls > 0
+  @assert llsrows == 0 || σls > 0
+
+  # TODO: Figure out best way to compute nnzh
   nnzh = nvar * (nvar + 1) / 2
   nnzj = 0
 
@@ -75,27 +98,94 @@ function ADNLPModel(f::Function, x0::AbstractVector; y0::AbstractVector = Float6
   end
   nln = setdiff(1:ncon, lin)
 
-  meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0,
-    lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=nnzh, lin=lin, nln=nln, minimize=true,
-    islp=false, name=name)
+  meta = NLPModelMeta(nvar, nobjs=nobjs, nlsequ=nlsequ, llsrows=llsrows,
+                      x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0,
+                      lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=nnzh,
+                      lin=lin, nln=nln, minimize=true, islp=false,
+                      name=name)
 
-  return ADNLPModel(meta, Counters(), f, c)
+  return ADNLPModel(meta, Counters(), fs, σfs, F, σnls, A, b, σls, c)
 end
 
-function obj(nlp :: ADNLPModel, x :: AbstractVector)
-  increment!(nlp, :neval_obj)
-  return nlp.f(x)
+ADNLPModel(f::Function, x0::AbstractVector; kwargs...) =
+  ADNLPModel(Function[f], [1.0], (x)->NotImplementedError, 0, 0.0,
+             zeros(0,length(x0)), zeros(0), 0.0, x0; kwargs...)
+
+ADNLPModel(fs::Array{Function}, σfs::Array, x0::AbstractVector; kwargs...) =
+  ADNLPModel(fs, σfs, (x)->NotImplementedError, 0, 0.0,
+             zeros(0,length(x0)), zeros(0), 0.0, x0; kwargs...)
+
+ADNLPModel(F::Function, nequ::Int, x0::AbstractVector; kwargs...) =
+  ADNLPModel(Function[], zeros(0), F, nequ, 1.0,
+             zeros(0,length(x0)), zeros(0), 0.0, x0; kwargs...)
+
+ADNLPModel(A::Union{AbstractMatrix,AbstractLinearOperator}, b::AbstractVector, x0::AbstractVector; kwargs...) =
+  ADNLPModel(Function[], zeros(0), (x)->NotImplementedError, 0, 0.0,
+             A, b, 1.0, x0; kwargs...)
+
+# API implementation
+
+function obj(nlp :: ADNLPModel, i :: Int, x :: AbstractVector)
+  increment!(nlp, :neval_iobj)
+  return nlp.fs[i](x)
 end
 
-function grad(nlp :: ADNLPModel, x :: AbstractVector)
-  increment!(nlp, :neval_grad)
-  return ForwardDiff.gradient(nlp.f, x)
+function residual!(nlp :: ADNLPModel, x :: AbstractVector, Fx :: AbstractVector)
+  increment!(nlp, :neval_residual)
+  Fx[:] = nlp.F(x)
+  return Fx
 end
 
-function grad!(nlp :: ADNLPModel, x :: AbstractVector, g :: AbstractVector)
-  increment!(nlp, :neval_grad)
-  ForwardDiff.gradient!(view(g, 1:length(x)), nlp.f, x)
-  return g
+function grad(nlp :: ADNLPModel, i :: Int, x :: AbstractVector)
+  increment!(nlp, :neval_igrad)
+  return ForwardDiff.gradient(nlp.fs[i], x)
+end
+
+function grad!(nlp :: ADNLPModel, i :: Int, x :: AbstractVector, g :: AbstractVector)
+  increment!(nlp, :neval_igrad)
+  return ForwardDiff.gradient!(view(g, 1:length(x)), nlp.fs[i], x)
+end
+
+function hess_coord(nlp :: ADNLPModel, i :: Int, x :: AbstractVector)
+  return findnz(hess(nlp, x))
+end
+
+function hess(nlp :: ADNLPModel, i :: Int, x :: AbstractVector)
+  increment!(nlp, :neval_ihess)
+  return tril(ForwardDiff.hessian(nlp.fs[i], x))
+end
+
+function hprod(nlp :: ADNLPModel, i :: Int, x :: AbstractVector, v :: AbstractVector)
+  increment!(nlp, :neval_ihprod)
+  return ForwardDiff.hessian(nlp.fs[i], x) * v
+end
+
+function hprod!(nlp :: ADNLPModel, i :: Int, x :: AbstractVector, v :: AbstractVector,
+                Hv :: AbstractVector)
+  increment!(nlp, :neval_ihprod)
+  Hv[1:nvar(nlp)] = ForwardDiff.hessian(nlp.fs[i], x) * v
+  return Hv
+end
+
+function chess(nlp :: ADNLPModel, i :: Int, x :: AbstractVector)
+  increment!(nlp, :neval_jhess)
+  return tril(ForwardDiff.hessian(x->nlp.c(x)[i], x))
+end
+
+function jth_con(nlp :: ADNLPModel, i :: Int, x :: AbstractVector)
+  increment!(nlp, :neval_jcon)
+  return nlp.c(x)[i]
+end
+
+function jth_hprod(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, i :: Int)
+  increment!(nlp, :neval_jhprod)
+  return ForwardDiff.hessian(x->nlp.c(x)[i], x) * v
+end
+
+function jth_hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, i :: Int, Hv :: AbstractVector)
+  increment!(nlp, :neval_jhprod)
+  Hv[1:nvar(nlp)] = ForwardDiff.hessian(x->nlp.c(x)[i], x) * v
+  return Hv
 end
 
 function cons(nlp :: ADNLPModel, x :: AbstractVector)
@@ -145,42 +235,31 @@ function jtprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jt
   return Jtv
 end
 
-function hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
-  increment!(nlp, :neval_hess)
-  Hx = obj_weight == 0.0 ? spzeros(nlp.meta.nvar, nlp.meta.nvar) :
-       ForwardDiff.hessian(nlp.f, x) * obj_weight
-  for i = 1:min(length(y), nlp.meta.ncon)
-    if y[i] != 0.0
-      Hx += ForwardDiff.hessian(x->nlp.c(x)[i], x) * y[i]
-    end
-  end
-  return tril(Hx)
+function jac_residual(nlp :: ADNLPModel, x :: AbstractVector)
+  increment!(nlp, :neval_jac_residual)
+  return ForwardDiff.jacobian(nlp.F, x)
 end
 
-function hess_coord(nlp :: ADNLPModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
-  H = hess(nlp, x, obj_weight=obj_weight, y=y)
-  rows = [i for j = 1:nlp.meta.nvar for i = j:nlp.meta.nvar]
-  cols = [j for j = 1:nlp.meta.nvar for i = j:nlp.meta.nvar]
-  vals = [H[i,j] for j = 1:nlp.meta.nvar for i = j:nlp.meta.nvar]
-  return rows, cols, vals
+function jprod_residual!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
+  increment!(nlp, :neval_jprod_residual)
+  Jv[:] = ForwardDiff.jacobian(nlp.F, x) * v
+  return Jv
 end
 
-function hprod(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector;
-    obj_weight = 1.0, y :: AbstractVector = Float64[])
-  Hv = zeros(nlp.meta.nvar)
-  return hprod!(nlp, x, v, Hv, obj_weight=obj_weight, y=y)
+function jtprod_residual!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
+  increment!(nlp, :neval_jtprod_residual)
+  Jtv[:] = ForwardDiff.jacobian(nlp.F, x)' * v
+  return Jtv
 end
 
-function hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
-    obj_weight = 1.0, y :: AbstractVector = Float64[])
-  increment!(nlp, :neval_hprod)
-  n = nlp.meta.nvar
-  Hv[1:n] = obj_weight == 0.0 ? zeros(nlp.meta.nvar) :
-          ForwardDiff.hessian(nlp.f, x) * v * obj_weight
-  for i = 1:min(length(y), nlp.meta.ncon)
-    if y[i] != 0.0
-      Hv[1:n] += ForwardDiff.hessian(x->nlp.c(x)[i], x) * v * y[i]
-    end
-  end
-  return Hv
+function hess_residual(nlp :: ADNLPModel, x :: AbstractVector, i :: Int)
+  increment!(nlp, :neval_hess_residual)
+  return tril(ForwardDiff.hessian(x->nlp.F(x)[i], x))
 end
+
+function hprod_residual!(nlp :: ADNLPModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
+  increment!(nlp, :neval_hprod_residual)
+  Hiv[:] = ForwardDiff.hessian(x->nlp.F(x)[i], x) * v
+  return Hiv
+end
+

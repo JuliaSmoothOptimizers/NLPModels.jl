@@ -14,6 +14,9 @@ mutable struct LSR1Model <: QuasiNewtonModel
   op :: LSR1Operator
 end
 
+acceptsObjective(::LBFGSModel) = true
+acceptsObjective(::LSR1Model) = true
+
 "Construct a `LBFGSModel` from another type of model."
 function LBFGSModel(nlp :: AbstractNLPModel; memory :: Int=5)
   op = LBFGSOperator(nlp.meta.nvar, memory)
