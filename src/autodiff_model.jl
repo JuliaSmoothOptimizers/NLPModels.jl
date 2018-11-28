@@ -67,7 +67,7 @@ acceptsMultipleObjective(::ADNLPModel) = true
 function ADNLPModel(fs::Array{Function}, σfs::Vector,
                     F::Function, nlsequ::Int, σnls::Float64,
                     A::Union{AbstractMatrix,AbstractLinearOperator}, b::AbstractVector, σls::Float64,
-                    x0::AbstractVector; y0::AbstractVector = [],
+                    x0::AbstractVector; y0::AbstractVector = Float64[],
                     lvar::AbstractVector = Float64[], uvar::AbstractVector = Float64[],
                     lcon::AbstractVector = Float64[], ucon::AbstractVector = Float64[],
                     c::Function = (args...)->throw(NotImplementedError("cons")),

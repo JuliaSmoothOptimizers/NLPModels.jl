@@ -8,6 +8,8 @@
 # Sum of single functions - ∑fᵢ(x)
 # Nonlinear least squares - ‖F(x)‖²
 
+using Unicode
+
 function consistent_meta(nlps; rtol=1.0e-8)
   fields = [:nvar, :x0, :lvar, :uvar, :ifix, :ilow, :iupp, :irng, :ifree, :ncon,
             :y0, :nlsequ, :nobjs, :llsrows]
@@ -520,8 +522,9 @@ end
 function consistency(problem :: String; nloops=100, rtol=1.0e-8)
   @printf("Checking problem %-20s", problem)
   nlp_autodiff = eval(Meta.parse("$(problem)_autodiff"))()
+  nlp_manual = eval(Meta.parse(uppercase(problem)))()
   #nlp_simple = eval(Meta.parse("$(problem)_simple"))()
-  #nlps = [nlp_autodiff; nlp_simple]
+  nlps = [nlp_autodiff; nlp_manual]
 
-  #consistent_nlps(nlps, nloops=nloops, rtol=rtol)
+  consistent_nlps(nlps, nloops=nloops, rtol=rtol)
 end
