@@ -72,7 +72,7 @@ include("test_qn_model.jl")
 include("consistency.jl")
 @printf("%24s\tConsistency   Derivative Check   Quasi-Newton  Slack variant\n", " ")
 #for problem in ["brownden", "hs5", "hs6", "hs10", "hs11", "hs14"]
-for problem in ["hs5"]
+for problem in ["hs5", "hs6"]
   consistency(problem)
 end
 

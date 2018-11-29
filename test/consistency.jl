@@ -11,8 +11,7 @@
 using Unicode
 
 function consistent_meta(nlps; rtol=1.0e-8)
-  fields = [:nvar, :x0, :lvar, :uvar, :ifix, :ilow, :iupp, :irng, :ifree, :ncon,
-            :y0, :nlsequ, :nobjs, :llsrows]
+  fields = [:nvar, :x0, :lvar, :uvar, :ifix, :ilow, :iupp, :irng, :ifree, :ncon, :y0]
   N = length(nlps)
   for field in fields
     for i = 1:N-1
@@ -31,6 +30,7 @@ function consistent_counters(nlps)
   for field in fieldnames(Counters)
     field in ignore && continue
     V = [eval(field)(nlp) for nlp in nlps]
+    println("field = $field, V = $V")
     @test all(V .== V[1])
   end
 end
@@ -46,7 +46,6 @@ function consistent_constraints(nlps; nloops=100, rtol=1.0e-8, exclude=[])
   tmp_nn = zeros(n,n)
 
   for k = 1 : nloops
-    x = 10 * (rand(n) - 0.5)
     x = ones(n)
     if !(cons in exclude)
       cs = Any[cons(nlp, x) for nlp in nlps]
@@ -91,16 +90,16 @@ function consistent_constraints(nlps; nloops=100, rtol=1.0e-8, exclude=[])
 
     if !(jac in exclude)
       Js = Any[jac(nlp, x) for nlp in nlps]
-      Jmin = minimum(map(vecnorm, Js))
+      Jmin = minimum(map(norm, Js))
       for i = 1:N-1
-        vi = vecnorm(Js[i])
+        vi = norm(Js[i])
         for j = i+1:N
-          @test isapprox(vi, vecnorm(Js[j]), atol=rtol * max(Jmin, 1.0))
+          @test isapprox(vi, norm(Js[j]), atol=rtol * max(Jmin, 1.0))
         end
       end
     end
 
-    v = 10 * (rand(n) - 0.5)
+    v = 10 * (rand(n) .- 0.5)
     v = ones(n)
 
     if !(jprod in exclude)
@@ -143,16 +142,15 @@ function consistent_constraints(nlps; nloops=100, rtol=1.0e-8, exclude=[])
       end
     end
 
-    y = (rand() - 0.5) * ones(m)
     y = ones(m)
 
     if !(hess_coord in exclude)
-      Ls = Array{Any}(N)
+      Ls = Array{Any}(undef, N)
       for i = 1:N
         (I, J, V) = hess_coord(nlps[i], x, y=y)
         Ls[i] = sparse(I, J, V, n, n)
       end
-      Lmin = minimum(map(vecnorm, Ls))
+      Lmin = minimum(map(norm, Ls))
       for i = 1:N
         for j = i+1:N
           @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
@@ -166,7 +164,7 @@ function consistent_constraints(nlps; nloops=100, rtol=1.0e-8, exclude=[])
 
     if !(hess in exclude)
       Ls = Any[hess(nlp, x, y=y) for nlp in nlps]
-      Lmin = minimum(map(vecnorm, Ls))
+      Lmin = minimum(map(norm, Ls))
       for i = 1:N
         for j = i+1:N
           @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
@@ -200,7 +198,7 @@ function consistent_single_objectives(nlps; nloops=100, rtol=1.0e-8, exclude=[])
   tmp_nn = zeros(n,n)
 
   for k = 1 : nloops
-    x = 10 * (rand(n) - 0.5)
+    x = 10 * (rand(n) .- 0.5)
     for k = 1:ns
       fs = [obj(nlp, k, x) for nlp in nlps]
       fmin = minimum(abs.(fs))
@@ -226,7 +224,7 @@ function consistent_single_objectives(nlps; nloops=100, rtol=1.0e-8, exclude=[])
         (I, J, V) = hess_coord(nlps[i], k, x)
         Hs[i] = sparse(I, J, V, n, n)
       end
-      Hmin = minimum(map(vecnorm, Hs))
+      Hmin = minimum(map(norm, Hs))
       for i = 1:N
         for j = i+1:N
           @test isapprox(Hs[i], Hs[j], atol=rtol * max(Hmin, 1.0))
@@ -234,14 +232,14 @@ function consistent_single_objectives(nlps; nloops=100, rtol=1.0e-8, exclude=[])
       end
 
       Hs = Any[hess(nlp, k, x) for nlp in nlps]
-      Hmin = minimum(vecnorm.(Hs))
+      Hmin = minimum(norm.(Hs))
       for i = 1:N
         for j = i+1:N
           @test isapprox(Hs[i], Hs[j], atol=rtol * max(Hmin, 1.0))
         end
       end
 
-      v = 10 * (rand(n) - 0.5)
+      v = 10 * (rand(n) .- 0.5)
 
       Hvs = Any[hprod(nlp, k, x, v) for nlp in nlps]
       Hopvs = Any[hess_op(nlp, k, v) * v for nlp in nlps]
@@ -274,7 +272,7 @@ function consistent_nonlinear_ls_objective(nlps; nloops=100, rtol=1.0e-8, exclud
   tmp_nn = zeros(n,n)
 
   for k = 1 : nloops
-    x = 10 * (rand(n) - 0.5)
+    x = 10 * (rand(n) .- 0.5)
     Fs = Any[residual(nlp, x) for nlp in nlps]
     for i = 1:N
       for j = i+1:N
@@ -523,7 +521,6 @@ function consistency(problem :: String; nloops=100, rtol=1.0e-8)
   @printf("Checking problem %-20s", problem)
   nlp_autodiff = eval(Meta.parse("$(problem)_autodiff"))()
   nlp_manual = eval(Meta.parse(uppercase(problem)))()
-  #nlp_simple = eval(Meta.parse("$(problem)_simple"))()
   nlps = [nlp_autodiff; nlp_manual]
 
   consistent_nlps(nlps, nloops=nloops, rtol=rtol)
