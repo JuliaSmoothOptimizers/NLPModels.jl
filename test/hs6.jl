@@ -18,7 +18,7 @@ mutable struct HS6 <: AbstractNLPModel
 end
 
 function HS6()
-  meta = NLPModelMeta(2, nobjs=1, nlsequ=0, llsrows=0, ncon=1,
+  meta = NLPModelMeta(2, nobjs=0, nlsequ=0, llsrows=0, ncon=1,
                       x0=[-1.2; 1.0], lcon=[0.0], ucon=[0.0], name="hs6")
 
   return HS6(meta, Counters())

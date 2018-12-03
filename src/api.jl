@@ -2,7 +2,7 @@ export obj, grad, grad!, objgrad, objgrad!, objcons, objcons!, cons,
        cons!, jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad,
        jac_coord, jac, jprod, jprod!, jtprod, jtprod!, jac_op, jac_op!,
        jth_hprod, jth_hprod!, ghjvprod, ghjvprod!, hess_coord, hess,
-       hprod, hprod!, hess_op, hess_op!, residual, residual!,
+       hprod, hprod!, hess_op, hess_op!, chess, residual, residual!,
        jac_residual, jprod_residual, jprod_residual!, jtprod_residual,
        jtprod_residual!, jac_op_residual, jac_op_residual!,
        hess_residual, hprod_residual, hprod_residual!, hess_op_residual,
@@ -14,6 +14,7 @@ Evaluate \$f(x)\$, the objective function of `nlp` at `x`.
 """
 function obj(nlp::AbstractNLPModel, x::AbstractVector)
   increment!(nlp, :neval_obj)
+  # Defaults the objective funcions of empty problems to 0
   fx = 0.0
   for i = 1:nobjs(nlp)
     fx += nlp.σfs[i] * obj(nlp, i, x)
@@ -60,6 +61,7 @@ in place.
 """
 function grad!(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector)
   increment!(nlp, :neval_grad)
+  fill!(g, 0.0)
   if nobjs(nlp) > 0
     grad!(nlp, 1, x, g)
     nlp.σfs[1] != 1.0 && scale!(gx, nlp.σfs[1])
@@ -442,7 +444,7 @@ Return the Hessian of the i-th single objective function at `x`.  The
 resulting object may be used as if it were a matrix, e.g., `H * v`.
 """
 function hess_op(nlp :: AbstractNLPModel, i :: Int, x :: AbstractVector)
-  prod = @closure v -> hprod(nlp, i, x, v; obj_weight=obj_weight, y=y)
+  prod = @closure v -> hprod(nlp, i, x, v)
   F = typeof(prod)
   return LinearOperator{Float64,F,Nothing,Nothing}(nvar(nlp), nvar(nlp),
                                                    true, true, prod, nothing, nothing)
@@ -457,7 +459,7 @@ is used as preallocated storage for the operation.
 """
 function hess_op!(nlp :: AbstractNLPModel, i :: Int, x :: AbstractVector,
                   Hv :: AbstractVector)
-  prod = @closure v -> hprod!(nlp, i, x, v, Hv; obj_weight=obj_weight, y=y)
+  prod = @closure v -> hprod!(nlp, i, x, v, Hv)
   F = typeof(prod)
   return LinearOperator{Float64,F,Nothing,Nothing}(nvar(nlp), nvar(nlp),
                                                    true, true, prod, nothing, nothing)

@@ -18,7 +18,7 @@ mutable struct HS5 <: AbstractNLPModel
 end
 
 function HS5()
-  meta = NLPModelMeta(2, nobjs=1, nlsequ=0, llsrows=0,
+  meta = NLPModelMeta(2, nobjs=0, nlsequ=0, llsrows=0,
                       x0=zeros(2), lvar=[-1.5; -3.0], uvar=[4.0; 3.0], name="hs5")
 
   return HS5(meta, Counters())

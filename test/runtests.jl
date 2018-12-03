@@ -15,32 +15,8 @@ print(ADNLPModel(x->0, zeros(10), c=x->[0.0;0.0;0.0], lcon=[0.0;0.0;-Inf],
 # A problem with zero variables doesn't make sense.
 @test_throws(ErrorException, NLPModelMeta(0))
 
-# Default methods should throw NotImplementedError.
-mutable struct DummyModel <: AbstractNLPModel
-  meta     :: NLPModelMeta
-  σfs      :: Vector
-  counters :: Counters
-end
-model = DummyModel(NLPModelMeta(1), [1.0], Counters())
-@test_throws(NotImplementedError, lagscale(model, 1.0))
-for meth in [:obj, :grad, :cons,  :jac, :jac_coord, :hess, :hess_coord, :varscale, :conscale]
-  @eval @test_throws(NotImplementedError, $meth(model, [0.0]))
-end
-for meth in [:grad!, :cons!, :jprod, :jtprod, :hprod]
-  @eval @test_throws(NotImplementedError, $meth(model, [0], [1]))
-end
-for meth in [:jth_con, :jth_congrad, :jth_sparse_congrad]
-  @eval @test_throws(NotImplementedError, $meth(model, [0], 1))
-end
-@test_throws(NotImplementedError, jth_congrad!(model, [0], 1, [2]))
-for meth in [:jprod!, :jtprod!, :hprod!, :ghjvprod]
-  @eval @test_throws(NotImplementedError, $meth(model, [0], [1], [2]))
-end
-@test_throws(NotImplementedError, jth_hprod(model, [0], [1], 2))
-@test_throws(NotImplementedError, jth_hprod!(model, [0], [1], 2, [3]))
-@test_throws(NotImplementedError, ghjvprod!(model, [0], [1], [2], [3]))
-@assert isa(hess_op(model, [0.]), LinearOperator)
-@assert isa(jac_op(model, [0.]), LinearOperator)
+include("test_not_implemented.jl")
+include("test_empty_model.jl")
 
 # ADNLPModel with no functions
 model = ADNLPModel(x->dot(x,x), zeros(2), name="square")

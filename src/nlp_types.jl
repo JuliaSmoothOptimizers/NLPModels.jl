@@ -136,8 +136,13 @@ struct NLPModelMeta <: AbstractNLPModelMeta
   uvar :: Vector    # vector of upper bounds
 
   nobjs   :: Int # number of single objectives
+                 # If nobjs > 0, then obj(nlp, i, x) and similar have to be defined (even
+                 # if nobjs = 1), and σfs, their weights, as well
   nlsequ  :: Int # number of components in the nonlinear least squares residual
+                 # If nlsequ > 0, then residual(nlp, x) and similar have to be defined
+                 # and σnls, the weight on ‖F(x)‖ as well
   llsrows :: Int # number of rows in the linear least squares matrix
+                 # If llsrows > 0, then A, b, and σls have to be defined
 
   ifix  :: Vector{Int}     # indices of fixed variables
   ilow  :: Vector{Int}     # indices of variables with lower bound only
@@ -188,7 +193,7 @@ struct NLPModelMeta <: AbstractNLPModelMeta
   name :: String       # problem name
 
   function NLPModelMeta(nvar;
-                        nobjs=1,
+                        nobjs=0,
                         nlsequ=0,
                         llsrows=0,
                         x0=zeros(nvar),

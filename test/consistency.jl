@@ -30,7 +30,6 @@ function consistent_counters(nlps)
   for field in fieldnames(Counters)
     field in ignore && continue
     V = [eval(field)(nlp) for nlp in nlps]
-    println("field = $field, V = $V")
     @test all(V .== V[1])
   end
 end
@@ -219,7 +218,7 @@ function consistent_single_objectives(nlps; nloops=100, rtol=1.0e-8, exclude=[])
         @test tmpg == tmp_n
       end
 
-      Hs = Array{Any}(N)
+      Hs = Array{Any}(undef, N)
       for i = 1:N
         (I, J, V) = hess_coord(nlps[i], k, x)
         Hs[i] = sparse(I, J, V, n, n)
@@ -477,7 +476,7 @@ function consistent_nlps(nlps; nloops=100, rtol=1.0e-8)
   for (consistfn, condition) in
       [(consistent_nonlinear_ls_objective, meta->meta.nlsequ > 0),
        (consistent_nonlinear_ls_objective, meta->meta.llsrows > 0),
-       (consistent_single_objectives, meta->meta.nobjs > 1)]
+       (consistent_single_objectives, meta->meta.nobjs > 0)]
     subnlps = [nlp for nlp in nlps if condition(nlp.meta)]
     length(subnlps) == 0 && continue
     consistfn(subnlps, nloops=nloops, rtol=rtol)
