@@ -52,5 +52,9 @@ for problem in ["hs5", "hs6"]
   consistency(problem)
 end
 
+# Consistency between single objectives, NLS and LS problem
+println("Checking consistency of HS6 in single objective, NLS and LS format")
+consistent_nlps([HS6(), HS6SO(), HS6NLS(), HS6LS()])
+
 include("test_autodiff_model.jl")
-include("test_view_subarray.jl")
+#include("test_view_subarray.jl")

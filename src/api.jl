@@ -77,12 +77,13 @@ function grad!(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector)
     Fx = residual(nlp, x)
     if nobjs(nlp) == 0
       jtprod_residual!(nlp, x, Fx, g)
+      g .= nlp.σnls * g
     else
       g .+= nlp.σnls .* jtprod_residual(nlp, x, Fx)
     end
   end
   if llsrows(nlp) > 0
-    g .+= nlp.σls .* (nlp.A * x - nlp.b)
+    g .+= nlp.σls .* (nlp.A' * (nlp.A * x - nlp.b))
   end
   return g
 end
@@ -368,17 +369,17 @@ function hprod!(nlp::AbstractNLPModel, x::AbstractVector,
     end
     if nlsequ(nlp) > 0
       Jv = jprod_residual(nlp, x, v)
-      Hv[1:n] .+= (obj_weight * σnls) * jtprod_reidual(nlp, x, Jv)
+      Hv[1:n] .+= (obj_weight * nlp.σnls) * jtprod_residual(nlp, x, Jv)
       Fx = residual(nlp, x)
       m = length(Fx)
       Hiv = zeros(n)
       for i = 1:m
         hprod_residual!(nlp, x, i, v, Hiv)
-        Hv[1:n] .+= (obj_weight * σnls * Fx[i]) * Hiv
+        Hv[1:n] .+= (obj_weight * nlp.σnls * Fx[i]) * Hiv
       end
     end
     if llsrows(nlp) > 0
-      Hv[1:n] .+= (obj_weight * σls) * (nlp.A' * (nlp.A * v))
+      Hv[1:n] .+= (obj_weight * nlp.σls) * (nlp.A' * (nlp.A * v))
     end
   end
   m = min(length(y), ncon(nlp))

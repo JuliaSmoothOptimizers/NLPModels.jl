@@ -26,9 +26,9 @@ acceptsLS(::AbstractNLPModel)                = false
 acceptsMultipleObjective(::AbstractNLPModel) = false
 
 include("autodiff_model.jl")
-include("simple_model.jl")
 include("slack_model.jl")
 include("qn_model.jl")
+include("lls_model.jl")
 
 include("dercheck.jl")
 

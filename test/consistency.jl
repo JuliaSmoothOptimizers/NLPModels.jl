@@ -25,10 +25,8 @@ end
 function consistent_counters(nlps)
   N = length(nlps)
   V = zeros(Int, N)
-  ignore = [:neval_iobj, :neval_igrad, :neval_ihess, :neval_jhess,
-            :neval_ihprod, :neval_jhprod]
-  for field in fieldnames(Counters)
-    field in ignore && continue
+  for field in [:neval_obj, :neval_grad, :neval_cons, :neval_jac, :neval_jprod,
+                :neval_jtprod, :neval_hess, :neval_hprod]
     V = [eval(field)(nlp) for nlp in nlps]
     @test all(V .== V[1])
   end
@@ -44,7 +42,7 @@ function consistent_constraints(nlps; nloops=100, rtol=1.0e-8, exclude=[])
   tmp_m = zeros(m)
   tmp_nn = zeros(n,n)
 
-  for k = 1 : nloops
+  for loop = 1 : nloops
     x = ones(n)
     if !(cons in exclude)
       cs = Any[cons(nlp, x) for nlp in nlps]
@@ -196,7 +194,7 @@ function consistent_single_objectives(nlps; nloops=100, rtol=1.0e-8, exclude=[])
   tmp_n = zeros(n)
   tmp_nn = zeros(n,n)
 
-  for k = 1 : nloops
+  for loop = 1 : nloops
     x = 10 * (rand(n) .- 0.5)
     for k = 1:ns
       fs = [obj(nlp, k, x) for nlp in nlps]
@@ -270,7 +268,7 @@ function consistent_nonlinear_ls_objective(nlps; nloops=100, rtol=1.0e-8, exclud
   tmp_m = zeros(m)
   tmp_nn = zeros(n,n)
 
-  for k = 1 : nloops
+  for loop = 1 : nloops
     x = 10 * (rand(n) .- 0.5)
     Fs = Any[residual(nlp, x) for nlp in nlps]
     for i = 1:N
@@ -359,7 +357,7 @@ function consistent_general_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
   tmp_m = zeros(m)
   tmp_nn = zeros(n,n)
 
-  for k = 1 : nloops
+  for loop = 1 : nloops
     x = 10 * (rand(n) .- 0.5)
 
     if !(obj in exclude)
