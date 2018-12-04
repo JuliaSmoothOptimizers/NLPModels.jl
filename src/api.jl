@@ -333,7 +333,7 @@ with objective function scaled by `obj_weight`, i.e.,
 with σ = obj_weight.
 """
 function hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector;
-               obj_weight=1.0, y::Vector=[])
+               obj_weight=1.0, y::AbstractVector=[])
   Hv = zeros(nvar(nlp))
   return hprod!(nlp, x, v, Hv, obj_weight=obj_weight, y=y)
 end
@@ -357,7 +357,7 @@ with σ = obj_weight.
 """
 function hprod!(nlp::AbstractNLPModel, x::AbstractVector,
                 v::AbstractVector, Hv::AbstractVector;
-                obj_weight=1.0, y::Vector = [])
+                obj_weight=1.0, y::AbstractVector = [])
   increment!(nlp, :neval_hprod)
   n = nvar(nlp)
   fill!(Hv, 0.0)
@@ -472,7 +472,7 @@ end
 Computes F(x), the residual at x.
 """
 function residual(nlp :: AbstractNLPModel, x :: AbstractVector)
-  Fx = zeros(nlsequ(nlp))
+  Fx = zeros(nlsequ(nlp) + llsrows(nlp))
   residual!(nlp, x, Fx)
 end
 
@@ -498,7 +498,7 @@ jac_residual(::AbstractNLPModel, ::AbstractVector) =
 Computes the product of the Jacobian of the residual at x and a vector, i.e.,  J(x)*v.
 """
 function jprod_residual(nlp :: AbstractNLPModel, x :: AbstractVector, v :: AbstractVector)
-  Jv = zeros(nlsequ(nlp))
+  Jv = zeros(nlsequ(nlp) + llsrows(nlp))
   jprod_residual!(nlp, x, v, Jv)
 end
 
@@ -538,7 +538,7 @@ function jac_op_residual(nlp :: AbstractNLPModel, x :: AbstractVector)
   ctprod = @closure v -> jtprod_residual(nlp, x, v)
   F1 = typeof(prod)
   F3 = typeof(ctprod)
-  return LinearOperator{Float64,F1,Nothing,F3}(nlsequ(nlp), nvar(nlp),
+  return LinearOperator{Float64,F1,Nothing,F3}(nlsequ(nlp) + llsrows(nlp), nvar(nlp),
                                                false, false, prod, nothing, ctprod)
 end
 
@@ -554,7 +554,7 @@ function jac_op_residual!(nlp :: AbstractNLPModel, x :: AbstractVector,
   ctprod = @closure v -> jtprod_residual!(nlp, x, v, Jtv)
   F1 = typeof(prod)
   F3 = typeof(ctprod)
-  return LinearOperator{Float64,F1,Nothing,F3}(nlsequ(nlp), nvar(nlp),
+  return LinearOperator{Float64,F1,Nothing,F3}(nlsequ(nlp) + llsrows(nlp), nvar(nlp),
                                                false, false, prod, nothing, ctprod)
 end
 

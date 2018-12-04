@@ -90,12 +90,7 @@ Reset evaluation counters.
 """
 function reset!(counters :: Counters)
   for f in fieldnames(Counters)
-    v = getfield(counters, f)
-    if isa(v, Array)
-      fill!(v, 0)
-    else
-      setfield!(counters, f, 0)
-    end
+    setfield!(counters, f, 0)
   end
   return counters
 end

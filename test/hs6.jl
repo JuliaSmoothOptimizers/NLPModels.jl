@@ -18,7 +18,16 @@ function hs6nls_autodiff()
   lcon = [0.0]
   ucon = [0.0]
 
-  return ADNLPModel(F, x0, 1, c=c, lcon=lcon, ucon=ucon)
+  return ADNLPModel(F, 1, x0, σnls=2.0, c=c, lcon=lcon, ucon=ucon)
+end
+function hs6ls_autodiff()
+  x0 = [-1.2; 1.0]
+  A, b = [-1.0 0.0], [-1.0]
+  c(x) = [10 * (x[2] - x[1]^2)]
+  lcon = [0.0]
+  ucon = [0.0]
+
+  return ADNLPModel(A, b, x0, σls=2.0, c=c, lcon=lcon, ucon=ucon)
 end
 
 abstract type HS6Types <: AbstractNLPModel end
@@ -154,7 +163,7 @@ end
 function NLPModels.hprod(nlp :: HS6SO, i :: Int, x :: AbstractVector, v :: AbstractVector)
   @assert i == 1
   Hv = zeros(2)
-  return hprod!(nlp, x, v, Hv)
+  return hprod!(nlp, i, x, v, Hv)
 end
 
 function NLPModels.residual!(nlp :: HS6NLS, x :: AbstractVector, Fx :: AbstractVector)

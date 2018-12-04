@@ -262,7 +262,7 @@ end
 function consistent_nonlinear_ls_objective(nlps; nloops=100, rtol=1.0e-8, exclude=[])
   N = length(nlps)
   n = nlps[1].meta.nvar
-  m = nlps[1].meta.ncon
+  m = nlsequ(nlps[1]) + llsrows(nlps[1])
 
   tmp_n = zeros(n)
   tmp_m = zeros(m)

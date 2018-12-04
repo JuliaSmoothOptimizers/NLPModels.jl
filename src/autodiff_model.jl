@@ -115,13 +115,13 @@ ADNLPModel(fs::Array{Function}, σfs::Array, x0::AbstractVector; kwargs...) =
   ADNLPModel(fs, σfs, (x)->NotImplementedError, 0, 0.0,
              zeros(0,length(x0)), zeros(0), 0.0, x0; kwargs...)
 
-ADNLPModel(F::Function, nequ::Int, x0::AbstractVector; kwargs...) =
-  ADNLPModel(Function[], zeros(0), F, nequ, 1.0,
+ADNLPModel(F::Function, nequ::Int, x0::AbstractVector; σnls::Float64 = 1.0, kwargs...) =
+  ADNLPModel(Function[], zeros(0), F, nequ, σnls,
              zeros(0,length(x0)), zeros(0), 0.0, x0; kwargs...)
 
-ADNLPModel(A::Union{AbstractMatrix,AbstractLinearOperator}, b::AbstractVector, x0::AbstractVector; kwargs...) =
-  ADNLPModel(Function[], zeros(0), (x)->NotImplementedError, 0, 0.0,
-             A, b, 1.0, x0; kwargs...)
+ADNLPModel(A::Union{AbstractMatrix,AbstractLinearOperator}, b::AbstractVector, x0::AbstractVector; σls::Float64 = 1.0, kwargs...) =
+  ADNLPModel(Function[], zeros(0), x->zeros(0), 0, 0.0,
+             A, b, σls, x0; kwargs...)
 
 # API implementation
 
@@ -132,7 +132,7 @@ end
 
 function residual!(nlp :: ADNLPModel, x :: AbstractVector, Fx :: AbstractVector)
   increment!(nlp, :neval_residual)
-  Fx[:] = nlp.F(x)
+  Fx .= [nlp.F(x); nlp.A * x - nlp.b]
   return Fx
 end
 
@@ -147,7 +147,9 @@ function grad!(nlp :: ADNLPModel, i :: Int, x :: AbstractVector, g :: AbstractVe
 end
 
 function hess_coord(nlp :: ADNLPModel, i :: Int, x :: AbstractVector)
-  return findnz(hess(nlp, x))
+  Hx = hess(nlp, i, x)
+  I = findall(!iszero, Hx)
+  return (getindex.(I, 1), getindex.(I, 2), Hx[I])
 end
 
 function hess(nlp :: ADNLPModel, i :: Int, x :: AbstractVector)
@@ -237,29 +239,37 @@ end
 
 function jac_residual(nlp :: ADNLPModel, x :: AbstractVector)
   increment!(nlp, :neval_jac_residual)
-  return ForwardDiff.jacobian(nlp.F, x)
+  return [ForwardDiff.jacobian(nlp.F, x); nlp.A]
 end
 
 function jprod_residual!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nlp, :neval_jprod_residual)
-  Jv[:] = ForwardDiff.jacobian(nlp.F, x) * v
+  Jv .= [ForwardDiff.jacobian(nlp.F, x); nlp.A] * v
   return Jv
 end
 
 function jtprod_residual!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nlp, :neval_jtprod_residual)
-  Jtv[:] = ForwardDiff.jacobian(nlp.F, x)' * v
+  Jtv .= [ForwardDiff.jacobian(nlp.F, x); nlp.A]' * v
   return Jtv
 end
 
 function hess_residual(nlp :: ADNLPModel, x :: AbstractVector, i :: Int)
   increment!(nlp, :neval_hess_residual)
-  return tril(ForwardDiff.hessian(x->nlp.F(x)[i], x))
+  if 1 ≤ i ≤ nlsequ(nlp)
+    return tril(ForwardDiff.hessian(x->nlp.F(x)[i], x))
+  else
+    return spzeros(nvar(nlp), nvar(nlp))
+  end
 end
 
 function hprod_residual!(nlp :: ADNLPModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
   increment!(nlp, :neval_hprod_residual)
-  Hiv[:] = ForwardDiff.hessian(x->nlp.F(x)[i], x) * v
+  if 1 ≤ i ≤ nlsequ(nlp)
+    Hiv .= ForwardDiff.hessian(x->nlp.F(x)[i], x) * v
+  else
+    fill!(Hiv, 0.0)
+  end
   return Hiv
 end
 
