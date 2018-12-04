@@ -254,7 +254,13 @@ Only the lower triangle is returned.
 """
 function hess_coord(nlp::AbstractNLPModel, x::AbstractVector;
                     obj_weight = 1.0, y :: AbstractVector = [])
-  return findnz(hess(nlp, x, obj_weight=obj_weight, y=y))
+  Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
+  if Hx isa AbstractSparseMatrix
+    return findnz(Hx)
+  else
+    I = findall(!iszero, Hx)
+    return (getindex.(I, 1), getindex.(I, 2), Hx[I])
+  end
 end
 
 """`(rows,cols,vals) = hess_coord(nlp, i, x)`
@@ -263,8 +269,15 @@ Evaluate the Hessian of the i-th single objective function at `x` in
 sparse coordinate format.
 Only the lower triangle is returned.
 """
-hess_coord(::AbstractNLPModel, ::Int, ::AbstractVector) =
-  throw(NotImplementedError("hess_coord"))
+function hess_coord(nlp::AbstractNLPModel, i::Int, x::AbstractVector)
+  Hx = hess(nlp, i, x)
+  if Hx isa AbstractSparseMatrix
+    return findnz(Hx)
+  else
+    I = findall(!iszero, Hx)
+    return (getindex.(I, 1), getindex.(I, 2), Hx[I])
+  end
+end
 
 """`Hx = hess(nlp, x; obj_weight=1.0, y=zeros)`
 

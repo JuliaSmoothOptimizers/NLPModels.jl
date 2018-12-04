@@ -64,7 +64,7 @@ acceptsNLS(::ADNLPModel) = true
 acceptsLS(::ADNLPModel) = true
 acceptsMultipleObjective(::ADNLPModel) = true
 
-function ADNLPModel(fs::Array{Function}, σfs::Vector,
+function ADNLPModel(fs::Array{<: Function}, σfs::Vector,
                     F::Function, nlsequ::Int, σnls::Float64,
                     A::Union{AbstractMatrix,AbstractLinearOperator}, b::AbstractVector, σls::Float64,
                     x0::AbstractVector; y0::AbstractVector = Float64[],
@@ -111,8 +111,8 @@ ADNLPModel(f::Function, x0::AbstractVector; kwargs...) =
   ADNLPModel(Function[f], [1.0], (x)->NotImplementedError, 0, 0.0,
              zeros(0,length(x0)), zeros(0), 0.0, x0; kwargs...)
 
-ADNLPModel(fs::Array{Function}, σfs::Array, x0::AbstractVector; kwargs...) =
-  ADNLPModel(fs, σfs, (x)->NotImplementedError, 0, 0.0,
+ADNLPModel(fs::Array{<: Function,1}, σfs::Array, x0::AbstractVector; kwargs...) =
+  ADNLPModel(fs, σfs, x->zeros(0), 0, 0.0,
              zeros(0,length(x0)), zeros(0), 0.0, x0; kwargs...)
 
 ADNLPModel(F::Function, nequ::Int, x0::AbstractVector; σnls::Float64 = 1.0, kwargs...) =

@@ -48,13 +48,15 @@ include("test_qn_model.jl")
 include("consistency.jl")
 @printf("%24s\tConsistency   Derivative Check   Quasi-Newton  Slack variant\n", " ")
 #for problem in ["brownden", "hs5", "hs6", "hs10", "hs11", "hs14"]
-for problem in ["hs5", "hs6", "hs6so", "hs6nls", "hs6ls"]
+for problem in ["brownden", "browndenso", "browndennls", "hs5", "hs6", "hs6so", "hs6nls", "hs6ls"]
   consistency(problem)
 end
 
 # Consistency between single objectives, NLS and LS problem
 println("Checking consistency of HS6 in single objective, NLS and LS format")
 consistent_nlps([HS6(), HS6SO(), HS6NLS(), HS6LS()])
+println("Checking general consistency of BROWNDEN in single objective and NLS")
+consistent_general_functions([brownden_autodiff(), browndenso_autodiff(), browndennls_autodiff()])
 
 include("test_autodiff_model.jl")
 include("test_view_subarray.jl")

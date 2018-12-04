@@ -239,7 +239,7 @@ function consistent_single_objectives(nlps; nloops=100, rtol=1.0e-8, exclude=[])
       v = 10 * (rand(n) .- 0.5)
 
       Hvs = Any[hprod(nlp, k, x, v) for nlp in nlps]
-      Hopvs = Any[hess_op(nlp, k, v) * v for nlp in nlps]
+      Hopvs = Any[hess_op(nlp, k, x) * v for nlp in nlps]
       Hvmin = minimum(norm.(Hvs))
       for i = 1:N
         for j = i+1:N
