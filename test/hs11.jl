@@ -10,3 +10,93 @@ function hs11_autodiff()
   return ADNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon)
 
 end
+
+mutable struct HS11 <: AbstractNLPModel
+  meta :: NLPModelMeta
+  counters :: Counters
+end
+
+function HS11()
+  meta = NLPModelMeta(2, nobjs=0, nlsequ=0, llsrows=0, ncon=1,
+                      x0=[4.9; 0.1], lcon=[-Inf], ucon=[0.0], name="HS11")
+
+  return HS11(meta, Counters())
+end
+
+function NLPModels.obj(nlp :: HS11, x :: AbstractVector)
+  increment!(nlp, :neval_obj)
+  return (x[1] - 5)^2 + x[2]^2 - 25
+end
+
+function NLPModels.grad!(nlp :: HS11, x :: AbstractVector, gx :: AbstractVector)
+  increment!(nlp, :neval_grad)
+  gx .= [2 * (x[1] - 5); 2 * x[2]]
+  return gx
+end
+
+function NLPModels.hess(nlp :: HS11, x :: AbstractVector; obj_weight=1.0, y=Float64[])
+  increment!(nlp, :neval_hess)
+  if length(y) > 0
+    return y[1] * [-2.0 0; 0 0] + 2obj_weight*I
+  else
+    return [2.0 0; 0 2] * obj_weight
+  end
+end
+
+function NLPModels.hess_coord(nlp :: HS11, x :: AbstractVector; obj_weight=1.0, y=Float64[])
+  Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
+  I = findall(!iszero, Hx)
+  return (getindex.(I, 1), getindex.(I, 2), Hx[I])
+end
+
+function NLPModels.hprod!(nlp :: HS11, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0, y=Float64[])
+  increment!(nlp, :neval_hprod)
+  nlp.counters.neval_hess -= 1
+  Hx = Symmetric(hess(nlp, x, obj_weight=obj_weight, y=y), :L)
+  Hv .= Hx * v
+  return Hv
+end
+
+function NLPModels.hprod(nlp :: HS11, x :: AbstractVector, v :: AbstractVector; obj_weight=1.0, y=Float64[])
+  Hv = zeros(nvar(nlp))
+  return hprod!(nlp, x, v, Hv, obj_weight=obj_weight, y=y)
+end
+
+function NLPModels.cons!(nlp :: HS11, x :: AbstractVector, cx :: AbstractVector)
+  increment!(nlp, :neval_cons)
+  cx .= [-x[1]^2 + x[2]]
+  return cx
+end
+
+function NLPModels.cons(nlp :: HS11, x :: AbstractVector)
+  cx = zeros(1)
+  return cons!(nlp, x, cx)
+end
+
+function NLPModels.jac(nlp :: HS11, x :: AbstractVector)
+  increment!(nlp, :neval_jac)
+  return [-2 * x[1]  1.0]
+end
+
+function NLPModels.jprod!(nlp :: HS11, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
+  increment!(nlp, :neval_jprod)
+  Jv .= [-2 * x[1] * v[1] + v[2]]
+  return Jv
+end
+
+function NLPModels.jprod(nlp :: HS11, x :: AbstractVector, v :: AbstractVector)
+  Jv = zeros(ncon(nlp))
+  return jprod!(nlp, x, v, Jv)
+end
+
+function NLPModels.jtprod!(nlp :: HS11, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
+  increment!(nlp, :neval_jtprod)
+  Jtv .= [-2 * x[1]; 1.0] * v[1]
+  return Jtv
+end
+
+function NLPModels.jtprod(nlp :: HS11, x :: AbstractVector, v :: AbstractVector)
+  Jtv = zeros(nvar(nlp))
+  return jtprod!(nlp, x, v, Jtv)
+end
+

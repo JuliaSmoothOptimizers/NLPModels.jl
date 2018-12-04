@@ -1,4 +1,4 @@
-using NLPModels: increment!, neval_obj
+using NLPModels: increment!
 
 #Problem 6 in the Hock-Schittkowski suite
 function hs6_autodiff()

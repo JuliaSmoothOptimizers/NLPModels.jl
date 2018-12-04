@@ -502,6 +502,7 @@ function consistent_nlps(nlps; nloops=100, rtol=1.0e-8)
   @printf("✓%12s", " ")
 
   # If there are inequalities, test the SlackModels of each of these models
+  #=
   if nlps[1].meta.ncon > length(nlps[1].meta.jfix)
     slack_nlps = [SlackModel(nlp) for nlp in nlps]
     consistent_general_functions(slack_nlps)
@@ -511,6 +512,8 @@ function consistent_nlps(nlps; nloops=100, rtol=1.0e-8)
   else
     @printf("-")
   end
+  =#
+  @printf("×")
   @printf("\n")
 end
 

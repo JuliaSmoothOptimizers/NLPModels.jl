@@ -35,27 +35,26 @@ reset!(model)
 
 @test_throws(NotImplementedError, jth_con(model, model.meta.x0, 1))
 
-#=
 include("test_tools.jl")
 
-include("test_slack_model.jl")
+#include("test_slack_model.jl")
 include("test_qn_model.jl")
-=#
 
 @printf("For tests to pass, all models must have been written identically.\n")
 @printf("Constraints, if any, must have been declared in the same order.\n")
 
 include("consistency.jl")
 @printf("%24s\tConsistency   Derivative Check   Quasi-Newton  Slack variant\n", " ")
-#for problem in ["brownden", "hs5", "hs6", "hs10", "hs11", "hs14"]
-for problem in ["brownden", "browndenso", "browndennls", "hs5", "hs6", "hs6so", "hs6nls", "hs6ls"]
+for problem in ["brownden", "browndenso", "browndennls", "hs5", "hs6", "hs6so",
+                "hs6nls", "hs6ls", "hs10", "hs11", "hs14", "genrose"]
   consistency(problem)
 end
 
-# Consistency between single objectives, NLS and LS problem
-println("Checking consistency of HS6 in single objective, NLS and LS format")
+println("Consistency between different ways to define the same problem")
+@printf("%24s\tConsistency   Derivative Check   Quasi-Newton  Slack variant\n", " ")
+@printf("Checking problem %-20s", "hs6")
 consistent_nlps([HS6(), HS6SO(), HS6NLS(), HS6LS()])
-println("Checking general consistency of BROWNDEN in single objective and NLS")
+@printf("Checking problem %-20s", "browden")
 consistent_general_functions([brownden_autodiff(), browndenso_autodiff(), browndennls_autodiff()])
 
 include("test_autodiff_model.jl")
