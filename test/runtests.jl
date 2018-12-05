@@ -63,3 +63,4 @@ consistent_nlps([brownden_autodiff(), browndenso_autodiff(), browndennls_autodif
 
 include("test_autodiff_model.jl")
 include("test_view_subarray.jl")
+include("test_feasibility_model.jl")

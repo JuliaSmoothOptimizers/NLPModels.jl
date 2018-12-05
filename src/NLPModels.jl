@@ -18,6 +18,7 @@ Base.showerror(io::IO, e::NotImplementedError) = print(io, e.name, " not impleme
 include("nlp_utils.jl")
 include("nlp_types.jl")
 include("api.jl")
+include("dercheck.jl")
 
 # Traits
 acceptsObjective(::AbstractNLPModel)         = false
@@ -25,11 +26,13 @@ acceptsNLS(::AbstractNLPModel)               = false
 acceptsLS(::AbstractNLPModel)                = false
 acceptsMultipleObjective(::AbstractNLPModel) = false
 
+# Models
 include("autodiff_model.jl")
-include("slack_model.jl")
-include("qn_model.jl")
 include("lls_model.jl")
 
-include("dercheck.jl")
+# Derived models
+include("slack_model.jl")
+include("qn_model.jl")
+include("feasibility_residual.jl")
 
 end # module

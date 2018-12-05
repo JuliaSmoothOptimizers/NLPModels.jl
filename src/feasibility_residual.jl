@@ -11,10 +11,10 @@ by defining the function F(x) = c(x). If the problem has
 bounds on the variables or more constraints, an error
 is thrown.
 """
-mutable struct FeasibilityResidual <: AbstractNLSModel
+mutable struct FeasibilityResidual <: AbstractNLPModel
   meta :: NLPModelMeta
-  nls_meta :: NLSMeta
-  counters :: NLSCounters
+  σnls :: Float64
+  counters :: Counters
   nlp :: AbstractNLPModel
 end
 
@@ -29,67 +29,60 @@ function FeasibilityResidual(nlp :: AbstractNLPModel; name=nlp.meta.name)
 
   m, n = nlp.meta.ncon, nlp.meta.nvar
   # TODO: What is copied?
-  meta = NLPModelMeta(n, x0=nlp.meta.x0, name=name, lvar=nlp.meta.lvar,
+  meta = NLPModelMeta(n, nlsequ=m, x0=nlp.meta.x0, name=name, lvar=nlp.meta.lvar,
                       uvar=nlp.meta.uvar)
-  nls_meta = NLSMeta(m, n)
-  nls = FeasibilityResidual(meta, nls_meta, NLSCounters(), nlp)
-  finalizer(nlp -> finalize(nls.nlp), nls)
+  feasnlp = FeasibilityResidual(meta, 1.0, Counters(), nlp)
+  finalizer(nlp -> finalize(feasnlp.nlp), feasnlp)
 
-  return nls
+  return feasnlp
 end
 
-function residual(nls :: FeasibilityResidual, x :: AbstractVector)
-  increment!(nls, :neval_residual)
-  return cons(nls.nlp, x)
+function residual(nlp :: FeasibilityResidual, x :: AbstractVector)
+  increment!(nlp, :neval_residual)
+  return cons(nlp.nlp, x)
 end
 
-function residual!(nls :: FeasibilityResidual, x :: AbstractVector, Fx :: AbstractVector)
-  increment!(nls, :neval_residual)
-  return cons!(nls.nlp, x, Fx)
+function residual!(nlp :: FeasibilityResidual, x :: AbstractVector, Fx :: AbstractVector)
+  increment!(nlp, :neval_residual)
+  return cons!(nlp.nlp, x, Fx)
 end
 
-function jac_residual(nls :: FeasibilityResidual, x :: AbstractVector)
-  increment!(nls, :neval_jac_residual)
-  return jac(nls.nlp, x)
+function jac_residual(nlp :: FeasibilityResidual, x :: AbstractVector)
+  increment!(nlp, :neval_jac_residual)
+  return jac(nlp.nlp, x)
 end
 
-function jprod_residual(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector)
-  increment!(nls, :neval_jprod_residual)
-  return jprod(nls.nlp, x, v)
+function jprod_residual(nlp :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector)
+  increment!(nlp, :neval_jprod_residual)
+  return jprod(nlp.nlp, x, v)
 end
 
-function jprod_residual!(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
-  increment!(nls, :neval_jprod_residual)
-  return jprod!(nls.nlp, x, v, Jv)
+function jprod_residual!(nlp :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
+  increment!(nlp, :neval_jprod_residual)
+  return jprod!(nlp.nlp, x, v, Jv)
 end
 
-function jtprod_residual(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector)
-  increment!(nls, :neval_jtprod_residual)
-  return jtprod(nls.nlp, x, v)
+function jtprod_residual(nlp :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector)
+  increment!(nlp, :neval_jtprod_residual)
+  return jtprod(nlp.nlp, x, v)
 end
 
-function jtprod_residual!(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
-  increment!(nls, :neval_jtprod_residual)
-  return jtprod!(nls.nlp, x, v, Jtv)
+function jtprod_residual!(nlp :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
+  increment!(nlp, :neval_jtprod_residual)
+  return jtprod!(nlp.nlp, x, v, Jtv)
 end
 
-function hess_residual(nls :: FeasibilityResidual, x :: AbstractVector, i :: Int)
-  increment!(nls, :neval_hess_residual)
-  y = zeros(nls.nls_meta.nequ)
-  y[i] = 1.0
-  return hess(nls.nlp, x, obj_weight = 0.0, y=y)
+function hess_residual(nlp :: FeasibilityResidual, x :: AbstractVector, i :: Int)
+  increment!(nlp, :neval_hess_residual)
+  return chess(nlp.nlp, i, x)
 end
 
-function hprod_residual(nls :: FeasibilityResidual, x :: AbstractVector, i :: Int, v :: AbstractVector)
-  increment!(nls, :neval_hprod_residual)
-  y = zeros(nls.nls_meta.nequ)
-  y[i] = 1.0
-  return hprod(nls.nlp, x, v, obj_weight = 0.0, y=y)
+function hprod_residual(nlp :: FeasibilityResidual, x :: AbstractVector, i :: Int, v :: AbstractVector)
+  increment!(nlp, :neval_hprod_residual)
+  return jth_hprod(nlp.nlp, x, v, i)
 end
 
-function hprod_residual!(nls :: FeasibilityResidual, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
-  increment!(nls, :neval_hprod_residual)
-  y = zeros(nls.nls_meta.nequ)
-  y[i] = 1.0
-  return hprod!(nls.nlp, x, v, Hiv, obj_weight = 0.0, y=y)
+function hprod_residual!(nlp :: FeasibilityResidual, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
+  increment!(nlp, :neval_hprod_residual)
+  return jth_hprod!(nlp.nlp, x, v, i, Hiv)
 end
