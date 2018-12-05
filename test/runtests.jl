@@ -33,8 +33,6 @@ obj(model, model.meta.x0)
 reset!(model)
 @assert neval_obj(model) == 0
 
-@test_throws(NotImplementedError, jth_con(model, model.meta.x0, 1))
-
 include("test_tools.jl")
 
 #include("test_slack_model.jl")

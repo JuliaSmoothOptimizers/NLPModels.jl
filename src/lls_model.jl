@@ -104,13 +104,13 @@ function jac_op_residual!(nlp :: AbstractLinearLeastSquaresModel, x :: AbstractV
   end
 end
 
-function hess_residual(nlp :: AbstractLinearLeastSquaresModel, x :: AbstractVector, i :: Int)
+function hess_residual(nlp :: AbstractLinearLeastSquaresModel, i :: Int, x :: AbstractVector)
   increment!(nlp, :neval_hess_residual)
   n = size(nlp.A, 2)
   return zeros(n, n)
 end
 
-function hprod_residual!(nlp :: AbstractLinearLeastSquaresModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
+function hprod_residual!(nlp :: AbstractLinearLeastSquaresModel, i :: Int, x :: AbstractVector, v :: AbstractVector, Hiv :: AbstractVector)
   increment!(nlp, :neval_hprod_residual)
   fill!(Hiv, 0.0)
   return Hiv

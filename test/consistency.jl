@@ -325,11 +325,11 @@ function consistent_nonlinear_ls_objective(nlps; nloops=100, rtol=1.0e-8, exclud
     v = rand(n)
 
     for k = 1:m
-      Hs = Any[hess_residual(nlp, x, k) for nlp in nlps]
-      Hvs = Any[hprod_residual(nlp, x, k, v) for nlp in nlps]
-      Hops = Any[hess_op_residual(nlp, x, k) for nlp in nlps]
+      Hs = Any[hess_residual(nlp, k, x) for nlp in nlps]
+      Hvs = Any[hprod_residual(nlp, k, x, v) for nlp in nlps]
+      Hops = Any[hess_op_residual(nlp, k, x) for nlp in nlps]
       Hiv = zeros(n)
-      Hops_inplace = Any[hess_op_residual!(nlp, x, k, Hiv) for nlp in
+      Hops_inplace = Any[hess_op_residual!(nlp, k, x, Hiv) for nlp in
                          nlps]
       for i = 1:N
         for j = i+1:N
@@ -337,7 +337,7 @@ function consistent_nonlinear_ls_objective(nlps; nloops=100, rtol=1.0e-8, exclud
           @test isapprox(Hvs[i], Hvs[j], rtol=rtol)
         end
 
-        hvs = hprod_residual!(nlps[i], x, k, v, tmp_n)
+        hvs = hprod_residual!(nlps[i], k, x, v, tmp_n)
         @test hvs == Hvs[i]
         @test Hvs[i] == tmp_n
         @test Hvs[i] == Hops[i] * v

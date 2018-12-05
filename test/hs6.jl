@@ -205,12 +205,12 @@ function NLPModels.jtprod_residual(nlp :: HS6NLS, x :: AbstractVector, v :: Abst
   return [-v[1]; 0.0]
 end
 
-function NLPModels.hess_residual(nlp :: HS6NLS, x :: AbstractVector, i :: Int)
+function NLPModels.hess_residual(nlp :: HS6NLS, i :: Int, x :: AbstractVector)
   increment!(nlp, :neval_hess_residual)
   return zeros(2,2)
 end
 
-function NLPModels.hprod_residual!(nlp :: HS6NLS, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
+function NLPModels.hprod_residual!(nlp :: HS6NLS, i :: Int, x :: AbstractVector, v :: AbstractVector, Hiv :: AbstractVector)
   @assert i == 1
   increment!(nlp, :neval_hess_residual)
   Hiv .= 0.0
@@ -255,13 +255,13 @@ function NLPModels.jtprod(nlp :: Union{HS6Types,HS6LS}, x :: AbstractVector, v :
   return [-20 * x[1]; 10] * v[1]
 end
 
-function NLPModels.jth_hprod(nlp :: Union{HS6Types,HS6LS}, x :: AbstractVector, v :: AbstractVector, i :: Int)
+function NLPModels.jth_hprod(nlp :: Union{HS6Types,HS6LS}, i :: Int, x :: AbstractVector, v :: AbstractVector)
   @assert i == 1
   increment!(nlp, :neval_jhprod)
   return [-20 * v[1]; 0.0]
 end
 
-function NLPModels.jth_hprod!(nlp :: Union{HS6Types,HS6LS}, x :: AbstractVector, v :: AbstractVector, i :: Int, Hiv :: AbstractVector)
+function NLPModels.jth_hprod!(nlp :: Union{HS6Types,HS6LS}, i :: Int, x :: AbstractVector, v :: AbstractVector, Hiv :: AbstractVector)
   @assert i == 1
   increment!(nlp, :neval_jhprod)
   Hiv .= [-20 * v[1]; 0.0]

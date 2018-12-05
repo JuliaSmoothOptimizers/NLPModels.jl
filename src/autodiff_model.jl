@@ -179,12 +179,12 @@ function jth_con(nlp :: ADNLPModel, i :: Int, x :: AbstractVector)
   return nlp.c(x)[i]
 end
 
-function jth_hprod(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, i :: Int)
+function jth_hprod(nlp :: ADNLPModel, i :: Int, x :: AbstractVector, v :: AbstractVector)
   increment!(nlp, :neval_jhprod)
   return ForwardDiff.hessian(x->nlp.c(x)[i], x) * v
 end
 
-function jth_hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, i :: Int, Hv :: AbstractVector)
+function jth_hprod!(nlp :: ADNLPModel, i :: Int, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector)
   increment!(nlp, :neval_jhprod)
   Hv[1:nvar(nlp)] = ForwardDiff.hessian(x->nlp.c(x)[i], x) * v
   return Hv
@@ -254,7 +254,7 @@ function jtprod_residual!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractV
   return Jtv
 end
 
-function hess_residual(nlp :: ADNLPModel, x :: AbstractVector, i :: Int)
+function hess_residual(nlp :: ADNLPModel, i :: Int, x :: AbstractVector)
   increment!(nlp, :neval_hess_residual)
   if 1 ≤ i ≤ nlsequ(nlp)
     return tril(ForwardDiff.hessian(x->nlp.F(x)[i], x))
@@ -263,7 +263,7 @@ function hess_residual(nlp :: ADNLPModel, x :: AbstractVector, i :: Int)
   end
 end
 
-function hprod_residual!(nlp :: ADNLPModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
+function hprod_residual!(nlp :: ADNLPModel, i :: Int, x :: AbstractVector, v :: AbstractVector, Hiv :: AbstractVector)
   increment!(nlp, :neval_hprod_residual)
   if 1 ≤ i ≤ nlsequ(nlp)
     Hiv .= ForwardDiff.hessian(x->nlp.F(x)[i], x) * v

@@ -72,17 +72,17 @@ function jtprod_residual!(nlp :: FeasibilityResidual, x :: AbstractVector, v :: 
   return jtprod!(nlp.nlp, x, v, Jtv)
 end
 
-function hess_residual(nlp :: FeasibilityResidual, x :: AbstractVector, i :: Int)
+function hess_residual(nlp :: FeasibilityResidual, i :: Int, x :: AbstractVector)
   increment!(nlp, :neval_hess_residual)
   return chess(nlp.nlp, i, x)
 end
 
-function hprod_residual(nlp :: FeasibilityResidual, x :: AbstractVector, i :: Int, v :: AbstractVector)
+function hprod_residual(nlp :: FeasibilityResidual, i :: Int, x :: AbstractVector, v :: AbstractVector)
   increment!(nlp, :neval_hprod_residual)
-  return jth_hprod(nlp.nlp, x, v, i)
+  return jth_hprod(nlp.nlp, i, x, v)
 end
 
-function hprod_residual!(nlp :: FeasibilityResidual, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
+function hprod_residual!(nlp :: FeasibilityResidual, i :: Int, x :: AbstractVector, v :: AbstractVector, Hiv :: AbstractVector)
   increment!(nlp, :neval_hprod_residual)
-  return jth_hprod!(nlp.nlp, x, v, i, Hiv)
+  return jth_hprod!(nlp.nlp, i, x, v, Hiv)
 end

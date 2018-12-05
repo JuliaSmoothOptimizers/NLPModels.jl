@@ -103,7 +103,7 @@ function NLPModels.jtprod_residual!(nlp :: GENROSE, x :: AbstractVector, v :: Ab
   return Jtv
 end
 
-function NLPModels.hess_residual(nlp :: GENROSE, x :: AbstractVector, i :: Int)
+function NLPModels.hess_residual(nlp :: GENROSE, i :: Int, x :: AbstractVector)
   increment!(nlp, :neval_hess_residual)
   n = nvar(nlp)
   Hx = spzeros(n, n)
@@ -113,7 +113,7 @@ function NLPModels.hess_residual(nlp :: GENROSE, x :: AbstractVector, i :: Int)
   return Hx
 end
 
-function NLPModels.hprod_residual!(nlp :: GENROSE, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
+function NLPModels.hprod_residual!(nlp :: GENROSE, i :: Int, x :: AbstractVector, v :: AbstractVector, Hiv :: AbstractVector)
   increment!(nlp, :neval_hprod_residual)
   n = nvar(nlp)
   fill!(Hiv, 0.0)

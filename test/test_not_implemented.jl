@@ -29,17 +29,17 @@ function test_not_implemented()
     @eval @test_throws(NotImplementedError, $meth(model, [0], [1]))
   end
   for meth in [:jth_con, :jth_congrad, :jth_sparse_congrad, :hess_residual]
-    @eval @test_throws(NotImplementedError, $meth(model, [0], 1))
+    @eval @test_throws(NotImplementedError, $meth(model, 0, [1]))
   end
   for meth in [:jth_congrad!, :hprod_residual]
-    @eval @test_throws(NotImplementedError, $meth(model, [0], 1, [2]))
+    @eval @test_throws(NotImplementedError, $meth(model, 0, [1], [2]))
   end
-  @test_throws(NotImplementedError, hprod_residual!(model, [0], 1, [2], [3]))
+  @test_throws(NotImplementedError, hprod_residual!(model, 0, [1], [2], [3]))
   for meth in [:jprod!, :jtprod!, :ghjvprod, :jprod_residual!, :jtprod_residual!]
     @eval @test_throws(NotImplementedError, $meth(model, [0], [1], [2]))
   end
-  @test_throws(NotImplementedError, jth_hprod(model, [0], [1], 2))
-  @test_throws(NotImplementedError, jth_hprod!(model, [0], [1], 2, [3]))
+  @test_throws(NotImplementedError, jth_hprod(model, 0, [1], [2]))
+  @test_throws(NotImplementedError, jth_hprod!(model, 0, [1], [2], [3]))
   @test_throws(NotImplementedError, ghjvprod!(model, [0], [1], [2], [3]))
 end
 

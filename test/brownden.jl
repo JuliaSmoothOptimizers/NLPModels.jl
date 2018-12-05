@@ -188,14 +188,14 @@ function NLPModels.jtprod_residual(nlp :: BROWNDENNLS, x :: AbstractVector, v ::
   return jtprod_residual!(nlp, x, v, Jtv)
 end
 
-function NLPModels.hess_residual(nlp :: BROWNDENNLS, x :: AbstractVector, i :: Int)
+function NLPModels.hess_residual(nlp :: BROWNDENNLS, i :: Int, x :: AbstractVector)
   @assert 1 ≤ i ≤ 20
   increment!(nlp, :neval_hess_residual)
   Fi(x) = (x[1] + x[2] * i/5 - exp(i/5))^2 + (x[3] + x[4] * sin(i/5) - cos(i/5))^2
   return tril(ForwardDiff.hessian(Fi, x))
 end
 
-function NLPModels.hprod_residual!(nlp :: BROWNDENNLS, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
+function NLPModels.hprod_residual!(nlp :: BROWNDENNLS, i :: Int, x :: AbstractVector, v :: AbstractVector, Hiv :: AbstractVector)
   @assert 1 ≤ i ≤ 20
   increment!(nlp, :neval_hess_residual)
   Fi(x) = (x[1] + x[2] * i/5 - exp(i/5))^2 + (x[3] + x[4] * sin(i/5) - cos(i/5))^2

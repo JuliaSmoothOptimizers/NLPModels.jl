@@ -12,7 +12,7 @@ export obj, grad, grad!, objgrad, objgrad!, objcons, objcons!, cons,
 
 Evaluate \$f(x)\$, the objective function of `nlp` at `x`.
 """
-function obj(nlp::AbstractNLPModel, x::AbstractVector)
+function obj(nlp :: AbstractNLPModel, x :: AbstractVector)
   increment!(nlp, :neval_obj)
   # Defaults the objective funcions of empty problems to 0
   fx = 0.0
@@ -34,14 +34,14 @@ end
 
 Evaluate \$f_i(x)\$, the i-th single objective function of `nlp` at `x`.
 """
-obj(::AbstractNLPModel, ::Int, ::AbstractVector) =
+obj(:: AbstractNLPModel, :: Int, :: AbstractVector) =
   throw(NotImplementedError("obj"))
 
 """`g = grad(nlp, x)`
 
 Evaluate \$\\nabla f(x)\$, the gradient of the objective function at `x`.
 """
-function grad(nlp::AbstractNLPModel, x::AbstractVector)
+function grad(nlp :: AbstractNLPModel, x :: AbstractVector)
   gx = zeros(nvar(nlp))
   return grad!(nlp, x, gx)
 end
@@ -51,7 +51,7 @@ end
 Evaluate \$\\nabla f_i(x)\$, the gradient of the i-th single objective
 function at `x`.
 """
-grad(::AbstractNLPModel, ::Int, ::AbstractVector) =
+grad(:: AbstractNLPModel, :: Int, :: AbstractVector) =
   throw(NotImplementedError("grad"))
 
 """`g = grad!(nlp, x, g)`
@@ -59,7 +59,7 @@ grad(::AbstractNLPModel, ::Int, ::AbstractVector) =
 Evaluate \$\\nabla f(x)\$, the gradient of the objective function at `x`
 in place.
 """
-function grad!(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector)
+function grad!(nlp :: AbstractNLPModel, x :: AbstractVector, g :: AbstractVector)
   increment!(nlp, :neval_grad)
   fill!(g, 0.0)
   if nobjs(nlp) > 0
@@ -93,30 +93,30 @@ end
 Evaluate \$\\nabla f_i(x)\$, the gradient of the i-th single objective
 function at `x` in place.
 """
-grad!(::AbstractNLPModel, ::Int, ::AbstractVector, ::AbstractVector) =
+grad!(:: AbstractNLPModel, :: Int, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("grad!"))
 
 """`c = cons(nlp, x)`
 
 Evaluate \$c(x)\$, the constraints at `x`.
 """
-cons(::AbstractNLPModel, ::AbstractVector) =
+cons(:: AbstractNLPModel, :: AbstractVector) =
   throw(NotImplementedError("cons"))
 
 """`c = cons!(nlp, x, c)`
 
 Evaluate \$c(x)\$, the constraints at `x` in place.
 """
-cons!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
+cons!(:: AbstractNLPModel, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("cons!"))
 
-jth_con(::AbstractNLPModel, ::AbstractVector, ::Integer) =
+jth_con(:: AbstractNLPModel, :: Int, :: AbstractVector) =
   throw(NotImplementedError("jth_con"))
-jth_congrad(::AbstractNLPModel, ::AbstractVector, ::Integer) =
+jth_congrad(:: AbstractNLPModel, :: Int, :: AbstractVector) =
   throw(NotImplementedError("jth_congrad"))
-jth_congrad!(::AbstractNLPModel, ::AbstractVector, ::Integer, ::AbstractVector) =
+jth_congrad!(:: AbstractNLPModel, :: Int, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("jth_congrad!"))
-jth_sparse_congrad(::AbstractNLPModel, ::AbstractVector, ::Integer) =
+jth_sparse_congrad(:: AbstractNLPModel, :: Int, :: AbstractVector) =
   throw(NotImplementedError("jth_sparse_congrad"))
 
 """`f, c = objcons(nlp, x)`
@@ -164,41 +164,41 @@ end
 
 Evaluate \$\\nabla c(x)\$, the constraint's Jacobian at `x` in sparse coordinate format.
 """
-jac_coord(::AbstractNLPModel, ::AbstractVector) =
+jac_coord(:: AbstractNLPModel, :: AbstractVector) =
   throw(NotImplementedError("jac_coord"))
 
 """`Jx = jac(nlp, x)`
 
 Evaluate \$\\nabla c(x)\$, the constraint's Jacobian at `x` as a sparse matrix.
 """
-jac(::AbstractNLPModel, ::AbstractVector) = throw(NotImplementedError("jac"))
+jac(:: AbstractNLPModel, :: AbstractVector) = throw(NotImplementedError("jac"))
 
 """`Jv = jprod(nlp, x, v)`
 
 Evaluate \$\\nabla c(x)v\$, the Jacobian-vector product at `x`.
 """
-jprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
+jprod(:: AbstractNLPModel, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("jprod"))
 
 """`Jv = jprod!(nlp, x, v, Jv)`
 
 Evaluate \$\\nabla c(x)v\$, the Jacobian-vector product at `x` in place.
 """
-jprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
+jprod!(:: AbstractNLPModel, :: AbstractVector, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("jprod!"))
 
 """`Jtv = jtprod(nlp, x, v, Jtv)`
 
 Evaluate \$\\nabla c(x)^Tv\$, the transposed-Jacobian-vector product at `x`.
 """
-jtprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
+jtprod(:: AbstractNLPModel, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("jtprod"))
 
 """`Jtv = jtprod!(nlp, x, v, Jtv)`
 
 Evaluate \$\\nabla c(x)^Tv\$, the transposed-Jacobian-vector product at `x` in place.
 """
-jtprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
+jtprod!(:: AbstractNLPModel, :: AbstractVector, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("jtprod!"))
 
 """`J = jac_op(nlp, x)`
@@ -233,13 +233,13 @@ function jac_op!(nlp :: AbstractNLPModel, x :: AbstractVector,
                                                false, false, prod, nothing, ctprod)
 end
 
-jth_hprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer) =
+jth_hprod(:: AbstractNLPModel, :: Int, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("jth_hprod"))
-jth_hprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer, ::AbstractVector) =
+jth_hprod!(:: AbstractNLPModel, :: Int, :: AbstractVector, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("jth_hprod!"))
-ghjvprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
+ghjvprod(:: AbstractNLPModel, :: AbstractVector, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("ghjvprod"))
-ghjvprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
+ghjvprod!(:: AbstractNLPModel, :: AbstractVector, :: AbstractVector, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("ghjvprod!"))
 
 """`(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0, y=zeros)`
@@ -252,8 +252,8 @@ with objective function scaled by `obj_weight`, i.e.,
 with σ = obj_weight.
 Only the lower triangle is returned.
 """
-function hess_coord(nlp::AbstractNLPModel, x::AbstractVector;
-                    obj_weight = 1.0, y :: AbstractVector = [])
+function hess_coord(nlp :: AbstractNLPModel, x :: AbstractVector;
+                    obj_weight :: Real = 1.0, y :: AbstractVector=Float64[])
   Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
   if Hx isa AbstractSparseMatrix
     return findnz(Hx)
@@ -269,7 +269,7 @@ Evaluate the Hessian of the i-th single objective function at `x` in
 sparse coordinate format.
 Only the lower triangle is returned.
 """
-function hess_coord(nlp::AbstractNLPModel, i::Int, x::AbstractVector)
+function hess_coord(nlp :: AbstractNLPModel, i :: Int, x :: AbstractVector)
   Hx = hess(nlp, i, x)
   if Hx isa AbstractSparseMatrix
     return findnz(Hx)
@@ -289,8 +289,8 @@ with objective function scaled by `obj_weight`, i.e.,
 with σ = obj_weight.
 Only the lower triangle is returned.
 """
-function hess(nlp::AbstractNLPModel, x::AbstractVector;
-              obj_weight = 1.0, y :: AbstractVector = [])
+function hess(nlp :: AbstractNLPModel, x :: AbstractVector;
+              obj_weight :: Real=1.0, y :: AbstractVector=Float64[])
   increment!(nlp, :neval_hess)
   Hx = spzeros(nvar(nlp), nvar(nlp))
   if obj_weight != 0.0
@@ -303,7 +303,7 @@ function hess(nlp::AbstractNLPModel, x::AbstractVector;
       Fx = residual(nlp, x)
       m = length(Fx)
       for i = 1:m
-        Hx .+= (obj_weight * nlp.σnls * Fx[i]) * hess_residual(nlp, x, i)
+        Hx .+= (obj_weight * nlp.σnls * Fx[i]) * hess_residual(nlp, i, x)
       end
     end
     if llsrows(nlp) > 0
@@ -324,7 +324,7 @@ Evaluate the Hessian of the i-th single objective function at `x` as a
 sparse matrix.
 Only the lower triangle is returned.
 """
-hess(::AbstractNLPModel, ::Int, ::AbstractVector) =
+hess(:: AbstractNLPModel, :: Int, :: AbstractVector) =
   throw(NotImplementedError("hess"))
 
 """`Cx = chess(nlp, i, x)`
@@ -333,7 +333,7 @@ Evaluate the Hessian of the i-th constraint function at `x` as a sparse
 matrix.
 Only the lower trinagle is returned.
 """
-chess(::AbstractNLPModel, ::Int, ::AbstractVector) =
+chess(:: AbstractNLPModel, :: Int, :: AbstractVector) =
   throw(NotImplementedError("chess"))
 
 """`Hv = hprod(nlp, x, v; obj_weight=1.0, y=zeros)`
@@ -345,8 +345,8 @@ with objective function scaled by `obj_weight`, i.e.,
 
 with σ = obj_weight.
 """
-function hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector;
-               obj_weight=1.0, y::AbstractVector=[])
+function hprod(nlp :: AbstractNLPModel, x :: AbstractVector, v :: AbstractVector;
+               obj_weight :: Real=1.0, y :: AbstractVector=Float64[])
   Hv = zeros(nvar(nlp))
   return hprod!(nlp, x, v, Hv, obj_weight=obj_weight, y=y)
 end
@@ -356,7 +356,7 @@ end
 Evaluate the product of the Hessian of the i-th single objective
 function at `x` with the vector `v`.
 """
-hprod(::AbstractNLPModel, ::Int, ::AbstractVector, ::AbstractVector) =
+hprod(:: AbstractNLPModel, :: Int, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("hprod"))
 
 """`Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0, y=zeros)`
@@ -368,9 +368,9 @@ place, with objective function scaled by `obj_weight`, i.e.,
 
 with σ = obj_weight.
 """
-function hprod!(nlp::AbstractNLPModel, x::AbstractVector,
-                v::AbstractVector, Hv::AbstractVector;
-                obj_weight=1.0, y::AbstractVector = [])
+function hprod!(nlp :: AbstractNLPModel, x :: AbstractVector,
+                v :: AbstractVector, Hv :: AbstractVector;
+                obj_weight :: Real=1.0, y :: AbstractVector=Float64[])
   increment!(nlp, :neval_hprod)
   n = nvar(nlp)
   fill!(Hv, 0.0)
@@ -387,7 +387,7 @@ function hprod!(nlp::AbstractNLPModel, x::AbstractVector,
       m = length(Fx)
       Hiv = zeros(n)
       for i = 1:m
-        hprod_residual!(nlp, x, i, v, Hiv)
+        hprod_residual!(nlp, i, x, v, Hiv)
         Hv[1:n] .+= (obj_weight * nlp.σnls * Fx[i]) * Hiv
       end
     end
@@ -399,7 +399,7 @@ function hprod!(nlp::AbstractNLPModel, x::AbstractVector,
   if m > 0
     Cv = zeros(n)
     for i = 1:m
-      jth_hprod!(nlp, x, v, i, Cv)
+      jth_hprod!(nlp, i, x, v, Cv)
       Hv[1:n] .+= y[i] * Cv
     end
   end
@@ -411,7 +411,7 @@ end
 Evaluate the product of the Hessian of the i-th single objective
 function at `x` with the vector `v` in place.
 """
-hprod!(::AbstractNLPModel, ::Int, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
+hprod!(:: AbstractNLPModel, :: Int, :: AbstractVector, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("hprod!"))
 
 """`H = hess_op(nlp, x; obj_weight=1.0, y=zeros)`
@@ -425,7 +425,7 @@ matrix, e.g., `H * v`. The linear operator H represents
 with σ = obj_weight.
 """
 function hess_op(nlp :: AbstractNLPModel, x :: AbstractVector;
-                 obj_weight :: Float64=1.0, y :: AbstractVector=zeros(ncon(nlp)))
+                 obj_weight :: Real=1.0, y :: AbstractVector=zeros(ncon(nlp)))
   prod = @closure v -> hprod(nlp, x, v; obj_weight=obj_weight, y=y)
   F = typeof(prod)
   return LinearOperator{Float64,F,Nothing,Nothing}(nvar(nlp), nvar(nlp),
@@ -445,7 +445,7 @@ represents
 with σ = obj_weight.
 """
 function hess_op!(nlp :: AbstractNLPModel, x :: AbstractVector, Hv :: AbstractVector;
-                 obj_weight :: Float64=1.0, y :: AbstractVector=zeros(ncon(nlp)))
+                 obj_weight :: Real=1.0, y :: AbstractVector=zeros(ncon(nlp)))
   prod = @closure v -> hprod!(nlp, x, v, Hv; obj_weight=obj_weight, y=y)
   F = typeof(prod)
   return LinearOperator{Float64,F,Nothing,Nothing}(nvar(nlp), nvar(nlp),
@@ -494,7 +494,7 @@ end
 
 Computes F(x), the residual at x.
 """
-residual!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
+residual!(:: AbstractNLPModel, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("residual!"))
 
 """
@@ -502,7 +502,7 @@ residual!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
 
 Computes J(x), the Jacobian of the residual at x.
 """
-jac_residual(::AbstractNLPModel, ::AbstractVector) =
+jac_residual(:: AbstractNLPModel, :: AbstractVector) =
   throw(NotImplementedError("jac_residual"))
 
 """
@@ -520,7 +520,7 @@ end
 
 Computes the product of the Jacobian of the residual at x and a vector, i.e.,  J(x)*v, storing it in `Jv`.
 """
-jprod_residual!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
+jprod_residual!(:: AbstractNLPModel, :: AbstractVector, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("jprod_residual!"))
 
 """
@@ -538,7 +538,7 @@ end
 
 Computes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  J(x)'*v, storing it in `Jtv`.
 """
-jtprod_residual!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
+jtprod_residual!(:: AbstractNLPModel, :: AbstractVector, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("jtprod_residual!"))
 
 """
@@ -572,50 +572,50 @@ function jac_op_residual!(nlp :: AbstractNLPModel, x :: AbstractVector,
 end
 
 """
-    Hi = hess_residual(nlp, x, i)
+    Hi = hess_residual(nlp, i, x)
 
 Computes the Hessian of the i-th residual at x.
 """
-hess_residual(::AbstractNLPModel, ::AbstractVector, ::Int) =
+hess_residual(:: AbstractNLPModel, :: Int, :: AbstractVector) =
   throw(NotImplementedError("hess_residual"))
 
 """
-    Hiv = hprod_residual(nlp, x, i, v)
+    Hiv = hprod_residual(nlp, i, x, v)
 
 Computes the product of the Hessian of the i-th residual at x, times the vector v.
 """
-function hprod_residual(nlp :: AbstractNLPModel, x :: AbstractVector, i :: Int, v :: AbstractVector)
+function hprod_residual(nlp :: AbstractNLPModel, i :: Int, x :: AbstractVector, v :: AbstractVector)
   Hv = zeros(nvar(nlp))
-  hprod_residual!(nlp, x, i, v, Hv)
+  hprod_residual!(nlp, i, x, v, Hv)
 end
 
 """
-    Hiv = hprod_residual!(nlp, x, i, v, Hiv)
+    Hiv = hprod_residual!(nlp, i, x, v, Hiv)
 
 Computes the product of the Hessian of the i-th residual at x, times the vector v, and stores it in vector Hiv.
 """
-hprod_residual!(::AbstractNLPModel, ::AbstractVector, ::Int, ::AbstractVector, ::AbstractVector) =
+hprod_residual!(:: AbstractNLPModel, :: Int, :: AbstractVector, :: AbstractVector, :: AbstractVector) =
   throw(NotImplementedError("hprod_residual!"))
 
 """
-    Hop = hess_op_residual(nlp, x, i)
+    Hop = hess_op_residual(nlp, i, x)
 
 Computes the Hessian of the i-th residual at x, in linear operator form.
 """
-function hess_op_residual(nlp :: AbstractNLPModel, x :: AbstractVector, i :: Int)
-  prod = @closure v -> hprod_residual(nlp, x, i, v)
+function hess_op_residual(nlp :: AbstractNLPModel, i :: Int, x :: AbstractVector)
+  prod = @closure v -> hprod_residual(nlp, i, x, v)
   F = typeof(prod)
   return LinearOperator{Float64,F,Nothing,Nothing}(nvar(nlp), nvar(nlp),
                                                    true, true, prod, nothing, nothing)
 end
 
 """
-    Hop = hess_op_residual!(nlp, x, i, Hiv)
+    Hop = hess_op_residual!(nlp, i, x, Hiv)
 
 Computes the Hessian of the i-th residual at x, in linear operator form. The vector `Hiv` is used as preallocated storage for the operation.
 """
-function hess_op_residual!(nlp :: AbstractNLPModel, x :: AbstractVector, i :: Int, Hiv :: AbstractVector)
-  prod = @closure v -> hprod_residual!(nlp, x, i, v, Hiv)
+function hess_op_residual!(nlp :: AbstractNLPModel, i :: Int, x :: AbstractVector, Hiv :: AbstractVector)
+  prod = @closure v -> hprod_residual!(nlp, i, x, v, Hiv)
   F = typeof(prod)
   return LinearOperator{Float64,F,Nothing,Nothing}(nvar(nlp), nvar(nlp),
                                                    true, true, prod, nothing, nothing)
@@ -624,9 +624,9 @@ end
 import Base.push!
 push!(nlp :: AbstractNLPModel, args...; kwargs...) =
   throw(NotImplementedError("push!"))
-varscale(::AbstractNLPModel, ::AbstractVector) =
+varscale(:: AbstractNLPModel, :: AbstractVector) =
   throw(NotImplementedError("varscale"))
-lagscale(::AbstractNLPModel, ::Float64) =
+lagscale(:: AbstractNLPModel, :: Float64) =
   throw(NotImplementedError("lagscale"))
-conscale(::AbstractNLPModel, ::AbstractVector) =
+conscale(:: AbstractNLPModel, :: AbstractVector) =
   throw(NotImplementedError("conscale"))
