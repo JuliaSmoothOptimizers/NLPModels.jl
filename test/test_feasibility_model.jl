@@ -5,7 +5,7 @@ function feasibility_test()
     fnlp = FeasibilityResidual(nlp)
     rnlp = ADNLPModel(x -> [x[1] - 1; x[2] - x[1]^2], 2, zeros(2))
 
-    println("Checking feasibility consistency")
+    @printf("Checking feasibility consistency%5s", "")
     consistent_nlps([fnlp, rnlp])
   end
 end
