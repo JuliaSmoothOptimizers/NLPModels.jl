@@ -52,10 +52,14 @@ end
 
 println("Consistency between different ways to define the same problem")
 @printf("%24s\tConsistency   Derivative Check   Quasi-Newton  Slack variant\n", " ")
+
+# HS6 is implemented is 4 different ways
 @printf("Checking problem %-20s", "hs6")
 consistent_nlps([HS6(), HS6SO(), HS6NLS(), HS6LS()])
+
+# brownden_autodiff uses 1 objective, and browndenso uses 20 (specific tests would fail)
 @printf("Checking problem %-20s", "browden")
-consistent_general_functions([brownden_autodiff(), browndenso_autodiff(), browndennls_autodiff()])
+consistent_nlps([brownden_autodiff(), browndenso_autodiff(), browndennls_autodiff()], test_specific=false)
 
 include("test_autodiff_model.jl")
 include("test_view_subarray.jl")

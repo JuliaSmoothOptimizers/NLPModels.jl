@@ -461,7 +461,7 @@ function consistent_general_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
   end
 end
 
-function consistent_nlps(nlps; nloops=100, rtol=1.0e-8)
+function consistent_nlps(nlps; nloops=100, rtol=1.0e-8, test_specific=true)
   consistent_counters(nlps)
   consistent_meta(nlps, rtol=rtol)
   consistent_general_functions(nlps, nloops=nloops, rtol=rtol)
@@ -471,16 +471,18 @@ function consistent_nlps(nlps; nloops=100, rtol=1.0e-8)
     reset!(nlp)
   end
 
-  for (consistfn, condition) in
-      [(consistent_nonlinear_ls_objective, meta->meta.nlsequ > 0),
-       (consistent_nonlinear_ls_objective, meta->meta.llsrows > 0),
-       (consistent_single_objectives, meta->meta.nobjs > 0)]
-    subnlps = [nlp for nlp in nlps if condition(nlp.meta)]
-    length(subnlps) == 0 && continue
-    consistfn(subnlps, nloops=nloops, rtol=rtol)
-    consistent_counters(subnlps)
-    for nlp in subnlps
-      reset!(nlp)
+  if test_specific
+    for (consistfn, condition) in
+        [(consistent_nonlinear_ls_objective, meta->meta.nlsequ > 0),
+         (consistent_nonlinear_ls_objective, meta->meta.llsrows > 0),
+         (consistent_single_objectives, meta->meta.nobjs > 0)]
+      subnlps = [nlp for nlp in nlps if condition(nlp.meta)]
+      length(subnlps) == 0 && continue
+      consistfn(subnlps, nloops=nloops, rtol=rtol)
+      consistent_counters(subnlps)
+      for nlp in subnlps
+        reset!(nlp)
+      end
     end
   end
 
