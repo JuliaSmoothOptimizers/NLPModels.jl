@@ -5,11 +5,16 @@ export FeasibilityResidual
 A feasibility residual model is created from a NLPModel of the form
 
     min f(x)
-    s.t c(x) = 0
+    s.t cℓ ≤ c(x) ≤ cu
+        bℓ ≤   x  ≤ bu
 
-by defining the function F(x) = c(x). If the problem has
-bounds on the variables or more constraints, an error
-is thrown.
+by creating slack variables s and defining F(x,s) = c(x) - s. The resulting NLS problem is
+
+    min ¹/₂‖c(x) - s‖²
+        bℓ ≤ x ≤ bu
+        cℓ ≤ s ≤ bu
+
+This is done using SlackModel first, and then defining the NLS.
 """
 mutable struct FeasibilityResidual <: AbstractNLSModel
   meta :: NLPModelMeta
@@ -23,7 +28,7 @@ function FeasibilityResidual(nlp :: AbstractNLPModel; name=nlp.meta.name)
     if unconstrained(nlp)
       throw(ErrorException("Can't handle unconstrained problem"))
     else
-      throw(ErrorException("Can't handle inequalities"))
+      return FeasibilityResidual(SlackModel(nlp), name=name)
     end
   end
 
@@ -33,7 +38,7 @@ function FeasibilityResidual(nlp :: AbstractNLPModel; name=nlp.meta.name)
                       uvar=nlp.meta.uvar)
   nls_meta = NLSMeta(m, n)
   nls = FeasibilityResidual(meta, nls_meta, NLSCounters(), nlp)
-  finalizer(nlp -> finalize(nls.nlp), nls)
+  finalizer(nls -> finalize(nls.nlp), nls)
 
   return nls
 end

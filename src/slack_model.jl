@@ -81,7 +81,10 @@ function SlackModel(model :: AbstractNLPModel)
 
   meta = slack_meta(model.meta)
 
-  return SlackModel(meta, model)
+  snlp = SlackModel(meta, model)
+  finalizer(nlp -> finalize(nlp.model), snlp)
+
+  return snlp
 end
 
 function SlackNLSModel(model :: AbstractNLSModel)
@@ -93,7 +96,10 @@ function SlackNLSModel(model :: AbstractNLSModel)
                      model.meta.nvar + ns,
                      [model.meta.x0; zeros(ns)])
 
-  return SlackNLSModel(meta, nls_meta, model)
+  snls = SlackNLSModel(meta, nls_meta, model)
+  finalizer(nls -> finalize(nls.model), snls)
+
+  return snls
 end
 
 const SlackModels = Union{SlackModel,SlackNLSModel}
