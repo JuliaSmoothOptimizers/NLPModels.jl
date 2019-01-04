@@ -81,7 +81,10 @@ function SlackModel(nlp :: AbstractNLPModel)
 
   meta = slack_meta(nlp.meta)
 
-  return SlackModel(meta, NLSMeta(0, 0), nlp)
+  snlp = SlackModel(meta, NLSMeta(0, 0), nlp)
+  finalizer(nlp -> finalize(nlp.model), snlp)
+
+  return snlp
 end
 
 function SlackModel(nls :: AbstractNLSModel)
@@ -93,7 +96,10 @@ function SlackModel(nls :: AbstractNLSModel)
                      nls.meta.nvar + ns,
                      [nls.meta.x0; zeros(ns)])
 
-  return SlackModel(meta, nls_meta, nls)
+  snls = SlackModel(meta, nls_meta, nls)
+  finalizer(nls -> finalize(nls.model), snls)
+
+  return snls
 end
 
 import Base.show
