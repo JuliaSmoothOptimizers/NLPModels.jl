@@ -258,7 +258,7 @@ grad!(nlp, nlp.meta.x0, gx)
 ## Nonlinear least squares models
 
 In addition to the general nonlinear model, we can define the residual function for a
-nonlinear least squares problem. In other words, the objective function of the problem
+nonlinear least-squares problem. In other words, the objective function of the problem
 is of the form ``f(x) = \tfrac{1}{2}\|F(x)\|^2``, and we can define the function ``F``
 and its derivatives.
 
@@ -277,7 +277,7 @@ residual(nls, x0)
 jac_residual(nls, x0)
 ```
 
-We can also define a Linear Least Squares by passing the matrices that define the
+We can also define a linear least squares by passing the matrices that define the
 problem
 ```math
 \begin{align*}
@@ -297,7 +297,7 @@ nls = LLSModel(A, b, C=C, lcon=zeros(2), ucon=zeros(2), lvar=-ones(3), uvar=ones
 @info norm(jac(nls, zeros(3)) - C)
 ```
 
-Another way to define a Nonlinear Least Squares is using `FeasibilityResidual` to
+Another way to define a nonlinear least squares is using `FeasibilityResidual` to
 consider the constraints of a general nonlinear problem as the residual of the NLS.
 ```@example nls
 nlp = ADNLPModel(x->0, # objective doesn't matter,
