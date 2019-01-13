@@ -36,8 +36,8 @@ function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVecto
   end
   nnzj = n * ncon
 
-  meta = NLPModelMeta(n, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0,
-                      lcon=lcon, ucon=ucon, nnzj=nnzj)
+  meta = NLPModelMeta(n, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0, lin=1:ncon,
+                      nln=Int[], lcon=lcon, ucon=ucon, nnzj=nnzj)
   nls_meta = NLSMeta(m, n)
 
   return LLSModel(meta, nls_meta, NLSCounters(), A, b, C)
