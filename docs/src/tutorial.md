@@ -1,5 +1,9 @@
 # Tutorial
 
+```@contents
+Pages = ["tutorial.md"]
+```
+
 NLPModels.jl was created for two purposes:
 
  - Allow users to access problem databases in an unified way.
@@ -249,4 +253,62 @@ end
 nlp = SimpleNLPModel(f, x0, g! =g!) # Watchout, g!=g! is interpreted as g != g!
 gx = zeros(2)
 grad!(nlp, nlp.meta.x0, gx)
+```
+
+## Nonlinear least squares models
+
+In addition to the general nonlinear model, we can define the residual function for a
+nonlinear least squares problem. In other words, the objective function of the problem
+is of the form ``f(x) = \tfrac{1}{2}\|F(x)\|^2``, and we can define the function ``F``
+and its derivatives.
+
+A simple way to define an NLS problem is with `ADNLSModel`, which uses automatic
+differentiation.
+
+```@example nls
+using NLPModels # hide
+F(x) = [x[1] - 1.0; 10 * (x[2] - x[1]^2)]
+x0 = [-1.2; 1.0]
+nls = ADNLSModel(F, x0, 2) # 2 nonlinear equations
+residual(nls, x0)
+```
+
+```@example nls
+jac_residual(nls, x0)
+```
+
+We can also define a Linear Least Squares by passing the matrices that define the
+problem
+```math
+\begin{align*}
+\min \quad & \tfrac{1}{2}\|Ax - b\|^2 \\
+& c_L  \leq Cx \leq c_U \\
+& \ell \leq  x \leq u.
+\end{align*}
+```
+```@example nls
+using LinearAlgebra # hide
+A = rand(10, 3)
+b = rand(10)
+C = rand(2, 3)
+nls = LLSModel(A, b, C=C, lcon=zeros(2), ucon=zeros(2), lvar=-ones(3), uvar=ones(3))
+
+@info norm(jac_residual(nls, zeros(3)) - A)
+@info norm(jac(nls, zeros(3)) - C)
+```
+
+Another way to define a Nonlinear Least Squares is using `FeasibilityResidual` to
+consider the constraints of a general nonlinear problem as the residual of the NLS.
+```@example nls
+nlp = ADNLPModel(x->0, # objective doesn't matter,
+                 ones(2), c=x->[x[1] + x[2] - 1; x[1] * x[2] - 2],
+                 lcon=zeros(2), ucon=zeros(2))
+nls = FeasibilityResidual(nlp)
+s = 0.0
+for t = 1:100
+  global s
+  x = rand(2)
+  s += norm(residual(nls, x) - cons(nlp, x))
+end
+@info "s = $s"
 ```
