@@ -33,28 +33,24 @@ throw a `NotImplementedError`.
 The list is
 
   - `g` and `g!`: \$\\nabla f(x)\$, the gradient of the objective function;
-  see [`grad`](@ref).
 
         gx = g(x)
         gx = g!(x, gx)
 
   - `H`: The lower triangle of the Hessian of the objective function or of the
     Lagrangian;
-    see [`hess`](@ref).
 
         Hx = H(x; obj_weight=1.0) # if the problem is unconstrained
         Hx = H(x; obj_weight=1.0, y=zeros) # if the problem is constrained
 
   - `Hcoord` - The lower triangle of the Hessian of the objective function
     or of the Lagrangian, in triplet format;
-    see [`hess_coord`](@ref).
 
         (rows,cols,vals) = Hcoord(x; obj_weight=1.0) # if the problem is unconstrained
         (rows,cols,vals) = Hcoord(x; obj_weight=1.0, y=zeros) # if the problem is constrained
 
   - `Hp` and `Hp!` - The product of the Hessian of the objective function or of
     the Lagrangian by a vector;
-    see [`hprod`](@ref).
 
         Hv = Hp(x, v, obj_weight=1.0) # if the problem is unconstrained
         Hv = Hp!(x, v, Hv, obj_weight=1.0) # if the problem is unconstrained
@@ -62,29 +58,24 @@ The list is
         Hv = Hp!(x, v, Hv, obj_weight=1.0, y=zeros) # if the problem is constrained
 
   - `c` and `c!` - \$c(x)\$, the constraints function;
-  see [`cons`](@ref).
 
         cx = c(x)
         cx = c!(x, cx)
 
   - `J` - \$J(x)\$, the Jacobian of the constraints;
-  see [`jac`](@ref).
 
         Jx = J(x)
 
   - `Jcoord` - \$J(x)\$, the Jacobian of the constraints, in triplet format;
-  see [`jac_coord`](@ref).
 
         (rows,cols,vals) = Jcoord(x)
 
   - `Jp` and `Jp!` - The Jacobian-vector product;
-  see [`jprod`](@ref).
 
         Jv = Jp(x, v)
         Jv = Jp!(x, v, Jv)
 
   - `Jtp` and `Jtp!` - The Jacobian-transposed-vector product;
-  see [`jtprod`](@ref).
 
         Jtv = Jtp(x, v)
         Jtv = Jtp!(x, v, Jtv)

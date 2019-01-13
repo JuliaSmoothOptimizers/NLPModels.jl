@@ -44,7 +44,7 @@ Notice that, for the Hessian, the variables ``z^L`` and ``z^U`` are not used.
 Optimization problems are represented by an instance/subtype of `AbstractNLPModel`.
 Such instances are composed of
 
-- an instance of [`NLPModelMeta`](#Attributes-1), which provides information about the problem,
+- an instance of [`NLPModelMeta`](@ref Attributes), which provides information about the problem,
   including the number of variables, constraints, bounds on the variables, etc.
 - other data specific to the provenance of the problem.
 
@@ -79,7 +79,7 @@ See the [Models](@ref), the [Tools](@ref tools-section), the [Tutorial](@ref), o
 ## Internal Interfaces
 
  - [`ADNLPModel`](@ref): Uses
-   [`ForwardDiff`](http://github.com/JuliaDiff/ForwardDiff.jl) to compute the
+   [`ForwardDiff`](https://github.com/JuliaDiff/ForwardDiff.jl) to compute the
    derivatives. It has a very simple interface, though it isn't very efficient
    for larger problems.
  - [`SimpleNLPModel`](@ref): Only uses user defined functions.
@@ -102,10 +102,10 @@ See the [Models](@ref), the [Tools](@ref tools-section), the [Tutorial](@ref), o
 
  - `AmplModel`: Defined in
    [`AmplNLReader.jl`](https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl)
-   for problems modeled using [AMPL](http://www.ampl.com)
+   for problems modeled using [AMPL](https://ampl.com)
  - `CUTEstModel`: Defined in
    [`CUTEst.jl`](https://github.com/JuliaSmoothOptimizers/CUTEst.jl) for
-   problems from [CUTEst](https://ccpforge.cse.rl.ac.uk/gf/project/cutest/wiki).
+   problems from [CUTEst](https://github.com/ralna/CUTEst/wiki).
  - [`MathProgNLPModel`](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl):
    Uses a `MathProgModel`, derived from a
    [`AbstractMathProgModel`](https://github.com/JuliaOpt/MathProgBase.jl) model.
@@ -154,8 +154,8 @@ Attribute   | Type               | Notes
 
 ## License
 
-This content is released under the [MIT](http://opensource.org/licenses/MIT) License.
-[![](http://upload.wikimedia.org/wikipedia/commons/8/83/License_icon-mit.png) ](http://opensource.org/licenses/MIT)
+This content is released under the [MIT](https://opensource.org/licenses/MIT) License.
+[![](https://upload.wikimedia.org/wikipedia/commons/8/83/License_icon-mit.png) ](https://opensource.org/licenses/MIT)
 
 ## Contents
 

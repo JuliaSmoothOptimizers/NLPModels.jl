@@ -3,9 +3,12 @@ using Documenter, NLPModels
 makedocs(
   modules = [NLPModels],
   doctest = true,
+  linkcheck = true,
   strict = true,
   assets = ["assets/style.css"],
-  format = :html,
+  format = Documenter.HTML(
+             prettyurls = get(ENV, "CI", nothing) == "true"
+            ),
   sitename = "NLPModels.jl",
   pages = ["Home" => "index.md",
            "Models" => "models.md",
