@@ -1,8 +1,10 @@
 function lls_test()
   @testset "lls_test" begin
-    for A = [rand(10, 3), sprand(10, 3, 0.5)], C = [rand(1, 3), sprand(1, 3, 1.0)]
+    for A = [rand(10, 3), sprand(10, 3, 0.5)],
+        C = [rand(1, 3), rand(4,3), sprand(1, 3, 1.0)]
       b = rand(10)
-      nls = LLSModel(A, b, C=C, lcon=zeros(1), ucon=zeros(1))
+      ncon = size(C,1)
+      nls = LLSModel(A, b, C=C, lcon=zeros(ncon), ucon=zeros(ncon))
       x = rand(3)
 
       @test isapprox(A * x - b, residual(nls, x), rtol=1e-8)
@@ -16,6 +18,9 @@ function lls_test()
 
       I, J, V = hess_coord(nls, x)
       @test sparse(I, J, V) == tril(A' * A)
+
+      @test nls.meta.nlin == length(nls.meta.lin) == ncon
+      @test nls.meta.nnln == length(nls.meta.nln) == 0
     end
   end
 end
