@@ -29,7 +29,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Nonlinear Least Squares",
     "category": "section",
-    "text": "A special type of NLPModels are the NLSModels, i.e., Nonlinear Least Squares models. In these problems, the function f(x) is given by frac12Vert F(x)Vert^2, where F is referred as the residual function. The individual value of F, as well as of its derivatives, is also available."
+    "text": "A special type of NLPModels are the NLSModels, i.e., Nonlinear Least Squares models. In these problems, the function f(x) is given by tfrac12Vert F(x)Vert^2, where F is referred as the residual function. The individual value of F, as well as of its derivatives, is also available."
 },
 
 {
@@ -533,7 +533,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Tutorial",
     "category": "section",
-    "text": "NLPModels.jl was created for two purposes:Allow users to access problem databases in an unified way.Mainly, this means  CUTEst.jl,  but it also gives access to AMPL  problems,  as well as JuMP defined problems (e.g. as in  OptimizationProblems.jl).Allow users to create their own problems in the same way.As a consequence, optimization methods designed according to the NLPModels API  will accept NLPModels of any provenance.  See, for instance,  Optimize.jl.The main interfaces for user defined problems areADNLPModel, which defines a model easily, using automatic differentiation.\nSimpleNLPModel, which allows users to handle all functions themselves, giving"
+    "text": "Pages = [\"tutorial.md\"]NLPModels.jl was created for two purposes:Allow users to access problem databases in an unified way.Mainly, this means  CUTEst.jl,  but it also gives access to AMPL  problems,  as well as JuMP defined problems (e.g. as in  OptimizationProblems.jl).Allow users to create their own problems in the same way.As a consequence, optimization methods designed according to the NLPModels API  will accept NLPModels of any provenance.  See, for instance,  Optimize.jl.The main interfaces for user defined problems areADNLPModel, which defines a model easily, using automatic differentiation.\nSimpleNLPModel, which allows users to handle all functions themselves, giving"
 },
 
 {
@@ -550,6 +550,14 @@ var documenterSearchIndex = {"docs": [
     "title": "SimpleNLPModel Tutorial",
     "category": "section",
     "text": "SimpleNLPModel allows you to pass every single function of the model. On the other hand, it doesn\'t handle anything else. Calling an undefined function will throw a NotImplementedError. Only the objective function is mandatory (if you don\'t need it, pass x->0).using NLPModels\n\nf(x) = (x[1] - 1.0)^2 + 4*(x[2] - 1.0)^2\nx0 = zeros(2)\nnlp = SimpleNLPModel(f, x0)\n\nfx = obj(nlp, nlp.meta.x0)\nprintln(\"fx = $fx\")\n\n# grad(nlp, nlp.meta.x0) # This is undefinedg(x) = [2*(x[1] - 1.0); 8*(x[2] - 1.0)]\nnlp = SimpleNLPModel(f, x0, g=g)\n\ngrad(nlp, nlp.meta.x0)\"But what\'s to stop me from defining g however I want?\" Nothing. So you have to be careful on how you\'re defining it. You should probably check your derivatives. If the function is simply defined, you can try using automatic differentiation. Alternatively, you can use the Derivative Checker.gradient_check(nlp)gwrong(x) = [2*(x[1] - 1.0); 8*x[2] - 1.0] # Find the error\nnlp = SimpleNLPModel(f, x0, g=gwrong)\ngradient_check(nlp)For constrained problems, we still need the constraints function, lcon and ucon. Also, let\'s pass the Jacobian-vector product.c(x) = [x[1]^2 + x[2]^2; x[1]*x[2] - 1]\nlcon = [1.0; 0.0]\nucon = [4.0; 0.0]\nJacprod(x, v) = [2*x[1]*v[1] + 2*x[2]*v[2]; x[2]*v[1] + x[1]*v[2]]\nnlp = SimpleNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon, g=g, Jp=Jacprod)\njprod(nlp, ones(2), ones(2))Furthermore, NLPModels also works with inplace operations. Since some models do not take full advantage of this (like ADNLPModel), a user might want to define his/her own functions that do.using NLPModels # hide\nf(x) = (x[1] - 1.0)^2 + 4*(x[2] - 1.0)^2\nx0 = zeros(2)\ng!(x, gx) = begin\n  gx[1] = 2*(x[1] - 1.0)\n  gx[2] = 8*(x[2] = 1.0)\n  return gx\nend\nnlp = SimpleNLPModel(f, x0, g! =g!) # Watchout, g!=g! is interpreted as g != g!\ngx = zeros(2)\ngrad!(nlp, nlp.meta.x0, gx)"
+},
+
+{
+    "location": "tutorial/#Nonlinear-least-squares-models-1",
+    "page": "Tutorial",
+    "title": "Nonlinear least squares models",
+    "category": "section",
+    "text": "In addition to the general nonlinear model, we can define the residual function for a nonlinear least-squares problem. In other words, the objective function of the problem is of the form f(x) = tfrac12F(x)^2, and we can define the function F and its derivatives.A simple way to define an NLS problem is with ADNLSModel, which uses automatic differentiation.using NLPModels # hide\nF(x) = [x[1] - 1.0; 10 * (x[2] - x[1]^2)]\nx0 = [-1.2; 1.0]\nnls = ADNLSModel(F, x0, 2) # 2 nonlinear equations\nresidual(nls, x0)jac_residual(nls, x0)We can also define a linear least squares by passing the matrices that define the problembeginalign*\nmin quad  tfrac12Ax - b^2 \n c_L  leq Cx leq c_U \n ell leq  x leq u\nendalign*using LinearAlgebra # hide\nA = rand(10, 3)\nb = rand(10)\nC = rand(2, 3)\nnls = LLSModel(A, b, C=C, lcon=zeros(2), ucon=zeros(2), lvar=-ones(3), uvar=ones(3))\n\n@info norm(jac_residual(nls, zeros(3)) - A)\n@info norm(jac(nls, zeros(3)) - C)Another way to define a nonlinear least squares is using FeasibilityResidual to consider the constraints of a general nonlinear problem as the residual of the NLS.nlp = ADNLPModel(x->0, # objective doesn\'t matter,\n                 ones(2), c=x->[x[1] + x[2] - 1; x[1] * x[2] - 2],\n                 lcon=zeros(2), ucon=zeros(2))\nnls = FeasibilityResidual(nlp)\ns = 0.0\nfor t = 1:100\n  global s\n  x = rand(2)\n  s += norm(residual(nls, x) - cons(nlp, x))\nend\n@info \"s = $s\""
 },
 
 {
