@@ -277,6 +277,35 @@ function consistent_nls()
     consistent_functions(nlss, nloops=10)
   end
 
+  @testset "Consistency of slack variant" begin
+    F(x) = [x[1] - 1.0;
+            x[2] - x[1]^2;
+            sin(x[1] * x[2]) * x[3]]
+    x0 = [0.3; 0.4; 0.5]
+    c(x) = [x[1]^2 - x[2]^2;
+            2 * x[1] * x[2];
+            x[1] + x[2];
+            cos(x[1]) - x[2]]
+    lcon = [0.0; -1.0; -Inf; 0.0]
+    ucon = [Inf;  1.0;  0.0; 0.0]
+    nls = ADNLSModel(F, x0, 3, c=c, lcon=lcon, ucon=ucon)
+
+    nls_manual_slack = ADNLSModel(F, [x0; zeros(3)], 3,
+                                  c=x->c(x) - [x[4]; x[6]; x[5]; 0.0],
+                                  lcon=zeros(4), ucon=zeros(4),
+                                  lvar=[-Inf; -Inf; -Inf; 0.0; -Inf; -1.0],
+                                  uvar=[Inf; Inf; Inf; Inf; 0.0; 1.0])
+
+    nls_auto_slack = SlackNLSModel(nls)
+    nlss = [nls_manual_slack, nls_auto_slack]
+    consistent_nls_counters(nlss)
+    consistent_counters(nlss)
+    consistent_nls_functions(nlss)
+    consistent_nls_counters(nlss)
+    consistent_counters(nlss)
+    consistent_functions(nlss, nloops=10)
+  end
+
 end
 
 consistent_nls()
