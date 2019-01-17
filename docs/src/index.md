@@ -97,6 +97,8 @@ See the [Models](@ref), the [Tools](@ref tools-section), the [Tutorial](@ref), o
  - [`LLSModel`](@ref): Creates a linear least squares model.
  - [`SimpleNLSModel`](@ref): Similar to `SimpleNLPModel`, but for
    nonlinear least squares.
+ - [`SlackNLSModel`](@ref): Creates an equality constrained nonlinear least squares
+   problem with bounds on the variables using an existing NLSModel.
 
 ## External Interfaces
 

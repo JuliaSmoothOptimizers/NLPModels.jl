@@ -14,6 +14,7 @@ implemented in this package:
 - [FeasibilityResidual](@ref)
 - [LLSModel](@ref)
 - [SimpleNLSModel](@ref)
+- [SlackNLSModel](@ref)
 
 There are other external models implemented. In particular,
 - [AmplModel](https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl)
@@ -121,4 +122,10 @@ NLPModels.LLSModel
 
 ```@docs
 NLPModels.SimpleNLSModel
+```
+
+## SlackNLSModel
+
+```@docs
+NLPModels.SlackNLSModel
 ```
