@@ -61,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Internal Interfaces",
     "category": "section",
-    "text": "ADNLPModel: Uses ForwardDiff to compute the derivatives. It has a very simple interface, though it isn\'t very efficient for larger problems.\nSimpleNLPModel: Only uses user defined functions.\nSlackModel: Creates an equality constrained problem with bounds  on the variables using an existing NLPModel.\nLBFGSModel: Creates a model using a LBFGS approximation to the Hessian using an existing NLPModel.\nLSR1Model: Creates a model using a LSR1 approximation to the Hessian using an existing NLPModel.\nADNLSModel: Similar to ADNLPModel, but for nonlinear least squares.\nFeasibilityResidual: Creates a nonlinear least squares model from an equality constrained problem in which the residual function is the constraints function.\nLLSModel: Creates a linear least squares model.\nSimpleNLSModel: Similar to SimpleNLPModel, but for nonlinear least squares.\nSlackNLSModel: Creates an equality constrained nonlinear least squares problem with bounds on the variables using an existing NLSModel."
+    "text": "ADNLPModel: Uses ForwardDiff to compute the derivatives. It has a very simple interface, though it isn\'t very efficient for larger problems.\nSimpleNLPModel: Only uses user defined functions.\nSlackModel: Creates an equality constrained problem with bounds  on the variables using an existing NLPModel.\nLBFGSModel: Creates a model using a LBFGS approximation to the Hessian using an existing NLPModel.\nLSR1Model: Creates a model using a LSR1 approximation to the Hessian using an existing NLPModel.\nADNLSModel: Similar to ADNLPModel, but for nonlinear least squares.\nFeasibilityResidual: Creates a nonlinear least squares model from an equality constrained problem in which the residual function is the constraints function.\nLLSModel: Creates a linear least squares model.\nSimpleNLSModel: Similar to SimpleNLPModel, but for nonlinear least squares.\nSlackNLSModel: Creates an equality constrained nonlinear least squares problem with bounds on the variables using an existing NLSModel.\nFeasibilityFormNLS: Creates residual variables and constraints, so that the residual is linear."
 },
 
 {
@@ -109,7 +109,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Models",
     "title": "Models",
     "category": "section",
-    "text": "The following general models are implemented in this package:ADNLPModel\nSimpleNLPModel\nDerived Models\nSlackModel\nLBFGSModel\nLSR1ModelIn addition, the following nonlinear least squares models are implemented in this package:ADNLSModel\nFeasibilityResidual\nLLSModel\nSimpleNLSModel\nSlackNLSModelThere are other external models implemented. In particular,AmplModel\nCUTEstModel\nMathProgNLPModel and MathProgNLSModel using JuMP/MPB.There are currently two models implemented in this package, besides the external ones."
+    "text": "The following general models are implemented in this package:ADNLPModel\nSimpleNLPModel\nDerived Models\nSlackModel\nLBFGSModel\nLSR1ModelIn addition, the following nonlinear least squares models are implemented in this package:ADNLSModel\nFeasibilityResidual\nLLSModel\nSimpleNLSModel\nSlackNLSModel\nFeasibilityFormNLSThere are other external models implemented. In particular,AmplModel\nCUTEstModel\nMathProgNLPModel and MathProgNLSModel using JuMP/MPB.There are currently two models implemented in this package, besides the external ones."
 },
 
 {
@@ -302,6 +302,22 @@ var documenterSearchIndex = {"docs": [
     "title": "SlackNLSModel",
     "category": "section",
     "text": "NLPModels.SlackNLSModel"
+},
+
+{
+    "location": "models/#NLPModels.FeasibilityFormNLS",
+    "page": "Models",
+    "title": "NLPModels.FeasibilityFormNLS",
+    "category": "type",
+    "text": "Converts a nonlinear least-squares problem with residual F(x) to a nonlinear optimization problem with constraints F(x) = r and objective ¹/₂‖r‖². In other words, converts\n\nmin ¹/₂‖F(x)‖²\ns.t  cₗ ≤ c(x) ≤ cᵤ\n      ℓ ≤   x  ≤ u\n\nto\n\nmin ¹/₂‖r‖²\ns.t   F(x) - r = 0\n     cₗ ≤ c(x) ≤ cᵤ\n      ℓ ≤   x  ≤ u\n\nIf you rather have the first problem, the nls model already works as an NLPModel of that format.\n\n\n\n\n\n"
+},
+
+{
+    "location": "models/#FeasibilityFormNLS-1",
+    "page": "Models",
+    "title": "FeasibilityFormNLS",
+    "category": "section",
+    "text": "NLPModels.FeasibilityFormNLS"
 },
 
 {
