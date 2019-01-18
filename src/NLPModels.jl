@@ -365,6 +365,7 @@ include("autodiff_model.jl")
 include("simple_model.jl")
 include("slack_model.jl")
 include("qn_model.jl")
+include("feasibility_form_nls.jl")
 
 include("dercheck.jl")
 
