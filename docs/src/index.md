@@ -99,6 +99,8 @@ See the [Models](@ref), the [Tools](@ref tools-section), the [Tutorial](@ref), o
    nonlinear least squares.
  - [`SlackNLSModel`](@ref): Creates an equality constrained nonlinear least squares
    problem with bounds on the variables using an existing NLSModel.
+ - [`FeasibilityFormNLS`](@ref): Creates residual variables and constraints, so that the residual
+   is linear.
 
 ## External Interfaces
 
