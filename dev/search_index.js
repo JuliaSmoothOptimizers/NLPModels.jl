@@ -61,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Internal Interfaces",
     "category": "section",
-    "text": "ADNLPModel: Uses ForwardDiff to compute the derivatives. It has a very simple interface, though it isn\'t very efficient for larger problems.\nSimpleNLPModel: Only uses user defined functions.\nSlackModel: Creates an equality constrained problem with bounds  on the variables using an existing NLPModel.\nLBFGSModel: Creates a model using a LBFGS approximation to the Hessian using an existing NLPModel.\nLSR1Model: Creates a model using a LSR1 approximation to the Hessian using an existing NLPModel.\nADNLSModel: Similar to ADNLPModel, but for nonlinear least squares.\nFeasibilityResidual: Creates a nonlinear least squares model from an equality constrained problem in which the residual function is the constraints function.\nLLSModel: Creates a linear least squares model.\nSimpleNLSModel: Similar to SimpleNLPModel, but for nonlinear least squares."
+    "text": "ADNLPModel: Uses ForwardDiff to compute the derivatives. It has a very simple interface, though it isn\'t very efficient for larger problems.\nSimpleNLPModel: Only uses user defined functions.\nSlackModel: Creates an equality constrained problem with bounds  on the variables using an existing NLPModel.\nLBFGSModel: Creates a model using a LBFGS approximation to the Hessian using an existing NLPModel.\nLSR1Model: Creates a model using a LSR1 approximation to the Hessian using an existing NLPModel.\nADNLSModel: Similar to ADNLPModel, but for nonlinear least squares.\nFeasibilityResidual: Creates a nonlinear least squares model from an equality constrained problem in which the residual function is the constraints function.\nLLSModel: Creates a linear least squares model.\nSimpleNLSModel: Similar to SimpleNLPModel, but for nonlinear least squares.\nSlackNLSModel: Creates an equality constrained nonlinear least squares problem with bounds on the variables using an existing NLSModel."
 },
 
 {
@@ -109,7 +109,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Models",
     "title": "Models",
     "category": "section",
-    "text": "The following general models are implemented in this package:ADNLPModel\nSimpleNLPModel\nDerived Models\nSlackModel\nLBFGSModel\nLSR1ModelIn addition, the following nonlinear least squares models are implemented in this package:ADNLSModel\nFeasibilityResidual\nLLSModel\nSimpleNLSModelThere are other external models implemented. In particular,AmplModel\nCUTEstModel\nMathProgNLPModel and MathProgNLSModel using JuMP/MPB.There are currently two models implemented in this package, besides the external ones."
+    "text": "The following general models are implemented in this package:ADNLPModel\nSimpleNLPModel\nDerived Models\nSlackModel\nLBFGSModel\nLSR1ModelIn addition, the following nonlinear least squares models are implemented in this package:ADNLSModel\nFeasibilityResidual\nLLSModel\nSimpleNLSModel\nSlackNLSModelThere are other external models implemented. In particular,AmplModel\nCUTEstModel\nMathProgNLPModel and MathProgNLSModel using JuMP/MPB.There are currently two models implemented in this package, besides the external ones."
 },
 
 {
@@ -286,6 +286,22 @@ var documenterSearchIndex = {"docs": [
     "title": "SimpleNLSModel",
     "category": "section",
     "text": "NLPModels.SimpleNLSModel"
+},
+
+{
+    "location": "models/#NLPModels.SlackNLSModel",
+    "page": "Models",
+    "title": "NLPModels.SlackNLSModel",
+    "category": "type",
+    "text": "Like SlackModel, this model converts inequalities into equalities and bounds.\n\n\n\n\n\n"
+},
+
+{
+    "location": "models/#SlackNLSModel-1",
+    "page": "Models",
+    "title": "SlackNLSModel",
+    "category": "section",
+    "text": "NLPModels.SlackNLSModel"
 },
 
 {
