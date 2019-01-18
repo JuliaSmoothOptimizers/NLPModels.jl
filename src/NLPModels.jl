@@ -172,8 +172,15 @@ end
 
 Evaluate \$\\nabla c(x)\$, the constraint's Jacobian at `x` in sparse coordinate format.
 """
-jac_coord(::AbstractNLPModel, ::AbstractVector) =
-  throw(NotImplementedError("jac_coord"))
+function jac_coord(nlp :: AbstractNLPModel, x :: AbstractVector)
+  J = jac(nlp, x)
+  if J isa SparseMatrixCSC
+    return findnz(J)
+  else
+    I = findall(!iszero, J)
+    return (getindex.(I, 1), getindex.(I, 2), J[I])
+  end
+end
 
 """`Jx = jac(nlp, x)`
 
@@ -260,8 +267,15 @@ with objective function scaled by `obj_weight`, i.e.,
 with σ = obj_weight.
 Only the lower triangle is returned.
 """
-hess_coord(::AbstractNLPModel, ::AbstractVector; kwargs...) =
-  throw(NotImplementedError("hess_coord"))
+function hess_coord(nlp::AbstractNLPModel, x::AbstractVector; y::AbstractVector=Float64[], obj_weight::Real=1.0)
+  H = hess(nlp, x, obj_weight=obj_weight, y=y)
+  if H isa SparseMatrixCSC
+    return findnz(H)
+  else
+    I = findall(!iszero, H)
+    return (getindex.(I, 1), getindex.(I, 2), H[I])
+  end
+end
 
 """`Hx = hess(nlp, x; obj_weight=1.0, y=zeros)`
 
