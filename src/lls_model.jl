@@ -146,16 +146,6 @@ function hess(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: Abstr
   end
 end
 
-function hess_coord(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
-  H = hess(nls, x, obj_weight=obj_weight, y=y)
-  if isa(H, SparseMatrixCSC)
-    return findnz(H)
-  else
-    I = findall(!iszero, H)
-    return (getindex.(I, 1), getindex.(I, 2), H[I])
-  end
-end
-
 function hprod(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector;
     obj_weight = 1.0, y :: AbstractVector = Float64[])
   Hv = zeros(nls.meta.nvar)

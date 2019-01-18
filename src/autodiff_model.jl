@@ -1,6 +1,6 @@
 using ForwardDiff
 
-export ADNLPModel, obj, grad, grad!, cons, cons!, jac_coord, jac, jprod,
+export ADNLPModel, obj, grad, grad!, cons, cons!, jac, jprod,
        jprod!, jtprod, jtprod!, hess, hprod, hprod!
 
 """ADNLPModel is an AbstractNLPModel using ForwardDiff to compute the
@@ -109,15 +109,6 @@ function cons!(nlp :: ADNLPModel, x :: AbstractVector, c :: AbstractVector)
   return c
 end
 
-function jac_coord(nlp :: ADNLPModel, x :: AbstractVector)
-  increment!(nlp, :neval_jac)
-  J = ForwardDiff.jacobian(nlp.c, x)
-  rows = [j for i = 1:nlp.meta.nvar for j = 1:nlp.meta.ncon]
-  cols = [i for i = 1:nlp.meta.nvar for j = 1:nlp.meta.ncon]
-  vals = [J[j,i] for i = 1:nlp.meta.nvar for j = 1:nlp.meta.ncon]
-  return rows, cols, vals
-end
-
 function jac(nlp :: ADNLPModel, x :: AbstractVector)
   increment!(nlp, :neval_jac)
   return ForwardDiff.jacobian(nlp.c, x)
@@ -155,14 +146,6 @@ function hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight = 1.0, y :: Abs
     end
   end
   return tril(Hx)
-end
-
-function hess_coord(nlp :: ADNLPModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
-  H = hess(nlp, x, obj_weight=obj_weight, y=y)
-  rows = [i for j = 1:nlp.meta.nvar for i = j:nlp.meta.nvar]
-  cols = [j for j = 1:nlp.meta.nvar for i = j:nlp.meta.nvar]
-  vals = [H[i,j] for j = 1:nlp.meta.nvar for i = j:nlp.meta.nvar]
-  return rows, cols, vals
 end
 
 function hprod(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector;

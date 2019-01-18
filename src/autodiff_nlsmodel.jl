@@ -2,8 +2,8 @@ using ForwardDiff
 
 export ADNLSModel,
        residual!, jac_residual, jprod_residual!, jtprod_residual!,
-       jac_op_residual, hess_residual, hprod_residual!, cons, cons!, jac_coord,
-       jac, jprod, jprod!, jtprod, jtprod!, hess, hess_coord, hprod, hprod!
+       jac_op_residual, hess_residual, hprod_residual!, cons, cons!,
+       jac, jprod, jprod!, jtprod, jtprod!, hess, hprod, hprod!
 
 """ADNLSModel is an Nonlinear Least Squares model using ForwardDiff to
 compute the derivatives.
@@ -100,13 +100,6 @@ function cons!(nls :: ADNLSModel, x :: AbstractVector, c :: AbstractVector)
   return c
 end
 
-function jac_coord(nls :: ADNLSModel, x :: AbstractVector)
-  increment!(nls, :neval_jac)
-  J = ForwardDiff.jacobian(nls.c, x)
-  I = findall(!iszero, J)
-  return (getindex.(I, 1), getindex.(I, 2), J[I])
-end
-
 function jac(nls :: ADNLSModel, x :: AbstractVector)
   increment!(nls, :neval_jac)
   return ForwardDiff.jacobian(nls.c, x)
@@ -151,12 +144,6 @@ function hess(nls :: ADNLSModel, x :: AbstractVector; obj_weight = 1.0, y :: Abs
     end
   end
   return tril(Hx)
-end
-
-function hess_coord(nls :: ADNLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
-  H = hess(nls, x, obj_weight=obj_weight, y=y)
-  I = findall(!iszero, H)
-  return (getindex.(I, 1), getindex.(I, 2), H[I])
 end
 
 function hprod(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector;
