@@ -145,7 +145,7 @@ function grad!(nlp :: SlackModels, x :: AbstractVector, g :: AbstractVector)
   # ∇f(X) = [∇f(x) ; 0]
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
-  grad!(nlp.model, x[1:n], g)
+  @views grad!(nlp.model, x[1:n], g[1:n])
   g[n+1:n+ns] .= 0
   return g
 end
@@ -158,7 +158,7 @@ end
 function objgrad!(nlp :: SlackModels, x :: Array{Float64}, g :: Array{Float64})
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
-  f, _ = objgrad!(nlp.model, x[1:n], g)
+  @views f, _ = objgrad!(nlp.model, x[1:n], g[1:n])
   g[n+1:n+ns] .= 0
   return f, g
 end
@@ -174,8 +174,8 @@ function cons!(nlp :: SlackModels, x :: AbstractVector, c :: AbstractVector)
   nlow = length(nlp.model.meta.jlow)
   nupp = length(nlp.model.meta.jupp)
   nrng = length(nlp.model.meta.jrng)
-  cons!(nlp.model, x[1:n], c)
   @views begin
+    cons!(nlp.model, x[1:n], c)
     c[nlp.model.meta.jlow] -= x[n+1:n+nlow]
     c[nlp.model.meta.jupp] -= x[n+nlow+1:n+nlow+nupp]
     c[nlp.model.meta.jrng] -= x[n+nlow+nupp+1:n+nlow+nupp+nrng]
@@ -187,7 +187,7 @@ function jac_coord(nlp :: SlackModels, x :: AbstractVector)
   # J(X) = [J(x)  -I]
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
-  jrows, jcols, jvals = jac_coord(nlp.model, x[1:n])
+  jrows, jcols, jvals = jac_coord(nlp.model, view(x, 1:n))
   jlow = nlp.model.meta.jlow
   jupp = nlp.model.meta.jupp
   jrng = nlp.model.meta.jrng
@@ -210,7 +210,7 @@ function jprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector, jv
   #                     [vₛ]
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
-  jprod!(nlp.model, x[1:n], v[1:n], jv)
+  @views jprod!(nlp.model, x[1:n], v[1:n], jv)
   k = 1
   # use 3 loops to avoid forming [jlow ; jupp ; jrng]
   for j in nlp.model.meta.jlow
@@ -240,8 +240,8 @@ function jtprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector, j
   nlow = length(nlp.model.meta.jlow)
   nupp = length(nlp.model.meta.jupp)
   nrng = length(nlp.model.meta.jrng)
-  jtprod!(nlp.model, x[1:n], v, jtv)
   @views begin
+    jtprod!(nlp.model, x[1:n], v, jtv)
     jtv[n+1:n+nlow] = -v[nlp.model.meta.jlow]
     jtv[n+nlow+1:n+nlow+nupp] = -v[nlp.model.meta.jupp]
     jtv[n+nlow+nupp+1:nlp.meta.nvar] = -v[nlp.model.meta.jrng]
@@ -254,7 +254,7 @@ function hess_coord(nlp :: SlackModels, x :: AbstractVector;
   # ∇²f(X) = [∇²f(x)  0]
   #          [0       0]
   n = nlp.model.meta.nvar
-  return hess_coord(nlp.model, x[1:n], obj_weight=obj_weight, y=y)
+  return hess_coord(nlp.model, view(x, 1:n), obj_weight=obj_weight, y=y)
 end
 
 function hess(nlp :: SlackModels, x :: AbstractVector;
@@ -288,7 +288,7 @@ function residual(nlp :: SlackNLSModel, x :: AbstractVector)
 end
 
 function residual!(nlp :: SlackNLSModel, x :: AbstractVector, Fx :: AbstractVector)
-  return residual!(nlp.model, x[1:nlp.model.meta.nvar], Fx)
+  return residual!(nlp.model, view(x, 1:nlp.model.meta.nvar), Fx)
 end
 
 function jac_residual(nlp :: SlackNLSModel, x :: AbstractVector)
@@ -304,19 +304,19 @@ function jac_residual(nlp :: SlackNLSModel, x :: AbstractVector)
 end
 
 function jprod_residual(nlp :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector)
-  return jprod_residual(nlp.model, x[1:nlp.model.meta.nvar],
+  return jprod_residual(nlp.model, view(x, 1:nlp.model.meta.nvar),
                         @view v[1:nlp.model.meta.nvar])
 end
 
 function jprod_residual!(nlp :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
-  return jprod_residual!(nlp.model, x[1:nlp.model.meta.nvar],
+  return jprod_residual!(nlp.model, view(x, 1:nlp.model.meta.nvar),
                          v[1:nlp.model.meta.nvar], Jv)
 end
 
 function jtprod_residual(nlp :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector)
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
-  return [jtprod_residual(nlp.model, x[1:n], v); zeros(ns)]
+  return [jtprod_residual(nlp.model, view(x, 1:n), v); zeros(ns)]
 end
 
 function jtprod_residual!(nlp :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
@@ -349,7 +349,7 @@ end
 function hess_residual(nlp :: SlackNLSModel, x :: AbstractVector, i :: Int)
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
-  Hx = hess_residual(nlp.model, x[1:n], i)
+  Hx = hess_residual(nlp.model, view(x, 1:n), i)
   if issparse(Hx)
     return [Hx spzeros(n, ns); spzeros(ns, n + ns)]
   else
@@ -360,7 +360,7 @@ end
 function hprod_residual(nlp :: SlackNLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector)
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
-  return [hprod_residual(nlp.model, x[1:n], i, @view v[1:n]); zeros(ns)]
+  return [hprod_residual(nlp.model, view(x, 1:n), i, @view v[1:n]); zeros(ns)]
 end
 
 function hprod_residual!(nlp :: SlackNLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hv :: AbstractVector)
