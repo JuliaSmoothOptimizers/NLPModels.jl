@@ -11,7 +11,7 @@ function test_simple_model()
     Hv[:] = obj_weight*[12*x[1]^2*v[1] - 4.0*v[2]; -4*v[1] + 2.0*v[2]]
   end
   nlp = SimpleNLPModel(f, x0, g=g, g! =g!, H=H, Hp=Hp, Hp! =Hp!, Hcoord=Hc)
-  v = rand(2)
+  v = [1.0; -1.0]
   w = zeros(2)
   @test isapprox(obj(nlp, x0), f(x0), rtol=rtol)
   @test isapprox(grad(nlp, x0), g(x0), rtol=rtol)
@@ -39,7 +39,7 @@ function test_simple_model()
   nlp = SimpleNLPModel(f, x0, g=g, g! =g!, H=W, Hp=Wp, Hp! =Wp!, Hcoord=Wc, c=c,
       c! =c!, J=J, Jp=Jp, Jp! =Jp!, Jtp=Jtp, Jtp! =Jtp!, lcon=zeros(2),
       ucon=zeros(2))
-  y0 = rand(2)
+  y0 = [1.0; -1.0]
   @test isapprox(obj(nlp, x0), f(x0), rtol=rtol)
   @test isapprox(grad(nlp, x0), g(x0), rtol=rtol)
   grad!(nlp, x0, w)
@@ -68,9 +68,8 @@ end
 
 function test_objgrad_objcons()
   n = 100
-  G = rand(n, n)
-  G = G*G'
-  v = rand(n)
+  G = diagm(0 => 2 * ones(n), -1 => -ones(n-1), 1 => ones(n-1))
+  v = ones(n)
 
   x0 = zeros(n)
   f(x) = dot(x, G*x)/2 + dot(v, x)

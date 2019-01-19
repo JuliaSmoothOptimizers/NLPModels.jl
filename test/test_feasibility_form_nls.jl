@@ -6,7 +6,7 @@ function test_nls_to_cons()
     c1(x) = [sum(x); x[1] * x[2] - 2]
     for (F,n,ne) in [(F1,2,2), (F2,5,1), (F3,2,3)],
         (c,m) in [(x->zeros(0),0), (c1,2)]
-      x0 = rand(n)
+      x0 = [-(1.0)^i for i = 1:n]
       nls = ADNLSModel(F, x0, ne, c=c, lcon=zeros(m), ucon=zeros(m))
 
       nlpcon = FeasibilityFormNLS(nls)
@@ -25,11 +25,11 @@ function test_nls_to_cons()
 
   @testset "Test FeasibilityFormNLS with LLSModel" begin
     for n = [10; 30], ne = [10; 20; 30], m = [0; 20]
-      for T in [(rows,cols)->rand(rows,cols),
-                (rows,cols)->sprand(rows,cols,0.5)]
+      for T in [(rows,cols)->Matrix(1.0I, rows, cols) .+ 1,
+                (rows,cols)->sparse(1.0I, rows, cols) .+ 1]
         A = T(ne,n)
-        b = rand(ne)
-        C = T(m,n)
+        b = collect(1:ne)
+        C = m > 0 ? T(m,n) : zeros(0,n)
         lls = LLSModel(A, b, C=C, lcon=zeros(m), ucon=zeros(m))
         nlpcon = FeasibilityFormNLS(lls)
         Ine = spdiagm(0 => ones(ne))

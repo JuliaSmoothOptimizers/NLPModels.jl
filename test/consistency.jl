@@ -33,7 +33,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
   tmp_nn = zeros(n,n)
 
   for k = 1 : nloops
-    x = 10 * (rand(n) .- 0.5)
+    x = 10 * [-(-1.0)^i for i = 1:n]
 
     if !(obj in exclude)
       fs = [obj(nlp, x) for nlp in nlps]
@@ -92,7 +92,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
         for j = i+1:N
           @test isapprox(Hs[i], Hs[j], atol=rtol * max(Hmin, 1.0))
         end
-        σ = rand() - 0.5
+        σ = 3.14
         (I, J, V) = hess_coord(nlps[i], x, obj_weight=σ)
         tmp_h = sparse(I, J, V, n, n)
         @test isapprox(σ*Hs[i], tmp_h, atol=rtol * max(Hmin, 1.0))
@@ -106,13 +106,13 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
         for j = i+1:N
           @test isapprox(Hs[i], Hs[j], atol=rtol * max(Hmin, 1.0))
         end
-        σ = rand() - 0.5
+        σ = 3.14
         tmp_nn = hess(nlps[i], x, obj_weight=σ)
         @test isapprox(σ*Hs[i], tmp_nn, atol=rtol * max(Hmin, 1.0))
       end
     end
 
-    v = 10 * (rand(n) .- 0.5)
+    v = 10 * [-(-1.0)^i for i = 1:n]
 
     if !(hprod in exclude)
       Hvs = Any[hprod(nlp, x, v) for nlp in nlps]
@@ -208,7 +208,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
       end
 
       if !(jtprod in exclude)
-        w = 10 * (rand() - 0.5) * ones(m)
+        w = 10 * [-(-1.0)^i for i = 1:m]
         Jtps = Any[jtprod(nlp, x, w) for nlp in nlps]
         for i = 1:N
           @test isapprox(Jtps[i], Jops[i]' * w, atol=rtol * max(Jmin, 1.0))
@@ -227,7 +227,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
         end
       end
 
-      y = (rand() .- 0.5) .* ones(m)
+      y = 3.14 * ones(m)
 
       if !(hess_coord in exclude)
         Ls = Vector{Any}(undef, N)
@@ -240,7 +240,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
           for j = i+1:N
             @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
           end
-          σ = rand() - 0.5
+          σ = 3.14
           (I, J, V) = hess_coord(nlps[i], x, obj_weight=σ, y=σ*y)
           tmp_h = sparse(I, J, V, n, n)
           @test isapprox(σ*Ls[i], tmp_h, atol=rtol * max(Lmin, 1.0))
@@ -254,7 +254,7 @@ function consistent_functions(nlps; nloops=100, rtol=1.0e-8, exclude=[])
           for j = i+1:N
             @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
           end
-          σ = rand() - 0.5
+          σ = 3.14
           tmp_nn = hess(nlps[i], x, obj_weight = σ, y=σ*y)
           @test isapprox(σ*Ls[i], tmp_nn, atol=rtol * max(Hmin, 1.0))
         end
