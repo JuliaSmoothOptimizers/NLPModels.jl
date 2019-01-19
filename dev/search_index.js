@@ -245,7 +245,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Models",
     "title": "NLPModels.FeasibilityResidual",
     "category": "type",
-    "text": "A feasibility residual model is created from a NLPModel of the form\n\nmin f(x)\ns.t c(x) = 0\n\nby defining the function F(x) = c(x). If the problem has bounds on the variables or more constraints, an error is thrown.\n\n\n\n\n\n"
+    "text": "A feasibility residual model is created from a NLPModel of the form\n\nmin f(x)\ns.t cℓ ≤ c(x) ≤ cu\n    bℓ ≤   x  ≤ bu\n\nby creating slack variables s and defining F(x,s) = c(x) - s. The resulting NLS problem is\n\nmin ¹/₂‖c(x) - s‖²\n    bℓ ≤ x ≤ bu\n    cℓ ≤ s ≤ bu\n\nThis is done using SlackModel first, and then defining the NLS.\n\n\n\n\n\n"
 },
 
 {
