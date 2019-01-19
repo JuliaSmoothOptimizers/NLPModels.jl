@@ -1,21 +1,19 @@
-using Random
-
 function test_view_subarray_nlp(nlp)
   @testset "Test view subarray of NLPs" begin
     n, m = nlp.meta.nvar, nlp.meta.ncon
     N = 2n
-    Vidxs = [1:n, n.+(1:n), 1:2:N, shuffle(1:N)[1:n]]
+    Vidxs = [1:n, n.+(1:n), 1:2:N, collect(N:-2:1)]
     Cidxs = if m > 0
       N = 2m
-      [1:m, m.+(1:m), 1:2:N, shuffle(1:N)[1:m]]
+      [1:m, m.+(1:m), 1:2:N, collect(N:-2:1)]
     else
       []
     end
 
     # Inputs
-    x  = rand(2n)
-    v  = rand(2n)
-    y  = rand(2m)
+    x  = [-(-1.1)^i for i = 1:2n] # Instead of [1, -1, …], because it needs to
+    v  = [-(-1.1)^i for i = 1:2n] # access different parts of the vector and
+    y  = [-(-1.1)^i for i = 1:2m] # make a difference
 
     # Outputs
     g    = zeros(n)
@@ -123,14 +121,14 @@ function test_view_subarray_nls(nls)
   @testset "Test view subarray of NLSs" begin
     n, ne = nls.meta.nvar, nls.nls_meta.nequ
     N = 2n
-    Vidxs = [1:n, n.+(1:n), 1:2:N, shuffle(1:N)[1:n]]
+    Vidxs = [1:n, n.+(1:n), 1:2:N, collect(N:-2:1)]
     N = 2ne
-    Fidxs = [1:ne, ne.+(1:ne), 1:2:N, shuffle(1:N)[1:ne]]
+    Fidxs = [1:ne, ne.+(1:ne), 1:2:N, collect(N:-2:1)]
 
     # Inputs
-    x  = rand(2n)
-    v  = rand(2n)
-    y  = rand(2ne)
+    x  = [-(-1.1)^i for i = 1:2n] # Instead of [1, -1, …], because it needs to
+    v  = [-(-1.1)^i for i = 1:2n] # access different parts of the vector and
+    y  = [-(-1.1)^i for i = 1:2ne] # make a difference
 
     # Outputs
     F    = zeros(ne)
@@ -204,7 +202,9 @@ function test_view_subarrays()
     snls = SlackNLSModel(adnls)
 
     fnls = FeasibilityResidual(ADNLPModel(x->0, zeros(5), c=c, lcon=zeros(3), ucon=zeros(3)))
-    lls = LLSModel(rand(20, 5), rand(20), C=rand(10,5), lcon=-ones(10), ucon=ones(10))
+    lls = LLSModel(Matrix(1.0I, 20, 5) .+ 1, collect(1:20),
+                   C=[Matrix(1.0I, 5, 5); -Matrix(1.0I, 5, 5)],
+                   lcon=-ones(10), ucon=ones(10))
 
     for nlp in [adnlp, snlp, adnls, snls, fnls, lls]
       test_view_subarray_nlp(nlp)

@@ -1,11 +1,11 @@
 function lls_test()
   @testset "lls_test" begin
-    for A = [rand(10, 3), sprand(10, 3, 0.5)],
-        C = [rand(1, 3), rand(4,3), sprand(1, 3, 1.0)]
-      b = rand(10)
+    for A = [Matrix(1.0I, 10, 3) .+ 1, sparse(1.0I, 10, 3) .+ 1],
+        C = [ones(1, 3), [ones(1,3); -I], sparse(ones(1,3))]
+      b = collect(1:10)
       ncon = size(C,1)
       nls = LLSModel(A, b, C=C, lcon=zeros(ncon), ucon=zeros(ncon))
-      x = rand(3)
+      x = [1.0; -1.0; 1.0]
 
       @test isapprox(A * x - b, residual(nls, x), rtol=1e-8)
       @test A == jac_residual(nls, x)

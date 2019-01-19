@@ -7,7 +7,7 @@ function check_qn_model(qnmodel)
   @assert qnmodel.meta.nvar == model.meta.nvar
   @assert qnmodel.meta.ncon == model.meta.ncon
 
-  x = rand(qnmodel.meta.nvar)
+  x = [-(-1.0)^i for i = 1:qnmodel.meta.nvar]
 
   @assert isapprox(obj(model, x), obj(qnmodel, x), rtol=rtol)
   @assert neval_obj(model) == 2
@@ -21,8 +21,8 @@ function check_qn_model(qnmodel)
   @assert isapprox(jac(model, x), jac(qnmodel, x), rtol=rtol)
   @assert neval_jac(model) == 2
 
-  v = rand(qnmodel.meta.nvar)
-  u = rand(qnmodel.meta.ncon)
+  v = [-(-1.0)^i for i = 1:qnmodel.meta.nvar]
+  u = [-(-1.0)^i for i = 1:qnmodel.meta.ncon]
 
   @assert isapprox(jprod(model, x, v), jprod(qnmodel, x, v), rtol=rtol)
   @assert neval_jprod(model) == 2

@@ -35,9 +35,9 @@ function check_slack_model(smodel)
   @assert N == n + model.meta.ncon - nfix
   @assert smodel.meta.ncon == model.meta.ncon
 
-  x = rand(N)
+  x = [-(-1.0)^i for i = 1:N]
   s = x[n+1:N]
-  y = rand(smodel.meta.ncon)
+  y = [-(-1.0)^i for i = 1:smodel.meta.ncon]
 
   # slack variables do not influence objective value
   @assert isapprox(obj(model, x[1:n]), obj(smodel, x), rtol=rtol)
@@ -57,7 +57,7 @@ function check_slack_model(smodel)
   @assert all(i -> (i ≈ 0), H[n+1:N, n+1:N])
   @assert neval_hess(model) == 2
 
-  v = rand(N)
+  v = [-(-1.0)^i for i = 1:N]
   hv = hprod(model, x[1:n], v[1:n], y=y)
   HV = hprod(smodel, x, v, y=y)
   @assert isapprox(HV[1:n], hv, rtol=rtol)
@@ -87,13 +87,13 @@ function check_slack_model(smodel)
   @assert all(i -> (i ≈ 0), K)
   @assert neval_jac(model) == 2
 
-  v = rand(N)
+  v = [-(-1.0)^i for i = 1:N]
   Jv = J * v
   @assert all(jprod(smodel, x, v) ≈ Jv)
   jv = zeros(smodel.meta.ncon)
   @assert all(jprod!(smodel, x, v, jv) ≈ Jv)
 
-  u = rand(smodel.meta.ncon)
+  u = [-(-1.0)^i for i = 1:smodel.meta.ncon]
   Jtu = J' * u
   @assert all(jtprod(smodel, x, u) ≈ Jtu)
   jtu = zeros(N)

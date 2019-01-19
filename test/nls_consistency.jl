@@ -21,7 +21,7 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
   tmp_m = zeros(m)
 
   for k = 1:nloops
-    x = 10 .* (rand(n) .- 0.5)
+    x = 10 * [-(-1.0)^i for i = 1:n]
 
     Fs = Any[residual(nls, x) for nls in nlss]
     for i = 1:N
@@ -45,7 +45,7 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
     Jv, Jtv = zeros(m), zeros(n)
     J_ops_inplace = Any[jac_op_residual!(nls, x, Jv, Jtv) for nls in nlss]
 
-    v = rand(n)
+    v = [-(-1.0)^i for i = 1:n]
 
     Jps = Any[jprod_residual(nls, x, v) for nls in nlss]
     for i = 1:N
@@ -60,7 +60,7 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
       @test isapprox(Jps[i], J_ops_inplace[i] * v, rtol=rtol)
     end
 
-    v = rand(m)
+    v = [-(-1.0)^i for i = 1:m]
 
     Jtps = Any[jtprod_residual(nls, x, v) for nls in nlss]
     for i = 1:N
@@ -75,7 +75,7 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8)
       @test isapprox(Jtps[i], J_ops_inplace[i]' * v, rtol=rtol)
     end
 
-    v = rand(n)
+    v = [-(-1.0)^i for i = 1:n]
 
     for k = 1:m
       Hs = Any[hess_residual(nls, x, k) for nls in nlss]
@@ -103,10 +103,10 @@ end
 function consistent_nls()
   @testset "Consistency of Linear problem" begin
     m, n = 50, 20
-    A = rand(m, n)
-    b = rand(m)
-    lvar = -rand(n)
-    uvar = rand(n)
+    A = Matrix(1.0I, m, n) .+ 1
+    b = collect(1:m)
+    lvar = -ones(n)
+    uvar = ones(n)
     lls_model = LLSModel(A, b, lvar=lvar, uvar=uvar)
     simple_nls_model = SimpleNLSModel(zeros(n), m, lvar=lvar, uvar=uvar,
         F     = x->A*x-b,
@@ -143,14 +143,17 @@ function consistent_nls()
   end
 
   @testset "Consistency of Linear problem with linear constraints" begin
-    m, n, ne = 50, 20, 30
-    A = rand(m, n)
-    b = rand(m)
-    lvar = -rand(n)
-    uvar = rand(n)
-    C = rand(ne, n)
-    lcon = -rand(ne)
-    ucon = rand(ne)
+    m, n = 50, 20
+    A = Matrix(1.0I, m, n) .+ 1
+    b = collect(1:m)
+    lvar = -ones(n)
+    uvar = ones(n)
+    nc = 10
+    C = [ones(nc, n); 2 * ones(nc, n); -ones(nc, n); -Matrix(1.0I, nc, n)]
+    lcon = [   zeros(nc); -ones(nc); fill(-Inf,nc); zeros(nc)]
+    ucon = [fill(Inf,nc);  ones(nc);     zeros(nc); zeros(nc)]
+    K = ((1:4:4nc) .+ (0:3)')[:]
+    lcon, ucon = lcon[K], ucon[K]
     lls_model = LLSModel(A, b, lvar=lvar, uvar=uvar, C=C, lcon=lcon,
                          ucon=ucon)
     simple_nls_model = SimpleNLSModel(zeros(n), m, lvar=lvar, uvar=uvar,
@@ -190,8 +193,8 @@ function consistent_nls()
 
   @testset "Consistency of Nonlinear problem" begin
     m, n = 10, 2
-    lvar = -rand(n)
-    uvar = rand(n)
+    lvar = -ones(n)
+    uvar =  ones(n)
     F(x) = [2 + 2i - exp(i*x[1]) - exp(i*x[2]) for i = 1:m]
     F!(x,Fx) = (Fx[:] = F(x))
     x0 = [0.3; 0.4]
@@ -231,8 +234,8 @@ function consistent_nls()
 
   @testset "Consistency of Nonlinear problem with constraints" begin
     m, n = 10, 2
-    lvar = -rand(n)
-    uvar = rand(n)
+    lvar = -ones(n)
+    uvar =  ones(n)
     F(x) = [2 + 2i - exp(i*x[1]) - exp(i*x[2]) for i = 1:m]
     F!(x,Fx) = (Fx[:] = F(x))
     x0 = [0.3; 0.4]
