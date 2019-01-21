@@ -45,7 +45,7 @@ mutable struct SlackNLSModel <: AbstractNLSModel
   model :: AbstractNLPModel
 end
 
-function slack_meta(meta :: NLPModelMeta)
+function slack_meta(meta :: NLPModelMeta; name=meta.name * "-slack")
   ns = meta.ncon - length(meta.jfix)
   jlow = meta.jlow
   jupp = meta.jupp
@@ -72,14 +72,15 @@ function slack_meta(meta :: NLPModelMeta)
     nnzh=meta.nnzh,
     lin=meta.lin,
     nln=meta.nln,
+    name=name
   )
 end
 
 "Construct a `SlackModel` from another type of model."
-function SlackModel(model :: AbstractNLPModel)
+function SlackModel(model :: AbstractNLPModel; name=model.meta.name * "-slack")
   model.meta.ncon == length(model.meta.jfix) && return model
 
-  meta = slack_meta(model.meta)
+  meta = slack_meta(model.meta, name=name)
 
   snlp = SlackModel(meta, model)
   finalizer(nlp -> finalize(nlp.model), snlp)
@@ -87,11 +88,11 @@ function SlackModel(model :: AbstractNLPModel)
   return snlp
 end
 
-function SlackNLSModel(model :: AbstractNLSModel)
+function SlackNLSModel(model :: AbstractNLSModel; name=model.meta.name * "-slack")
   ns = model.meta.ncon - length(model.meta.jfix)
   ns == 0 && return model
 
-  meta = slack_meta(model.meta)
+  meta = slack_meta(model.meta, name=name)
   nls_meta = NLSMeta(model.nls_meta.nequ,
                      model.meta.nvar + ns,
                      [model.meta.x0; zeros(ns)])
