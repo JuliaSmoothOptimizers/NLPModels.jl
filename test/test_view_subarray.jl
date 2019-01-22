@@ -174,7 +174,7 @@ function test_view_subarray_nls(nls)
       end
 
       for i = 1:ne
-        @test hess_residual(nls, x[I], i) ≈ hess_residual(nls, xv, i)
+        @test jth_hess_residual(nls, x[I], i) ≈ jth_hess_residual(nls, xv, i)
 
         for J = Vidxs, K in Vidxs
           vv = @view v[J]

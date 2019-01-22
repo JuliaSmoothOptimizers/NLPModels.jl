@@ -1,7 +1,7 @@
 export AbstractNLSModel, nls_meta, NLSCounters, reset!,
        residual, residual!, jac_residual, jprod_residual, jprod_residual!,
        jtprod_residual, jtprod_residual!, jac_op_residual, jac_op_residual!,
-       hess_residual, hprod_residual, hprod_residual!, hess_op_residual,
+       hess_residual, jth_hess_residual, hprod_residual, hprod_residual!, hess_op_residual,
        hess_op_residual!, NotImplementedError
 
 abstract type AbstractNLSModel <: AbstractNLPModel end
@@ -13,10 +13,11 @@ mutable struct NLSCounters
   neval_jprod_residual  :: Int
   neval_jtprod_residual :: Int
   neval_hess_residual   :: Int
+  neval_jhess_residual  :: Int
   neval_hprod_residual  :: Int
 
   function NLSCounters()
-    return new(Counters(), 0, 0, 0, 0, 0, 0)
+    return new(Counters(), 0, 0, 0, 0, 0, 0, 0)
   end
 end
 
@@ -183,12 +184,22 @@ function jac_op_residual!(nls :: AbstractNLSModel, x :: AbstractVector,
 end
 
 """
-    Hi = hess_residual(nls, x, i)
+    Hi = hess_residual(nls, x, v)
+
+Computes the linear combinations of the Hessians of the residuals at x with coefficients
+`v`.
+"""
+function hess_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector)
+  throw(NotImplementedError("hess_residual"))
+end
+
+"""
+    Hi = jth_hess_residual(nls, x, i)
 
 Computes the Hessian of the i-th residual at x.
 """
-function hess_residual(nls :: AbstractNLSModel, x :: AbstractVector, i :: Int)
-  throw(NotImplementedError("hess_residual"))
+function jth_hess_residual(nls :: AbstractNLSModel, x :: AbstractVector, i :: Int)
+  throw(NotImplementedError("jth_hess_residual"))
 end
 
 """
@@ -271,9 +282,7 @@ function hess(nls :: AbstractNLSModel, x :: AbstractVector; obj_weight ::
   Jx = jac_residual(nls, x)
   Hx = tril(Jx'*Jx)
   m = length(Fx)
-  for i = 1:m
-    Hx += Fx[i] * hess_residual(nls, x, i)
-  end
+  Hx .+= hess_residual(nls, x, Fx)
   return obj_weight * Hx
 end
 

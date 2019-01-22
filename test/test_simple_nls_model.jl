@@ -5,7 +5,7 @@ function simple_nls_test()
       b = ones(10)
       F(x) = A * x - b
       JF(x) = A
-      nls = SimpleNLSModel(3, 10, F=F, JF=JF, Hi=(x,i)->zeros(3,3))
+      nls = SimpleNLSModel(3, 10, F=F, JF=JF, H=(x,v)->zeros(3,3), Hi=(x,i)->zeros(3,3))
 
       x = [1.0; -1.0; 1.0]
       @test isapprox(residual(nls, x), A * x - b, rtol=1e-8)

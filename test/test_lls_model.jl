@@ -9,8 +9,9 @@ function lls_test()
 
       @test isapprox(A * x - b, residual(nls, x), rtol=1e-8)
       @test A == jac_residual(nls, x)
+      @test hess_residual(nls, x, ones(10)) == zeros(3,3)
       for i = 1:10
-        @test isapprox(zeros(3, 3), hess_residual(nls, x, i), rtol=1e-8)
+        @test isapprox(zeros(3, 3), jth_hess_residual(nls, x, i), rtol=1e-8)
       end
 
       I, J, V = jac_coord(nls, x)

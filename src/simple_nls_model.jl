@@ -24,6 +24,7 @@ mutable struct SimpleNLSModel <: AbstractNLSModel
   JFp! :: Function
   JFtp :: Function
   JFtp! :: Function
+  H :: Function # H(x, v)
   Hi :: Function # Hi(x, i) return the Hessian (tri-inf)
   Hip :: Function # Hip(x, i, v) returns the product
   Hip! :: Function # Hip!(x, i, v, Hiv) computes the product
@@ -53,6 +54,7 @@ function SimpleNLSModel(x0 :: AbstractVector, nequ :: Int;
                         JFp! :: Function = NotImplemented,
                         JFtp :: Function = NotImplemented,
                         JFtp! :: Function = NotImplemented,
+                        H :: Function = NotImplemented,
                         Hi :: Function = NotImplemented,
                         Hip :: Function = NotImplemented,
                         Hip! :: Function = NotImplemented,
@@ -79,7 +81,7 @@ function SimpleNLSModel(x0 :: AbstractVector, nequ :: Int;
                       y0=y0, lcon=lcon, ucon=ucon, nnzj=nnzj)
   nls_meta = NLSMeta(nequ, nvar)
   return SimpleNLSModel(meta, nls_meta, NLSCounters(), F, F!, JF, JFp,
-                        JFp!, JFtp, JFtp!, Hi, Hip, Hip!, c, c!, J,
+                        JFp!, JFtp, JFtp!, H, Hi, Hip, Hip!, c, c!, J,
                         Jcoord, Jp, Jp!, Jtp, Jtp!, Hc, Hcp, Hcp!)
 end
 
@@ -125,8 +127,13 @@ function jtprod_residual!(nls :: SimpleNLSModel, x :: AbstractVector, v
   return JFtv
 end
 
-function hess_residual(nls :: SimpleNLSModel, x :: AbstractVector, i :: Int)
+function hess_residual(nls :: SimpleNLSModel, x :: AbstractVector, v :: AbstractVector)
   increment!(nls, :neval_hess_residual)
+  return nls.H(x, v)
+end
+
+function jth_hess_residual(nls :: SimpleNLSModel, x :: AbstractVector, i :: Int)
+  increment!(nls, :neval_jhess_residual)
   return nls.Hi(x, i)
 end
 
@@ -187,10 +194,7 @@ function hess(nls :: SimpleNLSModel, x :: AbstractVector; obj_weight = 1.0, y ::
   Jx = jac_residual(nls, x)
   Hx = obj_weight == 0.0 ? spzeros(nls.meta.nvar, nls.meta.nvar) : Jx' * Jx * obj_weight
   if obj_weight != 0.0
-    m = length(Fx)
-    for i = 1:m
-      Hx += obj_weight * Fx[i] * hess_residual(nls, x, i)
-    end
+    Hx += obj_weight * hess_residual(nls, x, Fx)
   end
   if length(y) > 0
     Hx += nls.Hc(x, y)

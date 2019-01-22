@@ -353,10 +353,21 @@ function jac_op_residual!(nls :: SlackNLSModel, x :: AbstractVector,
                                                false, false, prod, nothing, ctprod)
 end
 
-function hess_residual(nlp :: SlackNLSModel, x :: AbstractVector, i :: Int)
+function hess_residual(nlp :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector)
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
-  Hx = hess_residual(nlp.model, view(x, 1:n), i)
+  Hx = hess_residual(nlp.model, view(x, 1:n), v)
+  if issparse(Hx)
+    return [Hx spzeros(n, ns); spzeros(ns, n + ns)]
+  else
+    return [Hx zeros(n, ns); zeros(ns, n + ns)]
+  end
+end
+
+function jth_hess_residual(nlp :: SlackNLSModel, x :: AbstractVector, i :: Int)
+  n = nlp.model.meta.nvar
+  ns = nlp.meta.nvar - n
+  Hx = jth_hess_residual(nlp.model, view(x, 1:n), i)
   if issparse(Hx)
     return [Hx spzeros(n, ns); spzeros(ns, n + ns)]
   else
