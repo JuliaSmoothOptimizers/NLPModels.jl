@@ -95,7 +95,10 @@ function SlackNLSModel(model :: AbstractNLSModel; name=model.meta.name * "-slack
   meta = slack_meta(model.meta, name=name)
   nls_meta = NLSMeta(model.nls_meta.nequ,
                      model.meta.nvar + ns,
-                     [model.meta.x0; zeros(ns)])
+                     x0=[model.meta.x0; zeros(ns)],
+                     nnzj=model.nls_meta.nnzj,
+                     nnzh=model.nls_meta.nnzh
+                    )
 
   snls = SlackNLSModel(meta, nls_meta, model)
   finalizer(nls -> finalize(nls.model), snls)
@@ -310,6 +313,10 @@ function jac_residual(nlp :: SlackNLSModel, x :: AbstractVector)
   end
 end
 
+function jac_coord_residual(nls :: SlackNLSModel, x :: AbstractVector)
+  return jac_coord_residual(nls.model, view(x, 1:nls.model.meta.nvar))
+end
+
 function jprod_residual(nlp :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector)
   return jprod_residual(nlp.model, view(x, 1:nlp.model.meta.nvar),
                         @view v[1:nlp.model.meta.nvar])
@@ -362,6 +369,10 @@ function hess_residual(nlp :: SlackNLSModel, x :: AbstractVector, v :: AbstractV
   else
     return [Hx zeros(n, ns); zeros(ns, n + ns)]
   end
+end
+
+function hess_coord_residual(nls :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector)
+  return hess_coord_residual(nls.model, view(x, 1:nls.model.meta.nvar), v)
 end
 
 function jth_hess_residual(nlp :: SlackNLSModel, x :: AbstractVector, i :: Int)

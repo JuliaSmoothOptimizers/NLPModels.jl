@@ -46,10 +46,16 @@ function brownden_simple()
   g!(x, gx) = begin gx[:] = g(x) end
   # TODO: Explicitly define these functions
   Hf(x) = ForwardDiff.hessian(f, x)
+  I = [i for i = 1:4, j = 1:4 if i ≥ j]
+  J = [j for i = 1:4, j = 1:4 if i ≥ j]
   H(x; obj_weight=1.0) = tril(obj_weight*Hf(x))
-  Hcoord(x; obj_weight=1.0) = findnz(sparse(obj_weight*H(x)))
+  Hcoord(x; obj_weight=1.0) = begin
+    Hx = H(x, obj_weight=obj_weight)
+    V = [Hx[i,j] for i = 1:4, j = 1:4 if i ≥ j]
+    return I, J, V
+  end
   Hp(x,v; obj_weight=1.0) = obj_weight*Hf(x)*v
   Hp!(x,v,w; obj_weight=1.0) = begin w[:] = obj_weight*Hf(x)*v end
 
-  return SimpleNLPModel(f, x0, g=g, g! =g!, H=H, Hcoord=Hcoord, Hp=Hp, Hp! =Hp!)
+  return SimpleNLPModel(f, x0, g=g, g! =g!, H=H, Hcoord=Hcoord, Hp=Hp, Hp! =Hp!, nnzh=10)
 end

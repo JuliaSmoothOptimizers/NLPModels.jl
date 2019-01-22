@@ -24,7 +24,7 @@ function hs10_simple()
   c(x) = [-3 * x[1]^2 + 2 * x[1] * x[2] - x[2]^2 + 1.0]
   c!(x, cx) = begin cx[1:1] = c(x) end
   J(x) = [-6 * x[1] + 2 * x[2]  2 * x[1] - 2 * x[2]]
-  Jc(x) = findnz(sparse(J(x)))
+  Jc(x) = ([1, 1], [1, 2], J(x)[:])
   Jp(x, v) = J(x) * v
   Jp!(x, v, w) = begin w[1:1] = J(x) * v end
   Jtp(x, v) = J(x)' * v
@@ -33,7 +33,10 @@ function hs10_simple()
   H(x) = zeros(2,2)
   C(x, y) = [-6.0 2.0; 2.0 -2.0]*y[1]
   W(x; obj_weight=1.0, y=zeros(1)) = tril(obj_weight*H(x) + C(x,y))
-  Wcoord(x; obj_weight=1.0, y=zeros(1)) = findnz(sparse(W(x; obj_weight=obj_weight, y=y)))
+  Wcoord(x; obj_weight=1.0, y=zeros(1)) = begin
+    Wx = W(x; obj_weight=obj_weight, y=y)
+    return [1, 2, 2], [1, 1, 2], [Wx[1,1], Wx[2,1], Wx[2,2]]
+  end
   Wp(x, v; obj_weight=1.0, y=zeros(1)) = (obj_weight*H(x) + C(x,y))*v
   Wp!(x, v, Wv; obj_weight=1.0, y=zeros(1)) = begin Wv[1:2] = (obj_weight*H(x) + C(x,y))*v end
   lcon = [0.0]
@@ -41,5 +44,5 @@ function hs10_simple()
 
   return SimpleNLPModel(f, x0, g=g, g! =g!, c=c, c! =c!, J=J, Jcoord=Jc, Jp=Jp,
       Jp! =Jp!, Jtp=Jtp, Jtp! =Jtp!, H=W, Hcoord=Wcoord, Hp=Wp, Hp! =Wp!,
-      lcon=lcon, ucon=ucon)
+      lcon=lcon, ucon=ucon, nnzj=2, nnzh=3)
 end

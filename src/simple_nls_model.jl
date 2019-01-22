@@ -20,11 +20,13 @@ mutable struct SimpleNLSModel <: AbstractNLSModel
   F :: Function
   F! :: Function
   JF :: Function
+  JFcoord :: Function
   JFp :: Function
   JFp! :: Function
   JFtp :: Function
   JFtp! :: Function
   H :: Function # H(x, v)
+  Hcoord :: Function # Hcoord(x, v)
   Hi :: Function # Hi(x, i) return the Hessian (tri-inf)
   Hip :: Function # Hip(x, i, v) returns the product
   Hip! :: Function # Hip!(x, i, v, Hiv) computes the product
@@ -46,15 +48,18 @@ function SimpleNLSModel(x0 :: AbstractVector, nequ :: Int;
                         uvar :: AbstractVector = fill(Inf, length(x0)),
                         lcon :: AbstractVector = Float64[],
                         ucon :: AbstractVector = Float64[],
+                        nnzjF :: Int = 0, nnzhF :: Int = 0, nnzj :: Int = 0,
                         y0 :: AbstractVector = zeros(max(length(lcon), length(ucon))),
                         F :: Function = NotImplemented,
                         F! :: Function = NotImplemented,
                         JF :: Function = NotImplemented,
+                        JFcoord :: Function = NotImplemented,
                         JFp :: Function = NotImplemented,
                         JFp! :: Function = NotImplemented,
                         JFtp :: Function = NotImplemented,
                         JFtp! :: Function = NotImplemented,
                         H :: Function = NotImplemented,
+                        Hcoord :: Function = NotImplemented,
                         Hi :: Function = NotImplemented,
                         Hip :: Function = NotImplemented,
                         Hip! :: Function = NotImplemented,
@@ -75,13 +80,12 @@ function SimpleNLSModel(x0 :: AbstractVector, nequ :: Int;
   if !(length(lcon) == length(ucon) == length(y0))
     error("lcon, ucon and y0 need to be the same length")
   end
-  nnzj = nvar * ncon
 
   meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon,
                       y0=y0, lcon=lcon, ucon=ucon, nnzj=nnzj)
-  nls_meta = NLSMeta(nequ, nvar)
-  return SimpleNLSModel(meta, nls_meta, NLSCounters(), F, F!, JF, JFp,
-                        JFp!, JFtp, JFtp!, H, Hi, Hip, Hip!, c, c!, J,
+  nls_meta = NLSMeta(nequ, nvar, nnzj=nnzjF, nnzh=nnzhF)
+  return SimpleNLSModel(meta, nls_meta, NLSCounters(), F, F!, JF, JFcoord, JFp,
+                        JFp!, JFtp, JFtp!, H, Hcoord, Hi, Hip, Hip!, c, c!, J,
                         Jcoord, Jp, Jp!, Jtp, Jtp!, Hc, Hcp, Hcp!)
 end
 
@@ -101,6 +105,11 @@ end
 function jac_residual(nls :: SimpleNLSModel, x :: AbstractVector)
   increment!(nls, :neval_jac_residual)
   return nls.JF(x)
+end
+
+function jac_coord_residual(nls :: SimpleNLSModel, x :: AbstractVector)
+  increment!(nls, :neval_jac_residual)
+  return nls.JFcoord(x)
 end
 
 function jprod_residual(nls :: SimpleNLSModel, x :: AbstractVector, v :: AbstractVector)
@@ -132,6 +141,11 @@ function hess_residual(nls :: SimpleNLSModel, x :: AbstractVector, v :: Abstract
   return nls.H(x, v)
 end
 
+function hess_coord_residual(nls :: SimpleNLSModel, x :: AbstractVector, v :: AbstractVector)
+  increment!(nls, :neval_hess_residual)
+  return nls.Hcoord(x, v)
+end
+
 function jth_hess_residual(nls :: SimpleNLSModel, x :: AbstractVector, i :: Int)
   increment!(nls, :neval_jhess_residual)
   return nls.Hi(x, i)
@@ -158,14 +172,14 @@ function cons!(nls :: SimpleNLSModel, x :: AbstractVector, c :: AbstractVector)
   return nls.c!(x, c)
 end
 
-function jac_coord(nls :: SimpleNLSModel, x :: AbstractVector)
-  increment!(nls, :neval_jac)
-  return nls.Jcoord(x)
-end
-
 function jac(nls :: SimpleNLSModel, x :: AbstractVector)
   increment!(nls, :neval_jac)
   return nls.J(x)
+end
+
+function jac_coord(nls :: SimpleNLSModel, x :: AbstractVector)
+  increment!(nls, :neval_jac)
+  return nls.Jcoord(x)
 end
 
 function jprod(nls :: SimpleNLSModel, x :: AbstractVector, v :: AbstractVector)

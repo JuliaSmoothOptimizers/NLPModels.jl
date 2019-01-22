@@ -13,16 +13,16 @@ mutable struct LLSModel <: AbstractNLSModel
   nls_meta :: NLSMeta
   counters :: NLSCounters
 
-  A :: Union{AbstractMatrix, LinearOperator}
+  A :: Union{AbstractMatrix, AbstractLinearOperator}
   b :: AbstractVector
-  C :: Union{AbstractMatrix, LinearOperator}
+  C :: Union{AbstractMatrix, AbstractLinearOperator}
 end
 
-function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVector;
+function LLSModel(A :: Union{AbstractMatrix, AbstractLinearOperator}, b :: AbstractVector;
                   x0 :: AbstractVector = zeros(size(A,2)),
                   lvar :: AbstractVector = fill(-Inf, size(A, 2)),
                   uvar :: AbstractVector = fill(Inf, size(A, 2)),
-                  C :: Union{AbstractMatrix, LinearOperator} = Matrix{Float64}(undef, 0, 0),
+                  C :: Union{AbstractMatrix, AbstractLinearOperator} = Matrix{Float64}(undef, 0, 0),
                   lcon :: AbstractVector = Float64[],
                   ucon :: AbstractVector = Float64[],
                   y0 :: AbstractVector = zeros(size(C,1)))
@@ -34,11 +34,25 @@ function LLSModel(A :: Union{AbstractMatrix, LinearOperator}, b :: AbstractVecto
   if !(ncon == length(lcon) == length(ucon) == length(y0))
     error("The number of rows in C must be the same length as lcon, ucon and y0")
   end
-  nnzj = n * ncon
+  nnzjF, nnzh = if A isa AbstractSparseMatrix
+    nnz(A), nnz(tril(A' * A))
+  elseif A isa AbstractLinearOperator
+    0, 0 # Can't provide coordinates
+  else
+    m * n, div(n * (n + 1), 2) # Full
+  end
+  nnzj = if ncon == 0 || C isa AbstractLinearOperator
+    0
+  elseif C isa AbstractSparseMatrix
+    nnz(C)
+  else
+    n * ncon
+  end
 
   meta = NLPModelMeta(n, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0, lin=1:ncon,
-                      nln=Int[], lcon=lcon, ucon=ucon, nnzj=nnzj)
-  nls_meta = NLSMeta(m, n)
+                      nln=Int[], lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=nnzh)
+
+  nls_meta = NLSMeta(m, n, nnzj=nnzjF, nnzh=0)
 
   return LLSModel(meta, nls_meta, NLSCounters(), A, b, C)
 end
@@ -51,10 +65,23 @@ end
 
 function jac_residual(nls :: LLSModel, x :: AbstractVector)
   increment!(nls, :neval_jac_residual)
-  if isa(nls.A, LinearOperator)
+  if isa(nls.A, AbstractLinearOperator)
     error("Jacobian is a LinearOperator. Use `jac_op_residual` instead.")
   else
     return nls.A
+  end
+end
+
+function jac_coord_residual(nls :: LLSModel, x :: AbstractVector)
+  increment!(nls, :neval_jac_residual)
+  if isa(nls.A, AbstractLinearOperator)
+    error("Jacobian is a LinearOperator. Use `jac_op_residual` instead.")
+  elseif nls.A isa AbstractSparseMatrix
+    return findnz(nls.A)
+  else
+    m, n = size(nls.A)
+    I = ((i,j) for i = 1:m, j = 1:n)
+    return (getindex.(I, 1)[:], getindex.(I, 2)[:], nls.A[:])
   end
 end
 
@@ -74,6 +101,11 @@ function hess_residual(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector
   increment!(nls, :neval_hess_residual)
   n = size(nls.A, 2)
   return zeros(n, n)
+end
+
+function hess_coord_residual(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector)
+  increment!(nls, :neval_hess_residual)
+  return (Int[], Int[], Float64[])
 end
 
 function jth_hess_residual(nls :: LLSModel, x :: AbstractVector, i :: Int)
@@ -101,14 +133,15 @@ end
 
 function jac_coord(nls :: LLSModel, x :: AbstractVector)
   increment!(nls, :neval_jac)
-  if isa(nls.C, LinearOperator)
+  if isa(nls.C, AbstractLinearOperator)
     error("jac_coord is not defined for LinearOperators")
   end
-  if isa(nls.C, SparseMatrixCSC)
+  if isa(nls.C, AbstractSparseMatrix)
     return findnz(nls.C)
   else
-    I = findall(!iszero, nls.C)
-    return (getindex.(I, 1), getindex.(I, 2), nls.C[I])
+    m, n = size(nls.C)
+    I = ((i,j) for i = 1:m, j = 1:n)
+    return (getindex.(I, 1)[:], getindex.(I, 2)[:], nls.C[:])
   end
 end
 
@@ -142,13 +175,30 @@ end
 function hess(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
   increment!(nls, :neval_hess)
   if obj_weight != 0.0
-    if isa(nls.A, LinearOperator)
+    if isa(nls.A, AbstractLinearOperator)
       error("hess is not defined for LinearOperators")
     end
     return tril(obj_weight * (nls.A' * nls.A))
   else
     n = length(x)
     return zeros(n, n)
+  end
+end
+
+function hess_coord(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
+  increment!(nls, :neval_hess)
+  if nls.A isa AbstractLinearOperator
+    error("hess is not defined for LinearOperators")
+  else
+    H = tril(nls.A' * nls.A)
+    if nls.A isa AbstractSparseMatrix
+      I, J, V = findnz(H)
+      return I, J, obj_weight * V
+    else
+      n = size(nls.A, 2)
+      I = ((i,j,obj_weight * H[i,j]) for i = 1:n, j = 1:n if i ≥ j)
+      return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
+    end
   end
 end
 

@@ -114,6 +114,13 @@ function jac(nlp :: ADNLPModel, x :: AbstractVector)
   return ForwardDiff.jacobian(nlp.c, x)
 end
 
+function jac_coord(nlp :: ADNLPModel, x :: AbstractVector)
+  Jx = jac(nlp, x)
+  m, n = nlp.meta.ncon, nlp.meta.nvar
+  I = ((i,j) for i = 1:m, j = 1:n)
+  return (getindex.(I, 1)[:], getindex.(I, 2)[:], Jx[:])
+end
+
 function jprod(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector)
   increment!(nlp, :neval_jprod)
   return ForwardDiff.jacobian(nlp.c, x) * v
@@ -146,6 +153,13 @@ function hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight = 1.0, y :: Abs
     end
   end
   return tril(Hx)
+end
+
+function hess_coord(nlp :: ADNLPModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
+  Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
+  n = nlp.meta.nvar
+  I = ((i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j)
+  return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
 end
 
 function hprod(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector;

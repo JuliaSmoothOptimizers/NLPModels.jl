@@ -25,7 +25,7 @@ function test_nls_to_cons()
 
   @testset "Test FeasibilityFormNLS with LLSModel" begin
     for n = [10; 30], ne = [10; 20; 30], m = [0; 20]
-      for T in [(rows,cols)->Matrix(1.0I, rows, cols) .+ 1,
+      for T in [#(rows,cols)->Matrix(1.0I, rows, cols) .+ 1,
                 (rows,cols)->sparse(1.0I, rows, cols) .+ 1]
         A = T(ne,n)
         b = collect(1:ne)
@@ -37,7 +37,7 @@ function test_nls_to_cons()
                         C=[A -Ine; C spzeros(m,ne)],
                         lcon=[b; zeros(m)], ucon=[b; zeros(m)])
 
-        consistent_functions([nlpcon; lls2])
+        consistent_functions([nlpcon; lls2], exclude=[hess_coord])
         consistent_nls_functions([nlpcon; lls2])
       end
     end

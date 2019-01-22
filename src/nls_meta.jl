@@ -12,9 +12,16 @@ struct NLSMeta
   nequ :: Int
   nvar :: Int
   x0 :: Vector
+  nnzj :: Int
+  nnzh :: Int
 end
 
 function NLSMeta(nequ :: Int, nvar :: Int;
-                 x0 :: AbstractVector = zeros(nvar))
-  return NLSMeta(nequ, nvar, x0)
+                 x0 :: AbstractVector = zeros(nvar),
+                 nnzj=nequ * nvar,
+                 nnzh=div(nvar * (nvar + 1), 2)
+                )
+  nnzj = max(0, min(nnzj, nequ * nvar))
+  nnzh = max(0, min(nnzh, div(nvar * (nvar + 1), 2)))
+  return NLSMeta(nequ, nvar, x0, nnzj, nnzh)
 end
