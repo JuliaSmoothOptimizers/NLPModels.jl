@@ -78,8 +78,13 @@ function jtprod_residual!(nls :: FeasibilityResidual, x :: AbstractVector, v :: 
   return jtprod!(nls.nlp, x, v, Jtv)
 end
 
-function hess_residual(nls :: FeasibilityResidual, x :: AbstractVector, i :: Int)
+function hess_residual(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector)
   increment!(nls, :neval_hess_residual)
+  return hess(nls.nlp, x, obj_weight = 0.0, y=v)
+end
+
+function jth_hess_residual(nls :: FeasibilityResidual, x :: AbstractVector, i :: Int)
+  increment!(nls, :neval_jhess_residual)
   y = zeros(nls.nls_meta.nequ)
   y[i] = 1.0
   return hess(nls.nlp, x, obj_weight = 0.0, y=y)

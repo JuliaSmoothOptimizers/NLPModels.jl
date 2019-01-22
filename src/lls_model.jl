@@ -70,8 +70,14 @@ function jtprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVec
   return Jtv
 end
 
-function hess_residual(nls :: LLSModel, x :: AbstractVector, i :: Int)
+function hess_residual(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector)
   increment!(nls, :neval_hess_residual)
+  n = size(nls.A, 2)
+  return zeros(n, n)
+end
+
+function jth_hess_residual(nls :: LLSModel, x :: AbstractVector, i :: Int)
+  increment!(nls, :neval_jhess_residual)
   n = size(nls.A, 2)
   return zeros(n, n)
 end

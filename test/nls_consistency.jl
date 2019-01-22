@@ -85,9 +85,19 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8, exclude=[])
 
     if intersect([hess_residual, hprod_residual, hess_op_residual], exclude) == []
       v = [-(-1.0)^i for i = 1:n]
+      w = [-(-1.0)^i for i = 1:m]
+
+      Hs = Any[hess_residual(nls, x, w) for nls in nlss]
+      Hsi = Any[sum(jth_hess_residual(nls, x, i) * w[i] for i = 1:m) for nls in nlss]
+      for i = 1:N
+        for j = i+1:N
+          @test isapprox(Hs[i], Hs[j], rtol=rtol)
+        end
+        @test isapprox(Hs[i], Hsi[i], rtol=rtol)
+      end
 
       for k = 1:m
-        Hs = Any[hess_residual(nls, x, k) for nls in nlss]
+        Hs = Any[jth_hess_residual(nls, x, k) for nls in nlss]
         Hvs = Any[hprod_residual(nls, x, k, v) for nls in nlss]
         Hops = Any[hess_op_residual(nls, x, k) for nls in nlss]
         Hiv = zeros(n)
@@ -126,6 +136,7 @@ function consistent_nls()
         JFp!  = (x,v,Jv)->Jv[:]=A*v,
         JFtp  = (x,v)->A'*v,
         JFtp! = (x,v,Jtv)->Jtv[:]=A'*v,
+        H     = (x,v)->zeros(n,n),
         Hi    = (x,i)->zeros(n,n),
         Hip   = (x,i,v)->zeros(n),
         Hip!  = (x,i,v,Hiv)->fill!(Hiv, 0.0)
@@ -175,6 +186,7 @@ function consistent_nls()
         JFp!  = (x,v,Jv)->Jv[:]=A*v,
         JFtp  = (x,v)->A'*v,
         JFtp! = (x,v,Jtv)->Jtv[:]=A'*v,
+        H     = (x,v)->zeros(n,n),
         Hi    = (x,i)->zeros(n,n),
         Hip   = (x,i,v)->zeros(n),
         Hip!  = (x,i,v,Hiv)->fill!(Hiv, 0.0),
@@ -214,12 +226,13 @@ function consistent_nls()
     JFtp(x, v) = JF(x)'*v
     JFtp!(x, v, Jtv) = (Jtv[:] = JF(x)'*v)
     Hi(x, i) = [-i^2*exp(i*x[1])  0.0; 0.0  -i^2*exp(i*x[2])]
+    H(x, v) = sum(Hi(x, i) * v[i] for i = 1:m)
     Hip(x, i, v) = -i^2*[exp(i*x[1])*v[1]; exp(i*x[2])*v[2]]
     Hip!(x, i, v, Hiv) = (Hiv[:] = -i^2*[exp(i*x[1])*v[1]; exp(i*x[2])*v[2]])
 
     simple_nls_model = SimpleNLSModel(x0, m, lvar=lvar, uvar=uvar, F=F,
                                       F! =F!, JF=JF, JFp=JFp, JFp! =JFp!,
-                                      JFtp=JFtp, JFtp! =JFtp!, Hi=Hi,
+                                      JFtp=JFtp, JFtp! =JFtp!, H=H, Hi=Hi,
                                       Hip=Hip, Hip! =Hip!)
     autodiff_model = ADNLSModel(F, x0, m, lvar=lvar, uvar=uvar)
     nlp = ADNLPModel(x->0, x0, lvar=lvar, uvar=uvar, c=F, lcon=zeros(m), ucon=zeros(m))
@@ -255,6 +268,7 @@ function consistent_nls()
     JFtp(x, v) = JF(x)'*v
     JFtp!(x, v, Jtv) = (Jtv[:] = JF(x)'*v)
     Hi(x, i) = [-i^2*exp(i*x[1])  0.0; 0.0  -i^2*exp(i*x[2])]
+    H(x, v) = sum(Hi(x, i) * v[i] for i = 1:m)
     Hip(x, i, v) = -i^2*[exp(i*x[1])*v[1]; exp(i*x[2])*v[2]]
     Hip!(x, i, v, Hiv) = (Hiv[:] = -i^2*[exp(i*x[1])*v[1]; exp(i*x[2])*v[2]])
     c(x) = [x[1]^2 - x[2]^2; 2 * x[1] * x[2]; x[1] + x[2]]
@@ -273,7 +287,7 @@ function consistent_nls()
 
     simple_nls_model = SimpleNLSModel(x0, m, lvar=lvar, uvar=uvar, F=F,
                                       F! =F!, JF=JF, JFp=JFp, JFp! =JFp!,
-                                      JFtp=JFtp, JFtp! =JFtp!, Hi=Hi,
+                                      JFtp=JFtp, JFtp! =JFtp!, H=H, Hi=Hi,
                                       Hip=Hip, Hip! =Hip!, c=c,
                                       lcon=lcon, ucon=ucon, c! =c!,
                                       J=Jc, Jcoord=Jcoord, Jp=Jp, Jp!

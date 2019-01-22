@@ -45,12 +45,8 @@ function NLPModels.jac_residual(nlp :: TestGenericCoordNLSModel, x :: AbstractVe
   return [1.0 0.0; -20x[1] 10.0]
 end
 
-function NLPModels.hess_residual(nlp :: TestGenericCoordNLSModel, x :: AbstractVector, i :: Int)
-  if i == 1
-    return zeros(2, 2)
-  else
-    return [-20.0 0; 0 0]
-  end
+function NLPModels.hess_residual(nlp :: TestGenericCoordNLSModel, x :: AbstractVector, v :: AbstractVector)
+  return [-20.0 0; 0 0] * v[2]
 end
 
 

@@ -183,9 +183,7 @@ function hess(nlp :: FeasibilityFormNLS, xr :: AbstractVector;
   n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
   x = @view xr[1:n]
   @views Hx = m > 0 ? hess(nlp.internal, x, obj_weight=0.0, y=y[ne+1:end]) : spzeros(n, n)
-  for i = 1:ne
-    Hx += hess_residual(nlp.internal, x, i) * y[i]
-  end
+  Hx += hess_residual(nlp.internal, x, @view y[1:ne])
   return [Hx spzeros(n, ne); spzeros(ne, n) obj_weight * I]
 end
 
@@ -240,8 +238,14 @@ function jtprod_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: A
   return Jtv
 end
 
-function hess_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector, i :: Int)
+function hess_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector)
   increment!(nlp, :neval_hess_residual)
+  n = nlp.meta.nvar
+  return spzeros(n, n)
+end
+
+function jth_hess_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector, i :: Int)
+  increment!(nlp, :neval_jhess_residual)
   n = nlp.meta.nvar
   return spzeros(n, n)
 end
