@@ -36,7 +36,8 @@ least squares models.
 | [`neval_jac_residual`](@ref)    | Jacobian of the residual |
 | [`neval_jprod_residual`](@ref)  | Product of Jacobian of residual and vector |
 | [`neval_jtprod_residual`](@ref) | Product of transposed Jacobian of residual and vector |
-| [`neval_hess_residual`](@ref)   | Hessian of a residual component |
+| [`neval_hess_residual`](@ref)   | Sum of Hessians of residuals |
+| [`neval_jhess_residual`](@ref)  | Hessian of a residual component |
 | [`neval_hprod_residual`](@ref)  | Product of Hessian of a residual component and vector |
 
 To get the sum of all counters called for a problem, use
@@ -84,6 +85,7 @@ neval_jac_residual
 neval_jprod_residual
 neval_jtprod_residual
 neval_hess_residual
+neval_jhess_residual
 neval_hprod_residual
 sum_counters
 bound_constrained

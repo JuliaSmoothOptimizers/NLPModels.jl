@@ -57,7 +57,7 @@ and its derivatives. Namely,
 |---------------------|---|
 | ``F(x)``            | [`residual`](@ref), [`residual!`](@ref) |
 | ``J_F(x)``          | [`jac_residual`](@ref), [`jprod_residual`](@ref), [`jprod_residual!`](@ref), [`jtprod_residual`](@ref), [`jtprod_residual!`](@ref), [`jac_op_residual`](@ref), [`jac_op_residual!`](@ref) |
-| ``\nabla^2 F_i(x)`` | [`hess_residual`](@ref), [`hprod_residual`](@ref), [`hprod_residual!`](@ref), [`hess_op_residual`](@ref), [`hess_op_residual!`](@ref) |
+| ``\nabla^2 F_i(x)`` | [`hess_residual`](@ref), [`jth_hess_residual`](@ref), [`hprod_residual`](@ref), [`hprod_residual!`](@ref), [`hess_op_residual`](@ref), [`hess_op_residual!`](@ref) |
 
 
 ## AbstractNLPModel functions
@@ -103,6 +103,7 @@ jtprod_residual!
 jac_op_residual
 jac_op_residual!
 hess_residual
+jth_hess_residual
 hprod_residual
 hprod_residual!
 hess_op_residual
