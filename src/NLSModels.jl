@@ -1,8 +1,9 @@
 export AbstractNLSModel, nls_meta, NLSCounters, reset!,
-       residual, residual!, jac_residual, jprod_residual, jprod_residual!,
-       jtprod_residual, jtprod_residual!, jac_op_residual, jac_op_residual!,
-       hess_residual, jth_hess_residual, hprod_residual, hprod_residual!, hess_op_residual,
-       hess_op_residual!, NotImplementedError
+       residual, residual!, jac_residual, jac_coord_residual, jprod_residual,
+       jprod_residual!, jtprod_residual, jtprod_residual!, jac_op_residual,
+       jac_op_residual!, hess_residual, hess_coord_residual, jth_hess_residual,
+       hprod_residual, hprod_residual!, hess_op_residual, hess_op_residual!,
+       NotImplementedError
 
 abstract type AbstractNLSModel <: AbstractNLPModel end
 
@@ -116,6 +117,15 @@ function jac_residual(nls :: AbstractNLSModel, x :: AbstractVector)
 end
 
 """
+    (rows,cols,vals) = jac_coord_residual(nls, x)
+
+Computes the Jacobian of the residual at `x` in sparse coordinate format.
+"""
+function jac_coord_residual(nls :: AbstractNLSModel, x :: AbstractVector)
+  throw(NotImplementedError("jac_coord_residual"))
+end
+
+"""
     Jv = jprod_residual(nls, x, v)
 
 Computes the product of the Jacobian of the residual at x and a vector, i.e.,  J(x)*v.
@@ -186,11 +196,21 @@ end
 """
     H = hess_residual(nls, x, v)
 
-Computes the linear combinations of the Hessians of the residuals at x with coefficients
+Computes the linear combination of the Hessians of the residuals at `x` with coefficients
 `v`.
 """
 function hess_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector)
   throw(NotImplementedError("hess_residual"))
+end
+
+"""
+    (rows,cols,vals) = hess_coord_residual(nls, x, v)
+
+Computes the linear combination of the Hessians of the residuals at `x` with coefficients
+`v` in sparse coordinate format.
+"""
+function hess_coord_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector)
+  throw(NotImplementedError("hess_coord_residual"))
 end
 
 """

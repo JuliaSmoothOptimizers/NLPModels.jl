@@ -1,7 +1,5 @@
 import LinearAlgebra: I
 
-include("consistency.jl")
-
 function consistent_nls_counters(nlss)
   N = length(nlss)
   V = zeros(Int, N)
@@ -14,7 +12,7 @@ function consistent_nls_counters(nlss)
   @test all(V .== V[1])
 end
 
-function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8, exclude=[])
+function consistent_nls_functions(nlss; rtol=1.0e-8, exclude=[])
   N = length(nlss)
   n = nls_meta(nlss[1]).nvar
   m = nls_meta(nlss[1]).nequ
@@ -22,101 +20,105 @@ function consistent_nls_functions(nlss; nloops=10, rtol=1.0e-8, exclude=[])
   tmp_n = zeros(n)
   tmp_m = zeros(m)
 
-  for k = 1:nloops
-    x = 10 * [-(-1.0)^i for i = 1:n]
+  x = 10 * [-(-1.0)^i for i = 1:n]
 
-    if !(residual in exclude)
-      Fs = Any[residual(nls, x) for nls in nlss]
-      for i = 1:N
-        for j = i+1:N
-          @test isapprox(Fs[i], Fs[j], rtol=rtol)
-        end
+  if !(residual in exclude)
+    Fs = Any[residual(nls, x) for nls in nlss]
+    for i = 1:N
+      for j = i+1:N
+        @test isapprox(Fs[i], Fs[j], rtol=rtol)
+      end
 
-        r = residual!(nlss[i], x, tmp_m)
-        @test isapprox(r, Fs[i], rtol=rtol)
-        @test isapprox(Fs[i], tmp_m, rtol=rtol)
+      r = residual!(nlss[i], x, tmp_m)
+      @test isapprox(r, Fs[i], rtol=rtol)
+      @test isapprox(Fs[i], tmp_m, rtol=rtol)
+    end
+  end
+
+  if intersect([jac_residual,jac_coord_residual], exclude) == []
+    Js = Any[jac_residual(nls, x) for nls in nlss]
+    for i = 1:N
+      for j = i+1:N
+        @test isapprox(Js[i], Js[j], rtol=rtol)
+      end
+      I, J, V = jac_coord_residual(nlss[i], x)
+      @test length(I) == length(J) == length(V) == nlss[i].nls_meta.nnzj
+    end
+  end
+
+  if intersect([jac_op_residual, jprod_residual, jtprod_residual],  exclude) == []
+    J_ops = Any[jac_op_residual(nls, x) for nls in nlss]
+    Jv, Jtv = zeros(m), zeros(n)
+    J_ops_inplace = Any[jac_op_residual!(nls, x, Jv, Jtv) for nls in nlss]
+
+    v = [-(-1.0)^i for i = 1:n]
+
+    Jps = Any[jprod_residual(nls, x, v) for nls in nlss]
+    for i = 1:N
+      for j = i+1:N
+        @test isapprox(Jps[i], Jps[j], rtol=rtol)
+      end
+
+      jps = jprod_residual!(nlss[i], x, v, tmp_m)
+      @test isapprox(jps, Jps[i], rtol=rtol)
+      @test isapprox(Jps[i], tmp_m, rtol=rtol)
+      @test isapprox(Jps[i], J_ops[i] * v, rtol=rtol)
+      @test isapprox(Jps[i], J_ops_inplace[i] * v, rtol=rtol)
+    end
+
+    v = [-(-1.0)^i for i = 1:m]
+
+    Jtps = Any[jtprod_residual(nls, x, v) for nls in nlss]
+    for i = 1:N
+      for j = i+1:N
+        @test isapprox(Jtps[i], Jtps[j], rtol=rtol)
+      end
+
+      jtps = jtprod_residual!(nlss[i], x, v, tmp_n)
+      @test isapprox(jtps, Jtps[i], rtol=rtol)
+      @test isapprox(Jtps[i], tmp_n, rtol=rtol)
+      @test isapprox(Jtps[i], J_ops[i]' * v, rtol=rtol)
+      @test isapprox(Jtps[i], J_ops_inplace[i]' * v, rtol=rtol)
+    end
+  end
+
+  if intersect([hess_residual, hprod_residual, hess_op_residual], exclude) == []
+    v = [-(-1.0)^i for i = 1:n]
+    w = [-(-1.0)^i for i = 1:m]
+
+    Hs = Any[hess_residual(nls, x, w) for nls in nlss]
+    Hsi = Any[sum(jth_hess_residual(nls, x, i) * w[i] for i = 1:m) for nls in nlss]
+    for i = 1:N
+      for j = i+1:N
+        @test isapprox(Hs[i], Hs[j], rtol=rtol)
+      end
+      @test isapprox(Hs[i], Hsi[i], rtol=rtol)
+      if !(hess_coord_residual in exclude)
+        I, J, V = hess_coord_residual(nlss[i], x, w)
+        @test length(I) == length(J) == length(V) == nlss[i].nls_meta.nnzh
+        @test sparse(I, J, V, n, n) == Hs[i]
       end
     end
 
-    if !(jac_residual in exclude)
-      Js = Any[jac_residual(nls, x) for nls in nlss]
-      for i = 1:N
-        for j = i+1:N
-          @test isapprox(Js[i], Js[j], rtol=rtol)
-        end
-      end
-    end
-
-    if intersect([jac_op_residual, jprod_residual, jtprod_residual],  exclude) == []
-      J_ops = Any[jac_op_residual(nls, x) for nls in nlss]
-      Jv, Jtv = zeros(m), zeros(n)
-      J_ops_inplace = Any[jac_op_residual!(nls, x, Jv, Jtv) for nls in nlss]
-
-      v = [-(-1.0)^i for i = 1:n]
-
-      Jps = Any[jprod_residual(nls, x, v) for nls in nlss]
-      for i = 1:N
-        for j = i+1:N
-          @test isapprox(Jps[i], Jps[j], rtol=rtol)
-        end
-
-        jps = jprod_residual!(nlss[i], x, v, tmp_m)
-        @test isapprox(jps, Jps[i], rtol=rtol)
-        @test isapprox(Jps[i], tmp_m, rtol=rtol)
-        @test isapprox(Jps[i], J_ops[i] * v, rtol=rtol)
-        @test isapprox(Jps[i], J_ops_inplace[i] * v, rtol=rtol)
-      end
-
-      v = [-(-1.0)^i for i = 1:m]
-
-      Jtps = Any[jtprod_residual(nls, x, v) for nls in nlss]
-      for i = 1:N
-        for j = i+1:N
-          @test isapprox(Jtps[i], Jtps[j], rtol=rtol)
-        end
-
-        jtps = jtprod_residual!(nlss[i], x, v, tmp_n)
-        @test isapprox(jtps, Jtps[i], rtol=rtol)
-        @test isapprox(Jtps[i], tmp_n, rtol=rtol)
-        @test isapprox(Jtps[i], J_ops[i]' * v, rtol=rtol)
-        @test isapprox(Jtps[i], J_ops_inplace[i]' * v, rtol=rtol)
-      end
-    end
-
-    if intersect([hess_residual, hprod_residual, hess_op_residual], exclude) == []
-      v = [-(-1.0)^i for i = 1:n]
-      w = [-(-1.0)^i for i = 1:m]
-
-      Hs = Any[hess_residual(nls, x, w) for nls in nlss]
-      Hsi = Any[sum(jth_hess_residual(nls, x, i) * w[i] for i = 1:m) for nls in nlss]
+    for k = 1:m
+      Hs = Any[jth_hess_residual(nls, x, k) for nls in nlss]
+      Hvs = Any[hprod_residual(nls, x, k, v) for nls in nlss]
+      Hops = Any[hess_op_residual(nls, x, k) for nls in nlss]
+      Hiv = zeros(n)
+      Hops_inplace = Any[hess_op_residual!(nls, x, k, Hiv) for nls in nlss]
       for i = 1:N
         for j = i+1:N
           @test isapprox(Hs[i], Hs[j], rtol=rtol)
+          @test isapprox(Hvs[i], Hvs[j], rtol=rtol)
         end
-        @test isapprox(Hs[i], Hsi[i], rtol=rtol)
-      end
 
-      for k = 1:m
-        Hs = Any[jth_hess_residual(nls, x, k) for nls in nlss]
-        Hvs = Any[hprod_residual(nls, x, k, v) for nls in nlss]
-        Hops = Any[hess_op_residual(nls, x, k) for nls in nlss]
-        Hiv = zeros(n)
-        Hops_inplace = Any[hess_op_residual!(nls, x, k, Hiv) for nls in nlss]
-        for i = 1:N
-          for j = i+1:N
-            @test isapprox(Hs[i], Hs[j], rtol=rtol)
-            @test isapprox(Hvs[i], Hvs[j], rtol=rtol)
-          end
-
-          hvs = hprod_residual!(nlss[i], x, k, v, tmp_n)
-          @test isapprox(hvs, Hvs[i], rtol=rtol)
-          @test isapprox(Hvs[i], tmp_n, rtol=rtol)
-          @test isapprox(Hvs[i], Hops[i] * v, rtol=rtol)
-          @test isapprox(Hvs[i], Hops_inplace[i] * v, rtol=rtol)
-        end
+        hvs = hprod_residual!(nlss[i], x, k, v, tmp_n)
+        @test isapprox(hvs, Hvs[i], rtol=rtol)
+        @test isapprox(Hvs[i], tmp_n, rtol=rtol)
+        @test isapprox(Hvs[i], Hops[i] * v, rtol=rtol)
+        @test isapprox(Hvs[i], Hops_inplace[i] * v, rtol=rtol)
       end
     end
-
   end
 end
 
@@ -129,17 +131,20 @@ function consistent_nls()
     uvar = ones(n)
     lls_model = LLSModel(A, b, lvar=lvar, uvar=uvar)
     simple_nls_model = SimpleNLSModel(zeros(n), m, lvar=lvar, uvar=uvar,
-        F     = x->A*x-b,
-        F!    = (x,Fx)->Fx[:]=A*x-b,
-        JF    = x->A,
-        JFp   = (x,v)->A*v,
-        JFp!  = (x,v,Jv)->Jv[:]=A*v,
-        JFtp  = (x,v)->A'*v,
-        JFtp! = (x,v,Jtv)->Jtv[:]=A'*v,
-        H     = (x,v)->zeros(n,n),
-        Hi    = (x,i)->zeros(n,n),
-        Hip   = (x,i,v)->zeros(n),
-        Hip!  = (x,i,v,Hiv)->fill!(Hiv, 0.0)
+                                      nnzjF=m*n, nnzhF=0,
+        F       = x->A*x-b,
+        F!      = (x,Fx)->Fx[:]=A*x-b,
+        JF      = x->A,
+        JFcoord = x->findnz(sparse(A)),
+        JFp     = (x,v)->A*v,
+        JFp!    = (x,v,Jv)->Jv[:]=A*v,
+        JFtp    = (x,v)->A'*v,
+        JFtp!   = (x,v,Jtv)->Jtv[:]=A'*v,
+        H       = (x,v)->zeros(n,n),
+        Hcoord  = (x,v)->(Int[], Int[], Float64[]),
+        Hi      = (x,i)->zeros(n,n),
+        Hip     = (x,i,v)->zeros(n),
+        Hip!    = (x,i,v,Hiv)->fill!(Hiv, 0.0),
        )
     autodiff_model = ADNLSModel(x->A*x-b, zeros(n), m, lvar=lvar, uvar=uvar)
     nlp = ADNLPModel(x->0, zeros(n), lvar=lvar, uvar=uvar, c=x->A*x-b,
@@ -160,7 +165,7 @@ function consistent_nls()
       return 0.5*dot(r, r)
     end
     nlps = [nlss; ADNLPModel(f, zeros(n))]
-    consistent_functions(nlps, nloops=10)
+    consistent_functions(nlps, exclude=[hess_coord])
   end
 
   @testset "Consistency of Linear problem with linear constraints" begin
@@ -177,30 +182,32 @@ function consistent_nls()
     lcon, ucon = lcon[K], ucon[K]
     lls_model = LLSModel(A, b, lvar=lvar, uvar=uvar, C=C, lcon=lcon,
                          ucon=ucon)
-    simple_nls_model = SimpleNLSModel(zeros(n), m, lvar=lvar, uvar=uvar,
-                                      lcon=lcon, ucon=ucon,
-        F     = x->A*x-b,
-        F!    = (x,Fx)->Fx[:]=A*x-b,
-        JF    = x->A,
-        JFp   = (x,v)->A*v,
-        JFp!  = (x,v,Jv)->Jv[:]=A*v,
-        JFtp  = (x,v)->A'*v,
-        JFtp! = (x,v,Jtv)->Jtv[:]=A'*v,
-        H     = (x,v)->zeros(n,n),
-        Hi    = (x,i)->zeros(n,n),
-        Hip   = (x,i,v)->zeros(n),
-        Hip!  = (x,i,v,Hiv)->fill!(Hiv, 0.0),
-        c     = x->C*x,
-        c!    = (x,cx)->(cx[:]=C*x),
-        J     = x->C,
-        Jcoord= x->findnz(C),
-        Jp    = (x,v)->C*v,
-        Jp!   = (x,v,Jv)->Jv[:]=C*v,
-        Jtp   = (x,v)->C'*v,
-        Jtp!  = (x,v,Jtv)->Jtv[:]=C'*v,
-        Hc    = (x,y)->zeros(n,n),
-        Hcp   = (x,y,v)->zeros(n),
-        Hcp!  = (x,y,v,Hv)->Hv[:]=zeros(n))
+    simple_nls_model = SimpleNLSModel(zeros(n), m, lvar=lvar, uvar=uvar, lcon=lcon,
+                                      ucon=ucon, nnzjF=m*n, nnzhF=0, nnzj=nnz(sparse(C)),
+        F       = x->A*x-b,
+        F!      = (x,Fx)->Fx[:]=A*x-b,
+        JF      = x->A,
+        JFcoord = x->findnz(sparse(A)),
+        JFp     = (x,v)->A*v,
+        JFp!    = (x,v,Jv)->Jv[:]=A*v,
+        JFtp    =   (x,v)->A'*v,
+        JFtp!   = (x,v,Jtv)->Jtv[:]=A'*v,
+        H       = (x,v)->zeros(n,n),
+        Hcoord  = (x,v)->(Int[], Int[], Float64[]),
+        Hi      = (x,i)->zeros(n,n),
+        Hip     = (x,i,v)->zeros(n),
+        Hip!    = (x,i,v,Hiv)->fill!(Hiv, 0.0),
+        c       = x->C*x,
+        c!      = (x,cx)->(cx[:]=C*x),
+        J       = x->C,
+        Jcoord  = x->findnz(sparse(C)),
+        Jp      = (x,v)->C*v,
+        Jp!     = (x,v,Jv)->Jv[:]=C*v,
+        Jtp     = (x,v)->C'*v,
+        Jtp!    = (x,v,Jtv)->Jtv[:]=C'*v,
+        Hc      = (x,y)->zeros(n,n),
+        Hcp     = (x,y,v)->zeros(n),
+        Hcp!    = (x,y,v,Hv)->Hv[:]=zeros(n))
     autodiff_model = ADNLSModel(x->A*x-b, zeros(n), m, lvar=lvar,
                                 uvar=uvar, c=x->C*x, lcon=lcon,
                                 ucon=ucon)
@@ -210,7 +217,7 @@ function consistent_nls()
     consistent_nls_functions(nlss)
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
-    consistent_functions(nlss, nloops=10)
+    consistent_functions(nlss, exclude=[hess_coord])
   end
 
   @testset "Consistency of Nonlinear problem" begin
@@ -221,18 +228,22 @@ function consistent_nls()
     F!(x,Fx) = (Fx[:] = F(x))
     x0 = [0.3; 0.4]
     JF(x) = [-i*exp(i*x[j]) for i = 1:m, j = 1:2]
+    JFc(x) = findnz(sparse(JF(x)))
     JFp(x, v) = JF(x)*v
     JFp!(x, v, Jv) = (Jv[:] = JF(x)*v)
     JFtp(x, v) = JF(x)'*v
     JFtp!(x, v, Jtv) = (Jtv[:] = JF(x)'*v)
     Hi(x, i) = [-i^2*exp(i*x[1])  0.0; 0.0  -i^2*exp(i*x[2])]
     H(x, v) = sum(Hi(x, i) * v[i] for i = 1:m)
+    Hc(x, v) = findnz(sparse(H(x,v)))
     Hip(x, i, v) = -i^2*[exp(i*x[1])*v[1]; exp(i*x[2])*v[2]]
     Hip!(x, i, v, Hiv) = (Hiv[:] = -i^2*[exp(i*x[1])*v[1]; exp(i*x[2])*v[2]])
+    nnzjF = nnz(sparse(JF(ones(n))))
+    nnzhF = nnz(sparse(H(ones(n),ones(m))))
 
-    simple_nls_model = SimpleNLSModel(x0, m, lvar=lvar, uvar=uvar, F=F,
-                                      F! =F!, JF=JF, JFp=JFp, JFp! =JFp!,
-                                      JFtp=JFtp, JFtp! =JFtp!, H=H, Hi=Hi,
+    simple_nls_model = SimpleNLSModel(x0, m, lvar=lvar, uvar=uvar, nnzjF=nnzjF, nnzhF=nnzhF,
+                                      F=F, F! =F!, JF=JF, JFcoord=JFc, JFp=JFp, JFp! =JFp!,
+                                      JFtp=JFtp, JFtp! =JFtp!, H=H, Hcoord=Hc, Hi=Hi,
                                       Hip=Hip, Hip! =Hip!)
     autodiff_model = ADNLSModel(F, x0, m, lvar=lvar, uvar=uvar)
     nlp = ADNLPModel(x->0, x0, lvar=lvar, uvar=uvar, c=F, lcon=zeros(m), ucon=zeros(m))
@@ -252,7 +263,7 @@ function consistent_nls()
       return 0.5*dot(r, r)
     end
     nlps = [nlss; ADNLPModel(f, zeros(n))]
-    consistent_functions(nlps, nloops=10)
+    consistent_functions(nlps, exclude=[hess_coord])
   end
 
   @testset "Consistency of Nonlinear problem with constraints" begin
@@ -263,12 +274,14 @@ function consistent_nls()
     F!(x,Fx) = (Fx[:] = F(x))
     x0 = [0.3; 0.4]
     JF(x) = [-i*exp(i*x[j]) for i = 1:m, j = 1:2]
+    JFc(x) = findnz(sparse(JF(x)))
     JFp(x, v) = JF(x)*v
     JFp!(x, v, Jv) = (Jv[:] = JF(x)*v)
     JFtp(x, v) = JF(x)'*v
     JFtp!(x, v, Jtv) = (Jtv[:] = JF(x)'*v)
     Hi(x, i) = [-i^2*exp(i*x[1])  0.0; 0.0  -i^2*exp(i*x[2])]
     H(x, v) = sum(Hi(x, i) * v[i] for i = 1:m)
+    HFc(x, v) = findnz(sparse(H(x,v)))
     Hip(x, i, v) = -i^2*[exp(i*x[1])*v[1]; exp(i*x[2])*v[2]]
     Hip!(x, i, v, Hiv) = (Hiv[:] = -i^2*[exp(i*x[1])*v[1]; exp(i*x[2])*v[2]])
     c(x) = [x[1]^2 - x[2]^2; 2 * x[1] * x[2]; x[1] + x[2]]
@@ -276,7 +289,7 @@ function consistent_nls()
     ucon = [Inf;  1.0;  0.0]
     c!(x, cx) = (cx[:] = c(x))
     Jc(x) = [2 * x[1]  -2 * x[2]; 2 * x[2]  2 * x[1]; 1.0  1.0]
-    Jcoord(x) = findnz(Jc(x))
+    Jcoord(x) = findnz(sparse(Jc(x)))
     Jp(x, v) = Jc(x) * v
     Jp!(x, v, Jv) = (Jv[:] = Jp(x, v))
     Jtp(x, v) = Jc(x)' * v
@@ -284,10 +297,14 @@ function consistent_nls()
     Hc(x, y) = 2 * [y[1]  y[2]; y[2] -y[1]]
     Hcp(x, y, v) = Hc(x, y) * v
     Hcp!(x, y, v, Hv) = (Hv[:] = Hc(x, y) * v)
+    nnzjF = nnz(sparse(JF(ones(n))))
+    nnzhF = nnz(sparse(H(ones(n),ones(m))))
+    nnzj  = nnz(sparse(Jc(ones(n))))
 
-    simple_nls_model = SimpleNLSModel(x0, m, lvar=lvar, uvar=uvar, F=F,
-                                      F! =F!, JF=JF, JFp=JFp, JFp! =JFp!,
-                                      JFtp=JFtp, JFtp! =JFtp!, H=H, Hi=Hi,
+    simple_nls_model = SimpleNLSModel(x0, m, lvar=lvar, uvar=uvar, nnzjF=nnzjF,
+                                      nnzhF=nnzhF, nnzj=nnzj, F=F, F! =F!, JF=JF,
+                                      JFcoord=JFc, JFp=JFp, JFp! =JFp!,
+                                      JFtp=JFtp, JFtp! =JFtp!, H=H, Hcoord=HFc, Hi=Hi,
                                       Hip=Hip, Hip! =Hip!, c=c,
                                       lcon=lcon, ucon=ucon, c! =c!,
                                       J=Jc, Jcoord=Jcoord, Jp=Jp, Jp!
@@ -301,7 +318,7 @@ function consistent_nls()
     consistent_nls_functions(nlss)
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
-    consistent_functions(nlss, nloops=10)
+    consistent_functions(nlss, exclude=[hess_coord])
   end
 
   @testset "Consistency of slack variant" begin
@@ -330,7 +347,7 @@ function consistent_nls()
     consistent_nls_functions(nlss)
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
-    consistent_functions(nlss, nloops=10)
+    consistent_functions(nlss)
   end
 
   @testset "Consistency of slack variant for linear problem" begin
@@ -349,7 +366,7 @@ function consistent_nls()
     consistent_nls_functions(nlss)
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
-    consistent_functions(nlss, nloops=10)
+    consistent_functions(nlss)
   end
 
   @testset "Consistency of LLS with Matrix and LinearOperator" begin
@@ -378,7 +395,7 @@ function consistent_nls()
     nlss = [lls, lls2, lls3, lls4]
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
-    consistent_nls_functions(nlss, exclude=[jac_residual])
+    consistent_nls_functions(nlss, exclude=[jac_residual, hess_coord_residual])
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
 
@@ -388,11 +405,9 @@ function consistent_nls()
     nlss = [SlackNLSModel(nls) for nls in nlss]
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
-    consistent_nls_functions(nlss, exclude=[jac_residual])
+    consistent_nls_functions(nlss, exclude=[jac_residual, hess_coord_residual])
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
   end
 
 end
-
-consistent_nls()

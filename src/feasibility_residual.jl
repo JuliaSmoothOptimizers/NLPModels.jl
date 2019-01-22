@@ -14,7 +14,8 @@ by creating slack variables s and defining F(x,s) = c(x) - s. The resulting NLS 
         bℓ ≤ x ≤ bu
         cℓ ≤ s ≤ bu
 
-This is done using SlackModel first, and then defining the NLS.
+This is done using SlackModel first, and then defining the NLS. Notice that if bℓᵢ =
+buᵢ, no slack variable is created.
 """
 mutable struct FeasibilityResidual <: AbstractNLSModel
   meta :: NLPModelMeta
@@ -35,8 +36,8 @@ function FeasibilityResidual(nlp :: AbstractNLPModel; name=nlp.meta.name)
   m, n = nlp.meta.ncon, nlp.meta.nvar
   # TODO: What is copied?
   meta = NLPModelMeta(n, x0=nlp.meta.x0, name=name, lvar=nlp.meta.lvar,
-                      uvar=nlp.meta.uvar)
-  nls_meta = NLSMeta(m, n)
+                      uvar=nlp.meta.uvar, nnzj=0)
+  nls_meta = NLSMeta(m, n, nnzj=nlp.meta.nnzj, nnzh=nlp.meta.nnzh)
   nls = FeasibilityResidual(meta, nls_meta, NLSCounters(), nlp)
   finalizer(nls -> finalize(nls.nlp), nls)
 
@@ -56,6 +57,11 @@ end
 function jac_residual(nls :: FeasibilityResidual, x :: AbstractVector)
   increment!(nls, :neval_jac_residual)
   return jac(nls.nlp, x)
+end
+
+function jac_coord_residual(nls :: FeasibilityResidual, x :: AbstractVector)
+  increment!(nls, :neval_jac_residual)
+  return jac_coord(nls.nlp, x)
 end
 
 function jprod_residual(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector)
@@ -81,6 +87,11 @@ end
 function hess_residual(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector)
   increment!(nls, :neval_hess_residual)
   return hess(nls.nlp, x, obj_weight = 0.0, y=v)
+end
+
+function hess_coord_residual(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector)
+  increment!(nls, :neval_hess_residual)
+  return hess_coord(nls.nlp, x, obj_weight=0.0, y=v)
 end
 
 function jth_hess_residual(nls :: FeasibilityResidual, x :: AbstractVector, i :: Int)

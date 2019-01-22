@@ -41,6 +41,7 @@ function FeasibilityFormNLS(nls :: AbstractNLSModel)
   meta = nls.meta
   nvar = meta.nvar + nequ
   ncon = meta.ncon + nequ
+  nnzh = meta.nnzh + nequ + (meta.ncon == 0 ? 0 : nls.nls_meta.nnzh) # Some indexes can be repeated
   meta = NLPModelMeta(nvar, x0=[meta.x0; zeros(nequ)],
                       lvar=[meta.lvar; fill(-Inf, nequ)],
                       uvar=[meta.uvar; fill( Inf, nequ)],
@@ -49,9 +50,11 @@ function FeasibilityFormNLS(nls :: AbstractNLSModel)
                       ucon=[zeros(nequ); meta.ucon],
                       y0=[zeros(nequ); meta.y0],
                       lin=meta.lin,
-                      nln=[1:nequ; (meta.nln) .+ nequ]
+                      nln=[1:nequ; (meta.nln) .+ nequ],
+                      nnzj=meta.nnzj + nls.nls_meta.nnzj + nequ,
+                      nnzh=nnzh
                      )
-  nls_meta = NLSMeta(nequ, nvar, [meta.x0; zeros(nequ)])
+  nls_meta = NLSMeta(nequ, nvar, x0=[meta.x0; zeros(nequ)], nnzj=nequ, nnzh=0)
 
   nlp = FeasibilityFormNLS(meta, nls_meta, nls, NLSCounters())
   finalizer(nlp -> finalize(nlp.internal), nlp)
@@ -114,13 +117,14 @@ function cons!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, c :: AbstractVec
 end
 
 function jac_coord(nlp :: FeasibilityFormNLS, xr :: AbstractVector)
-  J = jac(nlp, xr)
-  if J isa SparseMatrixCSC
-    return findnz(J)
-  else
-    I = findall(!iszero, J)
-    return (getindex.(I, 1), getindex.(I, 2), J[I])
-  end
+  n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
+  x = @view xr[1:n]
+  IF, JF, VF = jac_coord_residual(nlp.internal, x)
+  (Ic, Jc, Vc) = m > 0 ? jac_coord(nlp.internal, x) : (Int[], Int[], Float64[])
+  I = [IF; Ic .+ ne; 1:ne]
+  J = [JF; Jc; (n+1):(n+ne)]
+  V = [VF; Vc; -ones(ne)]
+  return I, J, V
 end
 
 function jac(nlp :: FeasibilityFormNLS, xr :: AbstractVector)
@@ -168,13 +172,16 @@ end
 
 function hess_coord(nlp :: FeasibilityFormNLS, xr :: AbstractVector;
     obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
-  W = hess(nlp, xr, obj_weight=obj_weight, y=y)
-  if W isa SparseMatrixCSC
-    return findnz(W)
-  else
-    I = findall(!iszero, W)
-    return (getindex.(I, 1), getindex.(I, 2), W[I])
-  end
+  n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
+  x = @view xr[1:n]
+  y1 = @view y[1:ne]
+  y2 = @view y[ne+1:ne+m]
+  IF, JF, VF = hess_coord_residual(nlp.internal, x, y1)
+  (Ic, Jc, Vc) = m > 0 ? hess_coord(nlp.internal, x, obj_weight=0.0, y=y2) : (Int[], Int[], Float64[])
+  I = [IF; Ic; (n+1:n+ne)]
+  J = [JF; Jc; (n+1:n+ne)]
+  V = [VF; Vc; obj_weight * ones(ne)]
+  return I, J, V
 end
 
 function hess(nlp :: FeasibilityFormNLS, xr :: AbstractVector;
@@ -223,6 +230,12 @@ function jac_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector)
   return [spzeros(ne, n) I]
 end
 
+function jac_coord_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector)
+  increment!(nlp, :neval_jac_residual)
+  n, ne = nlp.internal.meta.nvar, nlp.internal.nls_meta.nequ
+  return collect(1:ne), collect((n+1):(n+ne)), ones(ne)
+end
+
 function jprod_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nlp, :neval_jprod_residual)
   n = nlp.internal.meta.nvar
@@ -242,6 +255,11 @@ function hess_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: Abst
   increment!(nlp, :neval_hess_residual)
   n = nlp.meta.nvar
   return spzeros(n, n)
+end
+
+function hess_coord_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector)
+  increment!(nlp, :neval_hess_residual)
+  return (Int[], Int[], Float64[])
 end
 
 function jth_hess_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector, i :: Int)
