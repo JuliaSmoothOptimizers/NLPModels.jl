@@ -80,7 +80,11 @@ function jac_coord_residual(nls :: LLSModel, x :: AbstractVector)
     return findnz(nls.A)
   else
     m, n = size(nls.A)
-    I = ((i,j) for i = 1:m, j = 1:n)
+    if VERSION < v"1.0"
+      I = [(i,j) for i = 1:m, j = 1:n]
+    else
+      I = ((i,j) for i = 1:m, j = 1:n)
+    end
     return (getindex.(I, 1)[:], getindex.(I, 2)[:], nls.A[:])
   end
 end
@@ -140,7 +144,11 @@ function jac_coord(nls :: LLSModel, x :: AbstractVector)
     return findnz(nls.C)
   else
     m, n = size(nls.C)
-    I = ((i,j) for i = 1:m, j = 1:n)
+    if VERSION < v"1.0"
+      I = [(i,j) for i = 1:m, j = 1:n]
+    else
+      I = ((i,j) for i = 1:m, j = 1:n)
+    end
     return (getindex.(I, 1)[:], getindex.(I, 2)[:], nls.C[:])
   end
 end
@@ -196,7 +204,11 @@ function hess_coord(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y ::
       return I, J, obj_weight * V
     else
       n = size(nls.A, 2)
-      I = ((i,j,obj_weight * H[i,j]) for i = 1:n, j = 1:n if i ≥ j)
+      if VERSION < v"1.0"
+        I = [(i,j,obj_weight * H[i,j]) for i = 1:n, j = 1:n if i ≥ j]
+      else
+        I = ((i,j,obj_weight * H[i,j]) for i = 1:n, j = 1:n if i ≥ j)
+      end
       return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
     end
   end
