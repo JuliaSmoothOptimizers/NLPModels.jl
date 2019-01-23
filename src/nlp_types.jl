@@ -78,8 +78,8 @@ struct NLPModelMeta <: AbstractNLPModelMeta
   jinf  :: Vector{Int}     # indices of the visibly infeasible constraints
 
   nnzo :: Int               # number of nonzeros in all objectives gradients
-  nnzj :: Int               # number of nonzeros in the sparse Jacobian
-  nnzh :: Int               # number of nonzeros in the sparse Hessian
+  nnzj :: Int               # number of elements needed to store the nonzeros in the sparse Jacobian
+  nnzh :: Int               # number of elements needed to store the nonzeros in the sparse Hessian
 
   nlin  :: Int              # number of linear constraints
   nnln  :: Int              # number of nonlinear general constraints
@@ -154,8 +154,8 @@ struct NLPModelMeta <: AbstractNLPModelMeta
     jfree = findall((lcon .== -Inf) .& (ucon .== Inf))
     jinf  = findall(lcon .> ucon)
 
-    nnzj = max(0, min(nnzj, nvar * ncon))
-    nnzh = max(0, min(nnzh, nvar * nvar))
+    nnzj = max(0, nnzj)
+    nnzh = max(0, nnzh)
 
     new(nvar, x0, lvar, uvar,
         ifix, ilow, iupp, irng, ifree, iinf,
