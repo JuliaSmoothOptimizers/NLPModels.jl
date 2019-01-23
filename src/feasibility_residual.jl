@@ -46,12 +46,14 @@ end
 
 function residual(nls :: FeasibilityResidual, x :: AbstractVector)
   increment!(nls, :neval_residual)
-  return cons(nls.nlp, x)
+  return cons(nls.nlp, x) - nls.nlp.meta.lcon
 end
 
 function residual!(nls :: FeasibilityResidual, x :: AbstractVector, Fx :: AbstractVector)
   increment!(nls, :neval_residual)
-  return cons!(nls.nlp, x, Fx)
+  cons!(nls.nlp, x, Fx)
+  Fx .-= nls.nlp.meta.lcon
+  return Fx
 end
 
 function jac_residual(nls :: FeasibilityResidual, x :: AbstractVector)
