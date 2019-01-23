@@ -41,7 +41,7 @@ function FeasibilityFormNLS(nls :: AbstractNLSModel)
   meta = nls.meta
   nvar = meta.nvar + nequ
   ncon = meta.ncon + nequ
-  nnzh = meta.nnzh + nequ + (meta.ncon == 0 ? 0 : nls.nls_meta.nnzh) # Some indexes can be repeated
+  nnzh = nls.nls_meta.nnzh + nequ + (meta.ncon == 0 ? 0 : meta.nnzh) # Some indexes can be repeated
   meta = NLPModelMeta(nvar, x0=[meta.x0; zeros(nequ)],
                       lvar=[meta.lvar; fill(-Inf, nequ)],
                       uvar=[meta.uvar; fill( Inf, nequ)],
