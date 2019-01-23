@@ -25,8 +25,10 @@ function test_nls_to_cons()
 
   @testset "Test FeasibilityFormNLS with LLSModel" begin
     for n = [10; 30], ne = [10; 20; 30], m = [0; 20]
-      for T in [#(rows,cols)->Matrix(1.0I, rows, cols) .+ 1,
-                (rows,cols)->sparse(1.0I, rows, cols) .+ 1]
+      for T in [(rows,cols)->Matrix(1.0I, rows, cols) .+ 1,
+                (rows,cols)->sparse(1.0I, rows, cols) .+ 1,
+                (rows,cols)->sparse(1.0I, rows, cols)
+               ]
         A = T(ne,n)
         b = collect(1:ne)
         C = m > 0 ? T(m,n) : zeros(0,n)
@@ -41,6 +43,29 @@ function test_nls_to_cons()
         consistent_nls_functions([nlpcon; lls2])
       end
     end
+  end
+
+  @testset "Test FeasibilityFormNLS of a FeasibilityResidual" begin
+    c(x) = [x[1]^2 + x[2]^2 - 5; x[1] * x[2] - 2; x[1] - 1; x[2] - 1]
+    x0 = [0.5; 1.5]
+    nlp = ADNLPModel(x->0, x0, c=c, lcon=zeros(4), ucon=zeros(4))
+    ffnls = FeasibilityFormNLS(FeasibilityResidual(nlp))
+    nlp2 = ADNLSModel(x->x[3:6], [x0; zeros(4)], 4,
+                      c=x->c(x[1:2]) - x[3:6], lcon=zeros(4), ucon=zeros(4))
+    consistent_functions([ffnls; nlp2])
+    consistent_nls_functions([ffnls; nlp2])
+
+    # The test belows verifies that the nnzj and nnzh information are not lost
+    n = 10
+    m = 2n
+    A = [spdiagm(0 => 2 * ones(n), 1 => -ones(n-1), -1 => -ones(n-1)); -I]
+    b = zeros(m)
+    nlp = LLSModel(spzeros(0, n), zeros(0), C=A, lcon=b, ucon=b)
+    ffnls = FeasibilityFormNLS(FeasibilityResidual(nlp))
+    nlp2 = LLSModel([spzeros(m, n)  I], zeros(m),
+                    C=[A -I], lcon=b, ucon=b)
+    consistent_functions([ffnls; nlp2])
+    consistent_nls_functions([ffnls; nlp2])
   end
 end
 
