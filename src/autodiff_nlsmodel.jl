@@ -69,7 +69,11 @@ end
 function jac_coord_residual(nls :: ADNLSModel, x :: AbstractVector)
   Jx = jac_residual(nls, x)
   m, n = nls.nls_meta.nequ, nls.meta.nvar
-  I = ((i,j) for i = 1:m, j = 1:n)
+  if VERSION < v"1.0"
+    I = [(i,j) for i = 1:m, j = 1:n]
+  else
+    I = ((i,j) for i = 1:m, j = 1:n)
+  end
   return (getindex.(I, 1)[:], getindex.(I, 2)[:], Jx[:])
 end
 
@@ -93,7 +97,11 @@ end
 function hess_coord_residual(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector)
   Hx = hess_residual(nls, x, v)
   n = nls.meta.nvar
-  I = ((i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j)
+  if VERSION < v"1.0"
+    I = [(i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j]
+  else
+    I = ((i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j)
+  end
   return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
 end
 
@@ -127,7 +135,11 @@ end
 function jac_coord(nlp :: ADNLSModel, x :: AbstractVector)
   Jx = jac(nlp, x)
   m, n = nlp.meta.ncon, nlp.meta.nvar
-  I = ((i,j) for i = 1:m, j = 1:n)
+  if VERSION < v"1.0"
+    I = [(i,j) for i = 1:m, j = 1:n]
+  else
+    I = ((i,j) for i = 1:m, j = 1:n)
+  end
   return (getindex.(I, 1)[:], getindex.(I, 2)[:], Jx[:])
 end
 
@@ -173,7 +185,11 @@ end
 function hess_coord(nls :: ADNLSModel, x :: AbstractVector; obj_weight :: Real = 1.0, y :: AbstractVector = Float64[])
   Hx = hess(nls, x, obj_weight=obj_weight, y=y)
   n = nls.meta.nvar
-  I = ((i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j)
+  if VERSION < v"1.0"
+    I = [(i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j]
+  else
+    I = ((i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j)
+  end
   return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
 end
 
