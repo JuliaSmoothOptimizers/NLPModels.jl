@@ -50,10 +50,11 @@ mutable struct ADNLPModel <: AbstractNLPModel
   c :: Function
 end
 
-function ADNLPModel(f::Function, x0::AbstractVector{T}; y0::AbstractVector = T[],
-    lvar::AbstractVector = T[], uvar::AbstractVector = T[], lcon::AbstractVector = T[], ucon::AbstractVector = T[],
+function ADNLPModel(f::Function, x0::AbstractVector; y0::AbstractVector = eltype(x0)[],
+                    lvar::AbstractVector = eltype(x0)[], uvar::AbstractVector = eltype(x0)[],
+                    lcon::AbstractVector = eltype(x0)[], ucon::AbstractVector = eltype(x0)[],
     c::Function = (args...)->throw(NotImplementedError("cons")),
-    name::String = "Generic", lin::AbstractVector{Int}=Int[]) where T <: Real
+    name::String = "Generic", lin::AbstractVector{Int}=Int[])
 
   nvar = length(x0)
   length(lvar) == 0 && (lvar = -Inf*ones(nvar))
@@ -147,7 +148,7 @@ function jtprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jt
   return Jtv
 end
 
-function hess(nlp :: ADNLPModel, x :: AbstractVector{T}; obj_weight :: Real = one(T), y :: AbstractVector = T[]) where T <: Real
+function hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   increment!(nlp, :neval_hess)
   Hx = obj_weight == 0.0 ? spzeros(nlp.meta.nvar, nlp.meta.nvar) :
        ForwardDiff.hessian(nlp.f, x) * obj_weight
@@ -159,7 +160,7 @@ function hess(nlp :: ADNLPModel, x :: AbstractVector{T}; obj_weight :: Real = on
   return tril(Hx)
 end
 
-function hess_coord(nlp :: ADNLPModel, x :: AbstractVector{T}; obj_weight :: Real = one(T), y :: AbstractVector = T[]) where T <: Real
+function hess_coord(nlp :: ADNLPModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
   n = nlp.meta.nvar
   if VERSION < v"1.0"
@@ -170,14 +171,14 @@ function hess_coord(nlp :: ADNLPModel, x :: AbstractVector{T}; obj_weight :: Rea
   return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
 end
 
-function hprod(nlp :: ADNLPModel, x :: AbstractVector{T}, v :: AbstractVector;
-               obj_weight :: Real = one(T), y :: AbstractVector = T[]) where T <: Real
+function hprod(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector;
+               obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   Hv = zeros(nlp.meta.nvar)
   return hprod!(nlp, x, v, Hv, obj_weight=obj_weight, y=y)
 end
 
-function hprod!(nlp :: ADNLPModel, x :: AbstractVector{T}, v :: AbstractVector, Hv :: AbstractVector;
-                obj_weight :: Real = one(T), y :: AbstractVector = T[]) where T <: Real
+function hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
+                obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   increment!(nlp, :neval_hprod)
   n = nlp.meta.nvar
   Hv[1:n] = obj_weight == 0.0 ? zeros(nlp.meta.nvar) :
