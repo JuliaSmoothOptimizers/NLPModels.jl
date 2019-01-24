@@ -245,7 +245,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Models",
     "title": "NLPModels.FeasibilityResidual",
     "category": "type",
-    "text": "A feasibility residual model is created from a NLPModel of the form\n\nmin f(x)\ns.t cℓ ≤ c(x) ≤ cu\n    bℓ ≤   x  ≤ bu\n\nby creating slack variables s and defining F(x,s) = c(x) - s. The resulting NLS problem is\n\nmin ¹/₂‖c(x) - s‖²\n    bℓ ≤ x ≤ bu\n    cℓ ≤ s ≤ bu\n\nThis is done using SlackModel first, and then defining the NLS.\n\n\n\n\n\n"
+    "text": "A feasibility residual model is created from a NLPModel of the form\n\nmin f(x)\ns.t cℓ ≤ c(x) ≤ cu\n    bℓ ≤   x  ≤ bu\n\nby creating slack variables s and defining F(x,s) = c(x) - s. The resulting NLS problem is\n\nmin ¹/₂‖c(x) - s‖²\n    bℓ ≤ x ≤ bu\n    cℓ ≤ s ≤ bu\n\nThis is done using SlackModel first, and then defining the NLS. Notice that if bℓᵢ = buᵢ, no slack variable is created.\n\n\n\n\n\n"
 },
 
 {
@@ -629,7 +629,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "API for NLSModels",
     "category": "section",
-    "text": "For the Nonlinear Least Squares models, f(x) = Vert F(x)Vert^2, and these models have additional function to access the residual value and its derivatives. Namely,J_F(x) = nabla F(x)\nnabla^2 F_i(x)Function function\nF(x) residual, residual!\nJ_F(x) jac_residual, jprod_residual, jprod_residual!, jtprod_residual, jtprod_residual!, jac_op_residual, jac_op_residual!\nnabla^2 F_i(x) hess_residual, jth_hess_residual, hprod_residual, hprod_residual!, hess_op_residual, hess_op_residual!"
+    "text": "For the Nonlinear Least Squares models, f(x) = Vert F(x)Vert^2, and these models have additional function to access the residual value and its derivatives. Namely,J_F(x) = nabla F(x)\nnabla^2 F_i(x)Function function\nF(x) residual, residual!\nJ_F(x) jac_residual, jac_coord_residual, jprod_residual, jprod_residual!, jtprod_residual, jtprod_residual!, jac_op_residual, jac_op_residual!\nnabla^2 F_i(x) hess_residual, hess_coord_residual, jth_hess_residual, hprod_residual, hprod_residual!, hess_op_residual, hess_op_residual!"
 },
 
 {
@@ -865,6 +865,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api/#NLPModels.jac_coord_residual",
+    "page": "API",
+    "title": "NLPModels.jac_coord_residual",
+    "category": "function",
+    "text": "(rows,cols,vals) = jac_coord_residual(nls, x)\n\nComputes the Jacobian of the residual at x in sparse coordinate format.\n\n\n\n\n\n"
+},
+
+{
     "location": "api/#NLPModels.jprod_residual",
     "page": "API",
     "title": "NLPModels.jprod_residual",
@@ -917,7 +925,15 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_residual",
     "category": "function",
-    "text": "H = hess_residual(nls, x, v)\n\nComputes the linear combinations of the Hessians of the residuals at x with coefficients v.\n\n\n\n\n\n"
+    "text": "H = hess_residual(nls, x, v)\n\nComputes the linear combination of the Hessians of the residuals at x with coefficients v.\n\n\n\n\n\n"
+},
+
+{
+    "location": "api/#NLPModels.hess_coord_residual",
+    "page": "API",
+    "title": "NLPModels.hess_coord_residual",
+    "category": "function",
+    "text": "(rows,cols,vals) = hess_coord_residual(nls, x, v)\n\nComputes the linear combination of the Hessians of the residuals at x with coefficients v in sparse coordinate format.\n\n\n\n\n\n"
 },
 
 {
@@ -965,7 +981,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "AbstractNLSModel",
     "category": "section",
-    "text": "residual\nresidual!\njac_residual\njprod_residual\njprod_residual!\njtprod_residual\njtprod_residual!\njac_op_residual\njac_op_residual!\nhess_residual\njth_hess_residual\nhprod_residual\nhprod_residual!\nhess_op_residual\nhess_op_residual!"
+    "text": "residual\nresidual!\njac_residual\njac_coord_residual\njprod_residual\njprod_residual!\njtprod_residual\njtprod_residual!\njac_op_residual\njac_op_residual!\nhess_residual\nhess_coord_residual\njth_hess_residual\nhprod_residual\nhprod_residual!\nhess_op_residual\nhess_op_residual!"
 },
 
 {
