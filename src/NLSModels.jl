@@ -93,8 +93,8 @@ include("feasibility_residual.jl")
 
 Computes F(x), the residual at x.
 """
-function residual(nls :: AbstractNLSModel, x :: AbstractVector{T}) where T <: Real
-  Fx = zeros(T, nls_meta(nls).nequ)
+function residual(nls :: AbstractNLSModel, x :: AbstractVector)
+  Fx = zeros(eltype(x), nls_meta(nls).nequ)
   residual!(nls, x, Fx)
 end
 
@@ -130,8 +130,8 @@ end
 
 Computes the product of the Jacobian of the residual at x and a vector, i.e.,  J(x)*v.
 """
-function jprod_residual(nls :: AbstractNLSModel, x :: AbstractVector{T}, v :: AbstractVector) where T <: Real
-  Jv = zeros(T, nls_meta(nls).nequ)
+function jprod_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector)
+  Jv = zeros(eltype(x), nls_meta(nls).nequ)
   jprod_residual!(nls, x, v, Jv)
 end
 
@@ -149,8 +149,8 @@ end
 
 Computes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  J(x)'*v.
 """
-function jtprod_residual(nls :: AbstractNLSModel, x :: AbstractVector{T}, v :: AbstractVector) where T <: Real
-  Jtv = zeros(T, nls_meta(nls).nvar)
+function jtprod_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector)
+  Jtv = zeros(eltype(x), nls_meta(nls).nvar)
   jtprod_residual!(nls, x, v, Jtv)
 end
 
@@ -227,8 +227,8 @@ end
 
 Computes the product of the Hessian of the i-th residual at x, times the vector v.
 """
-function hprod_residual(nls :: AbstractNLSModel, x :: AbstractVector{T}, i :: Int, v :: AbstractVector) where T <: Real
-  Hv = zeros(T, nls_meta(nls).nvar)
+function hprod_residual(nls :: AbstractNLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector)
+  Hv = zeros(eltype(x), nls_meta(nls).nvar)
   hprod_residual!(nls, x, i, v, Hv)
 end
 
@@ -271,8 +271,8 @@ function obj(nls :: AbstractNLSModel, x :: AbstractVector)
   return dot(Fx, Fx) / 2
 end
 
-function grad(nls :: AbstractNLSModel, x :: AbstractVector{T}) where T <: Real
-  g = zeros(T, nls_meta(nls).nvar)
+function grad(nls :: AbstractNLSModel, x :: AbstractVector)
+  g = zeros(eltype(x), nls_meta(nls).nvar)
   return grad!(nls, x, g)
 end
 
@@ -282,8 +282,8 @@ function grad!(nls :: AbstractNLSModel, x :: AbstractVector, g :: AbstractVector
   return jtprod_residual!(nls, x, Fx, g)
 end
 
-function objgrad(nls :: AbstractNLSModel, x :: AbstractVector{T}) where T <: Real
-  g = zeros(T, nls_meta(nls).nvar)
+function objgrad(nls :: AbstractNLSModel, x :: AbstractVector)
+  g = zeros(eltype(x), nls_meta(nls).nvar)
   return objgrad!(nls, x, g)
 end
 
@@ -295,8 +295,8 @@ function objgrad!(nls :: AbstractNLSModel, x :: AbstractVector, g :: AbstractVec
   return dot(Fx, Fx) / 2, g
 end
 
-function hess(nls :: AbstractNLSModel, x :: AbstractVector{T}; obj_weight ::
-              Real = one(T), y :: AbstractVector = T[]) where T<: Real
+function hess(nls :: AbstractNLSModel, x :: AbstractVector; obj_weight ::
+              Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   increment!(nls, :neval_hess)
   Fx = residual(nls, x)
   Jx = jac_residual(nls, x)
@@ -306,22 +306,22 @@ function hess(nls :: AbstractNLSModel, x :: AbstractVector{T}; obj_weight ::
   return obj_weight * Hx
 end
 
-function hprod(nls :: AbstractNLSModel, x :: AbstractVector{T}, v ::
-               AbstractVector; obj_weight :: Real = one(T), y :: AbstractVector
-               = T[]) where T <: Real
-  Hv = zeros(T, nls_meta(nls).nvar)
+function hprod(nls :: AbstractNLSModel, x :: AbstractVector, v ::
+               AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector
+               = eltype(x)[])
+  Hv = zeros(eltype(x), nls_meta(nls).nvar)
   return hprod!(nls, x, v, Hv, obj_weight=obj_weight, y=y)
 end
 
-function hprod!(nls :: AbstractNLSModel, x :: AbstractVector{T}, v ::
+function hprod!(nls :: AbstractNLSModel, x :: AbstractVector, v ::
                 AbstractVector, Hv :: AbstractVector; obj_weight :: Real =
-                one(T), y :: AbstractVector = T[]) where T <: Real
+                one(eltype(x)), y :: AbstractVector = eltype(x)[])
   increment!(nls, :neval_hprod)
   Fx = residual(nls, x)
   Jv = jprod_residual(nls, x, v)
   jtprod_residual!(nls, x, Jv, Hv)
   m = length(Fx)
-  Hiv = zeros(T, length(x))
+  Hiv = zeros(eltype(x), length(x))
   for i = 1:m
     hprod_residual!(nls, x, i, v, Hiv)
     Hv .= Hv .+ Fx[i] * Hiv

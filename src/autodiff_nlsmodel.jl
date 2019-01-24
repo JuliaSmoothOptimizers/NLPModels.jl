@@ -30,15 +30,15 @@ mutable struct ADNLSModel <: AbstractNLSModel
   c :: Function
 end
 
-function ADNLSModel(F :: Function, x0 :: AbstractVector{T}, m :: Int;
+function ADNLSModel(F :: Function, x0 :: AbstractVector, m :: Int;
                     name :: String = "Generic",
-                    lvar :: AbstractVector = fill(-T(Inf), length(x0)),
-                    uvar :: AbstractVector = fill( T(Inf), length(x0)),
+                    lvar :: AbstractVector = fill(-eltype(x0)(Inf), length(x0)),
+                    uvar :: AbstractVector = fill( eltype(x0)(Inf), length(x0)),
                     c :: Function = (args...)->throw(NotImplementedError("cons")),
-                    lcon :: AbstractVector = T[],
-                    ucon :: AbstractVector = T[],
-                    y0 :: AbstractVector = zeros(T, max(length(lcon), length(ucon)))
-                   ) where T <: Real
+                    lcon :: AbstractVector = eltype(x0)[],
+                    ucon :: AbstractVector = eltype(x0)[],
+                    y0 :: AbstractVector = zeros(eltype(x0), max(length(lcon), length(ucon)))
+                   )
   nvar = length(x0)
   ncon = maximum([length(lcon); length(ucon); length(y0)])
   if !(length(lcon) == length(ucon) == length(y0))
@@ -52,6 +52,8 @@ function ADNLSModel(F :: Function, x0 :: AbstractVector{T}, m :: Int;
 
   return ADNLSModel(meta, nls_meta, NLSCounters(), F, c)
 end
+
+ADNLSModel(F :: Function, n :: Int, m :: Int; kwargs...) = ADNLSModel(F, zeros(n), m; kwargs...)
 
 function residual!(nls :: ADNLSModel, x :: AbstractVector, Fx :: AbstractVector)
   increment!(nls, :neval_residual)
@@ -163,11 +165,11 @@ function jtprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jt
   return Jtv
 end
 
-function hess(nls :: ADNLSModel, x :: AbstractVector{T}; obj_weight :: Real = one(T), y :: AbstractVector = T[]) where T <: Real
+function hess(nls :: ADNLSModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   increment!(nls, :neval_hess)
   Fx = residual(nls, x)
   Jx = jac_residual(nls, x)
-  Hx = obj_weight == 0.0 ? spzeros(T, nls.meta.nvar, nls.meta.nvar) : Jx' * Jx * obj_weight
+  Hx = obj_weight == 0.0 ? spzeros(eltype(x), nls.meta.nvar, nls.meta.nvar) : Jx' * Jx * obj_weight
   if obj_weight != 0.0
     m = length(Fx)
     Hx += obj_weight * hess_residual(nls, x, Fx)
@@ -180,7 +182,7 @@ function hess(nls :: ADNLSModel, x :: AbstractVector{T}; obj_weight :: Real = on
   return tril(Hx)
 end
 
-function hess_coord(nls :: ADNLSModel, x :: AbstractVector{T}; obj_weight :: Real = one(T), y :: AbstractVector = T[]) where T <: Real
+function hess_coord(nls :: ADNLSModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   Hx = hess(nls, x, obj_weight=obj_weight, y=y)
   n = nls.meta.nvar
   if VERSION < v"1.0"
@@ -191,14 +193,14 @@ function hess_coord(nls :: ADNLSModel, x :: AbstractVector{T}; obj_weight :: Rea
   return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
 end
 
-function hprod(nls :: ADNLSModel, x :: AbstractVector{T}, v :: AbstractVector;
-               obj_weight = one(T), y :: AbstractVector = T[]) where T <: Real
-  Hv = zeros(T, nls.meta.nvar)
+function hprod(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector;
+               obj_weight = one(eltype(x)), y :: AbstractVector = eltype(x)[])
+  Hv = zeros(eltype(x), nls.meta.nvar)
   return hprod!(nls, x, v, Hv, obj_weight=obj_weight, y=y)
 end
 
-function hprod!(nls :: ADNLSModel, x :: AbstractVector{T}, v :: AbstractVector, Hv :: AbstractVector;
-                obj_weight = one(T), y :: AbstractVector = T[]) where T <: Real
+function hprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
+                obj_weight = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   increment!(nls, :neval_hprod)
   n = nls.meta.nvar
   if obj_weight != 0.0
@@ -206,7 +208,7 @@ function hprod!(nls :: ADNLSModel, x :: AbstractVector{T}, v :: AbstractVector, 
     Jv = jprod_residual(nls, x, v)
     @views jtprod_residual!(nls, x, Jv, Hv[1:n])
     m = length(Fx)
-    Hiv = zeros(T, n)
+    Hiv = zeros(eltype(x), n)
     for i = 1:m
       hprod_residual!(nls, x, i, v, Hiv)
       @views Hv[1:n] .= Hv[1:n] .+ Fx[i] * Hiv
