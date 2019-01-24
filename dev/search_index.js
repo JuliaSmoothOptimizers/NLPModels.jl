@@ -341,7 +341,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "Functions evaluations",
     "category": "section",
-    "text": "After calling one the API functions to get a function value, the number of times that function was called is stored inside the NLPModel. For instanceusing NLPModels, LinearAlgebra\nnlp = ADNLPModel(x -> dot(x, x), zeros(2))\nfor i = 1:100\n    obj(nlp, rand(2))\nend\nneval_obj(nlp)Some counters are available for all models, some are specific. In particular, there are additional specific counters for the nonlinear least squares models.Counter Description\nneval_obj Objective\nneval_grad Gradient\nneval_cons Constraints\nneval_jcon One constraint - unused\nneval_jgrad Gradient of one constraints - unused\nneval_jac Jacobian\nneval_jprod Product of Jacobian and vector\nneval_jtprod Product of transposed Jacobian and vector\nneval_hess Hessian\nneval_hprod Product of Hessian and vector\nneval_jhprod Product of Hessian of j-th function and vector\nneval_residual Residual function of nonlinear least squares model\nneval_jac_residual Jacobian of the residual\nneval_jprod_residual Product of Jacobian of residual and vector\nneval_jtprod_residual Product of transposed Jacobian of residual and vector\nneval_hess_residual Hessian of a residual component\nneval_hprod_residual Product of Hessian of a residual component and vectorTo get the sum of all counters called for a problem, use sum_counters.using NLPModels, LinearAlgebra\nnlp = ADNLPModel(x -> dot(x, x), zeros(2))\nobj(nlp, rand(2))\ngrad(nlp, rand(2))\nsum_counters(nlp)"
+    "text": "After calling one the API functions to get a function value, the number of times that function was called is stored inside the NLPModel. For instanceusing NLPModels, LinearAlgebra\nnlp = ADNLPModel(x -> dot(x, x), zeros(2))\nfor i = 1:100\n    obj(nlp, rand(2))\nend\nneval_obj(nlp)Some counters are available for all models, some are specific. In particular, there are additional specific counters for the nonlinear least squares models.Counter Description\nneval_obj Objective\nneval_grad Gradient\nneval_cons Constraints\nneval_jcon One constraint - unused\nneval_jgrad Gradient of one constraints - unused\nneval_jac Jacobian\nneval_jprod Product of Jacobian and vector\nneval_jtprod Product of transposed Jacobian and vector\nneval_hess Hessian\nneval_hprod Product of Hessian and vector\nneval_jhprod Product of Hessian of j-th function and vector\nneval_residual Residual function of nonlinear least squares model\nneval_jac_residual Jacobian of the residual\nneval_jprod_residual Product of Jacobian of residual and vector\nneval_jtprod_residual Product of transposed Jacobian of residual and vector\nneval_hess_residual Sum of Hessians of residuals\nneval_jhess_residual Hessian of a residual component\nneval_hprod_residual Product of Hessian of a residual component and vectorTo get the sum of all counters called for a problem, use sum_counters.using NLPModels, LinearAlgebra\nnlp = ADNLPModel(x -> dot(x, x), zeros(2))\nobj(nlp, rand(2))\ngrad(nlp, rand(2))\nsum_counters(nlp)"
 },
 
 {
@@ -481,6 +481,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "tools/#NLPModels.neval_jhess_residual",
+    "page": "Tools",
+    "title": "NLPModels.neval_jhess_residual",
+    "category": "function",
+    "text": "NLPModels.neval_jhess_residual(nlp)\n\nGet the number of jhess evaluations.\n\n\n\n\n\n"
+},
+
+{
     "location": "tools/#NLPModels.neval_hprod_residual",
     "page": "Tools",
     "title": "NLPModels.neval_hprod_residual",
@@ -549,7 +557,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "Docs",
     "category": "section",
-    "text": "neval_obj\nneval_grad\nneval_cons\nneval_jcon\nneval_jgrad\nneval_jac\nneval_jprod\nneval_jtprod\nneval_hess\nneval_hprod\nneval_jhprod\nneval_residual\nneval_jac_residual\nneval_jprod_residual\nneval_jtprod_residual\nneval_hess_residual\nneval_hprod_residual\nsum_counters\nbound_constrained\nequality_constrained\nhas_bounds\ninequality_constrained\nlinearly_constrained\nunconstrained"
+    "text": "neval_obj\nneval_grad\nneval_cons\nneval_jcon\nneval_jgrad\nneval_jac\nneval_jprod\nneval_jtprod\nneval_hess\nneval_hprod\nneval_jhprod\nneval_residual\nneval_jac_residual\nneval_jprod_residual\nneval_jtprod_residual\nneval_hess_residual\nneval_jhess_residual\nneval_hprod_residual\nsum_counters\nbound_constrained\nequality_constrained\nhas_bounds\ninequality_constrained\nlinearly_constrained\nunconstrained"
 },
 
 {
@@ -621,7 +629,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "API for NLSModels",
     "category": "section",
-    "text": "For the Nonlinear Least Squares models, f(x) = Vert F(x)Vert^2, and these models have additional function to access the residual value and its derivatives. Namely,J_F(x) = nabla F(x)\nnabla^2 F_i(x)Function function\nF(x) residual, residual!\nJ_F(x) jac_residual, jprod_residual, jprod_residual!, jtprod_residual, jtprod_residual!, jac_op_residual, jac_op_residual!\nnabla^2 F_i(x) hess_residual, hprod_residual, hprod_residual!, hess_op_residual, hess_op_residual!"
+    "text": "For the Nonlinear Least Squares models, f(x) = Vert F(x)Vert^2, and these models have additional function to access the residual value and its derivatives. Namely,J_F(x) = nabla F(x)\nnabla^2 F_i(x)Function function\nF(x) residual, residual!\nJ_F(x) jac_residual, jprod_residual, jprod_residual!, jtprod_residual, jtprod_residual!, jac_op_residual, jac_op_residual!\nnabla^2 F_i(x) hess_residual, jth_hess_residual, hprod_residual, hprod_residual!, hess_op_residual, hess_op_residual!"
 },
 
 {
@@ -909,7 +917,15 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_residual",
     "category": "function",
-    "text": "Hi = hess_residual(nls, x, i)\n\nComputes the Hessian of the i-th residual at x.\n\n\n\n\n\n"
+    "text": "H = hess_residual(nls, x, v)\n\nComputes the linear combinations of the Hessians of the residuals at x with coefficients v.\n\n\n\n\n\n"
+},
+
+{
+    "location": "api/#NLPModels.jth_hess_residual",
+    "page": "API",
+    "title": "NLPModels.jth_hess_residual",
+    "category": "function",
+    "text": "Hj = jth_hess_residual(nls, x, j)\n\nComputes the Hessian of the j-th residual at x.\n\n\n\n\n\n"
 },
 
 {
@@ -949,7 +965,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "AbstractNLSModel",
     "category": "section",
-    "text": "residual\nresidual!\njac_residual\njprod_residual\njprod_residual!\njtprod_residual\njtprod_residual!\njac_op_residual\njac_op_residual!\nhess_residual\nhprod_residual\nhprod_residual!\nhess_op_residual\nhess_op_residual!"
+    "text": "residual\nresidual!\njac_residual\njprod_residual\njprod_residual!\njtprod_residual\njtprod_residual!\njac_op_residual\njac_op_residual!\nhess_residual\njth_hess_residual\nhprod_residual\nhprod_residual!\nhess_op_residual\nhess_op_residual!"
 },
 
 {
