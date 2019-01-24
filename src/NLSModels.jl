@@ -184,7 +184,7 @@ function jac_op_residual!(nls :: AbstractNLSModel, x :: AbstractVector,
 end
 
 """
-    Hi = hess_residual(nls, x, v)
+    H = hess_residual(nls, x, v)
 
 Computes the linear combinations of the Hessians of the residuals at x with coefficients
 `v`.
@@ -194,9 +194,9 @@ function hess_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: Abstra
 end
 
 """
-    Hi = jth_hess_residual(nls, x, i)
+    Hj = jth_hess_residual(nls, x, j)
 
-Computes the Hessian of the i-th residual at x.
+Computes the Hessian of the j-th residual at x.
 """
 function jth_hess_residual(nls :: AbstractNLSModel, x :: AbstractVector, i :: Int)
   throw(NotImplementedError("jth_hess_residual"))
