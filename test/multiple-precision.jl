@@ -1,6 +1,6 @@
 function multiple_precision()
   @testset "Test multiple precision models" begin
-    for T = [Float64, Float32, Float16, BigFloat]
+    for T = [Float16, Float32, Float64, BigFloat]
       nlp = ADNLPModel(x->sum(x.^4), ones(T, 2),
                        c=x->[x[1]^2 + x[2]^2 - 1; x[1] * x[2]],
                        lcon=zeros(T, 2), ucon=zeros(T, 2))
