@@ -145,7 +145,3 @@ Attribute   | Type               | Notes
 `islp`      | `Bool            ` | true if the problem is a linear program
 `name`      | `ASCIIString     ` | problem name
 
-
-This content is released under the [MIT](http://opensource.org/licenses/MIT) License.
-<a rel="license" href="http://opensource.org/licenses/MIT">
-<img alt="MIT license" height="40" src="http://upload.wikimedia.org/wikipedia/commons/c/c3/License_icon-mit.svg" /></a>
