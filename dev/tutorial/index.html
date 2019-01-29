@@ -70,7 +70,43 @@ x, fx, ngx, optimal, iter = steepest(nlp)
 println(&quot;fx = $fx&quot;)
 println(&quot;ngx = $ngx&quot;)
 println(&quot;optimal = $optimal&quot;)
-println(&quot;iter = $iter&quot;)</code></pre><pre><code class="language-none">fx = 1.0000000000002167
+println(&quot;iter = $iter&quot;)</code></pre><pre><code class="language-none">WARNING: eval into closed module Base:
+Expr(:block, #= Symbol(&quot;/home/travis/.julia/packages/Compat/hsya0/src/Compat.jl&quot;):1891 =#, Expr(:call, :range, Expr(:parameters, Expr(:..., :kwargs)), :start, :stop) = Expr(:block, #= Symbol(&quot;/home/travis/.julia/packages/Compat/hsya0/src/Compat.jl&quot;):1891 =#, Expr(:call, :range, Expr(:parameters, Expr(:kw, :stop, :stop), Expr(:..., :kwargs)), :start)))
+  ** incremental compilation may be broken for this module **
+
+WARNING: Method definition range(Any, Any) in module Base at range.jl:90 overwritten at /home/travis/.julia/packages/Compat/hsya0/src/Compat.jl:1891.
+WARNING: Method definition #range(Any, typeof(Base.range), Any, Any) in module Base overwritten.
+WARNING: eval into closed module Base:
+Expr(:block, #= Symbol(&quot;/home/travis/.julia/packages/Compat/hsya0/src/Compat.jl&quot;):1891 =#, Expr(:call, :range, Expr(:parameters, Expr(:..., :kwargs)), :start, :stop) = Expr(:block, #= Symbol(&quot;/home/travis/.julia/packages/Compat/hsya0/src/Compat.jl&quot;):1891 =#, Expr(:call, :range, Expr(:parameters, Expr(:kw, :stop, :stop), Expr(:..., :kwargs)), :start)))
+  ** incremental compilation may be broken for this module **
+
+WARNING: Method definition range(Any, Any) in module Base at range.jl:90 overwritten at /home/travis/.julia/packages/Compat/hsya0/src/Compat.jl:1891.
+WARNING: Method definition #range(Any, typeof(Base.range), Any, Any) in module Base overwritten.
+WARNING: eval into closed module Base:
+Expr(:block, #= Symbol(&quot;/home/travis/.julia/packages/Compat/hsya0/src/Compat.jl&quot;):1891 =#, Expr(:call, :range, Expr(:parameters, Expr(:..., :kwargs)), :start, :stop) = Expr(:block, #= Symbol(&quot;/home/travis/.julia/packages/Compat/hsya0/src/Compat.jl&quot;):1891 =#, Expr(:call, :range, Expr(:parameters, Expr(:kw, :stop, :stop), Expr(:..., :kwargs)), :start)))
+  ** incremental compilation may be broken for this module **
+
+WARNING: Method definition range(Any, Any) in module Base at range.jl:90 overwritten at /home/travis/.julia/packages/Compat/hsya0/src/Compat.jl:1891.
+WARNING: Method definition #range(Any, typeof(Base.range), Any, Any) in module Base overwritten.
+WARNING: eval into closed module Base:
+Expr(:block, #= Symbol(&quot;/home/travis/.julia/packages/Compat/hsya0/src/Compat.jl&quot;):1891 =#, Expr(:call, :range, Expr(:parameters, Expr(:..., :kwargs)), :start, :stop) = Expr(:block, #= Symbol(&quot;/home/travis/.julia/packages/Compat/hsya0/src/Compat.jl&quot;):1891 =#, Expr(:call, :range, Expr(:parameters, Expr(:kw, :stop, :stop), Expr(:..., :kwargs)), :start)))
+  ** incremental compilation may be broken for this module **
+
+WARNING: Method definition range(Any, Any) in module Base at range.jl:90 overwritten at /home/travis/.julia/packages/Compat/hsya0/src/Compat.jl:1891.
+WARNING: Method definition #range(Any, typeof(Base.range), Any, Any) in module Base overwritten.
+WARNING: eval into closed module Base:
+Expr(:block, #= Symbol(&quot;/home/travis/.julia/packages/Compat/hsya0/src/Compat.jl&quot;):1891 =#, Expr(:call, :range, Expr(:parameters, Expr(:..., :kwargs)), :start, :stop) = Expr(:block, #= Symbol(&quot;/home/travis/.julia/packages/Compat/hsya0/src/Compat.jl&quot;):1891 =#, Expr(:call, :range, Expr(:parameters, Expr(:kw, :stop, :stop), Expr(:..., :kwargs)), :start)))
+  ** incremental compilation may be broken for this module **
+
+WARNING: Method definition range(Any, Any) in module Base at range.jl:90 overwritten at /home/travis/.julia/packages/Compat/hsya0/src/Compat.jl:1891.
+WARNING: Method definition #range(Any, typeof(Base.range), Any, Any) in module Base overwritten.
+WARNING: eval into closed module Base:
+Expr(:block, #= Symbol(&quot;/home/travis/.julia/packages/Compat/hsya0/src/Compat.jl&quot;):1891 =#, Expr(:call, :range, Expr(:parameters, Expr(:..., :kwargs)), :start, :stop) = Expr(:block, #= Symbol(&quot;/home/travis/.julia/packages/Compat/hsya0/src/Compat.jl&quot;):1891 =#, Expr(:call, :range, Expr(:parameters, Expr(:kw, :stop, :stop), Expr(:..., :kwargs)), :start)))
+  ** incremental compilation may be broken for this module **
+
+WARNING: Method definition range(Any, Any) in module Base at range.jl:90 overwritten at /home/travis/.julia/packages/Compat/hsya0/src/Compat.jl:1891.
+WARNING: Method definition #range(Any, typeof(Base.range), Any, Any) in module Base overwritten.
+fx = 1.0000000000002167
 ngx = 9.893253859340887e-7
 optimal = true
 iter = 12016</code></pre></div><p>For constrained minimization, you need the constraints vector and bounds too. Bounds on the variables can be passed through a new vector.</p><div><pre><code class="language-julia">f(x) = (x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2
