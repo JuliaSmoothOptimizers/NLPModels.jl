@@ -47,7 +47,7 @@ function ADNLSModel(F :: Function, x0 :: AbstractVector, m :: Int;
   nnzj = nvar * ncon
 
   meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0,
-                      lcon=lcon, ucon=ucon, nnzj=nnzj)
+                      lcon=lcon, ucon=ucon, nnzj=nnzj, name=name)
   nls_meta = NLSMeta(m, nvar, nnzj=m * nvar, nnzh=div(nvar * (nvar + 1), 2))
 
   return ADNLSModel(meta, nls_meta, NLSCounters(), F, c)
