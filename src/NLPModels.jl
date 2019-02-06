@@ -219,8 +219,8 @@ function jac_op(nlp :: AbstractNLPModel, x :: AbstractVector)
   ctprod = @closure v -> jtprod(nlp, x, v)
   F1 = typeof(prod)
   F3 = typeof(ctprod)
-  return LinearOperator{Float64,F1,Nothing,F3}(nlp.meta.ncon, nlp.meta.nvar,
-                                               false, false, prod, nothing, ctprod)
+  return LinearOperator{Float64,F1,F3,F3}(nlp.meta.ncon, nlp.meta.nvar,
+                                          false, false, prod, ctprod, ctprod)
 end
 
 """`J = jac_op!(nlp, x, Jv, Jtv)`
@@ -236,8 +236,8 @@ function jac_op!(nlp :: AbstractNLPModel, x :: AbstractVector,
   ctprod = @closure v -> jtprod!(nlp, x, v, Jtv)
   F1 = typeof(prod)
   F3 = typeof(ctprod)
-  return LinearOperator{Float64,F1,Nothing,F3}(nlp.meta.ncon, nlp.meta.nvar,
-                                               false, false, prod, nothing, ctprod)
+  return LinearOperator{Float64,F1,F3,F3}(nlp.meta.ncon, nlp.meta.nvar,
+                                          false, false, prod, ctprod, ctprod)
 end
 
 jth_hprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer) =
@@ -312,8 +312,8 @@ function hess_op(nlp :: AbstractNLPModel, x :: AbstractVector;
                  obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
   prod = @closure v -> hprod(nlp, x, v; obj_weight=obj_weight, y=y)
   F = typeof(prod)
-  return LinearOperator{Float64,F,Nothing,Nothing}(nlp.meta.nvar, nlp.meta.nvar,
-                                                   true, true, prod, nothing, nothing)
+  return LinearOperator{Float64,F,F,F}(nlp.meta.nvar, nlp.meta.nvar,
+                                       true, true, prod, prod, prod)
 end
 
 """`H = hess_op!(nlp, x, Hv; obj_weight=1.0, y=zeros)`
@@ -332,8 +332,8 @@ function hess_op!(nlp :: AbstractNLPModel, x :: AbstractVector, Hv :: AbstractVe
                  obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
   prod = @closure v -> hprod!(nlp, x, v, Hv; obj_weight=obj_weight, y=y)
   F = typeof(prod)
-  return LinearOperator{Float64,F,Nothing,Nothing}(nlp.meta.nvar, nlp.meta.nvar,
-                                                   true, true, prod, nothing, nothing)
+  return LinearOperator{Float64,F,F,F}(nlp.meta.nvar, nlp.meta.nvar,
+                                       true, true, prod, prod, prod)
 end
 
 push!(nlp :: AbstractNLPModel, args...; kwargs...) =

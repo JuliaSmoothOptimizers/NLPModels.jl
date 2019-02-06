@@ -346,8 +346,8 @@ function jac_op_residual(nls :: SlackNLSModel, x :: AbstractVector)
   ctprod = @closure v -> jtprod_residual(nls, x, v)
   F1 = typeof(prod)
   F3 = typeof(ctprod)
-  return LinearOperator{Float64,F1,Nothing,F3}(nls_meta(nls).nequ, nls_meta(nls).nvar,
-                                               false, false, prod, nothing, ctprod)
+  return LinearOperator{Float64,F1,F3,F3}(nls_meta(nls).nequ, nls_meta(nls).nvar,
+                                          false, false, prod, ctprod, ctprod)
 end
 
 function jac_op_residual!(nls :: SlackNLSModel, x :: AbstractVector,
@@ -356,8 +356,8 @@ function jac_op_residual!(nls :: SlackNLSModel, x :: AbstractVector,
   ctprod = @closure v -> jtprod_residual!(nls, x, v, Jtv)
   F1 = typeof(prod)
   F3 = typeof(ctprod)
-  return LinearOperator{Float64,F1,Nothing,F3}(nls_meta(nls).nequ, nls_meta(nls).nvar,
-                                               false, false, prod, nothing, ctprod)
+  return LinearOperator{Float64,F1,F3,F3}(nls_meta(nls).nequ, nls_meta(nls).nvar,
+                                          false, false, prod, ctprod, ctprod)
 end
 
 function hess_residual(nlp :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector)
@@ -403,13 +403,13 @@ end
 function hess_op_residual(nls :: SlackNLSModel, x :: AbstractVector, i :: Int)
   prod = @closure v -> hprod_residual(nls, x, i, v)
   F = typeof(prod)
-  return LinearOperator{Float64,F,Nothing,Nothing}(nls_meta(nls).nvar, nls_meta(nls).nvar,
-                                                   true, true, prod, nothing, nothing)
+  return LinearOperator{Float64,F,F,F}(nls_meta(nls).nvar, nls_meta(nls).nvar,
+                                       true, true, prod, prod, prod)
 end
 
 function hess_op_residual!(nls :: SlackNLSModel, x :: AbstractVector, i :: Int, Hiv :: AbstractVector)
   prod = @closure v -> hprod_residual!(nls, x, i, v, Hiv)
   F = typeof(prod)
-  return LinearOperator{Float64,F,Nothing,Nothing}(nls_meta(nls).nvar, nls_meta(nls).nvar,
-                                                   true, true, prod, nothing, nothing)
+  return LinearOperator{Float64,F,F,F}(nls_meta(nls).nvar, nls_meta(nls).nvar,
+                                       true, true, prod, prod, prod)
 end
