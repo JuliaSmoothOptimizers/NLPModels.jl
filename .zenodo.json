@@ -2,7 +2,6 @@
   "description": "Nonlinear Optimization Models for Julia",
   "title": "NLPModels.jl",
   "upload_type": "software",
-  "publication_date": "2019-02-06",
   "creators": [
     {
       "affiliation": "Federal University of Paraná - UFPR",
