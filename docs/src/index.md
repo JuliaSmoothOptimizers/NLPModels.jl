@@ -158,8 +158,7 @@ Attribute   | Type               | Notes
 
 ## License
 
-This content is released under the [MIT](https://opensource.org/licenses/MIT) License.
-[![](https://upload.wikimedia.org/wikipedia/commons/8/83/License_icon-mit.png) ](https://opensource.org/licenses/MIT)
+This content is released under the [MPL2.0](https://www.mozilla.org/en-US/MPL/2.0/) License.
 
 ## Contents
 
