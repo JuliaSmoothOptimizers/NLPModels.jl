@@ -85,7 +85,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "License",
     "category": "section",
-    "text": "This content is released under the MIT License. (Image: ) "
+    "text": "This content is released under the MPL2.0 License."
 },
 
 {
