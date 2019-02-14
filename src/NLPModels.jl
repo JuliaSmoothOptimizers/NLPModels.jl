@@ -94,8 +94,10 @@ obj(::AbstractNLPModel, ::AbstractVector) =
 
 Evaluate \$\\nabla f(x)\$, the gradient of the objective function at `x`.
 """
-grad(::AbstractNLPModel, ::AbstractVector) =
-  throw(NotImplementedError("grad"))
+function grad(nlp::AbstractNLPModel, x::AbstractVector)
+  g = similar(x)
+  return grad!(nlp, x, g)
+end
 
 """`g = grad!(nlp, x, g)`
 
@@ -108,8 +110,10 @@ grad!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
 
 Evaluate \$c(x)\$, the constraints at `x`.
 """
-cons(::AbstractNLPModel, ::AbstractVector) =
-  throw(NotImplementedError("cons"))
+function cons(nlp::AbstractNLPModel, x::AbstractVector)
+  c = similar(x, nlp.meta.ncon)
+  return cons!(nlp, x, c)
+end
 
 """`c = cons!(nlp, x, c)`
 
@@ -184,8 +188,10 @@ jac(::AbstractNLPModel, ::AbstractVector) = throw(NotImplementedError("jac"))
 
 Evaluate \$\\nabla c(x)v\$, the Jacobian-vector product at `x`.
 """
-jprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
-  throw(NotImplementedError("jprod"))
+function jprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector)
+  Jv = similar(v, nlp.meta.ncon)
+  return jprod!(nlp, x, v, Jv)
+end
 
 """`Jv = jprod!(nlp, x, v, Jv)`
 
@@ -198,8 +204,10 @@ jprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector)
 
 Evaluate \$\\nabla c(x)^Tv\$, the transposed-Jacobian-vector product at `x`.
 """
-jtprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
-  throw(NotImplementedError("jtprod"))
+function jtprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector)
+  Jtv = similar(x)
+  return jtprod!(nlp, x, v, Jtv)
+end
 
 """`Jtv = jtprod!(nlp, x, v, Jtv)`
 
@@ -283,8 +291,10 @@ with objective function scaled by `obj_weight`, i.e.,
 
 with σ = obj_weight.
 """
-hprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector; kwargs...) =
-  throw(NotImplementedError("hprod"))
+function hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector; obj_weight::Real = one(eltype(x)), y::AbstractVector=similar(x, 0))
+  Hv = similar(x)
+  return hprod!(nlp, x, v, Hv, obj_weight=obj_weight, y=y)
+end
 
 """`Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0, y=zeros)`
 
