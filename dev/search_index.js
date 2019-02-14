@@ -61,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Internal Interfaces",
     "category": "section",
-    "text": "ADNLPModel: Uses ForwardDiff to compute the derivatives. It has a very simple interface, though it isn\'t very efficient for larger problems.\nSimpleNLPModel: Only uses user defined functions.\nSlackModel: Creates an equality constrained problem with bounds  on the variables using an existing NLPModel.\nLBFGSModel: Creates a model using a LBFGS approximation to the Hessian using an existing NLPModel.\nLSR1Model: Creates a model using a LSR1 approximation to the Hessian using an existing NLPModel.\nADNLSModel: Similar to ADNLPModel, but for nonlinear least squares.\nFeasibilityResidual: Creates a nonlinear least squares model from an equality constrained problem in which the residual function is the constraints function.\nLLSModel: Creates a linear least squares model.\nSimpleNLSModel: Similar to SimpleNLPModel, but for nonlinear least squares.\nSlackNLSModel: Creates an equality constrained nonlinear least squares problem with bounds on the variables using an existing NLSModel.\nFeasibilityFormNLS: Creates residual variables and constraints, so that the residual is linear."
+    "text": "ADNLPModel: Uses ForwardDiff to compute the derivatives. It has a very simple interface, though it isn\'t very efficient for larger problems.\nSlackModel: Creates an equality constrained problem with bounds  on the variables using an existing NLPModel.\nLBFGSModel: Creates a model using a LBFGS approximation to the Hessian using an existing NLPModel.\nLSR1Model: Creates a model using a LSR1 approximation to the Hessian using an existing NLPModel.\nADNLSModel: Similar to ADNLPModel, but for nonlinear least squares.\nFeasibilityResidual: Creates a nonlinear least squares model from an equality constrained problem in which the residual function is the constraints function.\nLLSModel: Creates a linear least squares model.\nSlackNLSModel: Creates an equality constrained nonlinear least squares problem with bounds on the variables using an existing NLSModel.\nFeasibilityFormNLS: Creates residual variables and constraints, so that the residual is linear."
 },
 
 {
@@ -109,7 +109,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Models",
     "title": "Models",
     "category": "section",
-    "text": "The following general models are implemented in this package:ADNLPModel\nSimpleNLPModel\nDerived Models\nSlackModel\nLBFGSModel\nLSR1ModelIn addition, the following nonlinear least squares models are implemented in this package:ADNLSModel\nFeasibilityResidual\nLLSModel\nSimpleNLSModel\nSlackNLSModel\nFeasibilityFormNLSThere are other external models implemented. In particular,AmplModel\nCUTEstModel\nMathProgNLPModel and MathProgNLSModel using JuMP/MPB.There are currently two models implemented in this package, besides the external ones."
+    "text": "The following general models are implemented in this package:ADNLPModel\nDerived Models\nSlackModel\nLBFGSModel\nLSR1ModelIn addition, the following nonlinear least squares models are implemented in this package:ADNLSModel\nFeasibilityResidual\nLLSModel\nSlackNLSModel\nFeasibilityFormNLSThere are other external models implemented. In particular,AmplModel\nCUTEstModel\nMathProgNLPModel and MathProgNLSModel using JuMP/MPB.There are currently two models implemented in this package, besides the external ones."
 },
 
 {
@@ -137,30 +137,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "models/#NLPModels.SimpleNLPModel",
-    "page": "Models",
-    "title": "NLPModels.SimpleNLPModel",
-    "category": "type",
-    "text": "SimpleNLPModel is an AbstractNLPModel that uses only user-defined functions. In this interface, the objective function f and an initial estimate are required. If the user wants to use derivatives, they need to be passed. The same goes for the Hessian and Hessian-AbstractVector product. For constraints, cmathbbR^nrightarrowmathbbR^m  and the vectors c_L and c_U also need to be passed. Bounds on the variables and an inital estimate to the Lagrangian multipliers can also be provided. The user can also pass the Jacobian and the Lagrangian Hessian and Hessian-AbstractVector product.\n\nSimpleNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0=zeros,\n  lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = \"Generic\",\n  [list of functions])\n\nf :: Function - The objective function f;\nx0 :: AbstractVector - The initial point of the problem;\nlvar :: AbstractVector - ell, the lower bound of the variables;\nuvar :: AbstractVector - u, the upper bound of the variables;\ny0 :: AbstractVector - The initial value of the Lagrangian estimates;\nlcon :: AbstractVector - c_L, the lower bounds of the constraints function;\nucon :: AbstractVector - c_U, the upper bounds of the constraints function;\nname :: String - A name for the model.\n\nAll functions passed have a direct correlation with a NLP function. You don\'t have to define any more than you need, but calling an undefined function will throw a NotImplementedError. The list is\n\ng and g!: nabla f(x), the gradient of the objective function;\ngx = g(x)\ngx = g!(x, gx)\nH: The lower triangle of the Hessian of the objective function or of the Lagrangian;\nHx = H(x; obj_weight=1.0) # if the problem is unconstrained\nHx = H(x; obj_weight=1.0, y=zeros) # if the problem is constrained\nHcoord - The lower triangle of the Hessian of the objective function or of the Lagrangian, in triplet format;\n(rows,cols,vals) = Hcoord(x; obj_weight=1.0) # if the problem is unconstrained\n(rows,cols,vals) = Hcoord(x; obj_weight=1.0, y=zeros) # if the problem is constrained\nHp and Hp! - The product of the Hessian of the objective function or of the Lagrangian by a vector;\nHv = Hp(x, v, obj_weight=1.0) # if the problem is unconstrained\nHv = Hp!(x, v, Hv, obj_weight=1.0) # if the problem is unconstrained\nHv = Hp(x, v, obj_weight=1.0, y=zeros) # if the problem is constrained\nHv = Hp!(x, v, Hv, obj_weight=1.0, y=zeros) # if the problem is constrained\nc and c! - c(x), the constraints function;\ncx = c(x)\ncx = c!(x, cx)\nJ - J(x), the Jacobian of the constraints;\nJx = J(x)\nJcoord - J(x), the Jacobian of the constraints, in triplet format;\n(rows,cols,vals) = Jcoord(x)\nJp and Jp! - The Jacobian-vector product;\nJv = Jp(x, v)\nJv = Jp!(x, v, Jv)\nJtp and Jtp! - The Jacobian-transposed-vector product;\nJtv = Jtp(x, v)\nJtv = Jtp!(x, v, Jtv)\n\nFor contrained problems, the function c is required, and it must return an array even when m = 1, and c_L and c_U should be passed, otherwise the problem is ill-formed. For equality constraints, the corresponding index of c_L and c_U should be the same.\n\n\n\n\n\n"
-},
-
-{
-    "location": "models/#SimpleNLPModel-1",
-    "page": "Models",
-    "title": "SimpleNLPModel",
-    "category": "section",
-    "text": "NLPModels.SimpleNLPModel"
-},
-
-{
-    "location": "models/#Example-2",
-    "page": "Models",
-    "title": "Example",
-    "category": "section",
-    "text": "using NLPModels\nf(x) = sum(x.^4)\ng(x) = 4*x.^3\nx = [1.0; 0.5; 0.25; 0.125]\nnlp = SimpleNLPModel(f, x, g=g)\ngrad(nlp, x)"
-},
-
-{
     "location": "models/#Derived-Models-1",
     "page": "Models",
     "title": "Derived Models",
@@ -185,7 +161,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "models/#Example-3",
+    "location": "models/#Example-2",
     "page": "Models",
     "title": "Example",
     "category": "section",
@@ -270,22 +246,6 @@ var documenterSearchIndex = {"docs": [
     "title": "LLSModel",
     "category": "section",
     "text": "NLPModels.LLSModel"
-},
-
-{
-    "location": "models/#NLPModels.SimpleNLSModel",
-    "page": "Models",
-    "title": "NLPModels.SimpleNLSModel",
-    "category": "type",
-    "text": "nls = SimpleNLSModel(n;  F=F, F! =F!, JF=JF, JFp=JFp, JFp! =JFp!,\nJFtp=JFtp, JFtp! =JFtp!)\nnls = SimpleNLSModel(x0; F=F, F! =F!, JF=JF, JFp=JFp, JFp! =JFp!,\nJFtp=JFtp, JFtp! =JFtp!)\n\nCreates a Nonlinear Linear Least Squares model to minimize ‖F(x)‖². If JF = JF(x) is passed, the Jacobian is available.\n\n\n\n\n\n"
-},
-
-{
-    "location": "models/#SimpleNLSModel-1",
-    "page": "Models",
-    "title": "SimpleNLSModel",
-    "category": "section",
-    "text": "NLPModels.SimpleNLSModel"
 },
 
 {
@@ -573,7 +533,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Tutorial",
     "category": "section",
-    "text": "Pages = [\"tutorial.md\"]NLPModels.jl was created for two purposes:Allow users to access problem databases in an unified way.Mainly, this means  CUTEst.jl,  but it also gives access to AMPL  problems,  as well as JuMP defined problems (e.g. as in  OptimizationProblems.jl).Allow users to create their own problems in the same way.As a consequence, optimization methods designed according to the NLPModels API  will accept NLPModels of any provenance.  See, for instance,  Optimize.jl.The main interfaces for user defined problems areADNLPModel, which defines a model easily, using automatic differentiation.\nSimpleNLPModel, which allows users to handle all functions themselves, giving"
+    "text": "Pages = [\"tutorial.md\"]NLPModels.jl was created for two purposes:Allow users to access problem databases in an unified way.Mainly, this means  CUTEst.jl,  but it also gives access to AMPL  problems,  as well as JuMP defined problems (e.g. as in  OptimizationProblems.jl).Allow users to create their own problems in the same way.As a consequence, optimization methods designed according to the NLPModels API  will accept NLPModels of any provenance.  See, for instance,  Optimize.jl.The main interface for user defined problems is ADNLPModel, which defines a model easily, using automatic differentiation."
 },
 
 {
@@ -582,14 +542,6 @@ var documenterSearchIndex = {"docs": [
     "title": "ADNLPModel Tutorial",
     "category": "section",
     "text": "ADNLPModel is simple to use and is useful for classrooms. It only needs the objective function f and a starting point x^0 to be well-defined. For constrained problems, you\'ll also need the constraints function c, and the constraints vectors c_L and c_U, such that c_L leq c(x) leq c_U. Equality constraints will be automatically identified as those indices i for which c_L_i = c_U_i.Let\'s define the famous Rosenbrock functionf(x) = (x_1 - 1)^2 + 100(x_2 - x_1^2)^2with starting point x^0 = (-1210).using NLPModels\n\nnlp = ADNLPModel(x->(x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2 , [-1.2; 1.0])This is enough to define the model. Let\'s get the objective function value at x^0, using only nlp.fx = obj(nlp, nlp.meta.x0)\nprintln(\"fx = $fx\")Done. Let\'s try the gradient and Hessian.gx = grad(nlp, nlp.meta.x0)\nHx = hess(nlp, nlp.meta.x0)\nprintln(\"gx = $gx\")\nprintln(\"Hx = $Hx\")Notice how only the lower triangle of the Hessian is stored. Also notice that it is dense. This is a current limitation of this model. It doesn\'t return sparse matrices, so use it with care.Let\'s do something a little more complex here, defining a function to try to solve this problem through steepest descent method with Armijo search. Namely, the methodGiven x^0, varepsilon  0, and eta in (01). Set k = 0;\nIf Vert nabla f(x^k) Vert  varepsilon STOP with x^* = x^k;\nCompute d^k = -nabla f(x^k);\nCompute alpha_k in (01 such that f(x^k + alpha_kd^k)  f(x^k) + alpha_keta nabla f(x^k)^Td^k\nDefine x^k+1 = x^k + alpha_kx^k\nUpdate k = k + 1 and go to step 2.using LinearAlgebra\n\nfunction steepest(nlp; itmax=100000, eta=1e-4, eps=1e-6, sigma=0.66)\n  x = nlp.meta.x0\n  fx = obj(nlp, x)\n  ∇fx = grad(nlp, x)\n  slope = dot(∇fx, ∇fx)\n  ∇f_norm = sqrt(slope)\n  iter = 0\n  while ∇f_norm > eps && iter < itmax\n    t = 1.0\n    x_trial = x - t * ∇fx\n    f_trial = obj(nlp, x_trial)\n    while f_trial > fx - eta * t * slope\n      t *= sigma\n      x_trial = x - t * ∇fx\n      f_trial = obj(nlp, x_trial)\n    end\n    x = x_trial\n    fx = f_trial\n    ∇fx = grad(nlp, x)\n    slope = dot(∇fx, ∇fx)\n    ∇f_norm = sqrt(slope)\n    iter += 1\n  end\n  optimal = ∇f_norm <= eps\n  return x, fx, ∇f_norm, optimal, iter\nend\n\nx, fx, ngx, optimal, iter = steepest(nlp)\nprintln(\"x = $x\")\nprintln(\"fx = $fx\")\nprintln(\"ngx = $ngx\")\nprintln(\"optimal = $optimal\")\nprintln(\"iter = $iter\")Maybe this code is too complicated? If you\'re in a class you just want to show a Newton step.g(x) = grad(nlp, x)\nH(x) = Symmetric(hess(nlp, x), :L)\nx = nlp.meta.x0\nd = -H(x)\\g(x)or a fewfor i = 1:5\n  global x\n  x = x - H(x)\\g(x)\n  println(\"x = $x\")\nendAlso, notice how we can reuse the method.f(x) = (x[1]^2 + x[2]^2 - 5)^2 + (x[1]*x[2] - 2)^2\nx0 = [3.0; 2.0]\nnlp = ADNLPModel(f, x0)\n\nx, fx, ngx, optimal, iter = steepest(nlp)Even using a different model. In this case, a model from NLPModelsJuMP implemented in OptimizationProblems.using NLPModelsJuMP, OptimizationProblems\n\nnlp = MathProgNLPModel(woods())\nx, fx, ngx, optimal, iter = steepest(nlp)\nprintln(\"fx = $fx\")\nprintln(\"ngx = $ngx\")\nprintln(\"optimal = $optimal\")\nprintln(\"iter = $iter\")For constrained minimization, you need the constraints vector and bounds too. Bounds on the variables can be passed through a new vector.using NLPModels # hide\nf(x) = (x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2\nx0 = [-1.2; 1.0]\nlvar = [-Inf; 0.1]\nuvar = [0.5; 0.5]\nc(x) = [x[1] + x[2] - 2; x[1]^2 + x[2]^2]\nlcon = [0.0; -Inf]\nucon = [Inf; 1.0]\nnlp = ADNLPModel(f, x0, c=c, lvar=lvar, uvar=uvar, lcon=lcon, ucon=ucon)\n\nprintln(\"cx = $(cons(nlp, nlp.meta.x0))\")\nprintln(\"Jx = $(jac(nlp, nlp.meta.x0))\")"
-},
-
-{
-    "location": "tutorial/#SimpleNLPModel-Tutorial-1",
-    "page": "Tutorial",
-    "title": "SimpleNLPModel Tutorial",
-    "category": "section",
-    "text": "SimpleNLPModel allows you to pass every single function of the model. On the other hand, it doesn\'t handle anything else. Calling an undefined function will throw a NotImplementedError. Only the objective function is mandatory (if you don\'t need it, pass x->0).using NLPModels\n\nf(x) = (x[1] - 1.0)^2 + 4*(x[2] - 1.0)^2\nx0 = zeros(2)\nnlp = SimpleNLPModel(f, x0)\n\nfx = obj(nlp, nlp.meta.x0)\nprintln(\"fx = $fx\")\n\n# grad(nlp, nlp.meta.x0) # This is undefinedg(x) = [2*(x[1] - 1.0); 8*(x[2] - 1.0)]\nnlp = SimpleNLPModel(f, x0, g=g)\n\ngrad(nlp, nlp.meta.x0)\"But what\'s to stop me from defining g however I want?\" Nothing. So you have to be careful on how you\'re defining it. You should probably check your derivatives. If the function is simply defined, you can try using automatic differentiation. Alternatively, you can use the Derivative Checker.gradient_check(nlp)gwrong(x) = [2*(x[1] - 1.0); 8*x[2] - 1.0] # Find the error\nnlp = SimpleNLPModel(f, x0, g=gwrong)\ngradient_check(nlp)For constrained problems, we still need the constraints function, lcon and ucon. Also, let\'s pass the Jacobian-vector product.c(x) = [x[1]^2 + x[2]^2; x[1]*x[2] - 1]\nlcon = [1.0; 0.0]\nucon = [4.0; 0.0]\nJacprod(x, v) = [2*x[1]*v[1] + 2*x[2]*v[2]; x[2]*v[1] + x[1]*v[2]]\nnlp = SimpleNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon, g=g, Jp=Jacprod)\njprod(nlp, ones(2), ones(2))Furthermore, NLPModels also works with inplace operations. Since some models do not take full advantage of this (like ADNLPModel), a user might want to define his/her own functions that do.using NLPModels # hide\nf(x) = (x[1] - 1.0)^2 + 4*(x[2] - 1.0)^2\nx0 = zeros(2)\ng!(x, gx) = begin\n  gx[1] = 2*(x[1] - 1.0)\n  gx[2] = 8*(x[2] = 1.0)\n  return gx\nend\nnlp = SimpleNLPModel(f, x0, g! =g!) # Watchout, g!=g! is interpreted as g != g!\ngx = zeros(2)\ngrad!(nlp, nlp.meta.x0, gx)"
 },
 
 {
