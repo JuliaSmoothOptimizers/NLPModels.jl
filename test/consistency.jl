@@ -337,8 +337,7 @@ end
 function consistency(problem :: String; rtol=1.0e-8)
   @printf("Checking problem %-20s", problem)
   nlp_autodiff = eval(Meta.parse("$(problem)_autodiff"))()
-  nlp_simple = eval(Meta.parse("$(problem)_simple"))()
-  nlps = [nlp_autodiff; nlp_simple]
+  nlps = [nlp_autodiff]
 
   consistent_nlps(nlps, rtol=rtol)
 end

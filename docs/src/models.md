@@ -2,7 +2,6 @@
 
 The following general models are implemented in this package:
 - [ADNLPModel](@ref)
-- [SimpleNLPModel](@ref)
 - [Derived Models](@ref)
   - [SlackModel](@ref)
   - [LBFGSModel](@ref)
@@ -13,7 +12,6 @@ implemented in this package:
 - [ADNLSModel](@ref)
 - [FeasibilityResidual](@ref)
 - [LLSModel](@ref)
-- [SimpleNLSModel](@ref)
 - [SlackNLSModel](@ref)
 - [FeasibilityFormNLS](@ref)
 
@@ -39,23 +37,6 @@ using NLPModels
 f(x) = sum(x.^4)
 x = [1.0; 0.5; 0.25; 0.125]
 nlp = ADNLPModel(f, x)
-grad(nlp, x)
-```
-
-## SimpleNLPModel
-
-```@docs
-NLPModels.SimpleNLPModel
-```
-
-### Example
-
-```@example
-using NLPModels
-f(x) = sum(x.^4)
-g(x) = 4*x.^3
-x = [1.0; 0.5; 0.25; 0.125]
-nlp = SimpleNLPModel(f, x, g=g)
 grad(nlp, x)
 ```
 
@@ -117,12 +98,6 @@ NLPModels.FeasibilityResidual
 
 ```@docs
 NLPModels.LLSModel
-```
-
-## SimpleNLSModel
-
-```@docs
-NLPModels.SimpleNLSModel
 ```
 
 ## SlackNLSModel

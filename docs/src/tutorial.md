@@ -19,12 +19,8 @@ NLPModels.jl was created for two purposes:
  See, for instance,
  [Optimize.jl](https://github.com/JuliaSmoothOptimizers/Optimize.jl).
 
-The main interfaces for user defined problems are
-
-- [ADNLPModel](@ref), which defines a model easily, using automatic
-  differentiation.
-- [SimpleNLPModel](@ref), which allows users to handle all functions themselves,
-  giving
+The main interface for user defined problems is [ADNLPModel](@ref), which defines a
+model easily, using automatic differentiation.
 
 ## ADNLPModel Tutorial
 
@@ -180,79 +176,6 @@ nlp = ADNLPModel(f, x0, c=c, lvar=lvar, uvar=uvar, lcon=lcon, ucon=ucon)
 
 println("cx = $(cons(nlp, nlp.meta.x0))")
 println("Jx = $(jac(nlp, nlp.meta.x0))")
-```
-
-## SimpleNLPModel Tutorial
-
-SimpleNLPModel allows you to pass every single function of the model.
-On the other hand, it doesn't handle anything else. Calling an undefined
-function will throw a `NotImplementedError`.
-Only the objective function is mandatory (if you don't need it, pass `x->0`).
-
-```@example slp
-using NLPModels
-
-f(x) = (x[1] - 1.0)^2 + 4*(x[2] - 1.0)^2
-x0 = zeros(2)
-nlp = SimpleNLPModel(f, x0)
-
-fx = obj(nlp, nlp.meta.x0)
-println("fx = $fx")
-
-# grad(nlp, nlp.meta.x0) # This is undefined
-```
-
-```@example slp
-g(x) = [2*(x[1] - 1.0); 8*(x[2] - 1.0)]
-nlp = SimpleNLPModel(f, x0, g=g)
-
-grad(nlp, nlp.meta.x0)
-```
-
-"But what's to stop me from defining `g` however I want?"
-Nothing. So you have to be careful on how you're defining it.
-You should probably check your derivatives.
-If the function is simply defined, you can try using automatic differentiation.
-Alternatively, you can use the [Derivative Checker](@ref).
-
-```@example slp
-gradient_check(nlp)
-```
-
-```@example slp
-gwrong(x) = [2*(x[1] - 1.0); 8*x[2] - 1.0] # Find the error
-nlp = SimpleNLPModel(f, x0, g=gwrong)
-gradient_check(nlp)
-```
-
-For constrained problems, we still need the constraints function, `lcon` and `ucon`.
-Also, let's pass the Jacobian-vector product.
-
-```@example slp
-c(x) = [x[1]^2 + x[2]^2; x[1]*x[2] - 1]
-lcon = [1.0; 0.0]
-ucon = [4.0; 0.0]
-Jacprod(x, v) = [2*x[1]*v[1] + 2*x[2]*v[2]; x[2]*v[1] + x[1]*v[2]]
-nlp = SimpleNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon, g=g, Jp=Jacprod)
-jprod(nlp, ones(2), ones(2))
-```
-
-Furthermore, NLPModels also works with inplace operations.
-Since some models do not take full advantage of this (like ADNLPModel),
-a user might want to define his/her own functions that do.
-
-```@example slp2
-using NLPModels # hide
-f(x) = (x[1] - 1.0)^2 + 4*(x[2] - 1.0)^2
-x0 = zeros(2)
-g!(x, gx) = begin
-  gx[1] = 2*(x[1] - 1.0)
-  gx[2] = 8*(x[2] = 1.0)
-  return gx
-end
-nlp = SimpleNLPModel(f, x0, g! =g!) # Watchout, g!=g! is interpreted as g != g!
-gx = zeros(2)
-grad!(nlp, nlp.meta.x0, gx)
 ```
 
 ## Nonlinear least squares models
