@@ -142,6 +142,30 @@ function cons!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, c :: AbstractVec
   return c
 end
 
+function jac_structure(nlp :: FeasibilityFormNLS)
+  n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
+  IF, JF = jac_structure_residual(nlp.internal)
+  (Ic, Jc) = m > 0 ? jac_structure(nlp.internal) : (Int[], Int[])
+  I = [IF; Ic .+ ne; 1:ne]
+  J = [JF; Jc; (n+1):(n+ne)]
+  return I, J
+end
+
+function jac_coord!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+  n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
+  x = @view xr[1:n]
+  nnzjF = nlp.internal.nls_meta.nnzj
+  nnzjc = m > 0 ? nlp.internal.meta.nnzj : 0
+  I = 1:nnzjF
+  @views jac_coord_residual!(nlp.internal, x, rows[I], cols[I], vals[I])
+  if m > 0
+    I = nnzjF+1:nnzjF+nnzjc
+    @views jac_coord!(nlp.internal, x, rows[I] .- ne, cols[I], vals[I])
+  end
+  vals[nnzjF+nnzjc+1:nnzjF+nnzjc+ne] .= -1
+  return rows, cols, vals
+end
+
 function jac_coord(nlp :: FeasibilityFormNLS, xr :: AbstractVector)
   n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
   x = @view xr[1:n]
@@ -194,6 +218,33 @@ function jtprod!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, v :: AbstractV
   end
   @views jtv[n+1:end] .= -v[1:ne]
   return jtv
+end
+
+function hess_structure(nlp :: FeasibilityFormNLS)
+  n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
+  IF, JF = hess_structure_residual(nlp.internal)
+  (Ic, Jc) = m > 0 ? hess_structure(nlp.internal) : (Int[], Int[])
+  I = [IF; Ic; (n+1:n+ne)]
+  J = [JF; Jc; (n+1:n+ne)]
+  return I, J
+end
+
+function hess_coord!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector;
+    obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
+  n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
+  nnzhF = nlp.internal.nls_meta.nnzh
+  nnzhc = m > 0 ? nlp.internal.meta.nnzh : 0
+  x = @view xr[1:n]
+  y1 = @view y[1:ne]
+  y2 = @view y[ne+1:ne+m]
+  I = 1:nnzhF
+  @views hess_coord_residual!(nlp.internal, x, y1, rows[I], cols[I], vals[I])
+  if m > 0
+    I = nnzhF+1:nnzhF+nnzhc
+    @views hess_coord!(nlp.internal, x, rows[I], cols[I], vals[I], obj_weight=0.0, y=y2)
+  end
+  vals[nnzhF+nnzhc+1:nnzhF+nnzhc+ne] .= obj_weight
+  return rows, cols, vals
 end
 
 function hess_coord(nlp :: FeasibilityFormNLS, xr :: AbstractVector;
@@ -256,6 +307,17 @@ function jac_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector)
   return [spzeros(ne, n) I]
 end
 
+function jac_structure_residual(nlp :: FeasibilityFormNLS)
+  n, ne = nlp.internal.meta.nvar, nlp.internal.nls_meta.nequ
+  return collect(1:ne), collect((n+1):(n+ne))
+end
+
+function jac_coord_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+  increment!(nlp, :neval_jac_residual)
+  vals[1:nlp.nls_meta.nnzj] .= 1
+  return rows, cols, vals
+end
+
 function jac_coord_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector)
   increment!(nlp, :neval_jac_residual)
   n, ne = nlp.internal.meta.nvar, nlp.internal.nls_meta.nequ
@@ -281,6 +343,15 @@ function hess_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: Abst
   increment!(nlp, :neval_hess_residual)
   n = nlp.meta.nvar
   return spzeros(n, n)
+end
+
+function hess_structure_residual(nlp :: FeasibilityFormNLS)
+  return (Int[], Int[])
+end
+
+function hess_coord_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+  increment!(nlp, :neval_hess_residual)
+  return rows, cols, vals
 end
 
 function hess_coord_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector)
