@@ -115,6 +115,18 @@ function jac(nlp :: ADNLPModel, x :: AbstractVector)
   return ForwardDiff.jacobian(nlp.c, x)
 end
 
+function jac_structure(nlp :: ADNLPModel)
+  m, n = nlp.meta.ncon, nlp.meta.nvar
+  I = ((i,j) for i = 1:m, j = 1:n)
+  return (getindex.(I, 1)[:], getindex.(I, 2)[:])
+end
+
+function jac_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector, cols :: AbstractVector, vals :: AbstractVector)
+  Jx = jac(nlp, x)
+  vals .= Jx[:]
+  return rows, cols, vals
+end
+
 function jac_coord(nlp :: ADNLPModel, x :: AbstractVector)
   Jx = jac(nlp, x)
   m, n = nlp.meta.ncon, nlp.meta.nvar
@@ -154,6 +166,21 @@ function hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight :: Real = one(e
     end
   end
   return tril(Hx)
+end
+
+function hess_structure(nlp :: ADNLPModel)
+  n = nlp.meta.nvar
+  I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
+  return (getindex.(I, 1), getindex.(I, 2))
+end
+
+function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
+  Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
+  for k = 1:nlp.meta.nnzh
+    i, j = rows[k], cols[k]
+    vals[k] = Hx[i,j]
+  end
+  return rows, cols, vals
 end
 
 function hess_coord(nlp :: ADNLPModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
