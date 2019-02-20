@@ -39,10 +39,10 @@ NLPModels instances.
 |-------------------|-------------------------------------------|
 | ``f(x)``            | [`obj`](@ref), [`objgrad`](@ref), [`objgrad!`](@ref), [`objcons`](@ref), [`objcons!`](@ref) |
 | ``\nabla f(x)``     | [`grad`](@ref), [`grad!`](@ref), [`objgrad`](@ref), [`objgrad!`](@ref) |
-| ``\nabla^2 f(x)``   | [`hess`](@ref), [`hess_op`](@ref), [`hess_op!`](@ref), [`hess_coord`](@ref), [`hprod`](@ref), [`hprod!`](@ref) |
+| ``\nabla^2 f(x)``   | [`hess`](@ref), [`hess_op`](@ref), [`hess_op!`](@ref), [`hess_coord`](@ref), [`hess_coord`](@ref), [`hess_structure`](@ref), [`hprod`](@ref), [`hprod!`](@ref) |
 | ``c(x)``            | [`cons`](@ref), [`cons!`](@ref), [`objcons`](@ref), [`objcons!`](@ref) |
-| ``J(x)``            | [`jac`](@ref), [`jac_op`](@ref), [`jac_op!`](@ref), [`jac_coord`](@ref), [`jprod`](@ref), [`jprod!`](@ref), [`jtprod`](@ref), [`jtprod!`](@ref) |
-| ``\nabla^2 L(x,y)`` | [`hess`](@ref), [`hess_op`](@ref), [`hess_coord`](@ref), [`hprod`](@ref), [`hprod!`](@ref) |
+| ``J(x)``            | [`jac`](@ref), [`jac_op`](@ref), [`jac_op!`](@ref), [`jac_coord`](@ref), [`jac_coord!`](@ref), [`jac_structure`](@ref), [`jprod`](@ref), [`jprod!`](@ref), [`jtprod`](@ref), [`jtprod!`](@ref) |
+| ``\nabla^2 L(x,y)`` | [`hess`](@ref), [`hess_op`](@ref), [`hess_coord`](@ref), [`hess_coord!`](@ref), [`hess_structure`](@ref), [`hprod`](@ref), [`hprod!`](@ref) |
 
 ## API for NLSModels
 
@@ -56,8 +56,8 @@ and its derivatives. Namely,
 | Function            | function |
 |---------------------|---|
 | ``F(x)``            | [`residual`](@ref), [`residual!`](@ref) |
-| ``J_F(x)``          | [`jac_residual`](@ref), [`jac_coord_residual`](@ref), [`jprod_residual`](@ref), [`jprod_residual!`](@ref), [`jtprod_residual`](@ref), [`jtprod_residual!`](@ref), [`jac_op_residual`](@ref), [`jac_op_residual!`](@ref) |
-| ``\nabla^2 F_i(x)`` | [`hess_residual`](@ref), [`hess_coord_residual`](@ref), [`jth_hess_residual`](@ref), [`hprod_residual`](@ref), [`hprod_residual!`](@ref), [`hess_op_residual`](@ref), [`hess_op_residual!`](@ref) |
+| ``J_F(x)``          | [`jac_residual`](@ref), [`jac_coord_residual`](@ref), [`jac_coord_residual!`](@ref), [`jac_structure_residual`](@ref), [`jprod_residual`](@ref), [`jprod_residual!`](@ref), [`jtprod_residual`](@ref), [`jtprod_residual!`](@ref), [`jac_op_residual`](@ref), [`jac_op_residual!`](@ref) |
+| ``\nabla^2 F_i(x)`` | [`hess_residual`](@ref), [`hess_coord_residual`](@ref), [`hess_coord_residual!`](@ref), [`hess_structure_residual`](@ref), [`jth_hess_residual`](@ref), [`hprod_residual`](@ref), [`hprod_residual!`](@ref), [`hess_op_residual`](@ref), [`hess_op_residual!`](@ref) |
 
 
 ## AbstractNLPModel functions
@@ -73,6 +73,8 @@ cons!
 objcons
 objcons!
 jac_coord
+jac_coord!
+jac_structure
 jac
 jac_op
 jac_op!
@@ -81,6 +83,8 @@ jprod!
 jtprod
 jtprod!
 hess_coord
+hess_coord!
+hess_structure
 hess
 hess_op
 hess_op!
@@ -97,6 +101,8 @@ residual
 residual!
 jac_residual
 jac_coord_residual
+jac_coord_residual!
+jac_structure_residual
 jprod_residual
 jprod_residual!
 jtprod_residual
@@ -105,6 +111,8 @@ jac_op_residual
 jac_op_residual!
 hess_residual
 hess_coord_residual
+hess_coord_residual!
+hess_structure_residual
 jth_hess_residual
 hprod_residual
 hprod_residual!
