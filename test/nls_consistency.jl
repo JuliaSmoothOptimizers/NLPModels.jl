@@ -43,6 +43,12 @@ function consistent_nls_functions(nlss; rtol=1.0e-8, exclude=[])
       end
       I, J, V = jac_coord_residual(nlss[i], x)
       @test length(I) == length(J) == length(V) == nlss[i].nls_meta.nnzj
+      I2, J2 = jac_structure_residual(nlss[i])
+      @test I == I2
+      @test J == J2
+      tmp_V = zeros(nlss[i].nls_meta.nnzj)
+      jac_coord_residual!(nlss[i], x, I, J, tmp_V)
+      @test tmp_V == V
     end
   end
 
@@ -97,6 +103,12 @@ function consistent_nls_functions(nlss; rtol=1.0e-8, exclude=[])
         I, J, V = hess_coord_residual(nlss[i], x, w)
         @test length(I) == length(J) == length(V) == nlss[i].nls_meta.nnzh
         @test sparse(I, J, V, n, n) == Hs[i]
+        I2, J2 = hess_structure_residual(nlss[i])
+        @test I == I2
+        @test J == J2
+        tmp_V = zeros(nlss[i].nls_meta.nnzh)
+        hess_coord_residual!(nlss[i], x, w, I, J, tmp_V)
+        @test tmp_V == V
       end
     end
 
@@ -272,7 +284,7 @@ function consistent_nls()
     consistent_nls_functions(nlss)
     consistent_nls_counters(nlss)
     consistent_counters(nlss)
-    consistent_functions(nlss)
+    consistent_functions(nlss, exclude=[hess_coord])
   end
 
   @testset "Consistency of LLS with Matrix and LinearOperator" begin
