@@ -38,6 +38,21 @@ function NLPModels.hess(nlp :: HS5, x :: AbstractVector; obj_weight=1.0, y=Float
   return tril(-sin(x[1] + x[2])*ones(2, 2) + [2.0 -2.0; -2.0 2.0]) * obj_weight
 end
 
+function NLPModels.hess_structure(nlp :: HS5)
+  I = ((i,j) for i = 1:nlp.meta.nvar, j = 1:nlp.meta.nvar if i ≥ j)
+  return (getindex.(I, 1), getindex.(I, 2))
+end
+
+function NLPModels.hess_coord!(nlp :: HS5, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0, y=AbstractVector[])
+  H = hess(nlp, x, obj_weight=obj_weight)
+  nnzh = length(vals)
+  for k = 1:nnzh
+    i, j = rows[k], cols[k]
+    vals[k] = H[i,j]
+  end
+  return rows, cols, vals
+end
+
 function NLPModels.hess_coord(nlp :: HS5, x :: AbstractVector; obj_weight=1.0, y=Float64[])
   H = hess(nlp, x, obj_weight=obj_weight)
   I = ((i,j,H[i,j]) for i = 1:nlp.meta.nvar, j = 1:nlp.meta.nvar if i ≥ j)
