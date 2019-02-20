@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial · NLPModels.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/><link href="../assets/style.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><a href="../index.html"><img class="logo" src="../assets/logo.png" alt="NLPModels.jl logo"/></a><h1>NLPModels.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../">Home</a></li><li><a class="toctext" href="../models/">Models</a></li><li><a class="toctext" href="../tools/">Tools</a></li><li class="current"><a class="toctext" href>Tutorial</a><ul class="internal"><li><a class="toctext" href="#ADNLPModel-Tutorial-1">ADNLPModel Tutorial</a></li><li><a class="toctext" href="#Nonlinear-least-squares-models-1">Nonlinear least squares models</a></li></ul></li><li><a class="toctext" href="../api/">API</a></li><li><a class="toctext" href="../reference/">Reference</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href>Tutorial</a></li></ul><a class="edit-page" href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl/blob/master/docs/src/tutorial.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Tutorial</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Tutorial-1" href="#Tutorial-1">Tutorial</a></h1><ul><li><a href="#Tutorial-1">Tutorial</a></li><ul><li><a href="#ADNLPModel-Tutorial-1">ADNLPModel Tutorial</a></li><li><a href="#Nonlinear-least-squares-models-1">Nonlinear least squares models</a></li></ul></ul><p>NLPModels.jl was created for two purposes:</p><ul><li>Allow users to access problem databases in an unified way.</li></ul><p>Mainly, this means  <a href="https://github.com/JuliaSmoothOptimizers/CUTEst.jl">CUTEst.jl</a>,  but it also gives access to <a href="https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl">AMPL  problems</a>,  as well as JuMP defined problems (e.g. as in  <a href="https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl">OptimizationProblems.jl</a>).</p><ul><li>Allow users to create their own problems in the same way.</li></ul><p>As a consequence, optimization methods designed according to the NLPModels API  will accept NLPModels of any provenance.  See, for instance,  <a href="https://github.com/JuliaSmoothOptimizers/Optimize.jl">Optimize.jl</a>.</p><p>The main interface for user defined problems is <a href="../models/#ADNLPModel-1">ADNLPModel</a>, which defines a model easily, using automatic differentiation.</p><h2><a class="nav-anchor" id="ADNLPModel-Tutorial-1" href="#ADNLPModel-Tutorial-1">ADNLPModel Tutorial</a></h2><p>ADNLPModel is simple to use and is useful for classrooms. It only needs the objective function <span>$f$</span> and a starting point <span>$x^0$</span> to be well-defined. For constrained problems, you&#39;ll also need the constraints function <span>$c$</span>, and the constraints vectors <span>$c_L$</span> and <span>$c_U$</span>, such that <span>$c_L \leq c(x) \leq c_U$</span>. Equality constraints will be automatically identified as those indices <span>$i$</span> for which <span>$c_{L_i} = c_{U_i}$</span>.</p><p>Let&#39;s define the famous Rosenbrock function</p><div>\[f(x) = (x_1 - 1)^2 + 100(x_2 - x_1^2)^2,\]</div><p>with starting point <span>$x^0 = (-1.2,1.0)$</span>.</p><div><pre><code class="language-julia">using NLPModels
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial · NLPModels.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/><link href="../assets/style.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><a href="../index.html"><img class="logo" src="../assets/logo.png" alt="NLPModels.jl logo"/></a><h1>NLPModels.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../">Home</a></li><li><a class="toctext" href="../models/">Models</a></li><li><a class="toctext" href="../tools/">Tools</a></li><li class="current"><a class="toctext" href>Tutorial</a><ul class="internal"><li><a class="toctext" href="#ADNLPModel-Tutorial-1">ADNLPModel Tutorial</a></li><li><a class="toctext" href="#Manual-model-1">Manual model</a></li><li><a class="toctext" href="#Nonlinear-least-squares-models-1">Nonlinear least squares models</a></li></ul></li><li><a class="toctext" href="../api/">API</a></li><li><a class="toctext" href="../reference/">Reference</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href>Tutorial</a></li></ul><a class="edit-page" href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl/blob/master/docs/src/tutorial.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Tutorial</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Tutorial-1" href="#Tutorial-1">Tutorial</a></h1><ul><li><a href="#Tutorial-1">Tutorial</a></li><ul><li><a href="#ADNLPModel-Tutorial-1">ADNLPModel Tutorial</a></li><li><a href="#Manual-model-1">Manual model</a></li><li><a href="#Nonlinear-least-squares-models-1">Nonlinear least squares models</a></li></ul></ul><p>NLPModels.jl was created for two purposes:</p><ul><li>Allow users to access problem databases in an unified way.</li></ul><p>Mainly, this means  <a href="https://github.com/JuliaSmoothOptimizers/CUTEst.jl">CUTEst.jl</a>,  but it also gives access to <a href="https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl">AMPL  problems</a>,  as well as JuMP defined problems (e.g. as in  <a href="https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl">OptimizationProblems.jl</a>).</p><ul><li>Allow users to create their own problems in the same way.</li></ul><p>As a consequence, optimization methods designed according to the NLPModels API  will accept NLPModels of any provenance.  See, for instance,  <a href="https://github.com/JuliaSmoothOptimizers/Optimize.jl">Optimize.jl</a>.</p><p>The main interface for user defined problems is <a href="../models/#ADNLPModel-1">ADNLPModel</a>, which defines a model easily, using automatic differentiation.</p><h2><a class="nav-anchor" id="ADNLPModel-Tutorial-1" href="#ADNLPModel-Tutorial-1">ADNLPModel Tutorial</a></h2><p>ADNLPModel is simple to use and is useful for classrooms. It only needs the objective function <span>$f$</span> and a starting point <span>$x^0$</span> to be well-defined. For constrained problems, you&#39;ll also need the constraints function <span>$c$</span>, and the constraints vectors <span>$c_L$</span> and <span>$c_U$</span>, such that <span>$c_L \leq c(x) \leq c_U$</span>. Equality constraints will be automatically identified as those indices <span>$i$</span> for which <span>$c_{L_i} = c_{U_i}$</span>.</p><p>Let&#39;s define the famous Rosenbrock function</p><div>\[f(x) = (x_1 - 1)^2 + 100(x_2 - x_1^2)^2,\]</div><p>with starting point <span>$x^0 = (-1.2,1.0)$</span>.</p><div><pre><code class="language-julia">using NLPModels
 
 nlp = ADNLPModel(x-&gt;(x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2 , [-1.2; 1.0])</code></pre><pre><code class="language-none">ADNLPModel(Minimization problem Generic
 nvar = 2, ncon = 0 (0 linear)
-, Counters(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), getfield(Main.ex-adnlp, Symbol(&quot;##1#2&quot;))(), getfield(NLPModels, Symbol(&quot;##111#114&quot;))())</code></pre></div><p>This is enough to define the model. Let&#39;s get the objective function value at <span>$x^0$</span>, using only <code>nlp</code>.</p><div><pre><code class="language-julia">fx = obj(nlp, nlp.meta.x0)
+, Counters(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), getfield(Main.ex-adnlp, Symbol(&quot;##1#2&quot;))(), getfield(NLPModels, Symbol(&quot;##91#94&quot;))())</code></pre></div><p>This is enough to define the model. Let&#39;s get the objective function value at <span>$x^0$</span>, using only <code>nlp</code>.</p><div><pre><code class="language-julia">fx = obj(nlp, nlp.meta.x0)
 println(&quot;fx = $fx&quot;)</code></pre><pre><code class="language-none">fx = 24.199999999999996</code></pre></div><p>Done. Let&#39;s try the gradient and Hessian.</p><div><pre><code class="language-julia">gx = grad(nlp, nlp.meta.x0)
 Hx = hess(nlp, nlp.meta.x0)
 println(&quot;gx = $gx&quot;)
@@ -84,7 +84,80 @@ nlp = ADNLPModel(f, x0, c=c, lvar=lvar, uvar=uvar, lcon=lcon, ucon=ucon)
 
 println(&quot;cx = $(cons(nlp, nlp.meta.x0))&quot;)
 println(&quot;Jx = $(jac(nlp, nlp.meta.x0))&quot;)</code></pre><pre><code class="language-none">cx = [-2.2, 2.44]
-Jx = [1.0 1.0; -2.4 2.0]</code></pre></div><h2><a class="nav-anchor" id="Nonlinear-least-squares-models-1" href="#Nonlinear-least-squares-models-1">Nonlinear least squares models</a></h2><p>In addition to the general nonlinear model, we can define the residual function for a nonlinear least-squares problem. In other words, the objective function of the problem is of the form <span>$f(x) = \tfrac{1}{2}\|F(x)\|^2$</span>, and we can define the function <span>$F$</span> and its derivatives.</p><p>A simple way to define an NLS problem is with <code>ADNLSModel</code>, which uses automatic differentiation.</p><div><pre><code class="language-julia">F(x) = [x[1] - 1.0; 10 * (x[2] - x[1]^2)]
+Jx = [1.0 1.0; -2.4 2.0]</code></pre></div><h2><a class="nav-anchor" id="Manual-model-1" href="#Manual-model-1">Manual model</a></h2><p>Sometimes you want or need to input your derivatives by hand the easier way to do so is to define a new model. Which functions you want to define depend on which solver you are using. In out <code>test</code> folder, we have the files <code>hs5.jl</code>, <code>hs6.jl</code>, <code>hs10.jl</code>, <code>hs11.jl</code>, <code>hs14.jl</code> and <code>brownden.jl</code> as examples. We present the relevant part of <code>hs6.jl</code> here as well:</p><div><pre><code class="language-julia">import NLPModels: increment!
+using NLPModels
+
+mutable struct HS6 &lt;: AbstractNLPModel
+  meta :: NLPModelMeta
+  counters :: Counters
+end
+
+function HS6()
+  meta = NLPModelMeta(2, ncon=1, nnzh=1, nnzj=2, x0=[-1.2; 1.0], lcon=[0.0], ucon=[0.0], name=&quot;hs6&quot;)
+
+  return HS6(meta, Counters())
+end
+
+function NLPModels.obj(nlp :: HS6, x :: AbstractVector)
+  increment!(nlp, :neval_obj)
+  return (1 - x[1])^2
+end
+
+function NLPModels.grad!(nlp :: HS6, x :: AbstractVector, gx :: AbstractVector)
+  increment!(nlp, :neval_grad)
+  gx .= [2 * (x[1] - 1); 0.0]
+  return gx
+end
+
+function NLPModels.hess(nlp :: HS6, x :: AbstractVector; obj_weight=1.0, y=Float64[])
+  increment!(nlp, :neval_hess)
+  w = length(y) &gt; 0 ? y[1] : 0.0
+  return [2.0 * obj_weight - 20 * w   0.0; 0.0 0.0]
+end
+
+function NLPModels.hess_coord(nlp :: HS6, x :: AbstractVector; obj_weight=1.0, y=Float64[])
+  increment!(nlp, :neval_hess)
+  w = length(y) &gt; 0 ? y[1] : 0.0
+  return ([1], [1], [2.0 * obj_weight - 20 * w])
+end
+
+function NLPModels.hprod!(nlp :: HS6, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0, y=Float64[])
+  increment!(nlp, :neval_hprod)
+  w = length(y) &gt; 0 ? y[1] : 0.0
+  Hv .= [(2.0 * obj_weight - 20 * w) * v[1]; 0.0]
+  return Hv
+end
+
+function NLPModels.cons!(nlp :: HS6, x :: AbstractVector, cx :: AbstractVector)
+  increment!(nlp, :neval_cons)
+  cx[1] = 10 * (x[2] - x[1]^2)
+  return cx
+end
+
+function NLPModels.jac(nlp :: HS6, x :: AbstractVector)
+  increment!(nlp, :neval_jac)
+  return [-20 * x[1]  10.0]
+end
+
+function NLPModels.jac_coord(nlp :: HS6, x :: AbstractVector)
+  increment!(nlp, :neval_jac)
+  return ([1, 1], [1, 2], [-20 * x[1], 10.0])
+end
+
+function NLPModels.jprod!(nlp :: HS6, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
+  increment!(nlp, :neval_jprod)
+  Jv .= [-20 * x[1] * v[1] + 10 * v[2]]
+  return Jv
+end
+
+function NLPModels.jtprod!(nlp :: HS6, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
+  increment!(nlp, :neval_jtprod)
+  Jtv .= [-20 * x[1]; 10] * v[1]
+  return Jtv
+end</code></pre></div><div><pre><code class="language-julia">hs6 = HS6()
+x = hs6.meta.x0
+(obj(hs6, x), grad(hs6, x))</code></pre><pre><code class="language-none">(4.840000000000001, [-4.4, 0.0])</code></pre></div><div><pre><code class="language-julia">cons(hs6, x)</code></pre><pre><code class="language-none">1-element Array{Float64,1}:
+ -4.3999999999999995</code></pre></div><p>Notice that we did not define <code>grad</code> nor <code>cons</code>, but <code>grad!</code> and <code>cons!</code> were defined. The default <code>grad</code> and <code>cons</code> uses the inplace version, so there&#39;s no need to redefine them.</p><h2><a class="nav-anchor" id="Nonlinear-least-squares-models-1" href="#Nonlinear-least-squares-models-1">Nonlinear least squares models</a></h2><p>In addition to the general nonlinear model, we can define the residual function for a nonlinear least-squares problem. In other words, the objective function of the problem is of the form <span>$f(x) = \tfrac{1}{2}\|F(x)\|^2$</span>, and we can define the function <span>$F$</span> and its derivatives.</p><p>A simple way to define an NLS problem is with <code>ADNLSModel</code>, which uses automatic differentiation.</p><div><pre><code class="language-julia">F(x) = [x[1] - 1.0; 10 * (x[2] - x[1]^2)]
 x0 = [-1.2; 1.0]
 nls = ADNLSModel(F, x0, 2) # 2 nonlinear equations
 residual(nls, x0)</code></pre><pre><code class="language-none">2-element Array{Float64,1}:
