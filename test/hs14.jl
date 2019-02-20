@@ -41,6 +41,19 @@ function NLPModels.hess(nlp :: HS14, x :: AbstractVector; obj_weight=1.0, y=Floa
   end
 end
 
+function NLPModels.hess_structure(nlp :: HS14)
+  return ([1, 2], [1, 2])
+end
+
+function NLPModels.hess_coord!(nlp :: HS14, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0, y=AbstractVector[])
+  increment!(nlp, :neval_hess)
+  vals .= 2obj_weight
+  if length(y) > 0
+    vals .+= [-0.5; 2.0] * y[2]
+  end
+  return rows, cols, vals
+end
+
 function NLPModels.hess_coord(nlp :: HS14, x :: AbstractVector; obj_weight=1.0, y=Float64[])
   increment!(nlp, :neval_hess)
   w = length(y) == 0 ? 0.0 : y[2]
@@ -64,6 +77,16 @@ end
 function NLPModels.jac(nlp :: HS14, x :: AbstractVector)
   increment!(nlp, :neval_jac)
   return [1.0 -2.0; -x[1] / 2  -2 * x[2]]
+end
+
+function NLPModels.jac_structure(nlp :: HS14)
+  return ([1, 2, 1, 2], [1, 1, 2, 2])
+end
+
+function NLPModels.jac_coord!(nlp :: HS14, x :: AbstractVector, rows :: AbstractVector, cols :: AbstractVector, vals :: AbstractVector)
+  increment!(nlp, :neval_jac)
+  vals .= [1.0, -x[1] / 2, -2.0, -2 * x[2]]
+  return rows, cols, vals
 end
 
 function NLPModels.jac_coord(nlp :: HS14, x :: AbstractVector)
