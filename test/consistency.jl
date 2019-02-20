@@ -84,6 +84,9 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
     Hs = Vector{Any}(undef, N)
     for i = 1:N
       (I, J, V) = hess_coord(nlps[i], x)
+      IS, JS = hess_structure(nlps[i])
+      @test IS == I
+      @test JS == J
       Hs[i] = sparse(I, J, V, n, n)
     end
     Hmin = minimum(map(norm, Hs))
@@ -95,6 +98,9 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
       (I, J, V) = hess_coord(nlps[i], x, obj_weight=σ)
       tmp_h = sparse(I, J, V, n, n)
       @test isapprox(σ*Hs[i], tmp_h, atol=rtol * max(Hmin, 1.0))
+      tmp_V = zeros(nlps[i].meta.nnzh)
+      hess_coord!(nlps[i], x, I, J, tmp_V, obj_weight=σ)
+      @test tmp_V == V
     end
   end
 
@@ -196,6 +202,12 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
         I, J, V = jac_coord(nlps[i], x)
         @test length(I) == length(J) == length(V) == nlps[i].meta.nnzj
         @test isapprox(sparse(I, J, V, m, n), Js[i], atol=rtol * max(Jmin, 1.0))
+        IS, JS = jac_structure(nlps[i])
+        @test IS == I
+        @test JS == J
+        tmp_V = zeros(nlps[i].meta.nnzj)
+        jac_coord!(nlps[i], x, I, J, tmp_V)
+        @test tmp_V == V
       end
     end
 
@@ -245,6 +257,9 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
       Ls = Vector{Any}(undef, N)
       for i = 1:N
         (I, J, V) = hess_coord(nlps[i], x, y=y)
+        IS, JS = hess_structure(nlps[i])
+        @test IS == I
+        @test JS == J
         Ls[i] = sparse(I, J, V, n, n)
       end
       Lmin = minimum(map(norm, Ls))
@@ -256,6 +271,9 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
         (I, J, V) = hess_coord(nlps[i], x, obj_weight=σ, y=σ*y)
         tmp_h = sparse(I, J, V, n, n)
         @test isapprox(σ*Ls[i], tmp_h, atol=rtol * max(Lmin, 1.0))
+        tmp_V = zeros(nlps[i].meta.nnzh)
+        hess_coord!(nlps[i], x, I, J, tmp_V, obj_weight=σ, y=σ*y)
+        @test tmp_V == V
       end
     end
 
@@ -272,8 +290,7 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
       end
     end
 
-    if intersect([hess, hess_coord], exclude) == []
-      for i = 1:N
+    if intersect([hess, hess_coord], exclude) == [] for i = 1:N
         nlp = nlps[i]
         Hx = hess(nlp, x, obj_weight=0.5, y=y)
         I, J, V = hess_coord(nlp, x, obj_weight=0.5, y=y)
