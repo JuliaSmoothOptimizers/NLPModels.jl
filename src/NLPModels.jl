@@ -9,9 +9,10 @@ export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters
 export reset!, sum_counters,
        obj, grad, grad!, objgrad, objgrad!, objcons, objcons!,
        cons, cons!, jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad,
-       jac_coord, jac, jprod, jprod!, jtprod, jtprod!, jac_op, jac_op!,
+       jac_structure, jac_coord!, jac_coord,
+       jac, jprod, jprod!, jtprod, jtprod!, jac_op, jac_op!,
        jth_hprod, jth_hprod!, ghjvprod, ghjvprod!,
-       hess_coord, hess, hprod, hprod!, hess_op, hess_op!,
+       hess_structure, hess_coord!, hess_coord, hess, hprod, hprod!, hess_op, hess_op!,
        push!,
        varscale, lagscale, conscale,
        NotImplementedError
@@ -172,6 +173,19 @@ function objgrad!(nlp, x, g)
   return f, g
 end
 
+"""`(rows,cols) = jac_structure(nlp)`
+
+Returns the structure of the constraint's Jacobian in sparse coordinate format.
+"""
+jac_structure(:: AbstractNLPModel) = throw(NotImplementedError("jac_structure"))
+
+"""`(rows,cols,vals) = jac_coord!(nlp, x, rows, cols, vals)`
+
+Evaluate \$\\nabla c(x)\$, the constraint's Jacobian at `x` in sparse coordinate format,
+rewriting `vals`. `rows` and `cols` are not rewritten.
+"""
+jac_coord!(:: AbstractNLPModel, :: AbstractVector) = throw(NotImplementedError("jac_coord!"))
+
 """`(rows,cols,vals) = jac_coord(nlp, x)`
 
 Evaluate \$\\nabla c(x)\$, the constraint's Jacobian at `x` in sparse coordinate format.
@@ -256,6 +270,24 @@ ghjvprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVecto
   throw(NotImplementedError("ghjvprod"))
 ghjvprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("ghjvprod!"))
+
+"""`(rows,cols) = hess_structure(nlp)`
+
+Returns the structure of the Lagrangian Hessian in sparse coordinate format.
+"""
+hess_structure(:: AbstractNLPModel) = throw(NotImplementedError("hess_structure"))
+
+"""`(rows,cols,vals) = hess_coord!(nlp, x, rows, cols, vals; obj_weight=1.0, y=zeros)`
+
+Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format,
+with objective function scaled by `obj_weight`, i.e.,
+
+\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
+
+with σ = obj_weight, rewriting `vals`. `rows` and `cols` are not rewritten.
+Only the lower triangle is returned.
+"""
+hess_coord!(:: AbstractNLPModel, :: AbstractVector, ::AbstractVector{Int}, ::AbstractVector{Int}, ::AbstractVector; kwargs...) = throw(NotImplementedError("hess_coord!"))
 
 """`(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0, y=zeros)`
 
