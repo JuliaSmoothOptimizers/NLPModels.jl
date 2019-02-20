@@ -66,6 +66,21 @@ function jac_residual(nls :: ADNLSModel, x :: AbstractVector)
   return ForwardDiff.jacobian(nls.F, x)
 end
 
+function jac_structure_residual(nls :: ADNLSModel)
+  m, n = nls.nls_meta.nequ, nls.meta.nvar
+  I = ((i,j) for i = 1:m, j = 1:n)
+  return (getindex.(I, 1)[:], getindex.(I, 2)[:])
+end
+
+function jac_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+  Jx = jac_residual(nls, x)
+  for k = 1:nls.nls_meta.nnzj
+    i, j = rows[k], cols[k]
+    vals[k] = Jx[i,j]
+  end
+  return (rows, cols, vals)
+end
+
 function jac_coord_residual(nls :: ADNLSModel, x :: AbstractVector)
   Jx = jac_residual(nls, x)
   m, n = nls.nls_meta.nequ, nls.meta.nvar
@@ -88,6 +103,21 @@ end
 function hess_residual(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector)
   increment!(nls, :neval_hess_residual)
   return tril(ForwardDiff.jacobian(x->ForwardDiff.jacobian(nls.F, x)' * v, x))
+end
+
+function hess_structure_residual(nls :: ADNLSModel)
+  n = nls.meta.nvar
+  I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
+  return (getindex.(I, 1), getindex.(I, 2))
+end
+
+function hess_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+  Hx = hess_residual(nls, x, v)
+  for k = 1:nls.nls_meta.nnzh
+    i, j = rows[k], cols[k]
+    vals[k] = Hx[i,j]
+  end
+  return (rows, cols, vals)
 end
 
 function hess_coord_residual(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector)
@@ -124,9 +154,24 @@ function jac(nls :: ADNLSModel, x :: AbstractVector)
   return ForwardDiff.jacobian(nls.c, x)
 end
 
-function jac_coord(nlp :: ADNLSModel, x :: AbstractVector)
-  Jx = jac(nlp, x)
-  m, n = nlp.meta.ncon, nlp.meta.nvar
+function jac_structure(nls :: ADNLSModel)
+  m, n = nls.meta.ncon, nls.meta.nvar
+  I = ((i,j) for i = 1:m, j = 1:n)
+  return (getindex.(I, 1)[:], getindex.(I, 2)[:])
+end
+
+function jac_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+  Jx = jac(nls, x)
+  for k = 1:nls.meta.nnzj
+    i, j = rows[k], cols[k]
+    vals[k] = Jx[i,j]
+  end
+  return (rows, cols, vals)
+end
+
+function jac_coord(nls :: ADNLSModel, x :: AbstractVector)
+  Jx = jac(nls, x)
+  m, n = nls.meta.ncon, nls.meta.nvar
   I = ((i,j) for i = 1:m, j = 1:n)
   return (getindex.(I, 1)[:], getindex.(I, 2)[:], Jx[:])
 end
@@ -168,6 +213,21 @@ function hess(nls :: ADNLSModel, x :: AbstractVector; obj_weight :: Real = one(e
     end
   end
   return tril(Hx)
+end
+
+function hess_structure(nls :: ADNLSModel)
+  n = nls.meta.nvar
+  I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
+  return (getindex.(I, 1), getindex.(I, 2))
+end
+
+function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
+  Hx = hess(nls, x, obj_weight=obj_weight, y=y)
+  for k = 1:nls.meta.nnzh
+    i, j = rows[k], cols[k]
+    vals[k] = Hx[i,j]
+  end
+  return (rows, cols, vals)
 end
 
 function hess_coord(nls :: ADNLSModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
