@@ -72,6 +72,31 @@ function jac_residual(nls :: LLSModel, x :: AbstractVector)
   end
 end
 
+function jac_structure_residual(nls :: LLSModel)
+  if isa(nls.A, AbstractLinearOperator)
+    error("Jacobian is a LinearOperator. Use `jac_op_residual` instead.")
+  elseif nls.A isa AbstractSparseMatrix
+    return findnz(nls.A)[1:2]
+  else
+    m, n = size(nls.A)
+    I = ((i,j) for i = 1:m, j = 1:n)
+    return (getindex.(I, 1)[:], getindex.(I, 2)[:])
+  end
+end
+
+function jac_coord_residual!(nls :: LLSModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+  increment!(nls, :neval_jac_residual)
+  if isa(nls.A, AbstractLinearOperator)
+    error("Jacobian is a LinearOperator. Use `jac_op_residual` instead.")
+  else
+    for k = 1:nls.nls_meta.nnzj
+      i, j = rows[k], cols[k]
+      vals[k] = nls.A[i,j]
+    end
+  end
+  return (rows,cols,vals)
+end
+
 function jac_coord_residual(nls :: LLSModel, x :: AbstractVector)
   increment!(nls, :neval_jac_residual)
   if isa(nls.A, AbstractLinearOperator)
@@ -103,6 +128,15 @@ function hess_residual(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector
   return zeros(n, n)
 end
 
+function hess_structure_residual(nls :: LLSModel)
+  return (Int[], Int[])
+end
+
+function hess_coord_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+  increment!(nls, :neval_hess_residual)
+  return (rows, cols, vals)
+end
+
 function hess_coord_residual(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector)
   increment!(nls, :neval_hess_residual)
   return (Int[], Int[], Float64[])
@@ -129,6 +163,31 @@ function cons!(nls :: LLSModel, x :: AbstractVector, c :: AbstractVector)
   increment!(nls, :neval_cons)
   c[1:nls.meta.ncon] = nls.C * x
   return c
+end
+
+function jac_structure(nls :: LLSModel)
+  if isa(nls.C, AbstractLinearOperator)
+    error("jac_coord is not defined for LinearOperators")
+  end
+  if isa(nls.C, AbstractSparseMatrix)
+    return findnz(nls.C)[1:2]
+  else
+    m, n = size(nls.C)
+    I = ((i,j) for i = 1:m, j = 1:n)
+    return (getindex.(I, 1)[:], getindex.(I, 2)[:])
+  end
+end
+
+function jac_coord!(nls :: LLSModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+  increment!(nls, :neval_jac)
+  if isa(nls.C, AbstractLinearOperator)
+    error("jac_coord is not defined for LinearOperators")
+  end
+  for k = 1:nls.meta.nnzj
+    i, j = rows[k], cols[k]
+    vals[k] = nls.C[i,j]
+  end
+  return (rows, cols, vals)
 end
 
 function jac_coord(nls :: LLSModel, x :: AbstractVector)
@@ -182,23 +241,6 @@ function hess(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: Abstr
   else
     n = length(x)
     return zeros(n, n)
-  end
-end
-
-function hess_coord(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: AbstractVector = Float64[])
-  increment!(nls, :neval_hess)
-  if nls.A isa AbstractLinearOperator
-    error("hess is not defined for LinearOperators")
-  else
-    H = tril(nls.A' * nls.A)
-    if nls.A isa AbstractSparseMatrix
-      I, J, V = findnz(H)
-      return I, J, obj_weight * V
-    else
-      n = size(nls.A, 2)
-      I = ((i,j,obj_weight * H[i,j]) for i = 1:n, j = 1:n if i ≥ j)
-      return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
-    end
   end
 end
 
