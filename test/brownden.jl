@@ -54,6 +54,22 @@ function NLPModels.hess(nlp :: BROWNDEN, x :: AbstractVector; obj_weight=1.0, y=
   return obj_weight * tril(ForwardDiff.hessian(f, x))
 end
 
+function NLPModels.hess_structure(nlp :: BROWNDEN)
+  n = nlp.meta.nvar
+  I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
+  return (getindex.(I, 1), getindex.(I, 2))
+end
+
+function NLPModels.hess_coord!(nlp :: BROWNDEN, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0, y=AbstractVector[])
+  Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
+  nnzh = length(vals)
+  for k = 1:nnzh
+    i, j = rows[k], cols[k]
+    vals[k] = Hx[i,j]
+  end
+  return rows, cols, vals
+end
+
 function NLPModels.hess_coord(nlp :: BROWNDEN, x :: AbstractVector; obj_weight=1.0, y=AbstractVector[])
   Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
   n = nlp.meta.nvar
