@@ -118,11 +118,7 @@ end
 function jac_coord(nlp :: ADNLPModel, x :: AbstractVector)
   Jx = jac(nlp, x)
   m, n = nlp.meta.ncon, nlp.meta.nvar
-  if VERSION < v"1.0"
-    I = [(i,j) for i = 1:m, j = 1:n]
-  else
-    I = ((i,j) for i = 1:m, j = 1:n)
-  end
+  I = ((i,j) for i = 1:m, j = 1:n)
   return (getindex.(I, 1)[:], getindex.(I, 2)[:], Jx[:])
 end
 
@@ -163,11 +159,7 @@ end
 function hess_coord(nlp :: ADNLPModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
   n = nlp.meta.nvar
-  if VERSION < v"1.0"
-    I = [(i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j]
-  else
-    I = ((i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j)
-  end
+  I = ((i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j)
   return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
 end
 
