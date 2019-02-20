@@ -20,9 +20,6 @@ function lls_test()
       I, J, V = jac_coord(nls, x)
       @test sparse(I, J, V, ncon, nvar) == C
 
-      I, J, V = hess_coord(nls, x)
-      @test sparse(I, J, V, nvar, nvar) == tril(A' * A)
-
       @test nls.meta.nlin == length(nls.meta.lin) == ncon
       @test nls.meta.nnln == length(nls.meta.nln) == 0
     end
