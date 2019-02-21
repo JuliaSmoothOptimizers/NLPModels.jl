@@ -121,7 +121,7 @@ function jac_structure(nlp :: ADNLPModel)
   return (getindex.(I, 1)[:], getindex.(I, 2)[:])
 end
 
-function jac_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector, cols :: AbstractVector, vals :: AbstractVector)
+function jac_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
   Jx = jac(nlp, x)
   vals .= Jx[:]
   return rows, cols, vals
