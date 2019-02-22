@@ -57,8 +57,8 @@ for meth in (:jprod!, :jtprod!)
   @eval $meth(nlp :: QuasiNewtonModel, x :: AbstractVector, y :: AbstractVector, z :: AbstractVector) = $meth(nlp.model, x, y, z)
 end
 jac_structure(nlp :: QuasiNewtonModel) = jac_structure(nlp.model)
-jac_coord!(nlp :: QuasiNewtonModel, x :: AbstractVector, rows :: AbstractVector{Int},
-           cols :: AbstractVector{Int}, vals :: AbstractVector) =
+jac_coord!(nlp :: QuasiNewtonModel, x :: AbstractVector, rows :: AbstractVector{<: Integer},
+           cols :: AbstractVector{<: Integer}, vals :: AbstractVector) =
     jac_coord!(nlp.model, x, rows, cols, vals)
 
 # the following methods are affected by the Hessian approximation

@@ -287,7 +287,7 @@ with objective function scaled by `obj_weight`, i.e.,
 with σ = obj_weight, rewriting `vals`. `rows` and `cols` are not rewritten.
 Only the lower triangle is returned.
 """
-hess_coord!(:: AbstractNLPModel, :: AbstractVector, ::AbstractVector{Int}, ::AbstractVector{Int}, ::AbstractVector; kwargs...) = throw(NotImplementedError("hess_coord!"))
+hess_coord!(:: AbstractNLPModel, :: AbstractVector, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}, ::AbstractVector; kwargs...) = throw(NotImplementedError("hess_coord!"))
 
 """`(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0, y=zeros)`
 
