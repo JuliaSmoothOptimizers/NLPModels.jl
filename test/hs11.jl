@@ -48,8 +48,10 @@ end
 
 function NLPModels.hess_coord!(nlp :: HS11, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0, y=AbstractVector[])
   increment!(nlp, :neval_hess)
-  w = length(y) == 0 ? 0.0 : y[1]
-  vals .= 2obj_weight * ones(2) + [-2w; 0.0]
+  vals .= 2obj_weight
+  if length(y) > 0
+    vals[1] -= 2y[1]
+  end
   return rows, cols, vals
 end
 
