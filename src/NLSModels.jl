@@ -132,7 +132,7 @@ end
 Computes the Jacobian of the residual at `x` in sparse coordinate format, rewriting
 `vals`. `rows` and `cols` are not rewritten.
 """
-function jac_coord_residual!(nls :: AbstractNLSModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+function jac_coord_residual!(nls :: AbstractNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   throw(NotImplementedError("jac_coord_residual!"))
 end
 
@@ -238,7 +238,7 @@ end
 Computes the linear combination of the Hessians of the residuals at `x` with coefficients
 `v` in sparse coordinate format, rewriting `vals`.
 """
-function hess_coord_residual!(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+function hess_coord_residual!(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   throw(NotImplementedError("hess_coord_residual!"))
 end
 

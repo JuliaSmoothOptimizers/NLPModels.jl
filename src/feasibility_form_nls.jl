@@ -151,7 +151,7 @@ function jac_structure(nlp :: FeasibilityFormNLS)
   return I, J
 end
 
-function jac_coord!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+function jac_coord!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
   x = @view xr[1:n]
   nnzjF = nlp.internal.nls_meta.nnzj
@@ -229,7 +229,7 @@ function hess_structure(nlp :: FeasibilityFormNLS)
   return I, J
 end
 
-function hess_coord!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector;
+function hess_coord!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector;
     obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
   n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
   nnzhF = nlp.internal.nls_meta.nnzh
@@ -312,7 +312,7 @@ function jac_structure_residual(nlp :: FeasibilityFormNLS)
   return collect(1:ne), collect((n+1):(n+ne))
 end
 
-function jac_coord_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+function jac_coord_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   increment!(nlp, :neval_jac_residual)
   vals[1:nlp.nls_meta.nnzj] .= 1
   return rows, cols, vals
@@ -349,7 +349,7 @@ function hess_structure_residual(nlp :: FeasibilityFormNLS)
   return (Int[], Int[])
 end
 
-function hess_coord_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+function hess_coord_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   increment!(nlp, :neval_hess_residual)
   return rows, cols, vals
 end

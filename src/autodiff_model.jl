@@ -54,7 +54,7 @@ function ADNLPModel(f::Function, x0::AbstractVector; y0::AbstractVector = eltype
                     lvar::AbstractVector = eltype(x0)[], uvar::AbstractVector = eltype(x0)[],
                     lcon::AbstractVector = eltype(x0)[], ucon::AbstractVector = eltype(x0)[],
     c::Function = (args...)->throw(NotImplementedError("cons")),
-    name::String = "Generic", lin::AbstractVector{Int}=Int[])
+    name::String = "Generic", lin::AbstractVector{<: Integer}=Int[])
 
   nvar = length(x0)
   length(lvar) == 0 && (lvar = -Inf*ones(nvar))
@@ -121,7 +121,7 @@ function jac_structure(nlp :: ADNLPModel)
   return (getindex.(I, 1)[:], getindex.(I, 2)[:])
 end
 
-function jac_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+function jac_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   Jx = jac(nlp, x)
   vals .= Jx[:]
   return rows, cols, vals
@@ -174,7 +174,7 @@ function hess_structure(nlp :: ADNLPModel)
   return (getindex.(I, 1), getindex.(I, 2))
 end
 
-function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
+function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
   for k = 1:nlp.meta.nnzh
     i, j = rows[k], cols[k]

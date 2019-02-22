@@ -84,7 +84,7 @@ function jac_structure_residual(nls :: LLSModel)
   end
 end
 
-function jac_coord_residual!(nls :: LLSModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+function jac_coord_residual!(nls :: LLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   increment!(nls, :neval_jac_residual)
   if isa(nls.A, AbstractLinearOperator)
     error("Jacobian is a LinearOperator. Use `jac_op_residual` instead.")
@@ -132,7 +132,7 @@ function hess_structure_residual(nls :: LLSModel)
   return (Int[], Int[])
 end
 
-function hess_coord_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+function hess_coord_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   increment!(nls, :neval_hess_residual)
   return (rows, cols, vals)
 end
@@ -178,7 +178,7 @@ function jac_structure(nls :: LLSModel)
   end
 end
 
-function jac_coord!(nls :: LLSModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+function jac_coord!(nls :: LLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   increment!(nls, :neval_jac)
   if isa(nls.C, AbstractLinearOperator)
     error("jac_coord is not defined for LinearOperators")

@@ -72,7 +72,7 @@ function jac_structure_residual(nls :: ADNLSModel)
   return (getindex.(I, 1)[:], getindex.(I, 2)[:])
 end
 
-function jac_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+function jac_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   Jx = jac_residual(nls, x)
   for k = 1:nls.nls_meta.nnzj
     i, j = rows[k], cols[k]
@@ -111,7 +111,7 @@ function hess_structure_residual(nls :: ADNLSModel)
   return (getindex.(I, 1), getindex.(I, 2))
 end
 
-function hess_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+function hess_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   Hx = hess_residual(nls, x, v)
   for k = 1:nls.nls_meta.nnzh
     i, j = rows[k], cols[k]
@@ -160,7 +160,7 @@ function jac_structure(nls :: ADNLSModel)
   return (getindex.(I, 1)[:], getindex.(I, 2)[:])
 end
 
-function jac_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+function jac_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   Jx = jac(nls, x)
   for k = 1:nls.meta.nnzj
     i, j = rows[k], cols[k]
@@ -221,7 +221,7 @@ function hess_structure(nls :: ADNLSModel)
   return (getindex.(I, 1), getindex.(I, 2))
 end
 
-function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
+function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   Hx = hess(nls, x, obj_weight=obj_weight, y=y)
   for k = 1:nls.meta.nnzh
     i, j = rows[k], cols[k]
