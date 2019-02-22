@@ -49,7 +49,8 @@ function NLPModels.hess_coord!(nlp :: HS14, x :: AbstractVector, rows :: Abstrac
   increment!(nlp, :neval_hess)
   vals .= 2obj_weight
   if length(y) > 0
-    vals .+= [-0.5; 2.0] * y[2]
+    vals[1] -= 0.5y[2]
+    vals[2] -= 2.0y[2]
   end
   return rows, cols, vals
 end

@@ -50,10 +50,13 @@ function NLPModels.hess_coord!(nlp :: HS6, x :: AbstractVector, rows :: Abstract
 end
 
 
-function NLPModels.hess_coord(nlp :: HS6, x :: AbstractVector; obj_weight=1.0, y=Float64[])
+function NLPModels.hess_coord(nlp :: HS6, x :: AbstractVector; obj_weight :: Real=1.0, y::AbstractVector=Float64[])
   increment!(nlp, :neval_hess)
-  w = length(y) > 0 ? y[1] : 0.0
-  return ([1], [1], [2.0 * obj_weight - 20 * w])
+  if length(y) > 0
+    return ([1], [1], [2.0 * obj_weight - 20 * y[1]])
+  else
+    return ([1], [1], [2.0 * obj_weight])
+  end
 end
 
 function NLPModels.hprod!(nlp :: HS6, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0, y=Float64[])
@@ -80,7 +83,8 @@ end
 
 function NLPModels.jac_coord!(nlp :: HS6, x :: AbstractVector, rows :: AbstractVector, cols :: AbstractVector, vals :: AbstractVector)
   increment!(nlp, :neval_jac)
-  vals .= [-20 * x[1], 10.0]
+  vals[1] = -20 * x[1]
+  vals[2] = 10.0
   return rows, cols, vals
 end
 
