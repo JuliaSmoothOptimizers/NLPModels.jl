@@ -533,7 +533,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Tutorial",
     "category": "section",
-    "text": "Pages = [\"tutorial.md\"]NLPModels.jl was created for two purposes:Allow users to access problem databases in an unified way.Mainly, this means  CUTEst.jl,  but it also gives access to AMPL  problems,  as well as JuMP defined problems (e.g. as in  OptimizationProblems.jl).Allow users to create their own problems in the same way.As a consequence, optimization methods designed according to the NLPModels API  will accept NLPModels of any provenance.  See, for instance,  Optimize.jl.The main interface for user defined problems is ADNLPModel, which defines a model easily, using automatic differentiation."
+    "text": "Pages = [\"tutorial.md\"]NLPModels.jl was created for two purposes:Allow users to access problem databases in an unified way.Mainly, this means  CUTEst.jl,  but it also gives access to AMPL  problems,  as well as JuMP defined problems (e.g. as in  OptimizationProblems.jl).Allow users to create their own problems in the same way.As a consequence, optimization methods designed according to the NLPModels API  will accept NLPModels of any provenance.  See, for instance,  JSOSolvers.jl and  NLPModelsIpopt.jl.The main interface for user defined problems is ADNLPModel, which defines a model easily, using automatic differentiation."
 },
 
 {
