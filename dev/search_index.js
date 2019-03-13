@@ -581,7 +581,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "Reference guide",
     "category": "section",
-    "text": "The following naming should be easy enough to follow. If not, click on the link and go to the description.! means inplace;\n_coord means coordinate format;\nprod means matrix-vector product;\n_op means operator (as in LinearOperators.jl).Feel free to open an issue to suggest other methods that should apply to all NLPModels instances.Function NLPModels function\nf(x) obj, objgrad, objgrad!, objcons, objcons!\nnabla f(x) grad, grad!, objgrad, objgrad!\nnabla^2 f(x) hess, hess_op, hess_op!, hess_coord, hprod, hprod!\nc(x) cons, cons!, objcons, objcons!\nJ(x) jac, jac_op, jac_op!, jac_coord, jprod, jprod!, jtprod, jtprod!\nnabla^2 L(xy) hess, hess_op, hess_coord, hprod, hprod!"
+    "text": "The following naming should be easy enough to follow. If not, click on the link and go to the description.! means inplace;\n_coord means coordinate format;\nprod means matrix-vector product;\n_op means operator (as in LinearOperators.jl).Feel free to open an issue to suggest other methods that should apply to all NLPModels instances.Function NLPModels function\nf(x) obj, objgrad, objgrad!, objcons, objcons!\nnabla f(x) grad, grad!, objgrad, objgrad!\nnabla^2 f(x) hess, hess_op, hess_op!, hess_coord, hess_coord, hess_structure, hprod, hprod!\nc(x) cons, cons!, objcons, objcons!\nJ(x) jac, jac_op, jac_op!, jac_coord, jac_coord!, jac_structure, jprod, jprod!, jtprod, jtprod!\nnabla^2 L(xy) hess, hess_op, hess_coord, hess_coord!, hess_structure, hprod, hprod!"
 },
 
 {
@@ -589,7 +589,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "API for NLSModels",
     "category": "section",
-    "text": "For the Nonlinear Least Squares models, f(x) = Vert F(x)Vert^2, and these models have additional function to access the residual value and its derivatives. Namely,J_F(x) = nabla F(x)\nnabla^2 F_i(x)Function function\nF(x) residual, residual!\nJ_F(x) jac_residual, jac_coord_residual, jprod_residual, jprod_residual!, jtprod_residual, jtprod_residual!, jac_op_residual, jac_op_residual!\nnabla^2 F_i(x) hess_residual, hess_coord_residual, jth_hess_residual, hprod_residual, hprod_residual!, hess_op_residual, hess_op_residual!"
+    "text": "For the Nonlinear Least Squares models, f(x) = Vert F(x)Vert^2, and these models have additional function to access the residual value and its derivatives. Namely,J_F(x) = nabla F(x)\nnabla^2 F_i(x)Function function\nF(x) residual, residual!\nJ_F(x) jac_residual, jac_coord_residual, jac_coord_residual!, jac_structure_residual, jprod_residual, jprod_residual!, jtprod_residual, jtprod_residual!, jac_op_residual, jac_op_residual!\nnabla^2 F_i(x) hess_residual, hess_coord_residual, hess_coord_residual!, hess_structure_residual, jth_hess_residual, hprod_residual, hprod_residual!, hess_op_residual, hess_op_residual!"
 },
 
 {
@@ -673,6 +673,22 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api/#NLPModels.jac_coord!",
+    "page": "API",
+    "title": "NLPModels.jac_coord!",
+    "category": "function",
+    "text": "(rows,cols,vals) = jac_coord!(nlp, x, rows, cols, vals)\n\nEvaluate nabla c(x), the constraint\'s Jacobian at x in sparse coordinate format, rewriting vals. rows and cols are not rewritten.\n\n\n\n\n\n"
+},
+
+{
+    "location": "api/#NLPModels.jac_structure",
+    "page": "API",
+    "title": "NLPModels.jac_structure",
+    "category": "function",
+    "text": "(rows,cols) = jac_structure(nlp)\n\nReturns the structure of the constraint\'s Jacobian in sparse coordinate format.\n\n\n\n\n\n"
+},
+
+{
     "location": "api/#NLPModels.jac",
     "page": "API",
     "title": "NLPModels.jac",
@@ -737,6 +753,22 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api/#NLPModels.hess_coord!",
+    "page": "API",
+    "title": "NLPModels.hess_coord!",
+    "category": "function",
+    "text": "(rows,cols,vals) = hess_coord!(nlp, x, rows, cols, vals; obj_weight=1.0, y=zeros)\n\nEvaluate the Lagrangian Hessian at (x,y) in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\n\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum{i=1}^m yi\\nabla^2 c_i(x), \\]\n\nwith σ = obj_weight, rewriting vals. rows and cols are not rewritten. Only the lower triangle is returned.\n\n\n\n\n\n"
+},
+
+{
+    "location": "api/#NLPModels.hess_structure",
+    "page": "API",
+    "title": "NLPModels.hess_structure",
+    "category": "function",
+    "text": "(rows,cols) = hess_structure(nlp)\n\nReturns the structure of the Lagrangian Hessian in sparse coordinate format.\n\n\n\n\n\n"
+},
+
+{
     "location": "api/#NLPModels.hess",
     "page": "API",
     "title": "NLPModels.hess",
@@ -797,7 +829,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "AbstractNLPModel functions",
     "category": "section",
-    "text": "obj\ngrad\ngrad!\nobjgrad\nobjgrad!\ncons\ncons!\nobjcons\nobjcons!\njac_coord\njac\njac_op\njac_op!\njprod\njprod!\njtprod\njtprod!\nhess_coord\nhess\nhess_op\nhess_op!\nhprod\nhprod!\nreset!\nprint"
+    "text": "obj\ngrad\ngrad!\nobjgrad\nobjgrad!\ncons\ncons!\nobjcons\nobjcons!\njac_coord\njac_coord!\njac_structure\njac\njac_op\njac_op!\njprod\njprod!\njtprod\njtprod!\nhess_coord\nhess_coord!\nhess_structure\nhess\nhess_op\nhess_op!\nhprod\nhprod!\nreset!\nprint"
 },
 
 {
@@ -830,6 +862,22 @@ var documenterSearchIndex = {"docs": [
     "title": "NLPModels.jac_coord_residual",
     "category": "function",
     "text": "(rows,cols,vals) = jac_coord_residual(nls, x)\n\nComputes the Jacobian of the residual at x in sparse coordinate format.\n\n\n\n\n\n"
+},
+
+{
+    "location": "api/#NLPModels.jac_coord_residual!",
+    "page": "API",
+    "title": "NLPModels.jac_coord_residual!",
+    "category": "function",
+    "text": "(rows,cols,vals) = jac_coord_residual!(nls, x, rows, cols, vals)\n\nComputes the Jacobian of the residual at x in sparse coordinate format, rewriting vals. rows and cols are not rewritten.\n\n\n\n\n\n"
+},
+
+{
+    "location": "api/#NLPModels.jac_structure_residual",
+    "page": "API",
+    "title": "NLPModels.jac_structure_residual",
+    "category": "function",
+    "text": "(rows,cols) = jac_structure_residual(nls)\n\nReturns the structure of the constraint\'s Jacobian in sparse coordinate format.\n\n\n\n\n\n"
 },
 
 {
@@ -897,6 +945,22 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api/#NLPModels.hess_coord_residual!",
+    "page": "API",
+    "title": "NLPModels.hess_coord_residual!",
+    "category": "function",
+    "text": "(rows,cols,vals) = hess_coord_residual!(nls, x, v, rows, cols, vals)\n\nComputes the linear combination of the Hessians of the residuals at x with coefficients v in sparse coordinate format, rewriting vals.\n\n\n\n\n\n"
+},
+
+{
+    "location": "api/#NLPModels.hess_structure_residual",
+    "page": "API",
+    "title": "NLPModels.hess_structure_residual",
+    "category": "function",
+    "text": "(rows,cols) = hess_structure_residual(nls)\n\nReturns the structure of the Lagrangian Hessian.\n\n\n\n\n\n"
+},
+
+{
     "location": "api/#NLPModels.jth_hess_residual",
     "page": "API",
     "title": "NLPModels.jth_hess_residual",
@@ -941,7 +1005,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "AbstractNLSModel",
     "category": "section",
-    "text": "residual\nresidual!\njac_residual\njac_coord_residual\njprod_residual\njprod_residual!\njtprod_residual\njtprod_residual!\njac_op_residual\njac_op_residual!\nhess_residual\nhess_coord_residual\njth_hess_residual\nhprod_residual\nhprod_residual!\nhess_op_residual\nhess_op_residual!"
+    "text": "residual\nresidual!\njac_residual\njac_coord_residual\njac_coord_residual!\njac_structure_residual\njprod_residual\njprod_residual!\njtprod_residual\njtprod_residual!\njac_op_residual\njac_op_residual!\nhess_residual\nhess_coord_residual\nhess_coord_residual!\nhess_structure_residual\njth_hess_residual\nhprod_residual\nhprod_residual!\nhess_op_residual\nhess_op_residual!"
 },
 
 {
