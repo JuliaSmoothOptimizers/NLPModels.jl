@@ -17,7 +17,8 @@ NLPModels.jl was created for two purposes:
  As a consequence, optimization methods designed according to the NLPModels API
  will accept NLPModels of any provenance.
  See, for instance,
- [Optimize.jl](https://github.com/JuliaSmoothOptimizers/Optimize.jl).
+ [JSOSolvers.jl](https://github.com/JuliaSmoothOptimizers/JSOSolvers.jl) and
+ [NLPModelsIpopt.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsIpopt.jl).
 
 The main interface for user defined problems is [ADNLPModel](@ref), which defines a
 model easily, using automatic differentiation.
