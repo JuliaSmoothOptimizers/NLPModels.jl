@@ -226,7 +226,7 @@ end
 """
     (rows,cols) = hess_structure_residual(nls)
 
-Returns the structure of the Lagrangian Hessian.
+Returns the structure of the residual Hessian.
 """
 function hess_structure_residual(nls :: AbstractNLSModel)
   throw(NotImplementedError("hess_structure_residual"))
