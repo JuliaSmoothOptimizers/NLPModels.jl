@@ -39,8 +39,10 @@ function NLPModels.hess(nlp :: HS6, x :: AbstractVector; obj_weight=1.0, y=Float
   return [2.0 * obj_weight - 20 * w   0.0; 0.0 0.0]
 end
 
-function NLPModels.hess_structure(nlp :: HS6)
-  return ([1], [1])
+function NLPModels.hess_structure!(nlp :: HS6, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
+  rows[1] = 1
+  cols[1] = 1
+  return rows, cols
 end
 
 function NLPModels.hess_coord!(nlp :: HS6, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0, y=AbstractVector[])

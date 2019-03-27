@@ -220,13 +220,20 @@ function jtprod!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, v :: AbstractV
   return jtv
 end
 
-function hess_structure(nlp :: FeasibilityFormNLS)
+function hess_structure!(nlp :: FeasibilityFormNLS, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
-  IF, JF = hess_structure_residual(nlp.internal)
-  (Ic, Jc) = m > 0 ? hess_structure(nlp.internal) : (Int[], Int[])
-  I = [IF; Ic; (n+1:n+ne)]
-  J = [JF; Jc; (n+1:n+ne)]
-  return I, J
+  nnzhF = nlp.internal.nls_meta.nnzh
+  nnzhc = m > 0 ? nlp.internal.meta.nnzh : 0
+  I = 1:nnzhF
+  @views hess_structure_residual!(nlp.internal, rows[I], cols[I])
+  if m > 0
+    I = nnzhF+1:nnzhF+nnzhc
+    @views hess_structure!(nlp.internal, rows[I], cols[I])
+  end
+  I = nnzhF+nnzhc+1:nnzhF+nnzhc+ne
+  rows[I] .= n+1:n+ne
+  cols[I] .= n+1:n+ne
+  return rows, cols
 end
 
 function hess_coord!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector;
@@ -345,8 +352,8 @@ function hess_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: Abst
   return spzeros(n, n)
 end
 
-function hess_structure_residual(nlp :: FeasibilityFormNLS)
-  return (Int[], Int[])
+function hess_structure_residual!(nlp :: FeasibilityFormNLS, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+  return rows, cols  # Hessian of residual is zero; do not change rows and cols
 end
 
 function hess_coord_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)

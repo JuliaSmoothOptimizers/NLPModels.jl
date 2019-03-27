@@ -41,8 +41,10 @@ function NLPModels.hess(nlp :: HS14, x :: AbstractVector; obj_weight=1.0, y=Floa
   end
 end
 
-function NLPModels.hess_structure(nlp :: HS14)
-  return ([1, 2], [1, 2])
+function NLPModels.hess_structure!(nlp :: HS14, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
+  rows[1] = 1; rows[2] = 2
+  cols[1] = 1; cols[2] = 2
+  return rows, cols
 end
 
 function NLPModels.hess_coord!(nlp :: HS14, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0, y=AbstractVector[])

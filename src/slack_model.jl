@@ -277,8 +277,8 @@ function jtprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector, j
   return jtv
 end
 
-function hess_structure(nlp :: SlackModels)
-  return hess_structure(nlp.model)
+function hess_structure!(nlp :: SlackModels, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+  return hess_structure!(nlp.model, rows, cols)
 end
 
 function hess_coord!(nlp :: SlackModels, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector;
@@ -410,8 +410,8 @@ function hess_residual(nlp :: SlackNLSModel, x :: AbstractVector, v :: AbstractV
   end
 end
 
-function hess_structure_residual(nls :: SlackNLSModel)
-  return hess_structure_residual(nls.model)
+function hess_structure_residual!(nls :: SlackNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+  return hess_structure_residual!(nls.model, rows, cols)
 end
 
 function hess_coord_residual!(nls :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)

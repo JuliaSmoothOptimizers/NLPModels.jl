@@ -128,8 +128,8 @@ function hess_residual(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector
   return zeros(n, n)
 end
 
-function hess_structure_residual(nls :: LLSModel)
-  return (Int[], Int[])
+function hess_structure_residual!(nls :: LLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+  return rows, cols
 end
 
 function hess_coord_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
