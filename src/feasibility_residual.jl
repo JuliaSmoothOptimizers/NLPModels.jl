@@ -100,8 +100,8 @@ function hess_residual(nls :: FeasibilityResidual, x :: AbstractVector, v :: Abs
   return hess(nls.nlp, x, obj_weight = 0.0, y=v)
 end
 
-function hess_structure_residual(nls :: FeasibilityResidual)
-  return hess_structure(nls.nlp)
+function hess_structure_residual!(nls :: FeasibilityResidual, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+  return hess_structure!(nls.nlp, rows, cols)
 end
 
 function hess_coord_residual!(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)

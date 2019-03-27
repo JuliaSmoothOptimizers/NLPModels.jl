@@ -12,7 +12,7 @@ export reset!, sum_counters,
        jac_structure, jac_coord!, jac_coord,
        jac, jprod, jprod!, jtprod, jtprod!, jac_op, jac_op!,
        jth_hprod, jth_hprod!, ghjvprod, ghjvprod!,
-       hess_structure, hess_coord!, hess_coord, hess, hprod, hprod!, hess_op, hess_op!,
+       hess_structure!, hess_structure, hess_coord!, hess_coord, hess, hprod, hprod!, hess_op, hess_op!,
        push!,
        varscale, lagscale, conscale,
        NotImplementedError
@@ -275,7 +275,17 @@ ghjvprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVect
 
 Returns the structure of the Lagrangian Hessian in sparse coordinate format.
 """
-hess_structure(:: AbstractNLPModel) = throw(NotImplementedError("hess_structure"))
+function hess_structure(nlp :: AbstractNLPModel)
+  rows = Vector{Int}(undef, nlp.meta.nnzh)
+  cols = Vector{Int}(undef, nlp.meta.nnzh)
+  hess_structure!(nlp, rows, cols)
+end
+
+"""`hess_structure!(nlp, rows, cols)`
+
+Returns the structure of the Lagrangian Hessian in sparse coordinate format in place.
+"""
+hess_structure!(:: AbstractNLPModel, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}) = throw(NotImplementedError("hess_structure!"))
 
 """`(rows,cols,vals) = hess_coord!(nlp, x, rows, cols, vals; obj_weight=1.0, y=zeros)`
 

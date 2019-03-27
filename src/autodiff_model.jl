@@ -168,10 +168,12 @@ function hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight :: Real = one(e
   return tril(Hx)
 end
 
-function hess_structure(nlp :: ADNLPModel)
+function hess_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   n = nlp.meta.nvar
   I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
-  return (getindex.(I, 1), getindex.(I, 2))
+  rows .= getindex.(I, 1)
+  cols .= getindex.(I, 2)
+  return rows, cols
 end
 
 function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
