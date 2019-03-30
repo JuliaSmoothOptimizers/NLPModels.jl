@@ -5,32 +5,47 @@ export SlackModel, SlackNLSModel,
        hess_coord, hess, hprod, hprod!
 
 
-"""A model whose only inequality constraints are bounds.
+@doc raw"""A model whose only inequality constraints are bounds.
 
 Given a model, this type represents a second model in which slack variables are
 introduced so as to convert linear and nonlinear inequality constraints to
 equality constraints and bounds. More precisely, if the original model has the
 form
 
-\\\\[ \\min f(x)  \\mbox{ s. t. }  c_L \\leq c(x) \\leq c_U \\mbox{ and }
-\\ell \\leq x \\leq u, \\\\]
+```math
+\begin{align}
+&\min_x      & &f(x)\\
+&\text{s.t.} & &\begin{array}{ccccc}
+                  c_L &≤& c(x) &≤& c_U,\\
+                   l  &≤&   x  &≤&  u,
+                \end{array}
+\end{align}
+```
 
 the new model appears to the user as
 
-\\\\[ \\min f(X)  \\mbox{ s. t. }  g(X) = 0 \\mbox{ and } L \\leq X \\leq U. \\\\]
+```math
+&\min_X      & &f(X)\\
+&\text{s.t.} & &g(X) = 0,\\
+&            & &L ≤ X ≤ U.
+```
 
-The unknowns \$X = (x, s)\$ contain the original variables and slack variables
-\$s\$. The latter are such that the new model has the general form
+The unknowns ``X = (x, s)`` contain the original variables and slack variables
+``s``. The latter are such that the new model has the general form
 
-\\\\[ \\min f(x)  \\mbox{ s. t. }  c(x) - s = 0, c_L \\leq s \\leq c_U \\mbox{ and }
-\\ell \\leq x \\leq u, \\\\]
+```math
+&\min_Xx     & &f(x)\\
+&\text{s.t.} & &c(x) - s = 0,\\
+&            & &c_L ≤ x ≤ c_U,\\
+&            & & l  ≤ x ≤ u.
+```
 
 although no slack variables are introduced for equality constraints.
 
 The slack variables are implicitly ordered as [s(low), s(upp), s(rng)], where
 `low`, `upp` and `rng` represent the indices of the constraints of the form
-\$c_L \\leq c(x) < \\infty\$, \$-\\infty < c(x) \\leq c_U\$ and
-\$c_L \\leq c(x) \\leq c_U\$, respectively.
+``c_L ≤ c(x) < ∞``, ``-∞ < c(x) ≤ c_U`` and
+``c_L ≤ c(x) ≤ c_U``, respectively.
 """
 mutable struct SlackModel <: AbstractNLPModel
   meta :: NLPModelMeta
