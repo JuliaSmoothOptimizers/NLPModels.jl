@@ -13,36 +13,42 @@ equality constraints and bounds. More precisely, if the original model has the
 form
 
 ```math
-\begin{align}
-&\min_x      & &f(x)\\
-&\text{s.t.} & &\begin{array}{ccccc}
-                  c_L &≤& c(x) &≤& c_U,\\
-                   l  &≤&   x  &≤&  u,
-                \end{array}
-\end{align}
+\begin{align*}
+&\min_x        && f(x)\\
+&\mathrm{s.t.} && \begin{alignedat}[t]{3}
+                    c_L &≤ c(x) &&≤ c_U,\\
+                     l  &≤  x   &&≤  u,
+                  \end{alignedat}
+\end{align*}
 ```
 
 the new model appears to the user as
 
 ```math
-&\min_X      & &f(X)\\
-&\text{s.t.} & &g(X) = 0,\\
-&            & &L ≤ X ≤ U.
+\begin{align*}
+&\min_X        & &f(X)\\
+&\mathrm{s.t.} & &g(X) = 0,\\
+&              & &L ≤ X ≤ U.
+\end{align*}
 ```
 
 The unknowns ``X = (x, s)`` contain the original variables and slack variables
 ``s``. The latter are such that the new model has the general form
 
 ```math
-&\min_Xx     & &f(x)\\
-&\text{s.t.} & &c(x) - s = 0,\\
-&            & &c_L ≤ x ≤ c_U,\\
-&            & & l  ≤ x ≤ u.
+\begin{align*}
+&\min_x     & &f(x)\\
+&\mathrm{s.t.} & &c(x) - s = 0,\\
+&              & &\begin{alignedat}[t]{3}
+                    c_L &≤ x &&≤ c_U,\\
+                     l  &≤ x &&≤ u.
+                  \end{alignedat}
+\end{align*}
 ```
 
 although no slack variables are introduced for equality constraints.
 
-The slack variables are implicitly ordered as [s(low), s(upp), s(rng)], where
+The slack variables are implicitly ordered as `[s(low), s(upp), s(rng)]`, where
 `low`, `upp` and `rng` represent the indices of the constraints of the form
 ``c_L ≤ c(x) < ∞``, ``-∞ < c(x) ≤ c_U`` and
 ``c_L ≤ c(x) ≤ c_U``, respectively.
