@@ -18,7 +18,7 @@ ADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,
 
   - `f :: Function` - The objective function ``f``;
   - `x0 :: AbstractVector` - The initial point of the problem;
-  - `lvar :: AbstractVector` - ``l``, the lower bound of the variables;
+  - `lvar :: AbstractVector` - ``ℓ``, the lower bound of the variables;
   - `uvar :: AbstractVector` - ``u``, the upper bound of the variables;
   - `c :: Function` - The constraints function ``c``;
   - `y0 :: AbstractVector` - The initial value of the Lagrangian estimates;

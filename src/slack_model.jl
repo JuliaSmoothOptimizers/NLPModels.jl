@@ -17,7 +17,7 @@ form
 &\min_x        && f(x)\\
 &\mathrm{s.t.} && \begin{alignedat}[t]{3}
                     c_L &≤ c(x) &&≤ c_U,\\
-                     l  &≤  x   &&≤  u,
+                     ℓ  &≤  x   &&≤  u,
                   \end{alignedat}
 \end{align*}
 ```
@@ -41,7 +41,7 @@ The unknowns ``X = (x, s)`` contain the original variables and slack variables
 &\mathrm{s.t.} & &c(x) - s = 0,\\
 &              & &\begin{alignedat}[t]{3}
                     c_L &≤ x &&≤ c_U,\\
-                     l  &≤ x &&≤ u.
+                     ℓ  &≤ x &&≤ u.
                   \end{alignedat}
 \end{align*}
 ```
