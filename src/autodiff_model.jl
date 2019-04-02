@@ -185,19 +185,6 @@ function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVec
   return rows, cols, vals
 end
 
-function hess_coord(nlp :: ADNLPModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
-  Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
-  n = nlp.meta.nvar
-  I = ((i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j)
-  return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
-end
-
-function hprod(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector;
-               obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
-  Hv = zeros(nlp.meta.nvar)
-  return hprod!(nlp, x, v, Hv, obj_weight=obj_weight, y=y)
-end
-
 function hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
                 obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   increment!(nlp, :neval_hprod)
