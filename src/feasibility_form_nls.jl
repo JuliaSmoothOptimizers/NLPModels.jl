@@ -239,10 +239,10 @@ function hess_coord!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, rows :: Ab
   y2 = @view y[ne+1:ne+m]
   I = 1:nnzhF
   @views hess_coord_residual!(nlp.internal, x, y1, rows[I], cols[I], vals[I])
-  if m > 0
-    I = nnzhF+1:nnzhF+nnzhc
-    @views hess_coord!(nlp.internal, x, rows[I], cols[I], vals[I], obj_weight=0.0, y=y2)
-  end
+  I = nnzhF+1:nnzhF+nnzhc
+  @views hess_coord!(nlp.internal, x, rows[I], cols[I], vals[I], obj_weight=0.0, y=y2)
+  @views rows[nnzhF + nnzhc + 1 : nnzhF + nnzhc + ne] = n - ne + 1 : n  # Hessian of the residual ¹/₂‖r‖²
+  @views cols[nnzhF + nnzhc + 1 : nnzhF + nnzhc + ne] = n - ne + 1 : n
   vals[nnzhF+nnzhc+1:nnzhF+nnzhc+ne] .= obj_weight
   return rows, cols, vals
 end
@@ -339,10 +339,15 @@ function jtprod_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: A
   return Jtv
 end
 
+# the Hessian of the residual is
+# [ 0  0 ]  } n
+# [ 0  I ]  } m
 function hess_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector)
   increment!(nlp, :neval_hess_residual)
   n = nlp.meta.nvar
-  return spzeros(n, n)
+  m = nlp.internal.nls_meta.nequ
+  rows = collect((n-m+1):n)
+  return sparse(rows, rows, ones(eltype(x), m), n, n)
 end
 
 function hess_structure_residual(nlp :: FeasibilityFormNLS)
@@ -351,22 +356,37 @@ end
 
 function hess_coord_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   increment!(nlp, :neval_hess_residual)
+  n = nlp.meta.nvar
+  m = nlp.internal.nls_meta.nequ
+  rows .= (n-m+1):n
+  cols .= (n-m+1):n
+  vals .= 1
   return rows, cols, vals
 end
 
 function hess_coord_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector)
-  increment!(nlp, :neval_hess_residual)
-  return (Int[], Int[], Float64[])
+  m = nlp.internal.nls_meta.nequ
+  rows = Vector{Int}(undef, m)
+  cols = Vector{Int}(undef, m)
+  vals = Vector{eltype(x)}(undef, m)
+  hess_coord_residual!(nlp, x, v, rows, cols, vals)
+  return rows, cols, vals
 end
 
 function jth_hess_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector, i :: Int)
   increment!(nlp, :neval_jhess_residual)
   n = nlp.meta.nvar
-  return spzeros(n, n)
+  m = nlp.internal.nls_meta.nequ
+  rows = [n - m + i]
+  vals = ones(eltype(x), 1)
+  return sparse(rows, rows, vals, n, n)
 end
 
 function hprod_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
   increment!(nlp, :neval_hprod_residual)
+  n = nlp.meta.nvar
+  m = nlp.internal.nls_meta.nequ
   fill!(Hiv, 0.0)
+  Hiv[n-m+1:n] .= v[n-m+1:n]
   return Hiv
 end
