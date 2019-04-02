@@ -302,7 +302,7 @@ with objective function scaled by `obj_weight`, i.e.,
 $(LAGRANGIAN_HESSIAN),rewriting `vals`. `rows` and `cols` are not rewritten.
 Only the lower triangle is returned.
 """
-hess_coord!(:: AbstractNLPModel, :: AbstractVector, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}, ::AbstractVector; kwargs...) = throw(NotImplementedError("hess_coord!"))
+hess_coord!(nlp:: AbstractNLPModel, :: AbstractVector, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}, ::AbstractVector; obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon)) = throw(NotImplementedError("hess_coord!"))
 
 """`(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0, y=zeros)`
 
@@ -312,7 +312,13 @@ with objective function scaled by `obj_weight`, i.e.,
 $(LAGRANGIAN_HESSIAN).
 Only the lower triangle is returned.
 """
-hess_coord(nlp::AbstractNLPModel, x::AbstractVector; y::AbstractVector=Float64[], obj_weight::Real=1.0) = throw(NotImplementedError("hess_coord"))
+function hess_coord(nlp :: AbstractNLPModel, x :: AbstractVector; kwargs...)
+  rows = Vector{Int}(undef, nlp.meta.nnzh)
+  cols = Vector{Int}(undef, nlp.meta.nnzh)
+  vals = Vector{eltype(x)}(undef, nlp.meta.nnzh)
+  hess_structure!(nlp, rows, cols)
+  return hess_coord!(nlp, x, rows, cols, vals; kwargs...)
+end
 
 """`Hx = hess(nlp, x; obj_weight=1.0, y=zeros)`
 
