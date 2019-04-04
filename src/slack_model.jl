@@ -5,32 +5,49 @@ export SlackModel, SlackNLSModel,
        hess_coord, hess, hprod, hprod!
 
 
-"""A model whose only inequality constraints are bounds.
+@doc raw"""A model whose only inequality constraints are bounds.
 
 Given a model, this type represents a second model in which slack variables are
 introduced so as to convert linear and nonlinear inequality constraints to
 equality constraints and bounds. More precisely, if the original model has the
 form
 
-\\\\[ \\min f(x)  \\mbox{ s. t. }  c_L \\leq c(x) \\leq c_U \\mbox{ and }
-\\ell \\leq x \\leq u, \\\\]
+```math
+\begin{align*}
+       \min_x \quad & f(x)\\
+\mathrm{s.t.} \quad & c_L ≤ c(x) ≤ c_U,\\
+                    &  ℓ  ≤  x   ≤  u,
+\end{align*}
+```
 
 the new model appears to the user as
 
-\\\\[ \\min f(X)  \\mbox{ s. t. }  g(X) = 0 \\mbox{ and } L \\leq X \\leq U. \\\\]
+```math
+\begin{align*}
+       \min_X \quad & f(X)\\
+\mathrm{s.t.} \quad & g(X) = 0,\\
+                    & L ≤ X ≤ U.
+\end{align*}
+```
 
-The unknowns \$X = (x, s)\$ contain the original variables and slack variables
-\$s\$. The latter are such that the new model has the general form
+The unknowns ``X = (x, s)`` contain the original variables and slack variables
+``s``. The latter are such that the new model has the general form
 
-\\\\[ \\min f(x)  \\mbox{ s. t. }  c(x) - s = 0, c_L \\leq s \\leq c_U \\mbox{ and }
-\\ell \\leq x \\leq u, \\\\]
+```math
+\begin{align*}
+       \min_x \quad & f(x)\\
+\mathrm{s.t.} \quad & c(x) - s = 0,\\
+                    & c_L ≤ s ≤ c_U,\\
+                    &  ℓ  ≤ x ≤ u.
+\end{align*}
+```
 
 although no slack variables are introduced for equality constraints.
 
-The slack variables are implicitly ordered as [s(low), s(upp), s(rng)], where
+The slack variables are implicitly ordered as `[s(low), s(upp), s(rng)]`, where
 `low`, `upp` and `rng` represent the indices of the constraints of the form
-\$c_L \\leq c(x) < \\infty\$, \$-\\infty < c(x) \\leq c_U\$ and
-\$c_L \\leq c(x) \\leq c_U\$, respectively.
+``c_L ≤ c(x) < ∞``, ``-∞ < c(x) ≤ c_U`` and
+``c_L ≤ c(x) ≤ c_U``, respectively.
 """
 mutable struct SlackModel <: AbstractNLPModel
   meta :: NLPModelMeta

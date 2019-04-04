@@ -3,12 +3,12 @@ using ForwardDiff
 export ADNLPModel, obj, grad, grad!, cons, cons!, jac, jprod,
        jprod!, jtprod, jtprod!, hess, hprod, hprod!
 
-"""ADNLPModel is an AbstractNLPModel using ForwardDiff to compute the
+@doc raw"""ADNLPModel is an AbstractNLPModel using ForwardDiff to compute the
 derivatives.
-In this interface, the objective function \$f\$ and an initial estimate are
+In this interface, the objective function ``f`` and an initial estimate are
 required. If there are constraints, the function
-\$c:\\mathbb{R}^n\\rightarrow\\mathbb{R}^m\$  and the vectors
-\$c_L\$ and \$c_U\$ also need to be passed. Bounds on the variables and an
+``c:ℝⁿ → ℝᵐ``  and the vectors
+``c_L`` and ``c_U`` also need to be passed. Bounds on the variables and an
 inital estimate to the Lagrangian multipliers can also be provided.
 
 ````
@@ -16,14 +16,14 @@ ADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,
   c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = "Generic")
 ````
 
-  - `f :: Function` - The objective function \$f\$;
+  - `f :: Function` - The objective function ``f``;
   - `x0 :: AbstractVector` - The initial point of the problem;
-  - `lvar :: AbstractVector` - \$\\ell\$, the lower bound of the variables;
-  - `uvar :: AbstractVector` - \$u\$, the upper bound of the variables;
-  - `c :: Function` - The constraints function \$c\$;
+  - `lvar :: AbstractVector` - ``ℓ``, the lower bound of the variables;
+  - `uvar :: AbstractVector` - ``u``, the upper bound of the variables;
+  - `c :: Function` - The constraints function ``c``;
   - `y0 :: AbstractVector` - The initial value of the Lagrangian estimates;
-  - `lcon :: AbstractVector` - \$c_L\$, the lower bounds of the constraints function;
-  - `ucon :: AbstractVector` - \$c_U\$, the upper bounds of the constraints function;
+  - `lcon :: AbstractVector` - ``c_L``, the lower bounds of the constraints function;
+  - `ucon :: AbstractVector` - ``c_U``, the upper bounds of the constraints function;
   - `name :: String` - A name for the model.
 
 The functions follow the same restrictions of ForwardDiff functions, summarised
@@ -34,10 +34,10 @@ here:
   - The function's argument must accept a subtype of AbstractVector;
   - The function should be type-stable.
 
-For contrained problems, the function \$c\$ is required, and it must return
+For contrained problems, the function ``c`` is required, and it must return
 an array even when m = 1,
-and \$c_L\$ and \$c_U\$ should be passed, otherwise the problem is ill-formed.
-For equality constraints, the corresponding index of \$c_L\$ and \$c_U\$ should be the
+and ``c_L`` and ``c_U`` should be passed, otherwise the problem is ill-formed.
+For equality constraints, the corresponding index of ``c_L`` and ``c_U`` should be the
 same.
 """
 mutable struct ADNLPModel <: AbstractNLPModel

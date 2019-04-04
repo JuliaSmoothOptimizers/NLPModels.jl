@@ -3,6 +3,14 @@ __precompile__()
 
 module NLPModels
 
+# For documentation purpose
+const LAGRANGIAN_HESSIAN = raw"""
+```math
+∇²L(x,y) = σ ∇²f(x) + ∑ᵢ yᵢ ∇²cᵢ(x),
+```
+with `σ = obj_weight`
+"""
+
 using LinearAlgebra, LinearOperators, Printf, SparseArrays, FastClosures
 
 export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters
@@ -86,14 +94,14 @@ end
 # Methods to be overridden in other packages.
 """`f = obj(nlp, x)`
 
-Evaluate \$f(x)\$, the objective function of `nlp` at `x`.
+Evaluate ``f(x)``, the objective function of `nlp` at `x`.
 """
 obj(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("obj"))
 
 """`g = grad(nlp, x)`
 
-Evaluate \$\\nabla f(x)\$, the gradient of the objective function at `x`.
+Evaluate ``∇f(x)``, the gradient of the objective function at `x`.
 """
 function grad(nlp::AbstractNLPModel, x::AbstractVector)
   g = similar(x)
@@ -102,14 +110,14 @@ end
 
 """`g = grad!(nlp, x, g)`
 
-Evaluate \$\\nabla f(x)\$, the gradient of the objective function at `x` in place.
+Evaluate ``∇f(x)``, the gradient of the objective function at `x` in place.
 """
 grad!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("grad!"))
 
 """`c = cons(nlp, x)`
 
-Evaluate \$c(x)\$, the constraints at `x`.
+Evaluate ``c(x)``, the constraints at `x`.
 """
 function cons(nlp::AbstractNLPModel, x::AbstractVector)
   c = similar(x, nlp.meta.ncon)
@@ -118,7 +126,7 @@ end
 
 """`c = cons!(nlp, x, c)`
 
-Evaluate \$c(x)\$, the constraints at `x` in place.
+Evaluate ``c(x)``, the constraints at `x` in place.
 """
 cons!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("cons!"))
@@ -134,7 +142,7 @@ jth_sparse_congrad(::AbstractNLPModel, ::AbstractVector, ::Integer) =
 
 """`f, c = objcons(nlp, x)`
 
-Evaluate \$f(x)\$ and \$c(x)\$ at `x`.
+Evaluate ``f(x)`` and ``c(x)`` at `x`.
 """
 function objcons(nlp, x)
   f = obj(nlp, x)
@@ -144,7 +152,7 @@ end
 
 """`f = objcons!(nlp, x, c)`
 
-Evaluate \$f(x)\$ and \$c(x)\$ at `x`. `c` is overwritten with the value of \$c(x)\$.
+Evaluate ``f(x)`` and ``c(x)`` at `x`. `c` is overwritten with the value of ``c(x)``.
 """
 function objcons!(nlp, x, c)
   f = obj(nlp, x)
@@ -154,7 +162,7 @@ end
 
 """`f, g = objgrad(nlp, x)`
 
-Evaluate \$f(x)\$ and \$\\nabla f(x)\$ at `x`.
+Evaluate ``f(x)`` and ``∇f(x)`` at `x`.
 """
 function objgrad(nlp, x)
   f = obj(nlp, x)
@@ -164,8 +172,8 @@ end
 
 """`f, g = objgrad!(nlp, x, g)`
 
-Evaluate \$f(x)\$ and \$\\nabla f(x)\$ at `x`. `g` is overwritten with the
-value of \$\\nabla f(x)\$.
+Evaluate ``f(x)`` and ``∇f(x)`` at `x`. `g` is overwritten with the
+value of ``∇f(x)``.
 """
 function objgrad!(nlp, x, g)
   f = obj(nlp, x)
@@ -181,26 +189,26 @@ jac_structure(:: AbstractNLPModel) = throw(NotImplementedError("jac_structure"))
 
 """`(rows,cols,vals) = jac_coord!(nlp, x, rows, cols, vals)`
 
-Evaluate \$\\nabla c(x)\$, the constraint's Jacobian at `x` in sparse coordinate format,
+Evaluate ``∇c(x)``, the constraint's Jacobian at `x` in sparse coordinate format,
 rewriting `vals`. `rows` and `cols` are not rewritten.
 """
 jac_coord!(:: AbstractNLPModel, :: AbstractVector) = throw(NotImplementedError("jac_coord!"))
 
 """`(rows,cols,vals) = jac_coord(nlp, x)`
 
-Evaluate \$\\nabla c(x)\$, the constraint's Jacobian at `x` in sparse coordinate format.
+Evaluate ``∇c(x)``, the constraint's Jacobian at `x` in sparse coordinate format.
 """
 jac_coord(:: AbstractNLPModel, :: AbstractVector) = throw(NotImplementedError("jac_coord"))
 
 """`Jx = jac(nlp, x)`
 
-Evaluate \$\\nabla c(x)\$, the constraint's Jacobian at `x` as a sparse matrix.
+Evaluate ``∇c(x)``, the constraint's Jacobian at `x` as a sparse matrix.
 """
 jac(::AbstractNLPModel, ::AbstractVector) = throw(NotImplementedError("jac"))
 
 """`Jv = jprod(nlp, x, v)`
 
-Evaluate \$\\nabla c(x)v\$, the Jacobian-vector product at `x`.
+Evaluate ``∇c(x)v``, the Jacobian-vector product at `x`.
 """
 function jprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector)
   Jv = similar(v, nlp.meta.ncon)
@@ -209,14 +217,14 @@ end
 
 """`Jv = jprod!(nlp, x, v, Jv)`
 
-Evaluate \$\\nabla c(x)v\$, the Jacobian-vector product at `x` in place.
+Evaluate ``∇c(x)v``, the Jacobian-vector product at `x` in place.
 """
 jprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("jprod!"))
 
 """`Jtv = jtprod(nlp, x, v, Jtv)`
 
-Evaluate \$\\nabla c(x)^Tv\$, the transposed-Jacobian-vector product at `x`.
+Evaluate ``∇c(x)^Tv``, the transposed-Jacobian-vector product at `x`.
 """
 function jtprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector)
   Jtv = similar(x)
@@ -225,7 +233,7 @@ end
 
 """`Jtv = jtprod!(nlp, x, v, Jtv)`
 
-Evaluate \$\\nabla c(x)^Tv\$, the transposed-Jacobian-vector product at `x` in place.
+Evaluate ``∇c(x)^Tv``, the transposed-Jacobian-vector product at `x` in place.
 """
 jtprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("jtprod!"))
@@ -291,10 +299,7 @@ hess_structure!(:: AbstractNLPModel, ::AbstractVector{<: Integer}, ::AbstractVec
 
 Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format,
 with objective function scaled by `obj_weight`, i.e.,
-
-\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
-
-with σ = obj_weight, rewriting `vals`. `rows` and `cols` are not rewritten.
+$(LAGRANGIAN_HESSIAN),rewriting `vals`. `rows` and `cols` are not rewritten.
 Only the lower triangle is returned.
 """
 hess_coord!(:: AbstractNLPModel, :: AbstractVector, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}, ::AbstractVector; kwargs...) = throw(NotImplementedError("hess_coord!"))
@@ -304,9 +309,7 @@ hess_coord!(:: AbstractNLPModel, :: AbstractVector, ::AbstractVector{<: Integer}
 Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format,
 with objective function scaled by `obj_weight`, i.e.,
 
-\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
-
-with σ = obj_weight.
+$(LAGRANGIAN_HESSIAN).
 Only the lower triangle is returned.
 """
 hess_coord(nlp::AbstractNLPModel, x::AbstractVector; y::AbstractVector=Float64[], obj_weight::Real=1.0) = throw(NotImplementedError("hess_coord"))
@@ -316,9 +319,7 @@ hess_coord(nlp::AbstractNLPModel, x::AbstractVector; y::AbstractVector=Float64[]
 Evaluate the Lagrangian Hessian at `(x,y)` as a sparse matrix,
 with objective function scaled by `obj_weight`, i.e.,
 
-\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
-
-with σ = obj_weight.
+$(LAGRANGIAN_HESSIAN).
 Only the lower triangle is returned.
 """
 hess(::AbstractNLPModel, ::AbstractVector; kwargs...) =
@@ -327,11 +328,8 @@ hess(::AbstractNLPModel, ::AbstractVector; kwargs...) =
 """`Hv = hprod(nlp, x, v; obj_weight=1.0, y=zeros)`
 
 Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v`,
-with objective function scaled by `obj_weight`, i.e.,
-
-\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
-
-with σ = obj_weight.
+with objective function scaled by `obj_weight`, where the Lagrangian Hessian is
+$(LAGRANGIAN_HESSIAN).
 """
 function hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector; obj_weight::Real = one(eltype(x)), y::AbstractVector=similar(x, 0))
   Hv = similar(x)
@@ -341,11 +339,8 @@ end
 """`Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0, y=zeros)`
 
 Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in
-place, with objective function scaled by `obj_weight`, i.e.,
-
-\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
-
-with σ = obj_weight.
+place, with objective function scaled by `obj_weight`, where the Lagrangian Hessian is
+$(LAGRANGIAN_HESSIAN).
 """
 hprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector; kwargs...) =
   throw(NotImplementedError("hprod!"))
@@ -355,10 +350,7 @@ hprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector;
 Return the Lagrangian Hessian at `(x,y)` with objective function scaled by
 `obj_weight` as a linear operator. The resulting object may be used as if it were a
 matrix, e.g., `H * v`. The linear operator H represents
-
-\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
-
-with σ = obj_weight.
+$(LAGRANGIAN_HESSIAN).
 """
 function hess_op(nlp :: AbstractNLPModel, x :: AbstractVector;
                  obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
@@ -375,10 +367,7 @@ Return the Lagrangian Hessian at `(x,y)` with objective function scaled by
 object may be used as if it were a matrix, e.g., `w = H * v`. The vector `Hv` is
 used as preallocated storage for the operation.  The linear operator H
 represents
-
-\\\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum_{i=1}^m y_i\\nabla^2 c_i(x), \\\\]
-
-with σ = obj_weight.
+$(LAGRANGIAN_HESSIAN).
 """
 function hess_op!(nlp :: AbstractNLPModel, x :: AbstractVector, Hv :: AbstractVector;
                  obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
