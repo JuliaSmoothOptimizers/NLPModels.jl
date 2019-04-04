@@ -37,7 +37,7 @@ The unknowns ``X = (x, s)`` contain the original variables and slack variables
 \begin{align*}
        \min_x \quad & f(x)\\
 \mathrm{s.t.} \quad & c(x) - s = 0,\\
-                    & c_L ≤ x ≤ c_U,\\
+                    & c_L ≤ s ≤ c_U,\\
                     &  ℓ  ≤ x ≤ u.
 \end{align*}
 ```
