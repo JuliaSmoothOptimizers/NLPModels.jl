@@ -117,7 +117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Models",
     "title": "NLPModels.ADNLPModel",
     "category": "type",
-    "text": "ADNLPModel is an AbstractNLPModel using ForwardDiff to compute the derivatives. In this interface, the objective function f and an initial estimate are required. If there are constraints, the function cmathbbR^nrightarrowmathbbR^m  and the vectors c_L and c_U also need to be passed. Bounds on the variables and an inital estimate to the Lagrangian multipliers can also be provided.\n\nADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,\n  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = \"Generic\")\n\nf :: Function - The objective function f;\nx0 :: AbstractVector - The initial point of the problem;\nlvar :: AbstractVector - ell, the lower bound of the variables;\nuvar :: AbstractVector - u, the upper bound of the variables;\nc :: Function - The constraints function c;\ny0 :: AbstractVector - The initial value of the Lagrangian estimates;\nlcon :: AbstractVector - c_L, the lower bounds of the constraints function;\nucon :: AbstractVector - c_U, the upper bounds of the constraints function;\nname :: String - A name for the model.\n\nThe functions follow the same restrictions of ForwardDiff functions, summarised here:\n\nThe function can only be composed of generic Julia functions;\nThe function must accept only one argument;\nThe function\'s argument must accept a subtype of AbstractVector;\nThe function should be type-stable.\n\nFor contrained problems, the function c is required, and it must return an array even when m = 1, and c_L and c_U should be passed, otherwise the problem is ill-formed. For equality constraints, the corresponding index of c_L and c_U should be the same.\n\n\n\n\n\n"
+    "text": "ADNLPModel is an AbstractNLPModel using ForwardDiff to compute the derivatives. In this interface, the objective function f and an initial estimate are required. If there are constraints, the function cℝⁿ  ℝᵐ  and the vectors c_L and c_U also need to be passed. Bounds on the variables and an inital estimate to the Lagrangian multipliers can also be provided.\n\nADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,\n  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = \"Generic\")\n\nf :: Function - The objective function f;\nx0 :: AbstractVector - The initial point of the problem;\nlvar :: AbstractVector - ℓ, the lower bound of the variables;\nuvar :: AbstractVector - u, the upper bound of the variables;\nc :: Function - The constraints function c;\ny0 :: AbstractVector - The initial value of the Lagrangian estimates;\nlcon :: AbstractVector - c_L, the lower bounds of the constraints function;\nucon :: AbstractVector - c_U, the upper bounds of the constraints function;\nname :: String - A name for the model.\n\nThe functions follow the same restrictions of ForwardDiff functions, summarised here:\n\nThe function can only be composed of generic Julia functions;\nThe function must accept only one argument;\nThe function\'s argument must accept a subtype of AbstractVector;\nThe function should be type-stable.\n\nFor contrained problems, the function c is required, and it must return an array even when m = 1, and c_L and c_U should be passed, otherwise the problem is ill-formed. For equality constraints, the corresponding index of c_L and c_U should be the same.\n\n\n\n\n\n"
 },
 
 {
@@ -149,7 +149,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Models",
     "title": "NLPModels.SlackModel",
     "category": "type",
-    "text": "A model whose only inequality constraints are bounds.\n\nGiven a model, this type represents a second model in which slack variables are introduced so as to convert linear and nonlinear inequality constraints to equality constraints and bounds. More precisely, if the original model has the form\n\n\\[ \\min f(x)  \\mbox{ s. t. }  cL \\leq c(x) \\leq cU \\mbox{ and } \\ell \\leq x \\leq u, \\]\n\nthe new model appears to the user as\n\n\\[ \\min f(X)  \\mbox{ s. t. }  g(X) = 0 \\mbox{ and } L \\leq X \\leq U. \\]\n\nThe unknowns X = (x s) contain the original variables and slack variables s. The latter are such that the new model has the general form\n\n\\[ \\min f(x)  \\mbox{ s. t. }  c(x) - s = 0, cL \\leq s \\leq cU \\mbox{ and } \\ell \\leq x \\leq u, \\]\n\nalthough no slack variables are introduced for equality constraints.\n\nThe slack variables are implicitly ordered as [s(low), s(upp), s(rng)], where low, upp and rng represent the indices of the constraints of the form c_L leq c(x)  infty, -infty  c(x) leq c_U and c_L leq c(x) leq c_U, respectively.\n\n\n\n\n\n"
+    "text": "A model whose only inequality constraints are bounds.\n\nGiven a model, this type represents a second model in which slack variables are introduced so as to convert linear and nonlinear inequality constraints to equality constraints and bounds. More precisely, if the original model has the form\n\nbeginalign*\n       min_x quad  f(x)\nmathrmst quad  c_L  c(x)  c_U\n                      ℓ    x     u\nendalign*\n\nthe new model appears to the user as\n\nbeginalign*\n       min_X quad  f(X)\nmathrmst quad  g(X) = 0\n                     L  X  U\nendalign*\n\nThe unknowns X = (x s) contain the original variables and slack variables s. The latter are such that the new model has the general form\n\nbeginalign*\n       min_x quad  f(x)\nmathrmst quad  c(x) - s = 0\n                     c_L  s  c_U\n                      ℓ   x  u\nendalign*\n\nalthough no slack variables are introduced for equality constraints.\n\nThe slack variables are implicitly ordered as [s(low), s(upp), s(rng)], where low, upp and rng represent the indices of the constraints of the form c_L  c(x)  , -  c(x)  c_U and c_L  c(x)  c_U, respectively.\n\n\n\n\n\n"
 },
 
 {
@@ -605,7 +605,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.grad",
     "category": "function",
-    "text": "g = grad(nlp, x)\n\nEvaluate nabla f(x), the gradient of the objective function at x.\n\n\n\n\n\n"
+    "text": "g = grad(nlp, x)\n\nEvaluate f(x), the gradient of the objective function at x.\n\n\n\n\n\n"
 },
 
 {
@@ -613,7 +613,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.grad!",
     "category": "function",
-    "text": "g = grad!(nlp, x, g)\n\nEvaluate nabla f(x), the gradient of the objective function at x in place.\n\n\n\n\n\n"
+    "text": "g = grad!(nlp, x, g)\n\nEvaluate f(x), the gradient of the objective function at x in place.\n\n\n\n\n\n"
 },
 
 {
@@ -621,7 +621,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.objgrad",
     "category": "function",
-    "text": "f, g = objgrad(nlp, x)\n\nEvaluate f(x) and nabla f(x) at x.\n\n\n\n\n\n"
+    "text": "f, g = objgrad(nlp, x)\n\nEvaluate f(x) and f(x) at x.\n\n\n\n\n\n"
 },
 
 {
@@ -629,7 +629,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.objgrad!",
     "category": "function",
-    "text": "f, g = objgrad!(nlp, x, g)\n\nEvaluate f(x) and nabla f(x) at x. g is overwritten with the value of nabla f(x).\n\n\n\n\n\n"
+    "text": "f, g = objgrad!(nlp, x, g)\n\nEvaluate f(x) and f(x) at x. g is overwritten with the value of f(x).\n\n\n\n\n\n"
 },
 
 {
@@ -669,7 +669,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.jac_coord",
     "category": "function",
-    "text": "(rows,cols,vals) = jac_coord(nlp, x)\n\nEvaluate nabla c(x), the constraint\'s Jacobian at x in sparse coordinate format.\n\n\n\n\n\n"
+    "text": "(rows,cols,vals) = jac_coord(nlp, x)\n\nEvaluate c(x), the constraint\'s Jacobian at x in sparse coordinate format.\n\n\n\n\n\n"
 },
 
 {
@@ -677,7 +677,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.jac_coord!",
     "category": "function",
-    "text": "(rows,cols,vals) = jac_coord!(nlp, x, rows, cols, vals)\n\nEvaluate nabla c(x), the constraint\'s Jacobian at x in sparse coordinate format, rewriting vals. rows and cols are not rewritten.\n\n\n\n\n\n"
+    "text": "(rows,cols,vals) = jac_coord!(nlp, x, rows, cols, vals)\n\nEvaluate c(x), the constraint\'s Jacobian at x in sparse coordinate format, rewriting vals. rows and cols are not rewritten.\n\n\n\n\n\n"
 },
 
 {
@@ -693,7 +693,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.jac",
     "category": "function",
-    "text": "Jx = jac(nlp, x)\n\nEvaluate nabla c(x), the constraint\'s Jacobian at x as a sparse matrix.\n\n\n\n\n\n"
+    "text": "Jx = jac(nlp, x)\n\nEvaluate c(x), the constraint\'s Jacobian at x as a sparse matrix.\n\n\n\n\n\n"
 },
 
 {
@@ -717,7 +717,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.jprod",
     "category": "function",
-    "text": "Jv = jprod(nlp, x, v)\n\nEvaluate nabla c(x)v, the Jacobian-vector product at x.\n\n\n\n\n\n"
+    "text": "Jv = jprod(nlp, x, v)\n\nEvaluate c(x)v, the Jacobian-vector product at x.\n\n\n\n\n\n"
 },
 
 {
@@ -725,7 +725,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.jprod!",
     "category": "function",
-    "text": "Jv = jprod!(nlp, x, v, Jv)\n\nEvaluate nabla c(x)v, the Jacobian-vector product at x in place.\n\n\n\n\n\n"
+    "text": "Jv = jprod!(nlp, x, v, Jv)\n\nEvaluate c(x)v, the Jacobian-vector product at x in place.\n\n\n\n\n\n"
 },
 
 {
@@ -733,7 +733,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.jtprod",
     "category": "function",
-    "text": "Jtv = jtprod(nlp, x, v, Jtv)\n\nEvaluate nabla c(x)^Tv, the transposed-Jacobian-vector product at x.\n\n\n\n\n\n"
+    "text": "Jtv = jtprod(nlp, x, v, Jtv)\n\nEvaluate c(x)^Tv, the transposed-Jacobian-vector product at x.\n\n\n\n\n\n"
 },
 
 {
@@ -741,7 +741,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.jtprod!",
     "category": "function",
-    "text": "Jtv = jtprod!(nlp, x, v, Jtv)\n\nEvaluate nabla c(x)^Tv, the transposed-Jacobian-vector product at x in place.\n\n\n\n\n\n"
+    "text": "Jtv = jtprod!(nlp, x, v, Jtv)\n\nEvaluate c(x)^Tv, the transposed-Jacobian-vector product at x in place.\n\n\n\n\n\n"
 },
 
 {
@@ -749,7 +749,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_coord",
     "category": "function",
-    "text": "(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0, y=zeros)\n\nEvaluate the Lagrangian Hessian at (x,y) in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\n\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum{i=1}^m yi\\nabla^2 c_i(x), \\]\n\nwith σ = obj_weight. Only the lower triangle is returned.\n\n\n\n\n\n"
+    "text": "(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0, y=zeros)\n\nEvaluate the Lagrangian Hessian at (x,y) in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight . Only the lower triangle is returned.\n\n\n\n\n\n"
 },
 
 {
@@ -757,7 +757,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_coord!",
     "category": "function",
-    "text": "(rows,cols,vals) = hess_coord!(nlp, x, rows, cols, vals; obj_weight=1.0, y=zeros)\n\nEvaluate the Lagrangian Hessian at (x,y) in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\n\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum{i=1}^m yi\\nabla^2 c_i(x), \\]\n\nwith σ = obj_weight, rewriting vals. rows and cols are not rewritten. Only the lower triangle is returned.\n\n\n\n\n\n"
+    "text": "(rows,cols,vals) = hess_coord!(nlp, x, rows, cols, vals; obj_weight=1.0, y=zeros)\n\nEvaluate the Lagrangian Hessian at (x,y) in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight ,rewriting vals. rows and cols are not rewritten. Only the lower triangle is returned.\n\n\n\n\n\n"
 },
 
 {
@@ -781,7 +781,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess",
     "category": "function",
-    "text": "Hx = hess(nlp, x; obj_weight=1.0, y=zeros)\n\nEvaluate the Lagrangian Hessian at (x,y) as a sparse matrix, with objective function scaled by obj_weight, i.e.,\n\n\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum{i=1}^m yi\\nabla^2 c_i(x), \\]\n\nwith σ = obj_weight. Only the lower triangle is returned.\n\n\n\n\n\n"
+    "text": "Hx = hess(nlp, x; obj_weight=1.0, y=zeros)\n\nEvaluate the Lagrangian Hessian at (x,y) as a sparse matrix, with objective function scaled by obj_weight, i.e.,\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight . Only the lower triangle is returned.\n\n\n\n\n\n"
 },
 
 {
@@ -789,7 +789,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_op",
     "category": "function",
-    "text": "H = hess_op(nlp, x; obj_weight=1.0, y=zeros)\n\nReturn the Lagrangian Hessian at (x,y) with objective function scaled by obj_weight as a linear operator. The resulting object may be used as if it were a matrix, e.g., H * v. The linear operator H represents\n\n\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum{i=1}^m yi\\nabla^2 c_i(x), \\]\n\nwith σ = obj_weight.\n\n\n\n\n\n"
+    "text": "H = hess_op(nlp, x; obj_weight=1.0, y=zeros)\n\nReturn the Lagrangian Hessian at (x,y) with objective function scaled by obj_weight as a linear operator. The resulting object may be used as if it were a matrix, e.g., H * v. The linear operator H represents\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight .\n\n\n\n\n\n"
 },
 
 {
@@ -797,7 +797,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_op!",
     "category": "function",
-    "text": "H = hess_op!(nlp, x, Hv; obj_weight=1.0, y=zeros)\n\nReturn the Lagrangian Hessian at (x,y) with objective function scaled by obj_weight as a linear operator, and storing the result on Hv. The resulting object may be used as if it were a matrix, e.g., w = H * v. The vector Hv is used as preallocated storage for the operation.  The linear operator H represents\n\n\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum{i=1}^m yi\\nabla^2 c_i(x), \\]\n\nwith σ = obj_weight.\n\n\n\n\n\n"
+    "text": "H = hess_op!(nlp, x, Hv; obj_weight=1.0, y=zeros)\n\nReturn the Lagrangian Hessian at (x,y) with objective function scaled by obj_weight as a linear operator, and storing the result on Hv. The resulting object may be used as if it were a matrix, e.g., w = H * v. The vector Hv is used as preallocated storage for the operation.  The linear operator H represents\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight .\n\n\n\n\n\n"
 },
 
 {
@@ -805,7 +805,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hprod",
     "category": "function",
-    "text": "Hv = hprod(nlp, x, v; obj_weight=1.0, y=zeros)\n\nEvaluate the product of the Lagrangian Hessian at (x,y) with the vector v, with objective function scaled by obj_weight, i.e.,\n\n\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum{i=1}^m yi\\nabla^2 c_i(x), \\]\n\nwith σ = obj_weight.\n\n\n\n\n\n"
+    "text": "Hv = hprod(nlp, x, v; obj_weight=1.0, y=zeros)\n\nEvaluate the product of the Lagrangian Hessian at (x,y) with the vector v, with objective function scaled by obj_weight, where the Lagrangian Hessian is\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight .\n\n\n\n\n\n"
 },
 
 {
@@ -813,7 +813,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hprod!",
     "category": "function",
-    "text": "Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0, y=zeros)\n\nEvaluate the product of the Lagrangian Hessian at (x,y) with the vector v in place, with objective function scaled by obj_weight, i.e.,\n\n\\[ \\nabla^2L(x,y) = \\sigma * \\nabla^2 f(x) + \\sum{i=1}^m yi\\nabla^2 c_i(x), \\]\n\nwith σ = obj_weight.\n\n\n\n\n\n"
+    "text": "Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0, y=zeros)\n\nEvaluate the product of the Lagrangian Hessian at (x,y) with the vector v in place, with objective function scaled by obj_weight, where the Lagrangian Hessian is\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight .\n\n\n\n\n\n"
 },
 
 {
