@@ -14,11 +14,9 @@ form
 
 ```math
 \begin{align*}
-&\min_x        && f(x)\\
-&\mathrm{s.t.} && \begin{alignedat}[t]{3}
-                    c_L &≤ c(x) &&≤ c_U,\\
-                     ℓ  &≤  x   &&≤  u,
-                  \end{alignedat}
+       \min_x \quad & f(x)\\
+\mathrm{s.t.} \quad & c_L ≤ c(x) ≤ c_U,\\
+                    &  ℓ  ≤  x   ≤  u,
 \end{align*}
 ```
 
@@ -26,9 +24,9 @@ the new model appears to the user as
 
 ```math
 \begin{align*}
-&\min_X        & &f(X)\\
-&\mathrm{s.t.} & &g(X) = 0,\\
-&              & &L ≤ X ≤ U.
+       \min_X \quad & f(X)\\
+\mathrm{s.t.} \quad & g(X) = 0,\\
+                    & L ≤ X ≤ U.
 \end{align*}
 ```
 
@@ -37,12 +35,10 @@ The unknowns ``X = (x, s)`` contain the original variables and slack variables
 
 ```math
 \begin{align*}
-&\min_x     & &f(x)\\
-&\mathrm{s.t.} & &c(x) - s = 0,\\
-&              & &\begin{alignedat}[t]{3}
-                    c_L &≤ x &&≤ c_U,\\
-                     ℓ  &≤ x &&≤ u.
-                  \end{alignedat}
+       \min_x \quad & f(x)\\
+\mathrm{s.t.} \quad & c(x) - s = 0,\\
+                    & c_L ≤ x ≤ c_U,\\
+                    &  ℓ  ≤ x ≤ u.
 \end{align*}
 ```
 
