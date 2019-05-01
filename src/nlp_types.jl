@@ -1,25 +1,111 @@
-export has_bounds, bound_constrained, unconstrained, linearly_constrained,
-      equality_constrained, inequality_constrained
+export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters,
+       reset!, sum_counters, has_bounds, bound_constrained,
+       unconstrained, linearly_constrained, equality_constrained,
+       inequality_constrained
 
-# Base type for an optimization model.
+"""AbstractNLPModel
+
+An AbstractNLPModel corresponds to a general nonlinear programming
+problem of the form
+
+    min σf × f₀(x) + σnls × ½‖F(x)‖²
+    s.t cℓ ≤ c(x) ≤ cu
+         ℓ ≤   x  ≤ u
+
+where the individual function f₀:Rⁿ → R is referred to as the general
+function; and F:Rⁿ → Rᵏ corresponds to a nonlinear least squares problem
+and is called the residual function.
+"""
 abstract type AbstractNLPModel end
 
 mutable struct Counters
-  neval_obj    :: Int  # Number of objective evaluations.
-  neval_grad   :: Int  # Number of objective gradient evaluations.
-  neval_cons   :: Int  # Number of constraint vector evaluations.
-  neval_jcon   :: Int  # Number of individual constraint evaluations.
-  neval_jgrad  :: Int  # Number of individual constraint gradient evaluations.
-  neval_jac    :: Int  # Number of constraint Jacobian evaluations.
-  neval_jprod  :: Int  # Number of Jacobian-vector products.
-  neval_jtprod :: Int  # Number of transposed Jacobian-vector products.
-  neval_hess   :: Int  # Number of Lagrangian/objective Hessian evaluations.
-  neval_hprod  :: Int  # Number of Lagrangian/objective Hessian-vector products.
-  neval_jhprod :: Int  # Number of individual constraint Hessian-vector products.
+  # General objective
+  neval_general_obj      :: Int # Number of general objective evaluations.
+  neval_general_grad     :: Int # Number of general objective gradient evaluations.
+  neval_general_hess     :: Int # Number of general objective Hessian evaluations.
+  neval_general_hprod    :: Int # Number of general objective Hessian-vector products.
+
+  # Residual function
+  neval_residual        :: Int # Number of residual evaluations.
+  neval_jac_residual    :: Int # Number of residual Jacobian evaluations.
+  neval_jprod_residual  :: Int # Number of residual Jacobian-vector products.
+  neval_jtprod_residual :: Int # Number of residual transpode Jacobian-vector products.
+  neval_hess_residual   :: Int # Number of residual Hessian evaluations.
+  neval_jhess_residual  :: Int # Number of individual Hessian evaluations.
+  neval_hprod_residual  :: Int # Number of residual Hessian-vector products.
+
+  # Constraints
+  neval_cons            :: Int # Number of constraint vector evaluations.
+  neval_jac             :: Int # Number of constraint Jacobian evaluations.
+  neval_jprod           :: Int # Number of Jacobian-vector products.
+  neval_jtprod          :: Int # Number of transposed Jacobian-vector products.
+
+  # Sum of objectives - direct calls
+  neval_obj             :: Int # Number of objective evaluations.
+  neval_grad            :: Int # Number of objective gradient evaluations.
+  neval_hess            :: Int # Number of Lagrangian/objective Hessian evaluations.
+  neval_hprod           :: Int # Number of Lagrangian/objective Hessian-vector products.
 
   function Counters()
-    return new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    return new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
   end
+end
+
+# simple default API for retrieving counters
+for counter in fieldnames(Counters)
+  @eval begin
+    """`$($counter)(nlp)`
+
+    Get the number of `$(split("$($counter)", "_")[2])` evaluations.
+    """
+    $counter(nlp :: AbstractNLPModel) = nlp.counters.$counter
+    export $counter
+  end
+end
+
+# Do not export increment!
+"""
+    increment!(nlp, s)
+
+Increment counter `s` of problem `nlp`.
+"""
+function increment!(nlp :: AbstractNLPModel, s :: Symbol)
+  setfield!(nlp.counters, s, getfield(nlp.counters, s) + 1)
+end
+
+"""
+    sum_counters(counters)
+
+Sum all counters of `counters`.
+"""
+sum_counters(c :: Counters) = sum(getfield(c, x) for x in fieldnames(Counters))
+
+"""
+    sum_counters(nlp)
+
+Sum all counters of problem `nlp`.
+"""
+sum_counters(nlp :: AbstractNLPModel) = sum_counters(nlp.counters)
+
+import LinearOperators.reset!
+"""`reset!(counters)`
+
+Reset evaluation counters.
+"""
+function reset!(counters :: Counters)
+  for f in fieldnames(Counters)
+    setfield!(counters, f, 0)
+  end
+  return counters
+end
+
+"""`reset!(nlp)`
+
+Reset evaluation count in `nlp`.
+"""
+function reset!(nlp :: AbstractNLPModel)
+  reset!(nlp.counters)
+  return nlp
 end
 
 # Base type for metadata related to an optimization model.
@@ -42,11 +128,20 @@ struct NLPModelMeta <: AbstractNLPModelMeta
   # Here, lvar, uvar, lcon and ucon are vectors. Some of their
   # components may be infinite to indicate that the corresponding
   # bound or general constraint is not present.
+  #
+  # Usually, obj(x) = σf × f₀(x) + σnls × ¹/₂‖F(x)‖², for some general objective
+  # f₀ and residual function F, though obj can be defined explicitly.
 
   nvar :: Int               # number of variables
   x0   :: Vector    # initial guess
   lvar :: Vector    # vector of lower bounds
   uvar :: Vector    # vector of upper bounds
+
+  has_general_obj :: Bool # Whether the model has general objective. If true, then σf, the
+                          # weight of f₀(x), must be available.
+  num_residuals  :: Int # number of components in the nonlinear least squares residual
+                        # If num_residuals > 0, then residual(nlp, x) and similar have to be defined
+                        # and σnls, the weight on ¹/₂‖F(x)‖² as well
 
   ifix  :: Vector{Int}     # indices of fixed variables
   ilow  :: Vector{Int}     # indices of variables with lower bound only
@@ -78,8 +173,10 @@ struct NLPModelMeta <: AbstractNLPModelMeta
   jinf  :: Vector{Int}     # indices of the visibly infeasible constraints
 
   nnzo :: Int               # number of nonzeros in all objectives gradients
-  nnzj :: Int               # number of elements needed to store the nonzeros in the sparse Jacobian
-  nnzh :: Int               # number of elements needed to store the nonzeros in the sparse Hessian
+  nnzj :: Int               # number of nonzeros in the sparse Jacobian
+  nnzh :: Int               # number of nonzeros in the sparse Hessian
+  nnzjF :: Int               # number of nonzeros in the sparse Jacobian of the residual
+  nnzhF :: Int               # number of nonzeros in the sparse Hessian of the residual
 
   nlin  :: Int              # number of linear constraints
   nnln  :: Int              # number of nonlinear general constraints
@@ -97,9 +194,11 @@ struct NLPModelMeta <: AbstractNLPModelMeta
   name :: String       # problem name
 
   function NLPModelMeta(nvar;
-                        x0=zeros(nvar,),
-                        lvar=-Inf * ones(nvar,),
-                        uvar=Inf * ones(nvar,),
+                        has_general_obj=false,
+                        num_residuals=0,
+                        x0=zeros(nvar),
+                        lvar=-Inf * ones(nvar),
+                        uvar=Inf * ones(nvar),
                         nbv=0,
                         niv=0,
                         nlvb=nvar,
@@ -110,12 +209,14 @@ struct NLPModelMeta <: AbstractNLPModelMeta
                         nlvoi=0,
                         nwv=0,
                         ncon=0,
-                        y0=zeros(ncon,),
-                        lcon=-Inf * ones(ncon,),
-                        ucon=Inf * ones(ncon,),
+                        y0=zeros(ncon),
+                        lcon=-Inf * ones(ncon),
+                        ucon=Inf * ones(ncon),
                         nnzo=nvar,
                         nnzj=nvar * ncon,
                         nnzh=nvar * (nvar + 1) / 2,
+                        nnzjF=nvar * num_residuals,
+                        nnzhF=nvar * (nvar + 1) / 2,
                         lin=Int[],
                         nln=1:ncon,
                         nnet=Int[],
@@ -141,6 +242,7 @@ struct NLPModelMeta <: AbstractNLPModelMeta
     @rangecheck 1 ncon lin nln nnet lnet
 
     ifix  = findall(lvar .== uvar)
+
     ilow  = findall((lvar .> -Inf) .& (uvar .== Inf))
     iupp  = findall((lvar .== -Inf) .& (uvar .< Inf))
     irng  = findall((lvar .> -Inf) .& (uvar .< Inf) .& (lvar .< uvar))
@@ -156,16 +258,29 @@ struct NLPModelMeta <: AbstractNLPModelMeta
 
     nnzj = max(0, nnzj)
     nnzh = max(0, nnzh)
+    nnzjF = max(0, nnzjF)
+    nnzhF = max(0, nnzhF)
 
-    new(nvar, x0, lvar, uvar,
+    new(nvar, x0, lvar, uvar, has_general_obj, num_residuals,
         ifix, ilow, iupp, irng, ifree, iinf,
         nbv, niv, nlvb, nlvo, nlvc,
         nlvbi, nlvci, nlvoi, nwv,
         ncon, y0, lcon, ucon,
         jfix, jlow, jupp, jrng, jfree, jinf,
-        nnzo, nnzj, nnzh,
+        nnzo, nnzj, nnzh, nnzjF, nnzhF,
         nlin, nnln, nnnet, nlnet, lin, nln, nnet, lnet,
         minimize, nlo, islp, name)
+  end
+end
+
+for attr in fieldnames(NLPModelMeta)
+  @eval begin
+    """`$($attr)(nlp)`
+
+    Get the NLP Meta attribute `$($attr)`.
+    """
+    $attr(nlp :: AbstractNLPModel) = nlp.meta.$attr
+    export $attr
   end
 end
 
