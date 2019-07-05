@@ -204,7 +204,7 @@ function hess(nls :: ADNLSModel, x :: AbstractVector; obj_weight :: Real = one(e
   increment!(nls, :neval_hess)
   Fx = residual(nls, x)
   Jx = jac_residual(nls, x)
-  Hx = obj_weight == 0.0 ? spzeros(eltype(x), nls.meta.nvar, nls.meta.nvar) : Jx' * Jx * obj_weight
+  Hx = obj_weight == 0.0 ? zeros(eltype(x), nls.meta.nvar, nls.meta.nvar) : Jx' * Jx * obj_weight
   if obj_weight != 0.0
     m = length(Fx)
     Hx += obj_weight * hess_residual(nls, x, Fx)

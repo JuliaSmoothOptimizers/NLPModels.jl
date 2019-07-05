@@ -158,7 +158,7 @@ end
 
 function hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   increment!(nlp, :neval_hess)
-  Hx = obj_weight == 0.0 ? spzeros(nlp.meta.nvar, nlp.meta.nvar) :
+  Hx = obj_weight == 0.0 ? zeros(nlp.meta.nvar, nlp.meta.nvar) :
        ForwardDiff.hessian(nlp.f, x) * obj_weight
   for i = 1:min(length(y), nlp.meta.ncon)
     if y[i] != 0.0
