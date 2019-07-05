@@ -344,8 +344,7 @@ with objective function scaled by `obj_weight`, i.e.,
 $(LAGRANGIAN_HESSIAN).
 Only the lower triangle is returned.
 """
-hess(::AbstractNLPModel, ::AbstractVector; kwargs...) =
-  throw(NotImplementedError("hess"))
+hess(nlp::AbstractNLPModel, x::AbstractVector; kwargs...) = sparse(hess_coord(nlp, x; kwargs...)..., nlp.meta.nvar, nlp.meta.nvar)
 
 """`Hv = hprod(nlp, x, v; obj_weight=1.0, y=zeros)`
 
