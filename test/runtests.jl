@@ -21,10 +21,10 @@ mutable struct DummyModel <: AbstractNLPModel
 end
 model = DummyModel(NLPModelMeta(1))
 @test_throws(NotImplementedError, lagscale(model, 1.0))
-for meth in [:obj, :grad, :cons,  :jac, :jac_coord, :hess, :hess_coord, :varscale, :conscale]
+for meth in [:obj, :varscale, :conscale]
   @eval @test_throws(NotImplementedError, $meth(model, [0]))
 end
-for meth in [:grad!, :cons!, :jprod, :jtprod, :hprod]
+for meth in [:grad!, :cons!, :jac_structure!, :hess_structure!]
   @eval @test_throws(NotImplementedError, $meth(model, [0], [1]))
 end
 for meth in [:jth_con, :jth_congrad, :jth_sparse_congrad]
@@ -36,7 +36,9 @@ for meth in [:jprod!, :jtprod!, :hprod!, :ghjvprod]
 end
 @test_throws(NotImplementedError, jth_hprod(model, [0], [1], 2))
 @test_throws(NotImplementedError, jth_hprod!(model, [0], [1], 2, [3]))
-@test_throws(NotImplementedError, ghjvprod!(model, [0], [1], [2], [3]))
+for meth in [:jac_coord!, :hess_coord!, :ghjvprod!]
+  @eval @test_throws(NotImplementedError, $meth(model, [0], [1], [2], [3]))
+end
 @assert isa(hess_op(model, [0.]), LinearOperator)
 @assert isa(jac_op(model, [0.]), LinearOperator)
 
