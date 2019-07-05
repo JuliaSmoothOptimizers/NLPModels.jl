@@ -202,13 +202,19 @@ jac_structure!(:: AbstractNLPModel, :: AbstractVector{<:Integer}, :: AbstractVec
 Evaluate ``∇c(x)``, the constraint's Jacobian at `x` in sparse coordinate format,
 rewriting `vals`. `rows` and `cols` are not rewritten.
 """
-jac_coord!(:: AbstractNLPModel, :: AbstractVector) = throw(NotImplementedError("jac_coord!"))
+jac_coord!(:: AbstractNLPModel, :: AbstractVector, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}, ::AbstractVector) = throw(NotImplementedError("jac_coord!"))
 
 """`(rows,cols,vals) = jac_coord(nlp, x)`
 
 Evaluate ``∇c(x)``, the constraint's Jacobian at `x` in sparse coordinate format.
 """
-jac_coord(:: AbstractNLPModel, :: AbstractVector) = throw(NotImplementedError("jac_coord"))
+function jac_coord(nlp :: AbstractNLPModel, x :: AbstractVector)
+  rows = Vector{Int}(undef, nlp.meta.nnzj)
+  cols = Vector{Int}(undef, nlp.meta.nnzj)
+  vals = Vector{eltype(x)}(undef, nlp.meta.nnzj)
+  jac_structure!(nlp, rows, cols)
+  return jac_coord!(nlp, x, rows, cols, vals)
+end
 
 """`Jx = jac(nlp, x)`
 
