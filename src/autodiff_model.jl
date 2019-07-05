@@ -173,8 +173,8 @@ end
 function hess_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   n = nlp.meta.nvar
   I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
-  rows .= getindex.(I, 1)
-  cols .= getindex.(I, 2)
+  rows[1 : nlp.meta.nnzh] .= getindex.(I, 1)
+  cols[1 : nlp.meta.nnzh] .= getindex.(I, 2)
   return rows, cols
 end
 
