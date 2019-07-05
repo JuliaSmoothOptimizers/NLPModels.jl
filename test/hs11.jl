@@ -86,7 +86,7 @@ function NLPModels.jac_structure(nlp :: HS11)
   return ([1, 1], [1, 2])
 end
 
-function NLPModels.jac_coord!(nlp :: HS11, x :: AbstractVector, rows :: AbstractVector, cols :: AbstractVector, vals :: AbstractVector)
+function NLPModels.jac_coord!(nlp :: HS11, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
   increment!(nlp, :neval_jac)
   vals .= [-2 * x[1], 1.0]
   return rows, cols, vals
