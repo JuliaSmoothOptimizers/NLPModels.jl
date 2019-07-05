@@ -85,34 +85,7 @@ If Hessian-vector products can be computed more efficiently than by evaluating t
 
 Several in-place variants of the methods above may also be implemented.
 
-The complete list of methods that an interface may implement is as follows:
-
-* `reset!()`,
-* `write_sol()`,
-* `varscale()`,
-* `lagscale()`,
-* `conscale()`,
-* `obj()`,
-* `grad()`,
-* `grad!()`,
-* `cons()`,
-* `cons!()`,
-* `jth_con()`,
-* `jth_congrad()`,
-* `jth_congrad!()`,
-* `jth_sparse_congrad()`,
-* `jac_coord()`,
-* `jac()`,
-* `jac_op()`,
-* `jth_hprod()`,
-* `jth_hprod!()`,
-* `ghjvprod()`,
-* `ghjvprod!()`,
-* `hess_coord()`,
-* `hess()`,
-* `hess_op()`
-* `hprod()`,
-* `hprod!`
+The complete list of methods that an interface may implement can be found in the documentation.
 
 ## Attributes
 
