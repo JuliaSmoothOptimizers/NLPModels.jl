@@ -115,10 +115,12 @@ function jac(nlp :: ADNLPModel, x :: AbstractVector)
   return ForwardDiff.jacobian(nlp.c, x)
 end
 
-function jac_structure(nlp :: ADNLPModel)
+function jac_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   m, n = nlp.meta.ncon, nlp.meta.nvar
   I = ((i,j) for i = 1:m, j = 1:n)
-  return (getindex.(I, 1)[:], getindex.(I, 2)[:])
+  rows[1: nlp.meta.nnzj] .= getindex.(I, 1)[:]
+  cols[1: nlp.meta.nnzj] .= getindex.(I, 2)[:]
+  return rows, cols
 end
 
 function jac_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
