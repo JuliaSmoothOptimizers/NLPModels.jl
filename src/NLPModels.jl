@@ -17,7 +17,7 @@ export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters
 export reset!, sum_counters,
        obj, grad, grad!, objgrad, objgrad!, objcons, objcons!,
        cons, cons!, jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad,
-       jac_structure, jac_coord!, jac_coord,
+       jac_structure!, jac_structure, jac_coord!, jac_coord,
        jac, jprod, jprod!, jtprod, jtprod!, jac_op, jac_op!,
        jth_hprod, jth_hprod!, ghjvprod, ghjvprod!,
        hess_structure!, hess_structure, hess_coord!, hess_coord, hess, hprod, hprod!, hess_op, hess_op!,
@@ -183,9 +183,19 @@ end
 
 """`(rows,cols) = jac_structure(nlp)`
 
-Returns the structure of the constraint's Jacobian in sparse coordinate format.
+Return the structure of the constraint's Jacobian in sparse coordinate format.
 """
-jac_structure(:: AbstractNLPModel) = throw(NotImplementedError("jac_structure"))
+function jac_structure(nlp :: AbstractNLPModel)
+  rows = Vector{Int}(undef, nlp.meta.nnzj)
+  cols = Vector{Int}(undef, nlp.meta.nnzj)
+  jac_structure!(nlp, rows, cols)
+end
+
+"""`jac_structure!(nlp, rows, cols)`
+
+Return the structure of the constraint's Jacobian in sparse coordinate format in place.
+"""
+jac_structure!(:: AbstractNLPModel, :: AbstractVector{<:Integer}, :: AbstractVector{<:Integer}) = throw(NotImplementedError("jac_structure!"))
 
 """`(rows,cols,vals) = jac_coord!(nlp, x, rows, cols, vals)`
 
