@@ -281,7 +281,7 @@ ghjvprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVect
 
 """`(rows,cols) = hess_structure(nlp)`
 
-Returns the structure of the Lagrangian Hessian in sparse coordinate format.
+Return the structure of the Lagrangian Hessian in sparse coordinate format.
 """
 function hess_structure(nlp :: AbstractNLPModel)
   rows = Vector{Int}(undef, nlp.meta.nnzh)
@@ -291,7 +291,7 @@ end
 
 """`hess_structure!(nlp, rows, cols)`
 
-Returns the structure of the Lagrangian Hessian in sparse coordinate format in place.
+Return the structure of the Lagrangian Hessian in sparse coordinate format in place.
 """
 hess_structure!(:: AbstractNLPModel, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}) = throw(NotImplementedError("hess_structure!"))
 
