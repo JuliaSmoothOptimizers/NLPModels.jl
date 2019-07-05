@@ -220,7 +220,7 @@ function jac_structure(nlp :: SlackModels)
   return ([rows; jlow; jupp; jrng], [cols; n+1:nlp.meta.nvar])
 end
 
-function jac_coord!(nlp :: SlackModels, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector, vals :: AbstractVector)
+function jac_coord!(nlp :: SlackModels, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   n = nlp.model.meta.nvar
   nnzj = nlp.model.meta.nnzj
   @views jac_coord!(nlp.model, x[1:n], rows[1:nnzj], cols[1:nnzj], vals[1:nnzj])
