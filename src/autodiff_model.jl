@@ -88,20 +88,10 @@ function obj(nlp :: ADNLPModel, x :: AbstractVector)
   return nlp.f(x)
 end
 
-function grad(nlp :: ADNLPModel, x :: AbstractVector)
-  increment!(nlp, :neval_grad)
-  return ForwardDiff.gradient(nlp.f, x)
-end
-
 function grad!(nlp :: ADNLPModel, x :: AbstractVector, g :: AbstractVector)
   increment!(nlp, :neval_grad)
   ForwardDiff.gradient!(view(g, 1:length(x)), nlp.f, x)
   return g
-end
-
-function cons(nlp :: ADNLPModel, x :: AbstractVector)
-  increment!(nlp, :neval_cons)
-  return nlp.c(x)
 end
 
 function cons!(nlp :: ADNLPModel, x :: AbstractVector, c :: AbstractVector)
@@ -118,38 +108,21 @@ end
 function jac_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   m, n = nlp.meta.ncon, nlp.meta.nvar
   I = ((i,j) for i = 1:m, j = 1:n)
-  rows[1: nlp.meta.nnzj] .= getindex.(I, 1)[:]
-  cols[1: nlp.meta.nnzj] .= getindex.(I, 2)[:]
+  rows[1 : nlp.meta.nnzj] .= getindex.(I, 1)[:]
+  cols[1 : nlp.meta.nnzj] .= getindex.(I, 2)[:]
   return rows, cols
 end
 
 function jac_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   Jx = jac(nlp, x)
-  vals .= Jx[:]
+  vals[1 : nlp.meta.nnzj] .= Jx[:]
   return rows, cols, vals
-end
-
-function jac_coord(nlp :: ADNLPModel, x :: AbstractVector)
-  Jx = jac(nlp, x)
-  m, n = nlp.meta.ncon, nlp.meta.nvar
-  I = ((i,j) for i = 1:m, j = 1:n)
-  return (getindex.(I, 1)[:], getindex.(I, 2)[:], Jx[:])
-end
-
-function jprod(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector)
-  increment!(nlp, :neval_jprod)
-  return ForwardDiff.jacobian(nlp.c, x) * v
 end
 
 function jprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nlp, :neval_jprod)
   Jv[1:nlp.meta.ncon] = ForwardDiff.jacobian(nlp.c, x) * v
   return Jv
-end
-
-function jtprod(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector)
-  increment!(nlp, :neval_jtprod)
-  return ForwardDiff.jacobian(nlp.c, x)' * v
 end
 
 function jtprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
@@ -179,6 +152,7 @@ function hess_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, 
 end
 
 function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
+  hess_structure!(nlp, rows, cols)
   Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
   for k = 1:nlp.meta.nnzh
     i, j = rows[k], cols[k]
