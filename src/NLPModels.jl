@@ -220,7 +220,7 @@ end
 
 Evaluate ``∇c(x)``, the constraint's Jacobian at `x` as a sparse matrix.
 """
-jac(::AbstractNLPModel, ::AbstractVector) = throw(NotImplementedError("jac"))
+jac(nlp::AbstractNLPModel, x::AbstractVector) = sparse(jac_coord(nlp, x)..., nlp.meta.ncon, nlp.meta.nvar)
 
 """`Jv = jprod(nlp, x, v)`
 
