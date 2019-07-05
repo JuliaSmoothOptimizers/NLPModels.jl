@@ -79,8 +79,10 @@ function NLPModels.jac(nlp :: HS6, x :: AbstractVector)
   return [-20 * x[1]  10.0]
 end
 
-function NLPModels.jac_structure(nlp :: HS6)
-  return ([1, 1], [1, 2])
+function NLPModels.jac_structure!(nlp :: HS6, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
+  rows[1:2] .= [1, 1]
+  cols[1:2] .= [1, 2]
+  return rows, cols
 end
 
 function NLPModels.jac_coord!(nlp :: HS6, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
