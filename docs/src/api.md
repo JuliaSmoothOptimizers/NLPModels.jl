@@ -75,6 +75,7 @@ objcons!
 jac_coord
 jac_coord!
 jac_structure
+jac_structure!
 jac
 jac_op
 jac_op!
