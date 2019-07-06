@@ -685,7 +685,15 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.jac_structure",
     "category": "function",
-    "text": "(rows,cols) = jac_structure(nlp)\n\nReturns the structure of the constraint\'s Jacobian in sparse coordinate format.\n\n\n\n\n\n"
+    "text": "(rows,cols) = jac_structure(nlp)\n\nReturn the structure of the constraint\'s Jacobian in sparse coordinate format.\n\n\n\n\n\n"
+},
+
+{
+    "location": "api/#NLPModels.jac_structure!",
+    "page": "API",
+    "title": "NLPModels.jac_structure!",
+    "category": "function",
+    "text": "jac_structure!(nlp, rows, cols)\n\nReturn the structure of the constraint\'s Jacobian in sparse coordinate format in place.\n\n\n\n\n\n"
 },
 
 {
@@ -765,7 +773,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_structure",
     "category": "function",
-    "text": "(rows,cols) = hess_structure(nlp)\n\nReturns the structure of the Lagrangian Hessian in sparse coordinate format.\n\n\n\n\n\n"
+    "text": "(rows,cols) = hess_structure(nlp)\n\nReturn the structure of the Lagrangian Hessian in sparse coordinate format.\n\n\n\n\n\n"
 },
 
 {
@@ -773,7 +781,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_structure!",
     "category": "function",
-    "text": "hess_structure!(nlp, rows, cols)\n\nReturns the structure of the Lagrangian Hessian in sparse coordinate format in place.\n\n\n\n\n\n"
+    "text": "hess_structure!(nlp, rows, cols)\n\nReturn the structure of the Lagrangian Hessian in sparse coordinate format in place.\n\n\n\n\n\n"
 },
 
 {
@@ -837,7 +845,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "AbstractNLPModel functions",
     "category": "section",
-    "text": "obj\ngrad\ngrad!\nobjgrad\nobjgrad!\ncons\ncons!\nobjcons\nobjcons!\njac_coord\njac_coord!\njac_structure\njac\njac_op\njac_op!\njprod\njprod!\njtprod\njtprod!\nhess_coord\nhess_coord!\nhess_structure\nhess_structure!\nhess\nhess_op\nhess_op!\nhprod\nhprod!\nreset!\nprint"
+    "text": "obj\ngrad\ngrad!\nobjgrad\nobjgrad!\ncons\ncons!\nobjcons\nobjcons!\njac_coord\njac_coord!\njac_structure\njac_structure!\njac\njac_op\njac_op!\njprod\njprod!\njtprod\njtprod!\nhess_coord\nhess_coord!\nhess_structure\nhess_structure!\nhess\nhess_op\nhess_op!\nhprod\nhprod!\nreset!\nprint"
 },
 
 {
