@@ -385,9 +385,8 @@ Return the Lagrangian Hessian at `(x,y)` with objective function scaled by
 matrix, e.g., `H * v`. The linear operator H represents
 $(LAGRANGIAN_HESSIAN).
 """
-function hess_op(nlp :: AbstractNLPModel, x :: AbstractVector;
-                 obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
-  prod = @closure v -> hprod(nlp, x, v; obj_weight=obj_weight, y=y)
+function hess_op(nlp :: AbstractNLPModel, x :: AbstractVector; kwargs...)
+  prod = @closure v -> hprod(nlp, x, v; kwargs...)
   F = typeof(prod)
   return LinearOperator{Float64,F,F,F}(nlp.meta.nvar, nlp.meta.nvar,
                                        true, true, prod, prod, prod)
@@ -402,9 +401,8 @@ used as preallocated storage for the operation.  The linear operator H
 represents
 $(LAGRANGIAN_HESSIAN).
 """
-function hess_op!(nlp :: AbstractNLPModel, x :: AbstractVector, Hv :: AbstractVector;
-                 obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
-  prod = @closure v -> hprod!(nlp, x, v, Hv; obj_weight=obj_weight, y=y)
+function hess_op!(nlp :: AbstractNLPModel, x :: AbstractVector, Hv :: AbstractVector; kwargs...)
+  prod = @closure v -> hprod!(nlp, x, v, Hv; kwargs...)
   F = typeof(prod)
   return LinearOperator{Float64,F,F,F}(nlp.meta.nvar, nlp.meta.nvar,
                                        true, true, prod, prod, prod)
