@@ -364,9 +364,9 @@ Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v`,
 with objective function scaled by `obj_weight`, where the Lagrangian Hessian is
 $(LAGRANGIAN_HESSIAN).
 """
-function hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector; obj_weight::Real = one(eltype(x)), y::AbstractVector=similar(x, 0))
+function hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector; kwargs...)
   Hv = similar(x)
-  return hprod!(nlp, x, v, Hv, obj_weight=obj_weight, y=y)
+  return hprod!(nlp, x, v, Hv; kwargs...)
 end
 
 """`Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0, y=zeros)`
@@ -375,7 +375,7 @@ Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in
 place, with objective function scaled by `obj_weight`, where the Lagrangian Hessian is
 $(LAGRANGIAN_HESSIAN).
 """
-hprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector; kwargs...) =
+hprod!(nlp::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector; obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon)) =
   throw(NotImplementedError("hprod!"))
 
 """`H = hess_op(nlp, x; obj_weight=1.0, y=zeros)`
