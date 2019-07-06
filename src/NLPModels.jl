@@ -291,8 +291,11 @@ function jac_op!(nlp :: AbstractNLPModel, x :: AbstractVector,
                                           false, false, prod, ctprod, ctprod)
 end
 
-jth_hprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer) =
-  throw(NotImplementedError("jth_hprod"))
+function jth_hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, j::Integer)
+  hv = Vector{eltype(x)}(undef, nlp.meta.nvar)
+  return jth_hprod!(nlp, x, v, j, hv)
+end
+
 jth_hprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer, ::AbstractVector) =
   throw(NotImplementedError("jth_hprod!"))
 ghjvprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
