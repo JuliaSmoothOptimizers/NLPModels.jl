@@ -152,7 +152,6 @@ function hess_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, 
 end
 
 function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
-  hess_structure!(nlp, rows, cols)
   Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
   for k = 1:nlp.meta.nnzh
     i, j = rows[k], cols[k]
