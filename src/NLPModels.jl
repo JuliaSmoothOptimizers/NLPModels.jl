@@ -133,10 +133,15 @@ cons!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
 
 jth_con(::AbstractNLPModel, ::AbstractVector, ::Integer) =
   throw(NotImplementedError("jth_con"))
-jth_congrad(::AbstractNLPModel, ::AbstractVector, ::Integer) =
-  throw(NotImplementedError("jth_congrad"))
+
+function jth_congrad(nlp::AbstractNLPModel, x::AbstractVector, j::Integer)
+  g = Vector{eltype(x)}(undef, nlp.meta.nvar)
+  return jth_congrad!(nlp, x, j, g)
+end
+
 jth_congrad!(::AbstractNLPModel, ::AbstractVector, ::Integer, ::AbstractVector) =
   throw(NotImplementedError("jth_congrad!"))
+
 jth_sparse_congrad(::AbstractNLPModel, ::AbstractVector, ::Integer) =
   throw(NotImplementedError("jth_sparse_congrad"))
 
