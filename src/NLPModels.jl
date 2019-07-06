@@ -298,8 +298,12 @@ end
 
 jth_hprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer, ::AbstractVector) =
   throw(NotImplementedError("jth_hprod!"))
-ghjvprod(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
-  throw(NotImplementedError("ghjvprod"))
+
+function ghjvprod(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector, v::AbstractVector)
+  gHv = Vector{eltype(x)}(undef, nlp.meta.ncon)
+  return ghjvprod!(nlp, x, g, v, gHv)
+end
+
 ghjvprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("ghjvprod!"))
 

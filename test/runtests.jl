@@ -31,7 +31,7 @@ for meth in [:jth_con, :jth_congrad, :jth_sparse_congrad]
   @eval @test_throws(NotImplementedError, $meth(model, [0], 1))
 end
 @test_throws(NotImplementedError, jth_congrad!(model, [0], 1, [2]))
-for meth in [:jprod!, :jtprod!, :hprod!, :ghjvprod]
+for meth in [:jprod!, :jtprod!, :hprod!]
   @eval @test_throws(NotImplementedError, $meth(model, [0], [1], [2]))
 end
 @test_throws(NotImplementedError, jth_hprod(model, [0], [1], 2))
