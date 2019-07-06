@@ -1,5 +1,6 @@
 name = "NLPModels"
 uuid = "a4795742-8479-5a88-8948-cc11e1c8c1a6"
+version = "0.8.1"
 
 [deps]
 FastClosures = "9aa1b823-49e4-5ca5-8b0f-3971ec8bab6a"
