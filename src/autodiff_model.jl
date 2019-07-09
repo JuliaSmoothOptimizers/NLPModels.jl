@@ -153,9 +153,13 @@ end
 
 function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
-  for k = 1:nlp.meta.nnzh
-    i, j = rows[k], cols[k]
-    vals[k] = Hx[i,j]
+  # accessing rows and cols is not safe
+  k = 1
+  for j = 1 : nlp.meta.nvar
+    for i = j : nlp.meta.nvar
+      vals[k] = Hx[i, j]
+      k += 1
+    end
   end
   return rows, cols, vals
 end
