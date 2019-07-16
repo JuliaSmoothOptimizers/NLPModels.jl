@@ -13,7 +13,7 @@ ADNLSModel(F, x0, m; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,
   c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = "Generic")
 ````
 
-  - `F :: Function` - The residual function \$F\$;
+  - `F` - The residual function \$F\$. Should be callable;
   - `x0 :: AbstractVector` - The initial point of the problem;
   - `m :: Int` - The dimension of \$F(x)\$, i.e., the number of
   equations in the nonlinear system.
@@ -26,15 +26,15 @@ mutable struct ADNLSModel <: AbstractNLSModel
   counters :: NLSCounters
 
   # Function
-  F :: Function
-  c :: Function
+  F
+  c
 end
 
-function ADNLSModel(F :: Function, x0 :: AbstractVector, m :: Int;
+function ADNLSModel(F, x0 :: AbstractVector, m :: Int;
                     name :: String = "Generic",
                     lvar :: AbstractVector = fill(-eltype(x0)(Inf), length(x0)),
                     uvar :: AbstractVector = fill( eltype(x0)(Inf), length(x0)),
-                    c :: Function = (args...)->throw(NotImplementedError("cons")),
+                    c = (args...)->throw(NotImplementedError("cons")),
                     lcon :: AbstractVector = eltype(x0)[],
                     ucon :: AbstractVector = eltype(x0)[],
                     y0 :: AbstractVector = zeros(eltype(x0), max(length(lcon), length(ucon)))
@@ -53,7 +53,7 @@ function ADNLSModel(F :: Function, x0 :: AbstractVector, m :: Int;
   return ADNLSModel(meta, nls_meta, NLSCounters(), F, c)
 end
 
-ADNLSModel(F :: Function, n :: Int, m :: Int; kwargs...) = ADNLSModel(F, zeros(n), m; kwargs...)
+ADNLSModel(F, n :: Int, m :: Int; kwargs...) = ADNLSModel(F, zeros(n), m; kwargs...)
 
 function residual!(nls :: ADNLSModel, x :: AbstractVector, Fx :: AbstractVector)
   increment!(nls, :neval_residual)
