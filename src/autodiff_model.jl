@@ -16,11 +16,11 @@ ADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,
   c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = "Generic")
 ````
 
-  - `f :: Function` - The objective function ``f``;
+  - `f` - The objective function ``f``. Should be callable;
   - `x0 :: AbstractVector` - The initial point of the problem;
   - `lvar :: AbstractVector` - ``ℓ``, the lower bound of the variables;
   - `uvar :: AbstractVector` - ``u``, the upper bound of the variables;
-  - `c :: Function` - The constraints function ``c``;
+  - `c` - The constraints function ``c``. Should be callable;
   - `y0 :: AbstractVector` - The initial value of the Lagrangian estimates;
   - `lcon :: AbstractVector` - ``c_L``, the lower bounds of the constraints function;
   - `ucon :: AbstractVector` - ``c_U``, the upper bounds of the constraints function;
@@ -46,15 +46,15 @@ mutable struct ADNLPModel <: AbstractNLPModel
   counters :: Counters
 
   # Functions
-  f :: Function
-  c :: Function
+  f
+  c
 end
 
-function ADNLPModel(f::Function, x0::AbstractVector; y0::AbstractVector = eltype(x0)[],
+function ADNLPModel(f, x0::AbstractVector; y0::AbstractVector = eltype(x0)[],
                     lvar::AbstractVector = eltype(x0)[], uvar::AbstractVector = eltype(x0)[],
                     lcon::AbstractVector = eltype(x0)[], ucon::AbstractVector = eltype(x0)[],
-    c::Function = (args...)->throw(NotImplementedError("cons")),
-    name::String = "Generic", lin::AbstractVector{<: Integer}=Int[])
+                    c = (args...)->throw(NotImplementedError("cons")),
+                    name::String = "Generic", lin::AbstractVector{<: Integer}=Int[])
 
   nvar = length(x0)
   length(lvar) == 0 && (lvar = -Inf*ones(nvar))
