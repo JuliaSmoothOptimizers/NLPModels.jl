@@ -1,4 +1,3 @@
-#aSee JuliaSmoothOptimizers/NLPModels.jl/issues/113
 __precompile__()
 
 module NLPModels
@@ -417,7 +416,6 @@ lagscale(::AbstractNLPModel, ::Float64) =
 conscale(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("conscale"))
 
-include("autodiff_model.jl")
 include("slack_model.jl")
 include("qn_model.jl")
 include("feasibility_form_nls.jl")

@@ -43,13 +43,13 @@ function check_qn_model(qnmodel)
   reset!(qnmodel)
 end
 
-for problem in ["hs10", "hs11", "hs14"]
+for problem in [:HS10, :HS11, :HS14]
   try
     eval(Symbol(problem))
   catch
     include("$problem.jl")
   end
-  problem_f = eval(Symbol(problem * "_autodiff"))
+  problem_f = eval(problem)
   nlp = problem_f()
   @printf("Checking LBFGS formulation of %-8s\t", problem)
   qn_model = LBFGSModel(nlp)
