@@ -6,8 +6,6 @@
 #   ACM Transactions on Mathematical Software, vol. 7(1), pp. 17-41, 1981
 #
 #   classification SUR2-AN-4-0
-using ForwardDiff
-
 function brownden_autodiff()
 
   x0 = [25.0; 5.0; -5.0; -1.0]
@@ -50,8 +48,20 @@ end
 
 function NLPModels.hess(nlp :: BROWNDEN, x :: AbstractVector; obj_weight=1.0, y=AbstractVector[])
   increment!(nlp, :neval_hess)
-  f(x) = sum(((x[1] + x[2] * i/5 - exp(i/5))^2 + (x[3] + x[4] * sin(i/5) - cos(i/5))^2)^2 for i = 1:20)
-  return obj_weight * tril(ForwardDiff.hessian(f, x))
+  α(x,i) = x[1] + x[2] * i/5 - exp(i/5)
+  β(x,i) = x[3] + x[4] * sin(i/5) - cos(i/5)
+  Hx = zeros(4, 4)
+  if obj_weight == 0
+    return Hx
+  end
+  for i = 1:20
+    αi, βi = α(x,i), β(x,i)
+    vi, wi = [1; i/5; 0; 0], [0; 0; 1; sin(i/5)]
+    zi = αi * vi + βi * wi
+    θi = αi^2 + βi^2
+    Hx += (4vi * vi' + 4wi * wi') * θi + 8zi * zi'
+  end
+  return obj_weight * tril(Hx)
 end
 
 function NLPModels.hess_structure!(nlp :: BROWNDEN, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
@@ -81,7 +91,18 @@ end
 
 function NLPModels.hprod!(nlp :: BROWNDEN, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0, y=AbstractVector[])
   increment!(nlp, :neval_hprod)
-  f(x) = sum(((x[1] + x[2] * i/5 - exp(i/5))^2 + (x[3] + x[4] * sin(i/5) - cos(i/5))^2)^2 for i = 1:20)
-  Hv .= obj_weight * ForwardDiff.hessian(f, x) * v
+  α(x,i) = x[1] + x[2] * i/5 - exp(i/5)
+  β(x,i) = x[3] + x[4] * sin(i/5) - cos(i/5)
+  Hv .= 0
+  if obj_weight == 0
+    return Hv
+  end
+  for i = 1:20
+    αi, βi = α(x,i), β(x,i)
+    vi, wi = [1; i/5; 0; 0], [0; 0; 1; sin(i/5)]
+    zi = αi * vi + βi * wi
+    θi = αi^2 + βi^2
+    Hv .+= (4 * dot(vi, v) * vi + 4 * dot(wi, v) * wi) * θi + 8 * dot(zi, v) * zi
+  end
   return Hv
 end
