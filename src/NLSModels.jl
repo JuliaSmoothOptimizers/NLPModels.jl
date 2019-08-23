@@ -1,8 +1,8 @@
 export AbstractNLSModel, nls_meta, NLSCounters, reset!,
-       residual, residual!, jac_residual, jac_structure_residual, jac_coord_residual!,
-       jac_coord_residual, jprod_residual,
-       jprod_residual!, jtprod_residual, jtprod_residual!, jac_op_residual,
-       jac_op_residual!, hess_residual, hess_structure_residual, hess_structure_residual!,
+       residual, residual!, jac_residual, jac_structure_residual, jac_structure_residual!,
+       jac_coord_residual!, jac_coord_residual, jprod_residual, jprod_residual!,
+       jtprod_residual, jtprod_residual!, jac_op_residual, jac_op_residual!,
+       hess_residual, hess_structure_residual, hess_structure_residual!,
        hess_coord_residual!, hess_coord_residual, jth_hess_residual,
        hprod_residual, hprod_residual!, hess_op_residual, hess_op_residual!,
        NotImplementedError
@@ -118,12 +118,23 @@ function jac_residual(nls :: AbstractNLSModel, x :: AbstractVector)
 end
 
 """
+    (rows,cols) = jac_structure_residual!(nls, rows, cols)
+
+Returns the structure of the constraint's Jacobian in sparse coordinate format in place.
+"""
+function jac_structure_residual!(nls :: AbstractNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+  throw(NotImplementedError("jac_structure_residual!"))
+end
+
+"""
     (rows,cols) = jac_structure_residual(nls)
 
 Returns the structure of the constraint's Jacobian in sparse coordinate format.
 """
 function jac_structure_residual(nls :: AbstractNLSModel)
-  throw(NotImplementedError("jac_structure_residual"))
+  rows = Vector{Int}(undef, nls.nls_meta.nnzj)
+  cols = Vector{Int}(undef, nls.nls_meta.nnzj)
+  jac_structure_residual!(nls, rows, cols)
 end
 
 """
@@ -142,7 +153,11 @@ end
 Computes the Jacobian of the residual at `x` in sparse coordinate format.
 """
 function jac_coord_residual(nls :: AbstractNLSModel, x :: AbstractVector)
-  throw(NotImplementedError("jac_coord_residual"))
+  rows = Vector{Int}(undef, nls.nls_meta.nnzj)
+  cols = Vector{Int}(undef, nls.nls_meta.nnzj)
+  vals = Vector{eltype(x)}(undef, nls.nls_meta.nnzj)
+  jac_structure_residual!(nls, rows, cols)
+  jac_coord_residual!(nls, x, rows, cols, vals)
 end
 
 """
@@ -260,7 +275,11 @@ Computes the linear combination of the Hessians of the residuals at `x` with coe
 `v` in sparse coordinate format.
 """
 function hess_coord_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector)
-  throw(NotImplementedError("hess_coord_residual"))
+  rows = Vector{Int}(undef, nls.nls_meta.nnzh)
+  cols = Vector{Int}(undef, nls.nls_meta.nnzh)
+  vals = Vector{eltype(x)}(undef, nls.nls_meta.nnzh)
+  hess_structure_residual!(nls, rows, cols)
+  hess_coord_residual!(nls, x, v, rows, cols, vals)
 end
 
 """
