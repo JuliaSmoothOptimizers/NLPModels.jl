@@ -7,4 +7,4 @@ OptimizationProblems = "5049e819-d29b-5fba-b941-0eee7e64c1c6"
 
 [compat]
 Documenter = "~0.21"
-JuMP = "~0.18"
+JuMP = "≥ 0.18.6"

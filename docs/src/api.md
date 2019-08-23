@@ -105,6 +105,7 @@ jac_residual
 jac_coord_residual
 jac_coord_residual!
 jac_structure_residual
+jac_structure_residual!
 jprod_residual
 jprod_residual!
 jtprod_residual
