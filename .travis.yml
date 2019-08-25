@@ -31,8 +31,8 @@ jobs:
     - stage: Breakage
       julia: 1.2
       os: linux
+      type: pull_request
       script:
-        - echo $TRAVIS_COMMIT
         - julia -e 'using Pkg; pkg"add Git"; pkg"add GitHub"; include("test/test-breakage.jl")'
       after_success: skip
     - stage: Documentation
