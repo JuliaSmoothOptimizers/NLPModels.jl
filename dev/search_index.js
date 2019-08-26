@@ -317,7 +317,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_obj",
     "category": "function",
-    "text": "NLPModels.neval_obj(nlp)\n\nGet the number of obj evaluations.\n\n\n\n\n\n"
+    "text": "neval_obj(nlp)\n\nGet the number of obj evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -325,7 +325,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_grad",
     "category": "function",
-    "text": "NLPModels.neval_grad(nlp)\n\nGet the number of grad evaluations.\n\n\n\n\n\n"
+    "text": "neval_grad(nlp)\n\nGet the number of grad evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -333,7 +333,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_cons",
     "category": "function",
-    "text": "NLPModels.neval_cons(nlp)\n\nGet the number of cons evaluations.\n\n\n\n\n\n"
+    "text": "neval_cons(nlp)\n\nGet the number of cons evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -341,7 +341,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_jcon",
     "category": "function",
-    "text": "NLPModels.neval_jcon(nlp)\n\nGet the number of jcon evaluations.\n\n\n\n\n\n"
+    "text": "neval_jcon(nlp)\n\nGet the number of jcon evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -349,7 +349,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_jgrad",
     "category": "function",
-    "text": "NLPModels.neval_jgrad(nlp)\n\nGet the number of jgrad evaluations.\n\n\n\n\n\n"
+    "text": "neval_jgrad(nlp)\n\nGet the number of jgrad evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -357,7 +357,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_jac",
     "category": "function",
-    "text": "NLPModels.neval_jac(nlp)\n\nGet the number of jac evaluations.\n\n\n\n\n\n"
+    "text": "neval_jac(nlp)\n\nGet the number of jac evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -365,7 +365,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_jprod",
     "category": "function",
-    "text": "NLPModels.neval_jprod(nlp)\n\nGet the number of jprod evaluations.\n\n\n\n\n\n"
+    "text": "neval_jprod(nlp)\n\nGet the number of jprod evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -373,7 +373,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_jtprod",
     "category": "function",
-    "text": "NLPModels.neval_jtprod(nlp)\n\nGet the number of jtprod evaluations.\n\n\n\n\n\n"
+    "text": "neval_jtprod(nlp)\n\nGet the number of jtprod evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -381,7 +381,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_hess",
     "category": "function",
-    "text": "NLPModels.neval_hess(nlp)\n\nGet the number of hess evaluations.\n\n\n\n\n\n"
+    "text": "neval_hess(nlp)\n\nGet the number of hess evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -389,7 +389,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_hprod",
     "category": "function",
-    "text": "NLPModels.neval_hprod(nlp)\n\nGet the number of hprod evaluations.\n\n\n\n\n\n"
+    "text": "neval_hprod(nlp)\n\nGet the number of hprod evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -397,7 +397,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_jhprod",
     "category": "function",
-    "text": "NLPModels.neval_jhprod(nlp)\n\nGet the number of jhprod evaluations.\n\n\n\n\n\n"
+    "text": "neval_jhprod(nlp)\n\nGet the number of jhprod evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -405,7 +405,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_residual",
     "category": "function",
-    "text": "NLPModels.neval_residual(nlp)\n\nGet the number of residual evaluations.\n\n\n\n\n\n"
+    "text": "neval_residual(nlp)\n\nGet the number of residual evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -413,7 +413,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_jac_residual",
     "category": "function",
-    "text": "NLPModels.neval_jac_residual(nlp)\n\nGet the number of jac evaluations.\n\n\n\n\n\n"
+    "text": "neval_jac_residual(nlp)\n\nGet the number of jac evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -421,7 +421,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_jprod_residual",
     "category": "function",
-    "text": "NLPModels.neval_jprod_residual(nlp)\n\nGet the number of jprod evaluations.\n\n\n\n\n\n"
+    "text": "neval_jprod_residual(nlp)\n\nGet the number of jprod evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -429,7 +429,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_jtprod_residual",
     "category": "function",
-    "text": "NLPModels.neval_jtprod_residual(nlp)\n\nGet the number of jtprod evaluations.\n\n\n\n\n\n"
+    "text": "neval_jtprod_residual(nlp)\n\nGet the number of jtprod evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -437,7 +437,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_hess_residual",
     "category": "function",
-    "text": "NLPModels.neval_hess_residual(nlp)\n\nGet the number of hess evaluations.\n\n\n\n\n\n"
+    "text": "neval_hess_residual(nlp)\n\nGet the number of hess evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -445,7 +445,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_jhess_residual",
     "category": "function",
-    "text": "NLPModels.neval_jhess_residual(nlp)\n\nGet the number of jhess evaluations.\n\n\n\n\n\n"
+    "text": "neval_jhess_residual(nlp)\n\nGet the number of jhess evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -453,7 +453,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_hprod_residual",
     "category": "function",
-    "text": "NLPModels.neval_hprod_residual(nlp)\n\nGet the number of hprod evaluations.\n\n\n\n\n\n"
+    "text": "neval_hprod_residual(nlp)\n\nGet the number of hprod evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -897,6 +897,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api/#NLPModels.jac_structure_residual!",
+    "page": "API",
+    "title": "NLPModels.jac_structure_residual!",
+    "category": "function",
+    "text": "(rows,cols) = jac_structure_residual!(nls, rows, cols)\n\nReturns the structure of the constraint\'s Jacobian in sparse coordinate format in place.\n\n\n\n\n\n"
+},
+
+{
     "location": "api/#NLPModels.jprod_residual",
     "page": "API",
     "title": "NLPModels.jprod_residual",
@@ -1029,7 +1037,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "AbstractNLSModel",
     "category": "section",
-    "text": "residual\nresidual!\njac_residual\njac_coord_residual\njac_coord_residual!\njac_structure_residual\njprod_residual\njprod_residual!\njtprod_residual\njtprod_residual!\njac_op_residual\njac_op_residual!\nhess_residual\nhess_coord_residual\nhess_coord_residual!\nhess_structure_residual\nhess_structure_residual!\njth_hess_residual\nhprod_residual\nhprod_residual!\nhess_op_residual\nhess_op_residual!"
+    "text": "residual\nresidual!\njac_residual\njac_coord_residual\njac_coord_residual!\njac_structure_residual\njac_structure_residual!\njprod_residual\njprod_residual!\njtprod_residual\njtprod_residual!\njac_op_residual\njac_op_residual!\nhess_residual\nhess_coord_residual\nhess_coord_residual!\nhess_structure_residual\nhess_structure_residual!\njth_hess_residual\nhprod_residual\nhprod_residual!\nhess_op_residual\nhess_op_residual!"
 },
 
 {

@@ -7,7 +7,7 @@ nvar = 2, ncon = 0 (0 linear)
 println(&quot;fx = $fx&quot;)</code></pre><pre><code class="language-none">fx = 24.199999999999996</code></pre></div><p>Done. Let&#39;s try the gradient and Hessian.</p><div><pre><code class="language-julia">gx = grad(nlp, nlp.meta.x0)
 Hx = hess(nlp, nlp.meta.x0)
 println(&quot;gx = $gx&quot;)
-println(&quot;Hx = $Hx&quot;)</code></pre><pre><code class="language-none">gx = [-215.6, -88.0]
+println(&quot;Hx = $Hx&quot;)</code></pre><pre><code class="language-none">gx = [-215.59999999999997, -87.99999999999999]
 Hx = [1330.0 0.0; 480.0 200.0]</code></pre></div><p>Notice how only the lower triangle of the Hessian is stored. Also notice that it is <em>dense</em>. This is a current limitation of this model. It doesn&#39;t return sparse matrices, so use it with care.</p><p>Let&#39;s do something a little more complex here, defining a function to try to solve this problem through steepest descent method with Armijo search. Namely, the method</p><ol><li>Given <span>$x^0$</span>, <span>$\varepsilon &gt; 0$</span>, and <span>$\eta \in (0,1)$</span>. Set <span>$k = 0$</span>;</li><li>If <span>$\Vert \nabla f(x^k) \Vert &lt; \varepsilon$</span> STOP with <span>$x^* = x^k$</span>;</li><li>Compute <span>$d^k = -\nabla f(x^k)$</span>;</li><li>Compute <span>$\alpha_k \in (0,1]$</span> such that <span>$f(x^k + \alpha_kd^k) &lt; f(x^k) + \alpha_k\eta \nabla f(x^k)^Td^k$</span></li><li>Define <span>$x^{k+1} = x^k + \alpha_kx^k$</span></li><li>Update <span>$k = k + 1$</span> and go to step 2.</li></ol><div><pre><code class="language-julia">using LinearAlgebra
 
 function steepest(nlp; itmax=100000, eta=1e-4, eps=1e-6, sigma=0.66)
@@ -42,7 +42,7 @@ println(&quot;x = $x&quot;)
 println(&quot;fx = $fx&quot;)
 println(&quot;ngx = $ngx&quot;)
 println(&quot;optimal = $optimal&quot;)
-println(&quot;iter = $iter&quot;)</code></pre><pre><code class="language-none">x = [1.0, 1.0]
+println(&quot;iter = $iter&quot;)</code></pre><pre><code class="language-none">x = [1.0000006499501406, 1.0000013043156974]
 fx = 4.2438440239813445e-13
 ngx = 9.984661274466946e-7
 optimal = true
@@ -55,15 +55,15 @@ d = -H(x)\g(x)</code></pre><pre><code class="language-none">2-element Array{Floa
   global x
   x = x - H(x)\g(x)
   println(&quot;x = $x&quot;)
-end</code></pre><pre><code class="language-none">x = [-1.17528, 1.38067]
-x = [0.763115, -3.17503]
-x = [0.76343, 0.582825]
-x = [0.999995, 0.944027]
-x = [0.999996, 0.999991]</code></pre></div><p>Also, notice how we can reuse the method.</p><div><pre><code class="language-julia">f(x) = (x[1]^2 + x[2]^2 - 5)^2 + (x[1]*x[2] - 2)^2
+end</code></pre><pre><code class="language-none">x = [-1.1752808988764043, 1.3806741573033705]
+x = [0.7631148711767448, -3.1750338547488415]
+x = [0.7634296788843487, 0.5828247754975671]
+x = [0.9999953110849988, 0.9440273238534903]
+x = [0.999995695653676, 0.9999913913257314]</code></pre></div><p>Also, notice how we can reuse the method.</p><div><pre><code class="language-julia">f(x) = (x[1]^2 + x[2]^2 - 5)^2 + (x[1]*x[2] - 2)^2
 x0 = [3.0; 2.0]
 nlp = ADNLPModel(f, x0)
 
-x, fx, ngx, optimal, iter = steepest(nlp)</code></pre><pre><code class="language-none">([2.0, 1.0], 3.911490500207018e-14, 8.979870927068038e-7, true, 153)</code></pre></div><p>Even using a different model. In this case, a model from <a href="https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl">NLPModelsJuMP</a> implemented in <a href="https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl">OptimizationProblems</a>.</p><div><pre><code class="language-julia">using NLPModelsJuMP, OptimizationProblems
+x, fx, ngx, optimal, iter = steepest(nlp)</code></pre><pre><code class="language-none">([1.9999999068493834, 1.000000113517522], 3.911490500207018e-14, 8.979870927068038e-7, true, 153)</code></pre></div><p>Even using a different model. In this case, a model from <a href="https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl">NLPModelsJuMP</a> implemented in <a href="https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl">OptimizationProblems</a>.</p><div><pre><code class="language-julia">using NLPModelsJuMP, OptimizationProblems
 
 nlp = MathProgNLPModel(woods())
 x, fx, ngx, optimal, iter = steepest(nlp)
