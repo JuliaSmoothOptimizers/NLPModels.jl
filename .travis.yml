@@ -31,7 +31,7 @@ jobs:
     - stage: Breakage
       julia: 1.2
       os: linux
-      type: pull_request
+      if: type = pull_request
       addons:
         apt_packages:
           - gfortran
