@@ -1,7 +1,6 @@
 using ForwardDiff
 
-export ADNLPModel, obj, grad, grad!, cons, cons!, jac, jprod,
-       jprod!, jtprod, jtprod!, hess, hprod, hprod!
+export ADNLPModel
 
 @doc raw"""ADNLPModel is an AbstractNLPModel using ForwardDiff to compute the
 derivatives.
