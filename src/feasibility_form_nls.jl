@@ -1,8 +1,4 @@
-export FeasibilityFormNLS,
-       reset!,
-       obj, grad, grad!,
-       cons, cons!, jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
-       hess_coord, hess, hprod, hprod!
+export FeasibilityFormNLS
 
 
 """Converts a nonlinear least-squares problem with residual `F(x)` to a nonlinear

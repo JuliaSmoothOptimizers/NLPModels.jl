@@ -1,6 +1,4 @@
-export LLSModel,
-       residual!, jac_residual, jprod_residual!, jtprod_residual!,
-       jac_op_residual, hess_residual, hprod_residual!
+export LLSModel
 
 """
     nls = LLSModel(A, b; lvar, uvar, C, lcon, ucon)

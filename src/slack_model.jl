@@ -1,8 +1,4 @@
-export SlackModel, SlackNLSModel,
-       reset!,
-       obj, grad, grad!,
-       cons, cons!, jac_coord, jac, jprod, jprod!, jtprod, jtprod!,
-       hess_coord, hess, hprod, hprod!
+export SlackModel, SlackNLSModel
 
 
 @doc raw"""A model whose only inequality constraints are bounds.

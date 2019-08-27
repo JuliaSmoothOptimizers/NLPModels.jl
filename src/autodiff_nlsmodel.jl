@@ -1,9 +1,6 @@
 using ForwardDiff
 
-export ADNLSModel,
-       residual!, jac_residual, jprod_residual!, jtprod_residual!,
-       jac_op_residual, hess_residual, hprod_residual!, cons, cons!,
-       jac, jprod, jprod!, jtprod, jtprod!, hess, hprod, hprod!
+export ADNLSModel
 
 """ADNLSModel is an Nonlinear Least Squares model using ForwardDiff to
 compute the derivatives.
