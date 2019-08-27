@@ -80,13 +80,6 @@ function jac_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, rows :: Abs
   return (rows, cols, vals)
 end
 
-function jac_coord_residual(nls :: ADNLSModel, x :: AbstractVector)
-  Jx = jac_residual(nls, x)
-  m, n = nls.nls_meta.nequ, nls.meta.nvar
-  I = ((i,j) for i = 1:m, j = 1:n)
-  return (getindex.(I, 1)[:], getindex.(I, 2)[:], Jx[:])
-end
-
 function jprod_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nls, :neval_jprod_residual)
   Jv[1:nls.nls_meta.nequ] = ForwardDiff.jacobian(nls.F, x) * v
@@ -121,13 +114,6 @@ function hess_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: Abstr
   return (rows, cols, vals)
 end
 
-function hess_coord_residual(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector)
-  Hx = hess_residual(nls, x, v)
-  n = nls.meta.nvar
-  I = ((i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j)
-  return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
-end
-
 function jth_hess_residual(nls :: ADNLSModel, x :: AbstractVector, i :: Int)
   increment!(nls, :neval_jhess_residual)
   return tril(ForwardDiff.hessian(x->nls.F(x)[i], x))
@@ -137,11 +123,6 @@ function hprod_residual!(nls :: ADNLSModel, x :: AbstractVector, i :: Int, v :: 
   increment!(nls, :neval_hprod_residual)
   Hiv[1:nls.meta.nvar] = ForwardDiff.hessian(x->nls.F(x)[i], x) * v
   return Hiv
-end
-
-function cons(nls :: ADNLSModel, x :: AbstractVector)
-  increment!(nls, :neval_cons)
-  return nls.c(x)
 end
 
 function cons!(nls :: ADNLSModel, x :: AbstractVector, c :: AbstractVector)
@@ -172,27 +153,10 @@ function jac_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVect
   return (rows, cols, vals)
 end
 
-function jac_coord(nls :: ADNLSModel, x :: AbstractVector)
-  Jx = jac(nls, x)
-  m, n = nls.meta.ncon, nls.meta.nvar
-  I = ((i,j) for i = 1:m, j = 1:n)
-  return (getindex.(I, 1)[:], getindex.(I, 2)[:], Jx[:])
-end
-
-function jprod(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector)
-  increment!(nls, :neval_jprod)
-  return ForwardDiff.jacobian(nls.c, x) * v
-end
-
 function jprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nls, :neval_jprod)
   Jv[1:nls.meta.ncon] = ForwardDiff.jacobian(nls.c, x) * v
   return Jv
-end
-
-function jtprod(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector)
-  increment!(nls, :neval_jtprod)
-  return ForwardDiff.jacobian(nls.c, x)' * v
 end
 
 function jtprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
@@ -233,19 +197,6 @@ function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVec
     vals[k] = Hx[i,j]
   end
   return (rows, cols, vals)
-end
-
-function hess_coord(nls :: ADNLSModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
-  Hx = hess(nls, x, obj_weight=obj_weight, y=y)
-  n = nls.meta.nvar
-  I = ((i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j)
-  return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
-end
-
-function hprod(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector;
-               obj_weight = one(eltype(x)), y :: AbstractVector = eltype(x)[])
-  Hv = zeros(eltype(x), nls.meta.nvar)
-  return hprod!(nls, x, v, Hv, obj_weight=obj_weight, y=y)
 end
 
 function hprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;

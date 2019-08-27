@@ -167,17 +167,6 @@ function jac_coord!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, rows :: Abs
   return rows, cols, vals
 end
 
-function jac_coord(nlp :: FeasibilityFormNLS, xr :: AbstractVector)
-  n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
-  x = @view xr[1:n]
-  IF, JF, VF = jac_coord_residual(nlp.internal, x)
-  (Ic, Jc, Vc) = m > 0 ? jac_coord(nlp.internal, x) : (Int[], Int[], Float64[])
-  I = [IF; Ic .+ ne; 1:ne]
-  J = [JF; Jc; (n+1):(n+ne)]
-  V = [VF; Vc; -ones(ne)]
-  return I, J, V
-end
-
 function jac(nlp :: FeasibilityFormNLS, xr :: AbstractVector)
   increment!(nlp, :neval_jac)
   n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
@@ -185,11 +174,6 @@ function jac(nlp :: FeasibilityFormNLS, xr :: AbstractVector)
   JF = jac_residual(nlp.internal, x)
   JC = m > 0 ? jac(nlp.internal, x) : spzeros(m, n)
   return [JF -spdiagm(0 => ones(ne)); JC spzeros(m, ne)]
-end
-
-function jprod(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector)
-  jv = zeros(nlp.meta.ncon)
-  return jprod!(nlp, x, v, jv)
 end
 
 function jprod!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, v :: AbstractVector, jv :: AbstractVector)
@@ -202,11 +186,6 @@ function jprod!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, v :: AbstractVe
     @views jprod!(nlp.internal, x, v[1:n], jv[ne+1:end])
   end
   return jv
-end
-
-function jtprod(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector)
-  jtv = zeros(nlp.meta.nvar)
-  return jtprod!(nlp, x, v, jtv)
 end
 
 function jtprod!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, v :: AbstractVector, jtv :: AbstractVector)
@@ -255,20 +234,6 @@ function hess_coord!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, rows :: Ab
   return rows, cols, vals
 end
 
-function hess_coord(nlp :: FeasibilityFormNLS, xr :: AbstractVector;
-    obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
-  n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
-  x = @view xr[1:n]
-  y1 = @view y[1:ne]
-  y2 = @view y[ne+1:ne+m]
-  IF, JF, VF = hess_coord_residual(nlp.internal, x, y1)
-  (Ic, Jc, Vc) = m > 0 ? hess_coord(nlp.internal, x, obj_weight=0.0, y=y2) : (Int[], Int[], Float64[])
-  I = [IF; Ic; (n+1:n+ne)]
-  J = [JF; Jc; (n+1:n+ne)]
-  V = [VF; Vc; obj_weight * ones(ne)]
-  return I, J, V
-end
-
 function hess(nlp :: FeasibilityFormNLS, xr :: AbstractVector;
     obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
   increment!(nlp, :neval_hess)
@@ -277,12 +242,6 @@ function hess(nlp :: FeasibilityFormNLS, xr :: AbstractVector;
   @views Hx = m > 0 ? hess(nlp.internal, x, obj_weight=0.0, y=y[ne+1:end]) : spzeros(n, n)
   Hx += hess_residual(nlp.internal, x, @view y[1:ne])
   return [Hx spzeros(n, ne); spzeros(ne, n) obj_weight * I]
-end
-
-function hprod(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector;
-    obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
-  hv = zeros(nlp.meta.nvar)
-  return hprod!(nlp, x, v, hv, obj_weight=obj_weight, y=y)
 end
 
 function hprod!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, v :: AbstractVector,
@@ -328,12 +287,6 @@ function jac_coord_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, row
   return rows, cols, vals
 end
 
-function jac_coord_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector)
-  increment!(nlp, :neval_jac_residual)
-  n, ne = nlp.internal.meta.nvar, nlp.internal.nls_meta.nequ
-  return collect(1:ne), collect((n+1):(n+ne)), ones(ne)
-end
-
 function jprod_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nlp, :neval_jprod_residual)
   n = nlp.internal.meta.nvar
@@ -362,11 +315,6 @@ end
 function hess_coord_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   increment!(nlp, :neval_hess_residual)
   return rows, cols, vals
-end
-
-function hess_coord_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector, v :: AbstractVector)
-  increment!(nlp, :neval_hess_residual)
-  return (Int[], Int[], Float64[])
 end
 
 function jth_hess_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector, i :: Int)

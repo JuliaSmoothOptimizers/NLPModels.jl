@@ -100,19 +100,6 @@ function jac_coord_residual!(nls :: LLSModel, x :: AbstractVector, rows :: Abstr
   return (rows,cols,vals)
 end
 
-function jac_coord_residual(nls :: LLSModel, x :: AbstractVector)
-  increment!(nls, :neval_jac_residual)
-  if isa(nls.A, AbstractLinearOperator)
-    error("Jacobian is a LinearOperator. Use `jac_op_residual` instead.")
-  elseif nls.A isa AbstractSparseMatrix
-    return findnz(nls.A)
-  else
-    m, n = size(nls.A)
-    I = ((i,j) for i = 1:m, j = 1:n)
-    return (getindex.(I, 1)[:], getindex.(I, 2)[:], nls.A[:])
-  end
-end
-
 function jprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nls, :neval_jprod_residual)
   Jv[:] = nls.A * v
@@ -140,11 +127,6 @@ function hess_coord_residual!(nls :: LLSModel, x :: AbstractVector, v :: Abstrac
   return (rows, cols, vals)
 end
 
-function hess_coord_residual(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector)
-  increment!(nls, :neval_hess_residual)
-  return (Int[], Int[], Float64[])
-end
-
 function jth_hess_residual(nls :: LLSModel, x :: AbstractVector, i :: Int)
   increment!(nls, :neval_jhess_residual)
   n = size(nls.A, 2)
@@ -155,11 +137,6 @@ function hprod_residual!(nls :: LLSModel, x :: AbstractVector, i :: Int, v :: Ab
   increment!(nls, :neval_hprod_residual)
   fill!(Hiv, 0.0)
   return Hiv
-end
-
-function cons(nls :: LLSModel, x :: AbstractVector)
-  increment!(nls, :neval_cons)
-  return nls.C * x
 end
 
 function cons!(nls :: LLSModel, x :: AbstractVector, c :: AbstractVector)
@@ -198,39 +175,15 @@ function jac_coord!(nls :: LLSModel, x :: AbstractVector, rows :: AbstractVector
   return (rows, cols, vals)
 end
 
-function jac_coord(nls :: LLSModel, x :: AbstractVector)
-  increment!(nls, :neval_jac)
-  if isa(nls.C, AbstractLinearOperator)
-    error("jac_coord is not defined for LinearOperators")
-  end
-  if isa(nls.C, AbstractSparseMatrix)
-    return findnz(nls.C)
-  else
-    m, n = size(nls.C)
-    I = ((i,j) for i = 1:m, j = 1:n)
-    return (getindex.(I, 1)[:], getindex.(I, 2)[:], nls.C[:])
-  end
-end
-
 function jac(nls :: LLSModel, x :: AbstractVector)
   increment!(nls, :neval_jac)
   return nls.C
-end
-
-function jprod(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector)
-  increment!(nls, :neval_jprod)
-  return nls.C * v
 end
 
 function jprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nls, :neval_jprod)
   Jv[1:nls.meta.ncon] = nls.C * v
   return Jv
-end
-
-function jtprod(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector)
-  increment!(nls, :neval_jtprod)
-  return nls.C' * v
 end
 
 function jtprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
