@@ -72,15 +72,20 @@ function jac_residual(nls :: LLSModel, x :: AbstractVector)
   end
 end
 
-function jac_structure_residual(nls :: LLSModel)
+function jac_structure_residual!(nls :: LLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   if isa(nls.A, AbstractLinearOperator)
     error("Jacobian is a LinearOperator. Use `jac_op_residual` instead.")
   elseif nls.A isa AbstractSparseMatrix
-    return findnz(nls.A)[1:2]
+    fnz = findnz(nls.A)
+    rows .= fnz[1]
+    cols .= fnz[2]
+    return rows, cols
   else
     m, n = size(nls.A)
     I = ((i,j) for i = 1:m, j = 1:n)
-    return (getindex.(I, 1)[:], getindex.(I, 2)[:])
+    rows .= getindex.(I, 1)[:]
+    cols .= getindex.(I, 2)[:]
+    return rows, cols
   end
 end
 
@@ -165,16 +170,21 @@ function cons!(nls :: LLSModel, x :: AbstractVector, c :: AbstractVector)
   return c
 end
 
-function jac_structure(nls :: LLSModel)
+function jac_structure!(nls :: LLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   if isa(nls.C, AbstractLinearOperator)
     error("jac_coord is not defined for LinearOperators")
   end
   if isa(nls.C, AbstractSparseMatrix)
-    return findnz(nls.C)[1:2]
+    fnz = findnz(nls.C)
+    rows .= fnz[1]
+    cols .= fnz[2]
+    return rows, cols
   else
     m, n = size(nls.C)
     I = ((i,j) for i = 1:m, j = 1:n)
-    return (getindex.(I, 1)[:], getindex.(I, 2)[:])
+    rows .= getindex.(I, 1)[:]
+    cols .= getindex.(I, 2)[:]
+    return rows, cols
   end
 end
 
