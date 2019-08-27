@@ -14,7 +14,7 @@ the broken package has bugs.
 """
 function test_breakage()
   packages = ["AmplNLReader", "CaNNOLeS", "CUTEst", "QuadraticModels", "NLPModelsIpopt",
-              "NLPModelsJuMP", "NLPModelsKnitro", "SolverTools"]
+              "NLPModelsJuMP", "SolverTools"]
 
   msg(s) = printstyled(s, color=:red, bold=true)
   msgn(s) = printstyled(s * "\n", color=:red, bold=true)
