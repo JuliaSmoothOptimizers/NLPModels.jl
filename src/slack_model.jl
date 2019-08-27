@@ -200,14 +200,22 @@ function cons!(nlp :: SlackModels, x :: AbstractVector, c :: AbstractVector)
   return c
 end
 
-function jac_structure(nlp :: SlackModels)
+function jac_structure!(nlp :: SlackModels, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
-  rows, cols = jac_structure(nlp.model)
+  nnzj = nlp.model.meta.nnzj
+  @views jac_structure!(nlp.model, rows[1:nnzj], cols[1:nnzj])
   jlow = nlp.model.meta.jlow
   jupp = nlp.model.meta.jupp
   jrng = nlp.model.meta.jrng
-  return ([rows; jlow; jupp; jrng], [cols; n+1:nlp.meta.nvar])
+  nj, lj = nnzj, length(jlow)
+  rows[nj+1:nj+lj] .= jlow
+  nj, lj = nj + lj, length(jupp)
+  rows[nj+1:nj+lj] .= jupp
+  nj, lj = nj + lj, length(jrng)
+  rows[nj+1:nj+lj] .= jrng
+  cols[nnzj+1:end] .= n+1:nlp.meta.nvar
+  return rows, cols
 end
 
 function jac_coord!(nlp :: SlackModels, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
@@ -342,8 +350,8 @@ function jac_residual(nlp :: SlackNLSModel, x :: AbstractVector)
   end
 end
 
-function jac_structure_residual(nls :: SlackNLSModel)
-  return jac_structure_residual(nls.model)
+function jac_structure_residual!(nls :: SlackNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+  return jac_structure_residual!(nls.model, rows, cols)
 end
 
 function jac_coord_residual!(nls :: SlackNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)

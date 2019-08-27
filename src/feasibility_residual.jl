@@ -61,8 +61,8 @@ function jac_residual(nls :: FeasibilityResidual, x :: AbstractVector)
   return jac(nls.nlp, x)
 end
 
-function jac_structure_residual(nls :: FeasibilityResidual)
-  return jac_structure(nls.nlp)
+function jac_structure_residual!(nls :: FeasibilityResidual, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+  return jac_structure!(nls.nlp, rows, cols)
 end
 
 function jac_coord_residual!(nls :: FeasibilityResidual, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)

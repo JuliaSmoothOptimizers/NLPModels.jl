@@ -142,13 +142,18 @@ function cons!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, c :: AbstractVec
   return c
 end
 
-function jac_structure(nlp :: FeasibilityFormNLS)
+function jac_structure!(nlp :: FeasibilityFormNLS, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
-  IF, JF = jac_structure_residual(nlp.internal)
-  (Ic, Jc) = m > 0 ? jac_structure(nlp.internal) : (Int[], Int[])
-  I = [IF; Ic .+ ne; 1:ne]
-  J = [JF; Jc; (n+1):(n+ne)]
-  return I, J
+  nnzjF = nlp.internal.nls_meta.nnzj
+  @views jac_structure_residual!(nlp.internal, rows[1:nnzjF], cols[1:nnzjF])
+  if m > 0
+    idx = nnzjF .+ (1:nlp.internal.meta.nnzj)
+    @views jac_structure!(nlp.internal, rows[idx], cols[idx])
+    rows[idx] .+= ne
+  end
+  rows[end-ne+1:end] .= 1:ne
+  cols[end-ne+1:end] .= n .+ (1:ne)
+  return rows, cols
 end
 
 function jac_coord!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
@@ -314,9 +319,11 @@ function jac_residual(nlp :: FeasibilityFormNLS, x :: AbstractVector)
   return [spzeros(ne, n) I]
 end
 
-function jac_structure_residual(nlp :: FeasibilityFormNLS)
+function jac_structure_residual!(nlp :: FeasibilityFormNLS, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   n, ne = nlp.internal.meta.nvar, nlp.internal.nls_meta.nequ
-  return collect(1:ne), collect((n+1):(n+ne))
+  rows .= 1:ne
+  cols .= n .+ (1:ne)
+  return rows, cols
 end
 
 function jac_coord_residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)

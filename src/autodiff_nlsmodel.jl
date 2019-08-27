@@ -66,10 +66,12 @@ function jac_residual(nls :: ADNLSModel, x :: AbstractVector)
   return ForwardDiff.jacobian(nls.F, x)
 end
 
-function jac_structure_residual(nls :: ADNLSModel)
+function jac_structure_residual!(nls :: ADNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   m, n = nls.nls_meta.nequ, nls.meta.nvar
   I = ((i,j) for i = 1:m, j = 1:n)
-  return (getindex.(I, 1)[:], getindex.(I, 2)[:])
+  rows .= getindex.(I, 1)[:]
+  cols .= getindex.(I, 2)[:]
+  return rows, cols
 end
 
 function jac_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
@@ -156,10 +158,12 @@ function jac(nls :: ADNLSModel, x :: AbstractVector)
   return ForwardDiff.jacobian(nls.c, x)
 end
 
-function jac_structure(nls :: ADNLSModel)
+function jac_structure!(nls :: ADNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   m, n = nls.meta.ncon, nls.meta.nvar
   I = ((i,j) for i = 1:m, j = 1:n)
-  return (getindex.(I, 1)[:], getindex.(I, 2)[:])
+  rows .= getindex.(I, 1)[:]
+  cols .= getindex.(I, 2)[:]
+  return rows, cols
 end
 
 function jac_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
