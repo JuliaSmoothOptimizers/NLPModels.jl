@@ -42,7 +42,8 @@ Base.showerror(io::IO, e::NotImplementedError) = print(io, e.name, " not impleme
 # simple default API for retrieving counters
 for counter in fieldnames(Counters)
   @eval begin
-    """`$($counter)(nlp)`
+    """
+        $($counter)(nlp)
 
     Get the number of `$(split("$($counter)", "_")[2])` evaluations.
     """
@@ -51,7 +52,8 @@ for counter in fieldnames(Counters)
   end
 end
 
-"""`increment!(nlp, s)`
+"""
+    increment!(nlp, s)
 
 Increment counter `s` of problem `nlp`.
 """
@@ -59,19 +61,22 @@ function increment!(nlp :: AbstractNLPModel, s :: Symbol)
   setfield!(nlp.counters, s, getfield(nlp.counters, s) + 1)
 end
 
-"""`sum_counters(counters)`
+"""
+    sum_counters(counters)
 
 Sum all counters of `counters`.
 """
 sum_counters(c :: Counters) = sum(getfield(c, x) for x in fieldnames(Counters))
 
-"""`sum_counters(nlp)`
+"""
+    sum_counters(nlp)
 
 Sum all counters of problem `nlp`.
 """
 sum_counters(nlp :: AbstractNLPModel) = sum_counters(nlp.counters)
 
-"""`reset!(counters)`
+"""
+    reset!(counters)
 
 Reset evaluation counters
 """
@@ -82,7 +87,8 @@ function reset!(counters :: Counters)
   return counters
 end
 
-"""`reset!(nlp)
+"""
+    reset!(nlp)
 
 Reset evaluation count in `nlp`
 """
@@ -92,14 +98,16 @@ function reset!(nlp :: AbstractNLPModel)
 end
 
 # Methods to be overridden in other packages.
-"""`f = obj(nlp, x)`
+"""
+    f = obj(nlp, x)
 
 Evaluate ``f(x)``, the objective function of `nlp` at `x`.
 """
 obj(::AbstractNLPModel, ::AbstractVector) =
   throw(NotImplementedError("obj"))
 
-"""`g = grad(nlp, x)`
+"""
+    g = grad(nlp, x)
 
 Evaluate ``∇f(x)``, the gradient of the objective function at `x`.
 """
@@ -108,14 +116,16 @@ function grad(nlp::AbstractNLPModel, x::AbstractVector)
   return grad!(nlp, x, g)
 end
 
-"""`g = grad!(nlp, x, g)`
+"""
+    g = grad!(nlp, x, g)
 
 Evaluate ``∇f(x)``, the gradient of the objective function at `x` in place.
 """
 grad!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("grad!"))
 
-"""`c = cons(nlp, x)`
+"""
+    c = cons(nlp, x)
 
 Evaluate ``c(x)``, the constraints at `x`.
 """
@@ -124,7 +134,8 @@ function cons(nlp::AbstractNLPModel, x::AbstractVector)
   return cons!(nlp, x, c)
 end
 
-"""`c = cons!(nlp, x, c)`
+"""
+    c = cons!(nlp, x, c)
 
 Evaluate ``c(x)``, the constraints at `x` in place.
 """
@@ -145,7 +156,8 @@ jth_congrad!(::AbstractNLPModel, ::AbstractVector, ::Integer, ::AbstractVector) 
 jth_sparse_congrad(::AbstractNLPModel, ::AbstractVector, ::Integer) =
   throw(NotImplementedError("jth_sparse_congrad"))
 
-"""`f, c = objcons(nlp, x)`
+"""
+    f, c = objcons(nlp, x)
 
 Evaluate ``f(x)`` and ``c(x)`` at `x`.
 """
@@ -155,7 +167,8 @@ function objcons(nlp, x)
   return f, c
 end
 
-"""`f = objcons!(nlp, x, c)`
+"""
+    f = objcons!(nlp, x, c)
 
 Evaluate ``f(x)`` and ``c(x)`` at `x`. `c` is overwritten with the value of ``c(x)``.
 """
@@ -165,7 +178,8 @@ function objcons!(nlp, x, c)
   return f, c
 end
 
-"""`f, g = objgrad(nlp, x)`
+"""
+    f, g = objgrad(nlp, x)
 
 Evaluate ``f(x)`` and ``∇f(x)`` at `x`.
 """
@@ -175,7 +189,8 @@ function objgrad(nlp, x)
   return f, g
 end
 
-"""`f, g = objgrad!(nlp, x, g)`
+"""
+    f, g = objgrad!(nlp, x, g)
 
 Evaluate ``f(x)`` and ``∇f(x)`` at `x`. `g` is overwritten with the
 value of ``∇f(x)``.
@@ -186,7 +201,8 @@ function objgrad!(nlp, x, g)
   return f, g
 end
 
-"""`(rows,cols) = jac_structure(nlp)`
+"""
+    (rows,cols) = jac_structure(nlp)
 
 Return the structure of the constraint's Jacobian in sparse coordinate format.
 """
@@ -196,20 +212,23 @@ function jac_structure(nlp :: AbstractNLPModel)
   jac_structure!(nlp, rows, cols)
 end
 
-"""`jac_structure!(nlp, rows, cols)`
+"""
+    jac_structure!(nlp, rows, cols)
 
 Return the structure of the constraint's Jacobian in sparse coordinate format in place.
 """
 jac_structure!(:: AbstractNLPModel, :: AbstractVector{<:Integer}, :: AbstractVector{<:Integer}) = throw(NotImplementedError("jac_structure!"))
 
-"""`(rows,cols,vals) = jac_coord!(nlp, x, rows, cols, vals)`
+"""
+    (rows,cols,vals) = jac_coord!(nlp, x, rows, cols, vals)
 
 Evaluate ``∇c(x)``, the constraint's Jacobian at `x` in sparse coordinate format,
 rewriting `vals`. `rows` and `cols` are not rewritten.
 """
 jac_coord!(:: AbstractNLPModel, :: AbstractVector, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}, ::AbstractVector) = throw(NotImplementedError("jac_coord!"))
 
-"""`(rows,cols,vals) = jac_coord(nlp, x)`
+"""
+    (rows,cols,vals) = jac_coord(nlp, x)
 
 Evaluate ``∇c(x)``, the constraint's Jacobian at `x` in sparse coordinate format.
 """
@@ -221,13 +240,15 @@ function jac_coord(nlp :: AbstractNLPModel, x :: AbstractVector)
   return jac_coord!(nlp, x, rows, cols, vals)
 end
 
-"""`Jx = jac(nlp, x)`
+"""
+    Jx = jac(nlp, x)
 
 Evaluate ``∇c(x)``, the constraint's Jacobian at `x` as a sparse matrix.
 """
 jac(nlp::AbstractNLPModel, x::AbstractVector) = sparse(jac_coord(nlp, x)..., nlp.meta.ncon, nlp.meta.nvar)
 
-"""`Jv = jprod(nlp, x, v)`
+"""
+    Jv = jprod(nlp, x, v)
 
 Evaluate ``∇c(x)v``, the Jacobian-vector product at `x`.
 """
@@ -236,14 +257,16 @@ function jprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector)
   return jprod!(nlp, x, v, Jv)
 end
 
-"""`Jv = jprod!(nlp, x, v, Jv)`
+"""
+    Jv = jprod!(nlp, x, v, Jv)
 
 Evaluate ``∇c(x)v``, the Jacobian-vector product at `x` in place.
 """
 jprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("jprod!"))
 
-"""`Jtv = jtprod(nlp, x, v, Jtv)`
+"""
+    Jtv = jtprod(nlp, x, v, Jtv)
 
 Evaluate ``∇c(x)^Tv``, the transposed-Jacobian-vector product at `x`.
 """
@@ -252,14 +275,16 @@ function jtprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector)
   return jtprod!(nlp, x, v, Jtv)
 end
 
-"""`Jtv = jtprod!(nlp, x, v, Jtv)`
+"""
+    Jtv = jtprod!(nlp, x, v, Jtv)
 
 Evaluate ``∇c(x)^Tv``, the transposed-Jacobian-vector product at `x` in place.
 """
 jtprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("jtprod!"))
 
-"""`J = jac_op(nlp, x)`
+"""
+    J = jac_op(nlp, x)
 
 Return the Jacobian at `x` as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or
@@ -274,7 +299,8 @@ function jac_op(nlp :: AbstractNLPModel, x :: AbstractVector)
                                           false, false, prod, ctprod, ctprod)
 end
 
-"""`J = jac_op!(nlp, x, Jv, Jtv)`
+"""
+    J = jac_op!(nlp, x, Jv, Jtv)
 
 Return the Jacobian at `x` as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or
@@ -307,7 +333,8 @@ end
 ghjvprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("ghjvprod!"))
 
-"""`(rows,cols) = hess_structure(nlp)`
+"""
+    (rows,cols) = hess_structure(nlp)
 
 Return the structure of the Lagrangian Hessian in sparse coordinate format.
 """
@@ -317,13 +344,15 @@ function hess_structure(nlp :: AbstractNLPModel)
   hess_structure!(nlp, rows, cols)
 end
 
-"""`hess_structure!(nlp, rows, cols)`
+"""
+    hess_structure!(nlp, rows, cols)
 
 Return the structure of the Lagrangian Hessian in sparse coordinate format in place.
 """
 hess_structure!(:: AbstractNLPModel, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}) = throw(NotImplementedError("hess_structure!"))
 
-"""`(rows,cols,vals) = hess_coord!(nlp, x, rows, cols, vals; obj_weight=1.0, y=zeros)`
+"""
+    (rows,cols,vals) = hess_coord!(nlp, x, rows, cols, vals; obj_weight=1.0, y=zeros)
 
 Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format,
 with objective function scaled by `obj_weight`, i.e.,
@@ -332,7 +361,8 @@ Only the lower triangle is returned.
 """
 hess_coord!(nlp:: AbstractNLPModel, :: AbstractVector, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}, ::AbstractVector; obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon)) = throw(NotImplementedError("hess_coord!"))
 
-"""`(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0, y=zeros)`
+"""
+    (rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0, y=zeros)
 
 Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format,
 with objective function scaled by `obj_weight`, i.e.,
@@ -348,7 +378,8 @@ function hess_coord(nlp :: AbstractNLPModel, x :: AbstractVector; kwargs...)
   return hess_coord!(nlp, x, rows, cols, vals; kwargs...)
 end
 
-"""`Hx = hess(nlp, x; obj_weight=1.0, y=zeros)`
+"""
+    Hx = hess(nlp, x; obj_weight=1.0, y=zeros)
 
 Evaluate the Lagrangian Hessian at `(x,y)` as a sparse matrix,
 with objective function scaled by `obj_weight`, i.e.,
@@ -358,7 +389,8 @@ Only the lower triangle is returned.
 """
 hess(nlp::AbstractNLPModel, x::AbstractVector; kwargs...) = sparse(hess_coord(nlp, x; kwargs...)..., nlp.meta.nvar, nlp.meta.nvar)
 
-"""`Hv = hprod(nlp, x, v; obj_weight=1.0, y=zeros)`
+"""
+    Hv = hprod(nlp, x, v; obj_weight=1.0, y=zeros)
 
 Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v`,
 with objective function scaled by `obj_weight`, where the Lagrangian Hessian is
@@ -369,7 +401,8 @@ function hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector; kwar
   return hprod!(nlp, x, v, Hv; kwargs...)
 end
 
-"""`Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0, y=zeros)`
+"""
+    Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0, y=zeros)
 
 Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in
 place, with objective function scaled by `obj_weight`, where the Lagrangian Hessian is
@@ -378,7 +411,8 @@ $(LAGRANGIAN_HESSIAN).
 hprod!(nlp::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector; obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon)) =
   throw(NotImplementedError("hprod!"))
 
-"""`H = hess_op(nlp, x; obj_weight=1.0, y=zeros)`
+"""
+    H = hess_op(nlp, x; obj_weight=1.0, y=zeros)
 
 Return the Lagrangian Hessian at `(x,y)` with objective function scaled by
 `obj_weight` as a linear operator. The resulting object may be used as if it were a
@@ -392,7 +426,8 @@ function hess_op(nlp :: AbstractNLPModel, x :: AbstractVector; kwargs...)
                                        true, true, prod, prod, prod)
 end
 
-"""`H = hess_op!(nlp, x, Hv; obj_weight=1.0, y=zeros)`
+"""
+    H = hess_op!(nlp, x, Hv; obj_weight=1.0, y=zeros)
 
 Return the Lagrangian Hessian at `(x,y)` with objective function scaled by
 `obj_weight` as a linear operator, and storing the result on `Hv`. The resulting
