@@ -16,6 +16,9 @@ function consistent_counters(nlps)
   V = zeros(Int, N)
   for field in fieldnames(Counters)
     V = [eval(field)(nlp) for nlp in nlps]
+    if !all(V .== V[1])
+      @warn("ERROR", field, V)
+    end
     @test all(V .== V[1])
   end
   V = [sum_counters(nlp) for nlp in nlps]

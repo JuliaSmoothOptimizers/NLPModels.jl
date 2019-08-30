@@ -205,12 +205,6 @@ function hess(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0, y :: Abstr
   end
 end
 
-function hprod(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector;
-    obj_weight = 1.0, y :: AbstractVector = Float64[])
-  Hv = zeros(nls.meta.nvar)
-  return hprod!(nls, x, v, Hv, obj_weight=obj_weight, y=y)
-end
-
 function hprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
     obj_weight = 1.0, y :: AbstractVector = Float64[])
   increment!(nls, :neval_hprod)

@@ -72,11 +72,9 @@ function jac_structure_residual!(nls :: ADNLSModel, rows :: AbstractVector{<: In
 end
 
 function jac_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
-  Jx = jac_residual(nls, x)
-  for k = 1:nls.nls_meta.nnzj
-    i, j = rows[k], cols[k]
-    vals[k] = Jx[i,j]
-  end
+  increment!(nls, :neval_jac_residual)
+  Jx = ForwardDiff.jacobian(nls.F, x)
+  vals .= Jx[:]
   return (rows, cols, vals)
 end
 
@@ -94,7 +92,7 @@ end
 
 function hess_residual(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector)
   increment!(nls, :neval_hess_residual)
-  return tril(ForwardDiff.jacobian(x->ForwardDiff.jacobian(nls.F, x)' * v, x))
+  return tril(ForwardDiff.jacobian(x -> ForwardDiff.jacobian(nls.F, x)' * v, x))
 end
 
 function hess_structure_residual!(nls :: ADNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
@@ -106,10 +104,14 @@ function hess_structure_residual!(nls :: ADNLSModel, rows :: AbstractVector{<: I
 end
 
 function hess_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
-  Hx = hess_residual(nls, x, v)
-  for k = 1:nls.nls_meta.nnzh
-    i, j = rows[k], cols[k]
-    vals[k] = Hx[i,j]
+  increment!(nls, :neval_hess_residual)
+  Hx = ForwardDiff.jacobian(x->ForwardDiff.jacobian(nls.F, x)' * v, x)
+  k = 1
+  for j = 1:nls.meta.nvar
+    for i = j:nls.meta.nvar
+      vals[k] = Hx[i,j]
+      k += 1
+    end
   end
   return (rows, cols, vals)
 end
@@ -145,11 +147,8 @@ function jac_structure!(nls :: ADNLSModel, rows :: AbstractVector{<: Integer}, c
 end
 
 function jac_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
-  Jx = jac(nls, x)
-  for k = 1:nls.meta.nnzj
-    i, j = rows[k], cols[k]
-    vals[k] = Jx[i,j]
-  end
+  Jx = ForwardDiff.jacobian(nls.c, x)
+  vals .= Jx[:]
   return (rows, cols, vals)
 end
 
@@ -167,18 +166,8 @@ end
 
 function hess(nls :: ADNLSModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   increment!(nls, :neval_hess)
-  Fx = residual(nls, x)
-  Jx = jac_residual(nls, x)
-  Hx = obj_weight == 0.0 ? zeros(eltype(x), nls.meta.nvar, nls.meta.nvar) : Jx' * Jx * obj_weight
-  if obj_weight != 0.0
-    m = length(Fx)
-    Hx += obj_weight * hess_residual(nls, x, Fx)
-  end
-  for i = 1:min(length(y), nls.meta.ncon)
-    if y[i] != 0.0
-      Hx += ForwardDiff.hessian(x->nls.c(x)[i], x) * y[i]
-    end
-  end
+  ℓ(x) = length(y) == 0 ? obj_weight * sum(nls.F(x).^2) / 2 : obj_weight * sum(nls.F(x).^2) / 2 + dot(y, nls.c(x))
+  Hx = ForwardDiff.hessian(ℓ, x)
   return tril(Hx)
 end
 
@@ -191,10 +180,15 @@ function hess_structure!(nls :: ADNLSModel, rows :: AbstractVector{<: Integer}, 
 end
 
 function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
-  Hx = hess(nls, x, obj_weight=obj_weight, y=y)
-  for k = 1:nls.meta.nnzh
-    i, j = rows[k], cols[k]
-    vals[k] = Hx[i,j]
+  increment!(nls, :neval_hess)
+  ℓ(x) = length(y) == 0 ? obj_weight * sum(nls.F(x).^2) / 2 : obj_weight * sum(nls.F(x).^2) / 2 + dot(y, nls.c(x))
+  Hx = ForwardDiff.hessian(ℓ, x)
+  k = 1
+  for j = 1:nls.meta.nvar
+    for i = j:nls.meta.nvar
+      vals[k] = Hx[i,j]
+      k += 1
+    end
   end
   return (rows, cols, vals)
 end
@@ -202,23 +196,7 @@ end
 function hprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
                 obj_weight = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   increment!(nls, :neval_hprod)
-  n = nls.meta.nvar
-  if obj_weight != 0.0
-    Fx = residual(nls, x)
-    Jv = jprod_residual(nls, x, v)
-    @views jtprod_residual!(nls, x, Jv, Hv[1:n])
-    m = length(Fx)
-    Hiv = zeros(eltype(x), n)
-    for i = 1:m
-      hprod_residual!(nls, x, i, v, Hiv)
-      @views Hv[1:n] .= Hv[1:n] .+ Fx[i] * Hiv
-    end
-    Hv[1:n] .*= obj_weight
-  end
-  for i = 1:min(length(y), nls.meta.ncon)
-    if y[i] != 0.0
-      Hv[1:n] += ForwardDiff.hessian(x->nls.c(x)[i], x) * v * y[i]
-    end
-  end
+  ℓ(x) = length(y) == 0 ? obj_weight * sum(nls.F(x).^2) / 2 : obj_weight * sum(nls.F(x).^2) / 2 + dot(y, nls.c(x))
+  Hv .= ForwardDiff.derivative(t -> ForwardDiff.gradient(ℓ, x + t * v), 0)
   return Hv
 end

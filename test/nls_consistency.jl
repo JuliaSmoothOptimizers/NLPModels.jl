@@ -6,6 +6,9 @@ function consistent_nls_counters(nlss)
   for field in fieldnames(NLSCounters)
     field == :counters && continue
     V = [eval(field)(nls) for nls in nlss]
+    if !all(V .== V[1])
+      @warn("ERROR", field, V)
+    end
     @test all(V .== V[1])
   end
   V = [sum_counters(nls) for nls in nlss]

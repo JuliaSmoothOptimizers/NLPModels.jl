@@ -113,9 +113,7 @@ end
 
 Computes J(x), the Jacobian of the residual at x.
 """
-function jac_residual(nls :: AbstractNLSModel, x :: AbstractVector)
-  throw(NotImplementedError("jac_residual"))
-end
+jac_residual(nls :: AbstractNLSModel, x :: AbstractVector) = sparse(jac_coord_residual(nls, x)..., nls.nls_meta.nequ, nls.meta.nvar)
 
 """
     (rows,cols) = jac_structure_residual!(nls, rows, cols)
@@ -234,9 +232,7 @@ end
 Computes the linear combination of the Hessians of the residuals at `x` with coefficients
 `v`.
 """
-function hess_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector)
-  throw(NotImplementedError("hess_residual"))
-end
+hess_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector) = sparse(hess_coord_residual(nls, x, v)..., nls.meta.nvar, nls.meta.nvar)
 
 """
     (rows,cols) = hess_structure_residual(nls)
@@ -340,20 +336,10 @@ function obj(nls :: AbstractNLSModel, x :: AbstractVector)
   return dot(Fx, Fx) / 2
 end
 
-function grad(nls :: AbstractNLSModel, x :: AbstractVector)
-  g = zeros(eltype(x), nls_meta(nls).nvar)
-  return grad!(nls, x, g)
-end
-
 function grad!(nls :: AbstractNLSModel, x :: AbstractVector, g :: AbstractVector)
   increment!(nls, :neval_grad)
   Fx = residual(nls, x)
   return jtprod_residual!(nls, x, Fx, g)
-end
-
-function objgrad(nls :: AbstractNLSModel, x :: AbstractVector)
-  g = zeros(eltype(x), nls_meta(nls).nvar)
-  return objgrad!(nls, x, g)
 end
 
 function objgrad!(nls :: AbstractNLSModel, x :: AbstractVector, g :: AbstractVector)
@@ -362,38 +348,4 @@ function objgrad!(nls :: AbstractNLSModel, x :: AbstractVector, g :: AbstractVec
   Fx = residual(nls, x)
   jtprod_residual!(nls, x, Fx, g)
   return dot(Fx, Fx) / 2, g
-end
-
-function hess(nls :: AbstractNLSModel, x :: AbstractVector; obj_weight ::
-              Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
-  increment!(nls, :neval_hess)
-  Fx = residual(nls, x)
-  Jx = jac_residual(nls, x)
-  Hx = tril(Jx'*Jx)
-  m = length(Fx)
-  Hx .+= hess_residual(nls, x, Fx)
-  return obj_weight * Hx
-end
-
-function hprod(nls :: AbstractNLSModel, x :: AbstractVector, v ::
-               AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector
-               = eltype(x)[])
-  Hv = zeros(eltype(x), nls_meta(nls).nvar)
-  return hprod!(nls, x, v, Hv, obj_weight=obj_weight, y=y)
-end
-
-function hprod!(nls :: AbstractNLSModel, x :: AbstractVector, v ::
-                AbstractVector, Hv :: AbstractVector; obj_weight :: Real =
-                one(eltype(x)), y :: AbstractVector = eltype(x)[])
-  increment!(nls, :neval_hprod)
-  Fx = residual(nls, x)
-  Jv = jprod_residual(nls, x, v)
-  jtprod_residual!(nls, x, Jv, Hv)
-  m = length(Fx)
-  Hiv = zeros(eltype(x), length(x))
-  for i = 1:m
-    hprod_residual!(nls, x, i, v, Hiv)
-    Hv .= Hv .+ Fx[i] * Hiv
-  end
-  return obj_weight * Hv
 end
