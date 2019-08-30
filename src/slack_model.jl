@@ -217,10 +217,6 @@ function jac_coord!(nlp :: SlackModels, x :: AbstractVector, rows :: AbstractVec
   return rows, cols, vals
 end
 
-function jac(nlp :: SlackNLSModel, x :: AbstractVector)
-  return sparse(jac_coord(nlp, x)..., nlp.meta.ncon, nlp.meta.nvar)
-end
-
 function jprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector, jv :: AbstractVector)
   # J(X) V = [J(x)  -I] [vₓ] = J(x) vₓ - vₛ
   #                     [vₛ]
@@ -270,6 +266,7 @@ function hess_coord!(nlp :: SlackModels, x :: AbstractVector, rows :: AbstractVe
   return hess_coord!(nlp.model, view(x, 1:n), rows, cols, vals, obj_weight=obj_weight, y=y)
 end
 
+# Kept in case some model implements `hess` but not `hess_coord/structure`
 function hess(nlp :: SlackNLSModel, x :: AbstractVector; kwargs...)
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n

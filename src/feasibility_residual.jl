@@ -102,3 +102,25 @@ function hprod_residual!(nls :: FeasibilityResidual, x :: AbstractVector, i :: I
   y[i] = 1.0
   return hprod!(nls.nlp, x, v, Hiv, obj_weight = 0.0, y=y)
 end
+
+function hess(nls :: FeasibilityResidual, x :: AbstractVector;
+              obj_weight :: Real=one(eltype(x)), y :: AbstractVector = eltype(x)[])
+  increment!(nls, :neval_hess)
+  cx = cons(nls.nlp, x)
+  Jx = jac(nls.nlp, x)
+  Hx = tril(Jx' * Jx)
+  Hx .+= hess(nls.nlp, x, obj_weight=0.0, y=cx)
+  return obj_weight * Hx
+end
+
+function hprod!(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
+              obj_weight :: Real=one(eltype(x)), y :: AbstractVector = eltype(x)[])
+  increment!(nls, :neval_hess)
+  cx = cons(nls.nlp, x)
+  Jv = jprod(nls.nlp, x, v)
+  jtprod!(nls.nlp, x, Jv, Hv)
+  Hiv = zeros(eltype(x), nls.meta.nvar)
+  hprod!(nls.nlp, x, v, Hiv, obj_weight=0, y=cx)
+  Hv .+= Hiv
+  return obj_weight * Hv
+end

@@ -74,12 +74,12 @@ for problem in ["brownden", "hs5", "hs6", "hs10", "hs11", "hs14"]
 end
 
 include("test_autodiff_model.jl")
-include("test_view_subarray.jl")
-test_view_subarrays()
 include("test_nlsmodels.jl")
 include("nls_consistency.jl")
 consistent_nls()
 include("test_feasibility_form_nls.jl")
 include("multiple-precision.jl")
+include("test_view_subarray.jl")
+test_view_subarrays()
 include("test_memory_of_coord.jl")
 test_memory_of_coord()

@@ -113,7 +113,8 @@ function jac_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, c
 end
 
 function jac_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
-  Jx = jac(nlp, x)
+  increment!(nlp, :neval_jac)
+  Jx = ForwardDiff.jacobian(nlp.c, x)
   vals[1 : nlp.meta.nnzj] .= Jx[:]
   return rows, cols, vals
 end
@@ -132,13 +133,8 @@ end
 
 function hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   increment!(nlp, :neval_hess)
-  Hx = obj_weight == 0.0 ? zeros(nlp.meta.nvar, nlp.meta.nvar) :
-       ForwardDiff.hessian(nlp.f, x) * obj_weight
-  for i = 1:min(length(y), nlp.meta.ncon)
-    if y[i] != 0.0
-      Hx += ForwardDiff.hessian(x->nlp.c(x)[i], x) * y[i]
-    end
-  end
+  ℓ(x) = length(y) == 0 ? obj_weight * nlp.f(x) : obj_weight * nlp.f(x) + dot(nlp.c(x), y)
+  Hx = ForwardDiff.hessian(ℓ, x)
   return tril(Hx)
 end
 
@@ -151,8 +147,9 @@ function hess_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, 
 end
 
 function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
-  Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
-  # accessing rows and cols is not safe
+  increment!(nlp, :neval_hess)
+  ℓ(x) = length(y) == 0 ? obj_weight * nlp.f(x) : obj_weight * nlp.f(x) + dot(nlp.c(x), y)
+  Hx = ForwardDiff.hessian(ℓ, x)
   k = 1
   for j = 1 : nlp.meta.nvar
     for i = j : nlp.meta.nvar
@@ -167,12 +164,7 @@ function hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Hv 
                 obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
   increment!(nlp, :neval_hprod)
   n = nlp.meta.nvar
-  Hv[1:n] = obj_weight == 0.0 ? zeros(nlp.meta.nvar) :
-          ForwardDiff.hessian(nlp.f, x) * v * obj_weight
-  for i = 1:min(length(y), nlp.meta.ncon)
-    if y[i] != 0.0
-      Hv[1:n] += ForwardDiff.hessian(x->nlp.c(x)[i], x) * v * y[i]
-    end
-  end
+  ℓ(x) = length(y) == 0 ? obj_weight * nlp.f(x) : obj_weight * nlp.f(x) + dot(nlp.c(x), y)
+  Hv .= ForwardDiff.derivative(t -> ForwardDiff.gradient(ℓ, x + t * v), 0)
   return Hv
 end
