@@ -164,9 +164,16 @@ function jtprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jt
   return Jtv
 end
 
-function hess(nls :: ADNLSModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
+function hess(nls :: ADNLSModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   increment!(nls, :neval_hess)
-  ℓ(x) = length(y) == 0 ? obj_weight * sum(nls.F(x).^2) / 2 : obj_weight * sum(nls.F(x).^2) / 2 + dot(y, nls.c(x))
+  ℓ(x) = obj_weight * sum(nls.F(x).^2) / 2
+  Hx = ForwardDiff.hessian(ℓ, x)
+  return tril(Hx)
+end
+
+function hess(nls :: ADNLSModel, x :: AbstractVector, y :: AbstractVector; obj_weight :: Real = one(eltype(x)))
+  increment!(nls, :neval_hess)
+  ℓ(x) = obj_weight * sum(nls.F(x).^2) / 2 + dot(y, nls.c(x))
   Hx = ForwardDiff.hessian(ℓ, x)
   return tril(Hx)
 end
@@ -179,9 +186,9 @@ function hess_structure!(nls :: ADNLSModel, rows :: AbstractVector{<: Integer}, 
   return rows, cols
 end
 
-function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)), y :: AbstractVector = eltype(x)[])
+function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   increment!(nls, :neval_hess)
-  ℓ(x) = length(y) == 0 ? obj_weight * sum(nls.F(x).^2) / 2 : obj_weight * sum(nls.F(x).^2) / 2 + dot(y, nls.c(x))
+  ℓ(x) = obj_weight * sum(nls.F(x).^2) / 2
   Hx = ForwardDiff.hessian(ℓ, x)
   k = 1
   for j = 1:nls.meta.nvar
@@ -193,10 +200,31 @@ function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVec
   return (rows, cols, vals)
 end
 
-function hprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
-                obj_weight = one(eltype(x)), y :: AbstractVector = eltype(x)[])
+function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, y :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)))
+  increment!(nls, :neval_hess)
+  ℓ(x) = obj_weight * sum(nls.F(x).^2) / 2 + dot(y, nls.c(x))
+  Hx = ForwardDiff.hessian(ℓ, x)
+  k = 1
+  for j = 1:nls.meta.nvar
+    for i = j:nls.meta.nvar
+      vals[k] = Hx[i,j]
+      k += 1
+    end
+  end
+  return (rows, cols, vals)
+end
+
+function hprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight = one(eltype(x)))
   increment!(nls, :neval_hprod)
-  ℓ(x) = length(y) == 0 ? obj_weight * sum(nls.F(x).^2) / 2 : obj_weight * sum(nls.F(x).^2) / 2 + dot(y, nls.c(x))
+  ℓ(x) = obj_weight * sum(nls.F(x).^2) / 2
+  Hv .= ForwardDiff.derivative(t -> ForwardDiff.gradient(ℓ, x + t * v), 0)
+  return Hv
+end
+
+function hprod!(nls :: ADNLSModel, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
+                obj_weight = one(eltype(x)))
+  increment!(nls, :neval_hprod)
+  ℓ(x) = obj_weight * sum(nls.F(x).^2) / 2 + dot(y, nls.c(x))
   Hv .= ForwardDiff.derivative(t -> ForwardDiff.gradient(ℓ, x + t * v), 0)
   return Hv
 end

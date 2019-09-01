@@ -77,7 +77,7 @@ end
 
 function hess_residual(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector)
   increment!(nls, :neval_hess_residual)
-  return hess(nls.nlp, x, obj_weight = 0.0, y=v)
+  return hess(nls.nlp, x, v, obj_weight = 0.0)
 end
 
 function hess_structure_residual!(nls :: FeasibilityResidual, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
@@ -86,41 +86,39 @@ end
 
 function hess_coord_residual!(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
   increment!(nls, :neval_hess_residual)
-  return hess_coord!(nls.nlp, x, rows, cols, vals, obj_weight=0.0, y=v)
+  return hess_coord!(nls.nlp, x, v, rows, cols, vals, obj_weight=0.0)
 end
 
 function jth_hess_residual(nls :: FeasibilityResidual, x :: AbstractVector, i :: Int)
   increment!(nls, :neval_jhess_residual)
   y = zeros(nls.nls_meta.nequ)
   y[i] = 1.0
-  return hess(nls.nlp, x, obj_weight = 0.0, y=y)
+  return hess(nls.nlp, x, y, obj_weight = 0.0)
 end
 
 function hprod_residual!(nls :: FeasibilityResidual, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
   increment!(nls, :neval_hprod_residual)
   y = zeros(nls.nls_meta.nequ)
   y[i] = 1.0
-  return hprod!(nls.nlp, x, v, Hiv, obj_weight = 0.0, y=y)
+  return hprod!(nls.nlp, x, y, v, Hiv, obj_weight = 0.0)
 end
 
-function hess(nls :: FeasibilityResidual, x :: AbstractVector;
-              obj_weight :: Real=one(eltype(x)), y :: AbstractVector = eltype(x)[])
+function hess(nls :: FeasibilityResidual, x :: AbstractVector; obj_weight :: Real=one(eltype(x)))
   increment!(nls, :neval_hess)
   cx = cons(nls.nlp, x)
   Jx = jac(nls.nlp, x)
   Hx = tril(Jx' * Jx)
-  Hx .+= hess(nls.nlp, x, obj_weight=0.0, y=cx)
+  Hx .+= hess(nls.nlp, x, cx, obj_weight=0.0)
   return obj_weight * Hx
 end
 
-function hprod!(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector;
-              obj_weight :: Real=one(eltype(x)), y :: AbstractVector = eltype(x)[])
+function hprod!(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight :: Real=one(eltype(x)))
   increment!(nls, :neval_hess)
   cx = cons(nls.nlp, x)
   Jv = jprod(nls.nlp, x, v)
   jtprod!(nls.nlp, x, Jv, Hv)
   Hiv = zeros(eltype(x), nls.meta.nvar)
-  hprod!(nls.nlp, x, v, Hiv, obj_weight=0, y=cx)
+  hprod!(nls.nlp, x, cx, v, Hiv, obj_weight=0.0)
   Hv .+= Hiv
   return obj_weight * Hv
 end

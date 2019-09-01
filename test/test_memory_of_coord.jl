@@ -14,10 +14,10 @@ function test_memory_of_coord_of_nlp(nlp :: AbstractNLPModel)
   @test al2 < al1 - 150
 
   if m > 0
-    rows, cols, vals = hess_coord(nlp, x, y=y)
-    al1 = @allocated rows, cols, vals = hess_coord(nlp, x, y=y)
-    hess_coord!(nlp, x, rows, cols, V, y=y)
-    al2 = @allocated hess_coord!(nlp, x, rows, cols, V, y=y)
+    rows, cols, vals = hess_coord(nlp, x, y)
+    al1 = @allocated rows, cols, vals = hess_coord(nlp, x, y)
+    hess_coord!(nlp, x, y, rows, cols, V)
+    al2 = @allocated hess_coord!(nlp, x, y, rows, cols, V)
     @test al2 < al1 - 150
 
     rows, cols, vals = jac_coord(nlp, x)

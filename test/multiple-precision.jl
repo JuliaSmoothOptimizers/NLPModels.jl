@@ -8,8 +8,8 @@ function multiple_precision()
       @test typeof(obj(nlp, x)) == T
       @test eltype(grad(nlp, x)) == T
       @test eltype(hess(nlp, x)) == T
-      @test eltype(hess(nlp, x, y=ones(T, 2))) == T
-      @test eltype(hess(nlp, x, obj_weight=one(T), y=ones(T, 2))) == T
+      @test eltype(hess(nlp, x, ones(T, 2))) == T
+      @test eltype(hess(nlp, x, ones(T, 2), obj_weight=one(T))) == T
       @test eltype(cons(nlp, x)) == T
       @test eltype(jac(nlp, x)) == T
 
@@ -20,8 +20,8 @@ function multiple_precision()
       @test typeof(obj(nls, x)) == T
       @test eltype(grad(nls, x)) == T
       @test eltype(hess(nls, x)) == T
-      @test eltype(hess(nlp, x, y=ones(T, 2))) == T
-      @test eltype(hess(nlp, x, obj_weight=one(T), y=ones(T, 2))) == T
+      @test eltype(hess(nlp, x, ones(T, 2))) == T
+      @test eltype(hess(nlp, x, ones(T, 2), obj_weight=one(T))) == T
       @test eltype(cons(nls, x)) == T
       @test eltype(jac(nls, x)) == T
       @test eltype(residual(nls, x)) == T
