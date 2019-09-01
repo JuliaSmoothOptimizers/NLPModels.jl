@@ -53,10 +53,10 @@ function test_view_subarray_nlp(nlp)
 
       for J = Cidxs
         yv = @view y[J]
-        @test hess(nlp, x[I], y=y[J]) ≈ hess(nlp, xv, y=yv)
+        @test hess(nlp, x[I], y[J]) ≈ hess(nlp, xv, yv)
         yv = @view y[J]
-        #rows1, cols1, vals1 = hess_coord(nlp, x[I], y=y[J])
-        #rows2, cols2, vals2 = hess_coord(nlp, xv, y=yv)
+        #rows1, cols1, vals1 = hess_coord(nlp, x[I], y[J])
+        #rows2, cols2, vals2 = hess_coord(nlp, xv, yv)
         #@test rows1 == rows2
         #@test cols1 == cols2
         #@test vals1 ≈ vals2
@@ -107,11 +107,11 @@ function test_view_subarray_nlp(nlp)
         hprod!(nlp,   xv,   vv,  hv); @test hv ≈ hv2[K]
         for P in Cidxs
           yv = @view y[P]
-          @test hprod(nlp, x[I], v[J], y=y[P]) ≈ hprod(nlp, xv, vv, y=yv)
-          hprod!(nlp, x[I], v[J],  hv, y=y[P])
-          hprod!(nlp, x[I], v[J], hvv, y=y[P]); @test hv ≈ hv2[K]
-          hprod!(nlp,   xv,   vv, hvv, y=yv);   @test hv ≈ hv2[K]
-          hprod!(nlp,   xv,   vv,  hv, y=yv);   @test hv ≈ hv2[K]
+          @test hprod(nlp, x[I], y[P], v[J]) ≈ hprod(nlp, xv, yv, vv)
+          hprod!(nlp, x[I], y[P], v[J],  hv)
+          hprod!(nlp, x[I], y[P], v[J], hvv); @test hv ≈ hv2[K]
+          hprod!(nlp,   xv,   yv,   vv, hvv); @test hv ≈ hv2[K]
+          hprod!(nlp,   xv,   yv,   vv,  hv); @test hv ≈ hv2[K]
         end
       end
     end

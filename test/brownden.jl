@@ -46,7 +46,7 @@ function NLPModels.grad!(nlp :: BROWNDEN, x :: AbstractVector, gx :: AbstractVec
   return gx
 end
 
-function NLPModels.hess(nlp :: BROWNDEN, x :: AbstractVector; obj_weight=1.0, y=AbstractVector[])
+function NLPModels.hess(nlp :: BROWNDEN, x :: AbstractVector; obj_weight=1.0)
   increment!(nlp, :neval_hess)
   α(x,i) = x[1] + x[2] * i/5 - exp(i/5)
   β(x,i) = x[3] + x[4] * sin(i/5) - cos(i/5)
@@ -72,8 +72,8 @@ function NLPModels.hess_structure!(nlp :: BROWNDEN, rows :: AbstractVector{Int},
   return rows, cols
 end
 
-function NLPModels.hess_coord!(nlp :: BROWNDEN, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0, y=AbstractVector[])
-  Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
+function NLPModels.hess_coord!(nlp :: BROWNDEN, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0)
+  Hx = hess(nlp, x, obj_weight=obj_weight)
   nnzh = length(vals)
   for k = 1:nnzh
     i, j = rows[k], cols[k]
@@ -82,14 +82,14 @@ function NLPModels.hess_coord!(nlp :: BROWNDEN, x :: AbstractVector, rows :: Abs
   return rows, cols, vals
 end
 
-function NLPModels.hess_coord(nlp :: BROWNDEN, x :: AbstractVector; obj_weight=1.0, y=AbstractVector[])
-  Hx = hess(nlp, x, obj_weight=obj_weight, y=y)
+function NLPModels.hess_coord(nlp :: BROWNDEN, x :: AbstractVector; obj_weight=1.0)
+  Hx = hess(nlp, x, obj_weight=obj_weight)
   n = nlp.meta.nvar
   I = ((i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j)
   return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
 end
 
-function NLPModels.hprod!(nlp :: BROWNDEN, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0, y=AbstractVector[])
+function NLPModels.hprod!(nlp :: BROWNDEN, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0)
   increment!(nlp, :neval_hprod)
   α(x,i) = x[1] + x[2] * i/5 - exp(i/5)
   β(x,i) = x[3] + x[4] * sin(i/5) - cos(i/5)

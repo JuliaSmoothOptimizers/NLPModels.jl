@@ -36,9 +36,10 @@ for meth in [:jprod!, :jtprod!, :hprod!]
 end
 @test_throws(NotImplementedError, jth_hprod(model, [0], [1], 2))
 @test_throws(NotImplementedError, jth_hprod!(model, [0], [1], 2, [3]))
-for meth in [:jac_coord!, :hess_coord!, :ghjvprod!]
+for meth in [:jac_coord!, :hess_coord!, :ghjvprod!, :hprod!]
   @eval @test_throws(NotImplementedError, $meth(model, [0], [1], [2], [3]))
 end
+@eval @test_throws(NotImplementedError, hess_coord!(model, [0], [1], [2], [3], [4]))
 @assert isa(hess_op(model, [0.]), LinearOperator)
 @assert isa(jac_op(model, [0.]), LinearOperator)
 

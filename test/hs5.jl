@@ -33,7 +33,7 @@ function NLPModels.grad!(nlp :: HS5, x :: AbstractVector, gx :: AbstractVector)
   return gx
 end
 
-function NLPModels.hess(nlp :: HS5, x :: AbstractVector; obj_weight=1.0, y=Float64[])
+function NLPModels.hess(nlp :: HS5, x :: AbstractVector; obj_weight=1.0)
   increment!(nlp, :neval_hess)
   return tril(-sin(x[1] + x[2])*ones(2, 2) + [2.0 -2.0; -2.0 2.0]) * obj_weight
 end
@@ -45,7 +45,7 @@ function NLPModels.hess_structure!(nlp :: HS5, rows :: AbstractVector{Int}, cols
   return rows, cols
 end
 
-function NLPModels.hess_coord!(nlp :: HS5, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0, y=AbstractVector[])
+function NLPModels.hess_coord!(nlp :: HS5, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0)
   H = hess(nlp, x, obj_weight=obj_weight)
   nnzh = length(vals)
   for k = 1:nnzh
@@ -55,13 +55,13 @@ function NLPModels.hess_coord!(nlp :: HS5, x :: AbstractVector, rows :: Abstract
   return rows, cols, vals
 end
 
-function NLPModels.hess_coord(nlp :: HS5, x :: AbstractVector; obj_weight=1.0, y=Float64[])
+function NLPModels.hess_coord(nlp :: HS5, x :: AbstractVector; obj_weight=1.0)
   H = hess(nlp, x, obj_weight=obj_weight)
   I = ((i,j,H[i,j]) for i = 1:nlp.meta.nvar, j = 1:nlp.meta.nvar if i ≥ j)
   return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
 end
 
-function NLPModels.hprod!(nlp :: HS5, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0, y=Float64[])
+function NLPModels.hprod!(nlp :: HS5, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0)
   increment!(nlp, :neval_hprod)
   Hv .= (- sin(x[1] + x[2]) * (v[1] + v[2]) * ones(2) + 2 * [v[1] - v[2]; v[2] - v[1]]) * obj_weight
   return Hv

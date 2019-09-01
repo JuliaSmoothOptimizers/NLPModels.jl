@@ -261,26 +261,48 @@ function hess_structure!(nlp :: SlackModels, rows :: AbstractVector{<: Integer},
 end
 
 function hess_coord!(nlp :: SlackModels, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector;
-    obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
+                     obj_weight :: Float64=1.0)
   n = nlp.model.meta.nvar
-  return hess_coord!(nlp.model, view(x, 1:n), rows, cols, vals, obj_weight=obj_weight, y=y)
+  return hess_coord!(nlp.model, view(x, 1:n), rows, cols, vals, obj_weight=obj_weight)
+end
+
+function hess_coord!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector;
+                     obj_weight :: Float64=1.0)
+  n = nlp.model.meta.nvar
+  return hess_coord!(nlp.model, view(x, 1:n), y, rows, cols, vals, obj_weight=obj_weight)
 end
 
 # Kept in case some model implements `hess` but not `hess_coord/structure`
-function hess(nlp :: SlackNLSModel, x :: AbstractVector; kwargs...)
+function hess(nlp :: SlackModels, x :: AbstractVector; kwargs...)
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   Hx = hess(nlp.model, view(x, 1:n); kwargs...)
   return [Hx spzeros(n, ns); spzeros(ns, n + ns)]
 end
 
+function hess(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector; kwargs...)
+  n = nlp.model.meta.nvar
+  ns = nlp.meta.nvar - n
+  Hx = hess(nlp.model, view(x, 1:n), y; kwargs...)
+  return [Hx spzeros(n, ns); spzeros(ns, n + ns)]
+end
+
 function hprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector,
     hv :: AbstractVector;
-    obj_weight :: Float64=1.0, y :: AbstractVector=zeros(nlp.meta.ncon))
+    obj_weight :: Float64=1.0)
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   # using hv[1:n] doesn't seem to work here
-  @views hprod!(nlp.model, x[1:n], v[1:n], hv[1:n], obj_weight=obj_weight, y=y)
+  @views hprod!(nlp.model, x[1:n], v[1:n], hv[1:n], obj_weight=obj_weight)
+  hv[n+1:nlp.meta.nvar] .= 0
+  return hv
+end
+
+function hprod!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, hv :: AbstractVector; obj_weight :: Float64=1.0)
+  n = nlp.model.meta.nvar
+  ns = nlp.meta.nvar - n
+  # using hv[1:n] doesn't seem to work here
+  @views hprod!(nlp.model, x[1:n], y, v[1:n], hv[1:n], obj_weight=obj_weight)
   hv[n+1:nlp.meta.nvar] .= 0
   return hv
 end

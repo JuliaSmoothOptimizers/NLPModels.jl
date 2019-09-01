@@ -259,7 +259,7 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
     if !(hess_coord in exclude)
       Ls = Vector{Any}(undef, N)
       for i = 1:N
-        (I, J, V) = hess_coord(nlps[i], x, y=y)
+        (I, J, V) = hess_coord(nlps[i], x, y)
         IS, JS = hess_structure(nlps[i])
         @test IS == I
         @test JS == J
@@ -271,40 +271,40 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
           @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
         end
         σ = 3.14
-        (I, J, V) = hess_coord(nlps[i], x, obj_weight=σ, y=σ*y)
+        (I, J, V) = hess_coord(nlps[i], x, σ*y, obj_weight=σ)
         tmp_h = sparse(I, J, V, n, n)
         @test isapprox(σ*Ls[i], tmp_h, atol=rtol * max(Lmin, 1.0))
         tmp_V = zeros(nlps[i].meta.nnzh)
-        hess_coord!(nlps[i], x, I, J, tmp_V, obj_weight=σ, y=σ*y)
+        hess_coord!(nlps[i], x, σ*y, I, J, tmp_V, obj_weight=σ)
         @test tmp_V == V
       end
     end
 
     if !(hess in exclude)
-      Ls = Any[hess(nlp, x, y=y) for nlp in nlps]
+      Ls = Any[hess(nlp, x, y) for nlp in nlps]
       Lmin = minimum(map(norm, Ls))
       for i = 1:N
         for j = i+1:N
           @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
         end
         σ = 3.14
-        tmp_nn = hess(nlps[i], x, obj_weight = σ, y=σ*y)
+        tmp_nn = hess(nlps[i], x, σ*y, obj_weight = σ)
         @test isapprox(σ*Ls[i], tmp_nn, atol=rtol * max(Hmin, 1.0))
       end
     end
 
     if intersect([hess, hess_coord], exclude) == [] for i = 1:N
         nlp = nlps[i]
-        Hx = hess(nlp, x, obj_weight=0.5, y=y)
-        I, J, V = hess_coord(nlp, x, obj_weight=0.5, y=y)
+        Hx = hess(nlp, x, y, obj_weight=0.5)
+        I, J, V = hess_coord(nlp, x, y, obj_weight=0.5)
         @test length(I) == length(J) == length(V) == nlp.meta.nnzh
         @test sparse(I, J, V, n, n) == Hx
       end
     end
 
     if !(hprod in exclude)
-      Lps = Any[hprod(nlp, x, v, y=y) for nlp in nlps]
-      Hopvs = Any[hess_op(nlp, x, y=y) * v for nlp in nlps]
+      Lps = Any[hprod(nlp, x, y, v) for nlp in nlps]
+      Hopvs = Any[hess_op(nlp, x, y) * v for nlp in nlps]
       Lpmin = minimum(map(norm, Lps))
       for i = 1:N-1
         for j = i+1:N

@@ -136,7 +136,7 @@ function hessian_check(nlp :: AbstractNLPModel;
   for k = 1 : nlp.meta.ncon
     H_errs[k] = Dict{Tuple{Int,Int}, Float64}()
     y[k] = sgn
-    Hk = hess(nlp, x, obj_weight=0.0, y=y)
+    Hk = hess(nlp, x, y, obj_weight=0.0)
     for i = 1 : nlp.meta.nvar
       hi[i] = step
       for j = 1 : i
@@ -219,7 +219,7 @@ function hessian_check_from_grad(nlp :: AbstractNLPModel;
   for k = 1 : nlp.meta.ncon
     H_errs[k] = Dict{Tuple{Int,Int}, Float64}()
     y[k] = sgn
-    Hk = hess(nlp, x, obj_weight=0.0, y=y)
+    Hk = hess(nlp, x, y, obj_weight=0.0)
     for i = 1 : nlp.meta.nvar
       h[i] = step
       dJdxi = (jac(nlp, x + h) - jac(nlp, x - h)) / 2 / step

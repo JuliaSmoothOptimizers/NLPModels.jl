@@ -32,13 +32,14 @@ function NLPModels.grad!(nlp :: HS14, x :: AbstractVector, gx :: AbstractVector)
   return gx
 end
 
-function NLPModels.hess(nlp :: HS14, x :: AbstractVector; obj_weight=1.0, y=Float64[])
+function NLPModels.hess(nlp :: HS14, x :: AbstractVector; obj_weight=1.0)
   increment!(nlp, :neval_hess)
-  if length(y) > 0
-    return y[2] * [-0.5 0.0; 0.0 -2.0] + 2obj_weight * I
-  else
-    return [2.0 0; 0 2] * obj_weight
-  end
+  return [2.0 0; 0 2] * obj_weight
+end
+
+function NLPModels.hess(nlp :: HS14, x :: AbstractVector, y :: AbstractVector; obj_weight=1.0)
+  increment!(nlp, :neval_hess)
+  return y[2] * [-0.5 0.0; 0.0 -2.0] + 2obj_weight * I
 end
 
 function NLPModels.hess_structure!(nlp :: HS14, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
@@ -47,27 +48,41 @@ function NLPModels.hess_structure!(nlp :: HS14, rows :: AbstractVector{Int}, col
   return rows, cols
 end
 
-function NLPModels.hess_coord!(nlp :: HS14, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0, y=AbstractVector[])
+function NLPModels.hess_coord!(nlp :: HS14, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0)
   increment!(nlp, :neval_hess)
   vals .= 2obj_weight
-  if length(y) > 0
-    vals[1] -= 0.5y[2]
-    vals[2] -= 2.0y[2]
-  end
   return rows, cols, vals
 end
 
-function NLPModels.hess_coord(nlp :: HS14, x :: AbstractVector; obj_weight=1.0, y=Float64[])
+function NLPModels.hess_coord!(nlp :: HS14, x :: AbstractVector, y :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0)
   increment!(nlp, :neval_hess)
-  w = length(y) == 0 ? 0.0 : y[2]
-  return ([1, 2], [1, 2], [-0.5w + 2obj_weight, -2w + 2obj_weight])
+  vals .= 2obj_weight
+  vals[1] -= 0.5y[2]
+  vals[2] -= 2.0y[2]
+  return rows, cols, vals
 end
 
-function NLPModels.hprod!(nlp :: HS14, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0, y=Float64[])
+function NLPModels.hess_coord(nlp :: HS14, x :: AbstractVector; obj_weight=1.0)
+  increment!(nlp, :neval_hess)
+  return ([1, 2], [1, 2], [2obj_weight, 2obj_weight])
+end
+
+function NLPModels.hess_coord(nlp :: HS14, x :: AbstractVector, y :: AbstractVector; obj_weight=1.0)
+  increment!(nlp, :neval_hess)
+  return ([1, 2], [1, 2], [-0.5y[2] + 2obj_weight, -2y[2] + 2obj_weight])
+end
+
+function NLPModels.hprod!(nlp :: HS14, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0)
   increment!(nlp, :neval_hprod)
-  nlp.counters.neval_hess -= 1
-  Hx = Symmetric(hess(nlp, x, obj_weight=obj_weight, y=y), :L)
-  Hv .= Hx * v
+  Hv .= 2obj_weight * v
+  return Hv
+end
+
+function NLPModels.hprod!(nlp :: HS14, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0)
+  increment!(nlp, :neval_hprod)
+  Hv .= 2obj_weight * v
+  Hv[1] -= 0.5y[2] * v[1]
+  Hv[2] -= 2y[2] * v[2]
   return Hv
 end
 
