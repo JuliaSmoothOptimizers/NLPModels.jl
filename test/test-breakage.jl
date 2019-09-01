@@ -82,7 +82,7 @@ function test_breakage()
     myauth = GitHub.authenticate(ENV["GITHUB_AUTH"])
     myrepo = repo(ENV["TRAVIS_PULL_REQUEST_SLUG"], auth=myauth) # "JuliaSmoothOptimizers/NLPModels.jl"
     prs = pull_requests(myrepo, auth=myauth)
-    local pr
+    pr = nothing
     for p in prs[1]
       if p.merge_commit_sha == ENV["TRAVIS_COMMIT"]
         pr = p
