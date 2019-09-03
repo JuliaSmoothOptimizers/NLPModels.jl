@@ -112,11 +112,11 @@ function jac_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, c
   return rows, cols
 end
 
-function jac_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
+function jac_coord!(nlp :: ADNLPModel, x :: AbstractVector, vals :: AbstractVector)
   increment!(nlp, :neval_jac)
   Jx = ForwardDiff.jacobian(nlp.c, x)
   vals[1 : nlp.meta.nnzj] .= Jx[:]
-  return rows, cols, vals
+  return vals
 end
 
 function jprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
@@ -153,7 +153,7 @@ function hess_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, 
   return rows, cols
 end
 
-function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)))
+function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   increment!(nlp, :neval_hess)
   ℓ(x) = obj_weight * nlp.f(x)
   Hx = ForwardDiff.hessian(ℓ, x)
@@ -164,10 +164,10 @@ function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, rows :: AbstractVec
       k += 1
     end
   end
-  return rows, cols, vals
+  return vals
 end
 
-function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)))
+function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   increment!(nlp, :neval_hess)
   ℓ(x) = obj_weight * nlp.f(x) + dot(nlp.c(x), y)
   Hx = ForwardDiff.hessian(ℓ, x)
@@ -178,7 +178,7 @@ function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector
       k += 1
     end
   end
-  return rows, cols, vals
+  return vals
 end
 
 function hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight :: Real = one(eltype(x)))

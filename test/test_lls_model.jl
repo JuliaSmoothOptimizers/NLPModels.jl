@@ -10,14 +10,19 @@ function lls_test()
 
       @test isapprox(A * x - b, residual(nls, x), rtol=1e-8)
       @test A == jac_residual(nls, x)
-      @test A == sparse(jac_coord_residual(nls, x)..., nequ, nvar)
-      @test sparse(hess_coord_residual(nls, x, ones(nequ))..., nvar, nvar) == zeros(nvar, nvar)
+      I, J = jac_structure_residual(nls)
+      V = jac_coord_residual(nls, x)
+      @test A == sparse(I, J, V, nequ, nvar)
+      I, J = hess_structure_residual(nls)
+      V = hess_coord_residual(nls, x, ones(nequ))
+      @test sparse(I, J, V, nvar, nvar) == zeros(nvar, nvar)
       @test hess_residual(nls, x, ones(10)) == zeros(3,3)
       for i = 1:10
         @test isapprox(zeros(3, 3), jth_hess_residual(nls, x, i), rtol=1e-8)
       end
 
-      I, J, V = jac_coord(nls, x)
+      I, J = jac_structure(nls)
+      V = jac_coord(nls, x)
       @test sparse(I, J, V, ncon, nvar) == C
 
       @test nls.meta.nlin == length(nls.meta.lin) == ncon

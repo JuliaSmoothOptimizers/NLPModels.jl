@@ -72,21 +72,16 @@ function NLPModels.hess_structure!(nlp :: BROWNDEN, rows :: AbstractVector{Int},
   return rows, cols
 end
 
-function NLPModels.hess_coord!(nlp :: BROWNDEN, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0)
+function NLPModels.hess_coord!(nlp :: BROWNDEN, x :: AbstractVector, vals :: AbstractVector; obj_weight=1.0)
   Hx = hess(nlp, x, obj_weight=obj_weight)
-  nnzh = length(vals)
-  for k = 1:nnzh
-    i, j = rows[k], cols[k]
-    vals[k] = Hx[i,j]
+  k = 1
+  for j = 1:4
+    for i = j:4
+      vals[k] = Hx[i,j]
+      k += 1
+    end
   end
-  return rows, cols, vals
-end
-
-function NLPModels.hess_coord(nlp :: BROWNDEN, x :: AbstractVector; obj_weight=1.0)
-  Hx = hess(nlp, x, obj_weight=obj_weight)
-  n = nlp.meta.nvar
-  I = ((i,j,Hx[i,j]) for i = 1:n, j = 1:n if i ≥ j)
-  return (getindex.(I, 1), getindex.(I, 2), getindex.(I, 3))
+  return vals
 end
 
 function NLPModels.hprod!(nlp :: BROWNDEN, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0)

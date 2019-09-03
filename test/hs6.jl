@@ -49,26 +49,16 @@ function NLPModels.hess_structure!(nlp :: HS6, rows :: AbstractVector{Int}, cols
   return rows, cols
 end
 
-function NLPModels.hess_coord!(nlp :: HS6, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0)
+function NLPModels.hess_coord!(nlp :: HS6, x :: AbstractVector, vals :: AbstractVector; obj_weight=1.0)
   increment!(nlp, :neval_hess)
   vals[1] = 2.0 * obj_weight
-  return rows, cols, vals
+  return vals
 end
 
-function NLPModels.hess_coord!(nlp :: HS6, x :: AbstractVector, y :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector; obj_weight=1.0)
+function NLPModels.hess_coord!(nlp :: HS6, x :: AbstractVector, y :: AbstractVector, vals :: AbstractVector; obj_weight=1.0)
   increment!(nlp, :neval_hess)
   vals[1] = 2.0 * obj_weight - 20 * y[1]
-  return rows, cols, vals
-end
-
-function NLPModels.hess_coord(nlp :: HS6, x :: AbstractVector; obj_weight :: Real=1.0)
-  increment!(nlp, :neval_hess)
-  return ([1], [1], [2.0 * obj_weight])
-end
-
-function NLPModels.hess_coord(nlp :: HS6, x :: AbstractVector, y :: AbstractVector; obj_weight :: Real=1.0)
-  increment!(nlp, :neval_hess)
-  return ([1], [1], [2.0 * obj_weight - 20 * y[1]])
+  return vals
 end
 
 function NLPModels.hprod!(nlp :: HS6, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0)
@@ -100,16 +90,11 @@ function NLPModels.jac_structure!(nlp :: HS6, rows :: AbstractVector{Int}, cols 
   return rows, cols
 end
 
-function NLPModels.jac_coord!(nlp :: HS6, x :: AbstractVector, rows :: AbstractVector{Int}, cols :: AbstractVector{Int}, vals :: AbstractVector)
+function NLPModels.jac_coord!(nlp :: HS6, x :: AbstractVector, vals :: AbstractVector)
   increment!(nlp, :neval_jac)
   vals[1] = -20 * x[1]
   vals[2] = 10.0
-  return rows, cols, vals
-end
-
-function NLPModels.jac_coord(nlp :: HS6, x :: AbstractVector)
-  increment!(nlp, :neval_jac)
-  return ([1, 1], [1, 2], [-20 * x[1], 10.0])
+  return vals
 end
 
 function NLPModels.jprod!(nlp :: HS6, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
