@@ -87,17 +87,16 @@ function jac_structure_residual!(nls :: LLSModel, rows :: AbstractVector{<: Inte
   end
 end
 
-function jac_coord_residual!(nls :: LLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
+function jac_coord_residual!(nls :: LLSModel, x :: AbstractVector, vals :: AbstractVector)
   increment!(nls, :neval_jac_residual)
   if isa(nls.A, AbstractLinearOperator)
     error("Jacobian is a LinearOperator. Use `jac_op_residual` instead.")
+  elseif nls.A isa AbstractSparseMatrix
+    vals .= nls.A.nzval
   else
-    for k = 1:nls.nls_meta.nnzj
-      i, j = rows[k], cols[k]
-      vals[k] = nls.A[i,j]
-    end
+    vals .= nls.A[:]
   end
-  return (rows,cols,vals)
+  return vals
 end
 
 function jprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
@@ -122,9 +121,9 @@ function hess_structure_residual!(nls :: LLSModel, rows :: AbstractVector{<: Int
   return rows, cols
 end
 
-function hess_coord_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
+function hess_coord_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, vals :: AbstractVector)
   increment!(nls, :neval_hess_residual)
-  return (rows, cols, vals)
+  return vals
 end
 
 function jth_hess_residual(nls :: LLSModel, x :: AbstractVector, i :: Int)
@@ -163,16 +162,16 @@ function jac_structure!(nls :: LLSModel, rows :: AbstractVector{<: Integer}, col
   end
 end
 
-function jac_coord!(nls :: LLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
+function jac_coord!(nls :: LLSModel, x :: AbstractVector, vals :: AbstractVector)
   increment!(nls, :neval_jac)
   if isa(nls.C, AbstractLinearOperator)
     error("jac_coord is not defined for LinearOperators")
+  elseif nls.C isa AbstractSparseMatrix
+    vals .= nls.C.nzval
+  else
+    vals .= nls.C[:]
   end
-  for k = 1:nls.meta.nnzj
-    i, j = rows[k], cols[k]
-    vals[k] = nls.C[i,j]
-  end
-  return (rows, cols, vals)
+  return vals
 end
 
 function jac(nls :: LLSModel, x :: AbstractVector)

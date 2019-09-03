@@ -71,11 +71,11 @@ function jac_structure_residual!(nls :: ADNLSModel, rows :: AbstractVector{<: In
   return rows, cols
 end
 
-function jac_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
+function jac_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, vals :: AbstractVector)
   increment!(nls, :neval_jac_residual)
   Jx = ForwardDiff.jacobian(nls.F, x)
   vals .= Jx[:]
-  return (rows, cols, vals)
+  return vals
 end
 
 function jprod_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
@@ -103,7 +103,7 @@ function hess_structure_residual!(nls :: ADNLSModel, rows :: AbstractVector{<: I
   return rows, cols
 end
 
-function hess_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
+function hess_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, vals :: AbstractVector)
   increment!(nls, :neval_hess_residual)
   Hx = ForwardDiff.jacobian(x->ForwardDiff.jacobian(nls.F, x)' * v, x)
   k = 1
@@ -113,7 +113,7 @@ function hess_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: Abstr
       k += 1
     end
   end
-  return (rows, cols, vals)
+  return vals
 end
 
 function jth_hess_residual(nls :: ADNLSModel, x :: AbstractVector, i :: Int)
@@ -146,10 +146,10 @@ function jac_structure!(nls :: ADNLSModel, rows :: AbstractVector{<: Integer}, c
   return rows, cols
 end
 
-function jac_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
+function jac_coord!(nls :: ADNLSModel, x :: AbstractVector, vals :: AbstractVector)
   Jx = ForwardDiff.jacobian(nls.c, x)
   vals .= Jx[:]
-  return (rows, cols, vals)
+  return vals
 end
 
 function jprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
@@ -186,7 +186,7 @@ function hess_structure!(nls :: ADNLSModel, rows :: AbstractVector{<: Integer}, 
   return rows, cols
 end
 
-function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)))
+function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   increment!(nls, :neval_hess)
   ℓ(x) = obj_weight * sum(nls.F(x).^2) / 2
   Hx = ForwardDiff.hessian(ℓ, x)
@@ -197,10 +197,10 @@ function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, rows :: AbstractVec
       k += 1
     end
   end
-  return (rows, cols, vals)
+  return vals
 end
 
-function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, y :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)))
+function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, y :: AbstractVector, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   increment!(nls, :neval_hess)
   ℓ(x) = obj_weight * sum(nls.F(x).^2) / 2 + dot(y, nls.c(x))
   Hx = ForwardDiff.hessian(ℓ, x)
@@ -211,7 +211,7 @@ function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, y :: AbstractVector
       k += 1
     end
   end
-  return (rows, cols, vals)
+  return vals
 end
 
 function hprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight = one(eltype(x)))

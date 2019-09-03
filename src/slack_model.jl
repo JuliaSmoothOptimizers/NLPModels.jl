@@ -209,12 +209,12 @@ function jac_structure!(nlp :: SlackModels, rows :: AbstractVector{<: Integer}, 
   return rows, cols
 end
 
-function jac_coord!(nlp :: SlackModels, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
+function jac_coord!(nlp :: SlackModels, x :: AbstractVector, vals :: AbstractVector)
   n = nlp.model.meta.nvar
   nnzj = nlp.model.meta.nnzj
-  @views jac_coord!(nlp.model, x[1:n], rows[1:nnzj], cols[1:nnzj], vals[1:nnzj])
+  @views jac_coord!(nlp.model, x[1:n], vals[1:nnzj])
   vals[nnzj+1:nlp.meta.nnzj] .= -1
-  return rows, cols, vals
+  return vals
 end
 
 function jprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector, jv :: AbstractVector)
@@ -260,16 +260,16 @@ function hess_structure!(nlp :: SlackModels, rows :: AbstractVector{<: Integer},
   return hess_structure!(nlp.model, rows, cols)
 end
 
-function hess_coord!(nlp :: SlackModels, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector;
+function hess_coord!(nlp :: SlackModels, x :: AbstractVector, vals :: AbstractVector;
                      obj_weight :: Float64=1.0)
   n = nlp.model.meta.nvar
-  return hess_coord!(nlp.model, view(x, 1:n), rows, cols, vals, obj_weight=obj_weight)
+  return hess_coord!(nlp.model, view(x, 1:n), vals, obj_weight=obj_weight)
 end
 
-function hess_coord!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector;
+function hess_coord!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector, vals :: AbstractVector;
                      obj_weight :: Float64=1.0)
   n = nlp.model.meta.nvar
-  return hess_coord!(nlp.model, view(x, 1:n), y, rows, cols, vals, obj_weight=obj_weight)
+  return hess_coord!(nlp.model, view(x, 1:n), y, vals, obj_weight=obj_weight)
 end
 
 # Kept in case some model implements `hess` but not `hess_coord/structure`
@@ -327,8 +327,8 @@ function jac_structure_residual!(nls :: SlackNLSModel, rows :: AbstractVector{<:
   return jac_structure_residual!(nls.model, rows, cols)
 end
 
-function jac_coord_residual!(nls :: SlackNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
-  return jac_coord_residual!(nls.model, view(x, 1:nls.model.meta.nvar), rows, cols, vals)
+function jac_coord_residual!(nls :: SlackNLSModel, x :: AbstractVector, vals :: AbstractVector)
+  return jac_coord_residual!(nls.model, view(x, 1:nls.model.meta.nvar), vals)
 end
 
 function jprod_residual!(nlp :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
@@ -369,8 +369,8 @@ function hess_structure_residual!(nls :: SlackNLSModel, rows :: AbstractVector{<
   return hess_structure_residual!(nls.model, rows, cols)
 end
 
-function hess_coord_residual!(nls :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
-  return hess_coord_residual!(nls.model, view(x, 1:nls.model.meta.nvar), v, rows, cols, vals)
+function hess_coord_residual!(nls :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector, vals :: AbstractVector)
+  return hess_coord_residual!(nls.model, view(x, 1:nls.model.meta.nvar), v, vals)
 end
 
 function jth_hess_residual(nlp :: SlackNLSModel, x :: AbstractVector, i :: Int)

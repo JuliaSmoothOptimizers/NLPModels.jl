@@ -24,22 +24,21 @@ model = DummyModel(NLPModelMeta(1))
 for meth in [:obj, :varscale, :conscale]
   @eval @test_throws(NotImplementedError, $meth(model, [0]))
 end
-for meth in [:grad!, :cons!, :jac_structure!, :hess_structure!]
+for meth in [:grad!, :cons!, :jac_structure!, :hess_structure!, :jac_coord!, :hess_coord!]
   @eval @test_throws(NotImplementedError, $meth(model, [0], [1]))
 end
 for meth in [:jth_con, :jth_congrad, :jth_sparse_congrad]
   @eval @test_throws(NotImplementedError, $meth(model, [0], 1))
 end
 @test_throws(NotImplementedError, jth_congrad!(model, [0], 1, [2]))
-for meth in [:jprod!, :jtprod!, :hprod!]
+for meth in [:jprod!, :jtprod!, :hprod!, :hess_coord!]
   @eval @test_throws(NotImplementedError, $meth(model, [0], [1], [2]))
 end
 @test_throws(NotImplementedError, jth_hprod(model, [0], [1], 2))
 @test_throws(NotImplementedError, jth_hprod!(model, [0], [1], 2, [3]))
-for meth in [:jac_coord!, :hess_coord!, :ghjvprod!, :hprod!]
+for meth in [:ghjvprod!, :hprod!]
   @eval @test_throws(NotImplementedError, $meth(model, [0], [1], [2], [3]))
 end
-@eval @test_throws(NotImplementedError, hess_coord!(model, [0], [1], [2], [3], [4]))
 @assert isa(hess_op(model, [0.]), LinearOperator)
 @assert isa(jac_op(model, [0.]), LinearOperator)
 

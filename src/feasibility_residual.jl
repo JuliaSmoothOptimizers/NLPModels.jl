@@ -60,9 +60,9 @@ function jac_structure_residual!(nls :: FeasibilityResidual, rows :: AbstractVec
   return jac_structure!(nls.nlp, rows, cols)
 end
 
-function jac_coord_residual!(nls :: FeasibilityResidual, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
+function jac_coord_residual!(nls :: FeasibilityResidual, x :: AbstractVector, vals :: AbstractVector)
   increment!(nls, :neval_jac_residual)
-  return jac_coord!(nls.nlp, x, rows, cols, vals)
+  return jac_coord!(nls.nlp, x, vals)
 end
 
 function jprod_residual!(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
@@ -84,9 +84,9 @@ function hess_structure_residual!(nls :: FeasibilityResidual, rows :: AbstractVe
   return hess_structure!(nls.nlp, rows, cols)
 end
 
-function hess_coord_residual!(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector)
+function hess_coord_residual!(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVector, vals :: AbstractVector)
   increment!(nls, :neval_hess_residual)
-  return hess_coord!(nls.nlp, x, v, rows, cols, vals, obj_weight=0.0)
+  return hess_coord!(nls.nlp, x, v, vals, obj_weight=0.0)
 end
 
 function jth_hess_residual(nls :: FeasibilityResidual, x :: AbstractVector, i :: Int)

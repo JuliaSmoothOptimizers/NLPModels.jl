@@ -44,16 +44,15 @@ function consistent_nls_functions(nlss; rtol=1.0e-8, exclude=[])
       for j = i+1:N
         @test isapprox(Js[i], Js[j], rtol=rtol)
       end
-      I, J, V = jac_coord_residual(nlss[i], x)
+      V = jac_coord_residual(nlss[i], x)
+      I, J = jac_structure_residual(nlss[i])
       @test length(I) == length(J) == length(V) == nlss[i].nls_meta.nnzj
-      I2, J2 = jac_structure_residual(nlss[i])
-      @test I == I2
-      @test J == J2
+      I2, J2 = copy(I), copy(J)
       jac_structure_residual!(nlss[i], I2, J2)
       @test I == I2
       @test J == J2
       tmp_V = zeros(nlss[i].nls_meta.nnzj)
-      jac_coord_residual!(nlss[i], x, I, J, tmp_V)
+      jac_coord_residual!(nlss[i], x, tmp_V)
       @test tmp_V == V
     end
   end
@@ -106,17 +105,16 @@ function consistent_nls_functions(nlss; rtol=1.0e-8, exclude=[])
       end
       @test isapprox(Hs[i], Hsi[i], rtol=rtol)
       if !(hess_coord_residual in exclude)
-        I, J, V = hess_coord_residual(nlss[i], x, w)
+        V = hess_coord_residual(nlss[i], x, w)
+        I, J = hess_structure_residual(nlss[i])
         @test length(I) == length(J) == length(V) == nlss[i].nls_meta.nnzh
         @test sparse(I, J, V, n, n) == Hs[i]
-        I2, J2 = hess_structure_residual(nlss[i])
-        @test I == I2
-        @test J == J2
+        I2, J2 = copy(I), copy(J)
         hess_structure_residual!(nlss[i], I2, J2)
         @test I == I2
         @test J == J2
         tmp_V = zeros(nlss[i].nls_meta.nnzh)
-        hess_coord_residual!(nlss[i], x, w, I, J, tmp_V)
+        hess_coord_residual!(nlss[i], x, w, tmp_V)
         @test tmp_V == V
       end
     end

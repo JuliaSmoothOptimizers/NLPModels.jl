@@ -6,26 +6,26 @@ function test_memory_of_coord_of_nlp(nlp :: AbstractNLPModel)
   y = [-(-1.0)^i for i = 1:m]
 
   # Hessian unconstrained test
-  rows, cols, vals = hess_coord(nlp, x)
+  vals = hess_coord(nlp, x)
   al1 = @allocated hess_coord(nlp, x)
   V = zeros(nlp.meta.nnzh)
-  hess_coord!(nlp, x, rows, cols, V)
-  al2 = @allocated hess_coord!(nlp, x, rows, cols, V)
-  @test al2 < al1 - 150
+  hess_coord!(nlp, x, V)
+  al2 = @allocated hess_coord!(nlp, x, V)
+  @test al2 < al1 - 50
 
   if m > 0
-    rows, cols, vals = hess_coord(nlp, x, y)
-    al1 = @allocated rows, cols, vals = hess_coord(nlp, x, y)
-    hess_coord!(nlp, x, y, rows, cols, V)
-    al2 = @allocated hess_coord!(nlp, x, y, rows, cols, V)
-    @test al2 < al1 - 150
+    vals = hess_coord(nlp, x, y)
+    al1 = @allocated vals = hess_coord(nlp, x, y)
+    hess_coord!(nlp, x, y, V)
+    al2 = @allocated hess_coord!(nlp, x, y, V)
+    @test al2 < al1 - 50
 
-    rows, cols, vals = jac_coord(nlp, x)
-    al1 = @allocated rows, cols, vals = jac_coord(nlp, x)
+    vals = jac_coord(nlp, x)
+    al1 = @allocated vals = jac_coord(nlp, x)
     V = zeros(nlp.meta.nnzj)
-    jac_coord!(nlp, x, rows, cols, vals)
-    al2 = @allocated jac_coord!(nlp, x, rows, cols, vals)
-    @test al2 < al1 - 150
+    jac_coord!(nlp, x, vals)
+    al2 = @allocated jac_coord!(nlp, x, vals)
+    @test al2 < al1 - 50
   end
 end
 
