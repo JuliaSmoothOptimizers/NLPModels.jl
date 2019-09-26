@@ -208,6 +208,9 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
         IS, JS = jac_structure(nlps[i])
         @test IS == I
         @test JS == J
+        jac_structure!(nlps[i], IS, JS)
+        @test IS == I
+        @test JS == J
         tmp_V = zeros(nlps[i].meta.nnzj)
         jac_coord!(nlps[i], x, I, J, tmp_V)
         @test tmp_V == V
