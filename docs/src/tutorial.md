@@ -151,6 +151,7 @@ Even using a different model. In this case, a model from
 [OptimizationProblems](https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl).
 
 ```@example adnlp
+#= Commented out until NLPModelsJuMP is updated
 using NLPModelsJuMP, OptimizationProblems
 
 nlp = MathProgNLPModel(woods())
@@ -159,6 +160,7 @@ println("fx = $fx")
 println("ngx = $ngx")
 println("optimal = $optimal")
 println("iter = $iter")
+=#
 ```
 
 For constrained minimization, you need the constraints vector and bounds too.
