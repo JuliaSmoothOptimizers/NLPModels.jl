@@ -79,6 +79,10 @@ function test_breakage()
   end
 
   if lowercase(get(ENV, "TRAVIS", "false")) == "true"
+    if get(ENV, "GITHUB_AUTH", nothing) === nothing
+      @warn "GITHUB_AUTH not found, skipping comment push"
+      return
+    end
     myauth = GitHub.authenticate(ENV["GITHUB_AUTH"])
     myrepo = repo(ENV["TRAVIS_PULL_REQUEST_SLUG"], auth=myauth) # "JuliaSmoothOptimizers/NLPModels.jl"
     prs = pull_requests(myrepo, auth=myauth)
