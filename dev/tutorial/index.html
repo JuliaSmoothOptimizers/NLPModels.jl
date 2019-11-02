@@ -3,7 +3,7 @@
 
 nlp = ADNLPModel(x-&gt;(x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2 , [-1.2; 1.0])</code></pre><pre><code class="language-none">ADNLPModel(Minimization problem Generic
 nvar = 2, ncon = 0 (0 linear)
-, Counters(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), getfield(Main.ex-adnlp, Symbol(&quot;##1#2&quot;))(), getfield(NLPModels, Symbol(&quot;##104#107&quot;))())</code></pre></div><p>This is enough to define the model. Let&#39;s get the objective function value at <span>$x^0$</span>, using only <code>nlp</code>.</p><div><pre><code class="language-julia">fx = obj(nlp, nlp.meta.x0)
+, Counters(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), getfield(Main.ex-adnlp, Symbol(&quot;##1#2&quot;))(), getfield(NLPModels, Symbol(&quot;##87#90&quot;))())</code></pre></div><p>This is enough to define the model. Let&#39;s get the objective function value at <span>$x^0$</span>, using only <code>nlp</code>.</p><div><pre><code class="language-julia">fx = obj(nlp, nlp.meta.x0)
 println(&quot;fx = $fx&quot;)</code></pre><pre><code class="language-none">fx = 24.199999999999996</code></pre></div><p>Done. Let&#39;s try the gradient and Hessian.</p><div><pre><code class="language-julia">gx = grad(nlp, nlp.meta.x0)
 Hx = hess(nlp, nlp.meta.x0)
 println(&quot;gx = $gx&quot;)
@@ -63,17 +63,16 @@ x = [0.999995695653676, 0.9999913913257314]</code></pre></div><p>Also, notice ho
 x0 = [3.0; 2.0]
 nlp = ADNLPModel(f, x0)
 
-x, fx, ngx, optimal, iter = steepest(nlp)</code></pre><pre><code class="language-none">([1.9999999068493834, 1.000000113517522], 3.911490500207018e-14, 8.979870927068038e-7, true, 153)</code></pre></div><p>Even using a different model. In this case, a model from <a href="https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl">NLPModelsJuMP</a> implemented in <a href="https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl">OptimizationProblems</a>.</p><div><pre><code class="language-julia">using NLPModelsJuMP, OptimizationProblems
+x, fx, ngx, optimal, iter = steepest(nlp)</code></pre><pre><code class="language-none">([1.9999999068493834, 1.000000113517522], 3.911490500207018e-14, 8.979870927068038e-7, true, 153)</code></pre></div><p>Even using a different model. In this case, a model from <a href="https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl">NLPModelsJuMP</a> implemented in <a href="https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl">OptimizationProblems</a>.</p><div><pre><code class="language-julia">#= Commented out until NLPModelsJuMP is updated
+using NLPModelsJuMP, OptimizationProblems
 
 nlp = MathProgNLPModel(woods())
 x, fx, ngx, optimal, iter = steepest(nlp)
 println(&quot;fx = $fx&quot;)
 println(&quot;ngx = $ngx&quot;)
 println(&quot;optimal = $optimal&quot;)
-println(&quot;iter = $iter&quot;)</code></pre><pre><code class="language-none">fx = 1.0000000000002167
-ngx = 9.893253859340887e-7
-optimal = true
-iter = 12016</code></pre></div><p>For constrained minimization, you need the constraints vector and bounds too. Bounds on the variables can be passed through a new vector.</p><div><pre><code class="language-julia">f(x) = (x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2
+println(&quot;iter = $iter&quot;)
+=#</code></pre></div><p>For constrained minimization, you need the constraints vector and bounds too. Bounds on the variables can be passed through a new vector.</p><div><pre><code class="language-julia">f(x) = (x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2
 x0 = [-1.2; 1.0]
 lvar = [-Inf; 0.1]
 uvar = [0.5; 0.5]
