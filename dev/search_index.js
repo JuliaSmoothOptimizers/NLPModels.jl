@@ -413,7 +413,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_jac_residual",
     "category": "function",
-    "text": "neval_jac_residual(nlp)\n\nGet the number of jac evaluations.\n\n\n\n\n\n"
+    "text": "nevaljacresidual(nlp)\n\nGet the number of jac evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -421,7 +421,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_jprod_residual",
     "category": "function",
-    "text": "neval_jprod_residual(nlp)\n\nGet the number of jprod evaluations.\n\n\n\n\n\n"
+    "text": "nevaljprodresidual(nlp)\n\nGet the number of jprod evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -429,7 +429,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_jtprod_residual",
     "category": "function",
-    "text": "neval_jtprod_residual(nlp)\n\nGet the number of jtprod evaluations.\n\n\n\n\n\n"
+    "text": "nevaljtprodresidual(nlp)\n\nGet the number of jtprod evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -437,7 +437,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_hess_residual",
     "category": "function",
-    "text": "neval_hess_residual(nlp)\n\nGet the number of hess evaluations.\n\n\n\n\n\n"
+    "text": "nevalhessresidual(nlp)\n\nGet the number of hess evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -445,7 +445,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_jhess_residual",
     "category": "function",
-    "text": "neval_jhess_residual(nlp)\n\nGet the number of jhess evaluations.\n\n\n\n\n\n"
+    "text": "nevaljhessresidual(nlp)\n\nGet the number of jhess evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -453,7 +453,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools",
     "title": "NLPModels.neval_hprod_residual",
     "category": "function",
-    "text": "neval_hprod_residual(nlp)\n\nGet the number of hprod evaluations.\n\n\n\n\n\n"
+    "text": "nevalhprodresidual(nlp)\n\nGet the number of hprod evaluations.\n\n\n\n\n\n"
 },
 
 {
@@ -829,7 +829,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "LinearOperators.reset!",
     "category": "function",
-    "text": "reset!(counters)\n\nReset evaluation counters\n\n\n\n\n\n`reset!(nlp)\n\nReset evaluation count in nlp\n\n\n\n\n\n"
+    "text": "reset!(counters)\n\nReset evaluation counters\n\n\n\n\n\nreset!(nlp)\n\nReset evaluation count in nlp\n\n\n\n\n\n"
 },
 
 {
