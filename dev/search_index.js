@@ -669,7 +669,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.jac_coord",
     "category": "function",
-    "text": "(rows,cols,vals) = jac_coord(nlp, x)\n\nEvaluate c(x), the constraint\'s Jacobian at x in sparse coordinate format.\n\n\n\n\n\n"
+    "text": "vals = jac_coord(nlp, x)\n\nEvaluate c(x), the constraint\'s Jacobian at x in sparse coordinate format.\n\n\n\n\n\n"
 },
 
 {
@@ -677,7 +677,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.jac_coord!",
     "category": "function",
-    "text": "(rows,cols,vals) = jac_coord!(nlp, x, rows, cols, vals)\n\nEvaluate c(x), the constraint\'s Jacobian at x in sparse coordinate format, rewriting vals. rows and cols are not recomputed.\n\n\n\n\n\n"
+    "text": "vals = jac_coord!(nlp, x, vals)\n\nEvaluate c(x), the constraint\'s Jacobian at x in sparse coordinate format, rewriting vals.\n\n\n\n\n\n"
 },
 
 {
@@ -757,7 +757,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_coord",
     "category": "function",
-    "text": "(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0)\n\nEvaluate the objective Hessian at x in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\nσ ²f(x)\n\nwith σ = obj_weight . Only the lower triangle is returned.\n\n\n\n\n\n(rows,cols,vals) = hess_coord(nlp, x, y; obj_weight=1.0)\n\nEvaluate the Lagrangian Hessian at (x,y) in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight . Only the lower triangle is returned.\n\n\n\n\n\n"
+    "text": "vals = hess_coord(nlp, x; obj_weight=1.0)\n\nEvaluate the objective Hessian at x in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\nσ ²f(x)\n\nwith σ = obj_weight . Only the lower triangle is returned.\n\n\n\n\n\nvals = hess_coord(nlp, x, y; obj_weight=1.0)\n\nEvaluate the Lagrangian Hessian at (x,y) in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight . Only the lower triangle is returned.\n\n\n\n\n\n"
 },
 
 {
@@ -765,7 +765,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_coord!",
     "category": "function",
-    "text": "(rows,cols,vals) = hess_coord!(nlp, x, rows, cols, vals; obj_weight=1.0)\n\nEvaluate the objective Hessian at x in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\nσ ²f(x)\n\nwith σ = obj_weight , rewriting vals. rows and cols are not recomputed. Only the lower triangle is returned.\n\n\n\n\n\n(rows,cols,vals) = hess_coord!(nlp, x, y, rows, cols, vals; obj_weight=1.0)\n\nEvaluate the Lagrangian Hessian at (x,y) in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight , rewriting vals. rows and cols are not recomputed. Only the lower triangle is returned.\n\n\n\n\n\n"
+    "text": "vals = hess_coord!(nlp, x, vals; obj_weight=1.0)\n\nEvaluate the objective Hessian at x in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\nσ ²f(x)\n\nwith σ = obj_weight , rewriting vals. Only the lower triangle is returned.\n\n\n\n\n\nvals = hess_coord!(nlp, x, y, vals; obj_weight=1.0)\n\nEvaluate the Lagrangian Hessian at (x,y) in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight , rewriting vals. Only the lower triangle is returned.\n\n\n\n\n\n"
 },
 
 {
@@ -885,7 +885,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.jac_coord_residual!",
     "category": "function",
-    "text": "(rows,cols,vals) = jac_coord_residual!(nls, x, rows, cols, vals)\n\nComputes the Jacobian of the residual at x in sparse coordinate format, rewriting vals. rows and cols are not rewritten.\n\n\n\n\n\n"
+    "text": "vals = jac_coord_residual!(nls, x, vals)\n\nComputes the Jacobian of the residual at x in sparse coordinate format, rewriting vals. rows and cols are not rewritten.\n\n\n\n\n\n"
 },
 
 {
@@ -965,7 +965,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_coord_residual",
     "category": "function",
-    "text": "(rows,cols,vals) = hess_coord_residual(nls, x, v)\n\nComputes the linear combination of the Hessians of the residuals at x with coefficients v in sparse coordinate format.\n\n\n\n\n\n"
+    "text": "vals = hess_coord_residual(nls, x, v)\n\nComputes the linear combination of the Hessians of the residuals at x with coefficients v in sparse coordinate format.\n\n\n\n\n\n"
 },
 
 {
@@ -973,7 +973,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_coord_residual!",
     "category": "function",
-    "text": "(rows,cols,vals) = hess_coord_residual!(nls, x, v, rows, cols, vals)\n\nComputes the linear combination of the Hessians of the residuals at x with coefficients v in sparse coordinate format, rewriting vals.\n\n\n\n\n\n"
+    "text": "vals = hess_coord_residual!(nls, x, v, vals)\n\nComputes the linear combination of the Hessians of the residuals at x with coefficients v in sparse coordinate format, rewriting vals.\n\n\n\n\n\n"
 },
 
 {
