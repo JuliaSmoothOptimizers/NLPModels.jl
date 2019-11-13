@@ -677,7 +677,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.jac_coord!",
     "category": "function",
-    "text": "(rows,cols,vals) = jac_coord!(nlp, x, rows, cols, vals)\n\nEvaluate c(x), the constraint\'s Jacobian at x in sparse coordinate format, rewriting vals. rows and cols are not rewritten.\n\n\n\n\n\n"
+    "text": "(rows,cols,vals) = jac_coord!(nlp, x, rows, cols, vals)\n\nEvaluate c(x), the constraint\'s Jacobian at x in sparse coordinate format, rewriting vals. rows and cols are not recomputed.\n\n\n\n\n\n"
 },
 
 {
@@ -757,7 +757,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_coord",
     "category": "function",
-    "text": "(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0, y=zeros)\n\nEvaluate the Lagrangian Hessian at (x,y) in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight . Only the lower triangle is returned.\n\n\n\n\n\n"
+    "text": "(rows,cols,vals) = hess_coord(nlp, x; obj_weight=1.0)\n\nEvaluate the objective Hessian at x in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\nσ ²f(x)\n\nwith σ = obj_weight . Only the lower triangle is returned.\n\n\n\n\n\n(rows,cols,vals) = hess_coord(nlp, x, y; obj_weight=1.0)\n\nEvaluate the Lagrangian Hessian at (x,y) in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight . Only the lower triangle is returned.\n\n\n\n\n\n"
 },
 
 {
@@ -765,7 +765,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_coord!",
     "category": "function",
-    "text": "(rows,cols,vals) = hess_coord!(nlp, x, rows, cols, vals; obj_weight=1.0, y=zeros)\n\nEvaluate the Lagrangian Hessian at (x,y) in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight ,rewriting vals. rows and cols are not rewritten. Only the lower triangle is returned.\n\n\n\n\n\n"
+    "text": "(rows,cols,vals) = hess_coord!(nlp, x, rows, cols, vals; obj_weight=1.0)\n\nEvaluate the objective Hessian at x in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\nσ ²f(x)\n\nwith σ = obj_weight , rewriting vals. rows and cols are not recomputed. Only the lower triangle is returned.\n\n\n\n\n\n(rows,cols,vals) = hess_coord!(nlp, x, y, rows, cols, vals; obj_weight=1.0)\n\nEvaluate the Lagrangian Hessian at (x,y) in sparse coordinate format, with objective function scaled by obj_weight, i.e.,\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight , rewriting vals. rows and cols are not recomputed. Only the lower triangle is returned.\n\n\n\n\n\n"
 },
 
 {
@@ -789,7 +789,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess",
     "category": "function",
-    "text": "Hx = hess(nlp, x; obj_weight=1.0, y=zeros)\n\nEvaluate the Lagrangian Hessian at (x,y) as a sparse matrix, with objective function scaled by obj_weight, i.e.,\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight . Only the lower triangle is returned.\n\n\n\n\n\n"
+    "text": "Hx = hess(nlp, x; obj_weight=1.0)\n\nEvaluate the objective Hessian at x as a sparse matrix, with objective function scaled by obj_weight, i.e.,\n\nσ ²f(x)\n\nwith σ = obj_weight . Only the lower triangle is returned.\n\n\n\n\n\nHx = hess(nlp, x, y; obj_weight=1.0)\n\nEvaluate the Lagrangian Hessian at (x,y) as a sparse matrix, with objective function scaled by obj_weight, i.e.,\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight . Only the lower triangle is returned.\n\n\n\n\n\n"
 },
 
 {
@@ -797,7 +797,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_op",
     "category": "function",
-    "text": "H = hess_op(nlp, x; obj_weight=1.0, y=zeros)\n\nReturn the Lagrangian Hessian at (x,y) with objective function scaled by obj_weight as a linear operator. The resulting object may be used as if it were a matrix, e.g., H * v. The linear operator H represents\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight .\n\n\n\n\n\n"
+    "text": "H = hess_op(nlp, x; obj_weight=1.0)\n\nReturn the objective Hessian at x with objective function scaled by obj_weight as a linear operator. The resulting object may be used as if it were a matrix, e.g., H * v. The linear operator H represents\n\nσ ²f(x)\n\nwith σ = obj_weight .\n\n\n\n\n\nH = hess_op(nlp, x, y; obj_weight=1.0)\n\nReturn the Lagrangian Hessian at (x,y) with objective function scaled by obj_weight as a linear operator. The resulting object may be used as if it were a matrix, e.g., H * v. The linear operator H represents\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight .\n\n\n\n\n\n"
 },
 
 {
@@ -805,7 +805,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hess_op!",
     "category": "function",
-    "text": "H = hess_op!(nlp, x, Hv; obj_weight=1.0, y=zeros)\n\nReturn the Lagrangian Hessian at (x,y) with objective function scaled by obj_weight as a linear operator, and storing the result on Hv. The resulting object may be used as if it were a matrix, e.g., w = H * v. The vector Hv is used as preallocated storage for the operation.  The linear operator H represents\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight .\n\n\n\n\n\n"
+    "text": "H = hess_op!(nlp, x, Hv; obj_weight=1.0)\n\nReturn the objective Hessian at x with objective function scaled by obj_weight as a linear operator, and storing the result on Hv. The resulting object may be used as if it were a matrix, e.g., w = H * v. The vector Hv is used as preallocated storage for the operation.  The linear operator H represents\n\nσ ²f(x)\n\nwith σ = obj_weight .\n\n\n\n\n\nH = hess_op!(nlp, x, y, Hv; obj_weight=1.0)\n\nReturn the Lagrangian Hessian at (x,y) with objective function scaled by obj_weight as a linear operator, and storing the result on Hv. The resulting object may be used as if it were a matrix, e.g., w = H * v. The vector Hv is used as preallocated storage for the operation.  The linear operator H represents\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight .\n\n\n\n\n\n"
 },
 
 {
@@ -813,7 +813,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hprod",
     "category": "function",
-    "text": "Hv = hprod(nlp, x, v; obj_weight=1.0, y=zeros)\n\nEvaluate the product of the Lagrangian Hessian at (x,y) with the vector v, with objective function scaled by obj_weight, where the Lagrangian Hessian is\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight .\n\n\n\n\n\n"
+    "text": "Hv = hprod(nlp, x, v; obj_weight=1.0)\n\nEvaluate the product of the objective Hessian at x with the vector v, with objective function scaled by obj_weight, where the objective Hessian is\n\nσ ²f(x)\n\nwith σ = obj_weight .\n\n\n\n\n\nHv = hprod(nlp, x, y, v; obj_weight=1.0)\n\nEvaluate the product of the Lagrangian Hessian at (x,y) with the vector v, with objective function scaled by obj_weight, where the Lagrangian Hessian is\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight .\n\n\n\n\n\n"
 },
 
 {
@@ -821,7 +821,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API",
     "title": "NLPModels.hprod!",
     "category": "function",
-    "text": "Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0, y=zeros)\n\nEvaluate the product of the Lagrangian Hessian at (x,y) with the vector v in place, with objective function scaled by obj_weight, where the Lagrangian Hessian is\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight .\n\n\n\n\n\n"
+    "text": "Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0)\n\nEvaluate the product of the objective Hessian at x with the vector v in place, with objective function scaled by obj_weight, where the objective Hessian is\n\nσ ²f(x)\n\nwith σ = obj_weight .\n\n\n\n\n\nHv = hprod!(nlp, x, y, v, Hv; obj_weight=1.0)\n\nEvaluate the product of the Lagrangian Hessian at (x,y) with the vector v in place, with objective function scaled by obj_weight, where the Lagrangian Hessian is\n\n²L(xy) = σ ²f(x) + ᵢ yᵢ ²cᵢ(x)\n\nwith σ = obj_weight .\n\n\n\n\n\n"
 },
 
 {
