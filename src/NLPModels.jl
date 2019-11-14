@@ -300,10 +300,8 @@ The resulting object may be used as if it were a matrix, e.g., `J * v` or
 function jac_op(nlp :: AbstractNLPModel, x :: AbstractVector)
   prod = @closure v -> jprod(nlp, x, v)
   ctprod = @closure v -> jtprod(nlp, x, v)
-  F1 = typeof(prod)
-  F3 = typeof(ctprod)
-  return LinearOperator{Float64,F1,F3,F3}(nlp.meta.ncon, nlp.meta.nvar,
-                                          false, false, prod, ctprod, ctprod)
+  return LinearOperator{Float64}(nlp.meta.ncon, nlp.meta.nvar,
+                                 false, false, prod, ctprod, ctprod)
 end
 
 """
@@ -318,10 +316,8 @@ function jac_op!(nlp :: AbstractNLPModel, x :: AbstractVector,
                  Jv :: AbstractVector, Jtv :: AbstractVector)
   prod = @closure v -> jprod!(nlp, x, v, Jv)
   ctprod = @closure v -> jtprod!(nlp, x, v, Jtv)
-  F1 = typeof(prod)
-  F3 = typeof(ctprod)
-  return LinearOperator{Float64,F1,F3,F3}(nlp.meta.ncon, nlp.meta.nvar,
-                                          false, false, prod, ctprod, ctprod)
+  return LinearOperator{Float64}(nlp.meta.ncon, nlp.meta.nvar,
+                                 false, false, prod, ctprod, ctprod)
 end
 
 function jth_hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, j::Integer)
@@ -493,9 +489,8 @@ $(OBJECTIVE_HESSIAN).
 """
 function hess_op(nlp :: AbstractNLPModel, x :: AbstractVector; obj_weight::Real=one(eltype(x)))
   prod = @closure v -> hprod(nlp, x, v; obj_weight=obj_weight)
-  F = typeof(prod)
-  return LinearOperator{Float64,F,F,F}(nlp.meta.nvar, nlp.meta.nvar,
-                                       true, true, prod, prod, prod)
+  return LinearOperator{Float64}(nlp.meta.nvar, nlp.meta.nvar,
+                                 true, true, prod, prod, prod)
 end
 
 """
@@ -508,9 +503,8 @@ $(LAGRANGIAN_HESSIAN).
 """
 function hess_op(nlp :: AbstractNLPModel, x :: AbstractVector, y :: AbstractVector; obj_weight::Real=one(eltype(x)))
   prod = @closure v -> hprod(nlp, x, y, v; obj_weight=obj_weight)
-  F = typeof(prod)
-  return LinearOperator{Float64,F,F,F}(nlp.meta.nvar, nlp.meta.nvar,
-                                       true, true, prod, prod, prod)
+  return LinearOperator{Float64}(nlp.meta.nvar, nlp.meta.nvar,
+                                 true, true, prod, prod, prod)
 end
 
 """
@@ -525,9 +519,8 @@ $(OBJECTIVE_HESSIAN).
 """
 function hess_op!(nlp :: AbstractNLPModel, x :: AbstractVector, Hv :: AbstractVector; obj_weight::Real=one(eltype(x)))
   prod = @closure v -> hprod!(nlp, x, v, Hv; obj_weight=obj_weight)
-  F = typeof(prod)
-  return LinearOperator{Float64,F,F,F}(nlp.meta.nvar, nlp.meta.nvar,
-                                       true, true, prod, prod, prod)
+  return LinearOperator{Float64}(nlp.meta.nvar, nlp.meta.nvar,
+                                 true, true, prod, prod, prod)
 end
 
 """
@@ -542,9 +535,8 @@ $(LAGRANGIAN_HESSIAN).
 """
 function hess_op!(nlp :: AbstractNLPModel, x :: AbstractVector, y :: AbstractVector, Hv :: AbstractVector; obj_weight::Real=one(eltype(x)))
   prod = @closure v -> hprod!(nlp, x, y, v, Hv; obj_weight=obj_weight)
-  F = typeof(prod)
-  return LinearOperator{Float64,F,F,F}(nlp.meta.nvar, nlp.meta.nvar,
-                                       true, true, prod, prod, prod)
+  return LinearOperator{Float64}(nlp.meta.nvar, nlp.meta.nvar,
+                                 true, true, prod, prod, prod)
 end
 
 push!(nlp :: AbstractNLPModel, args...; kwargs...) =
