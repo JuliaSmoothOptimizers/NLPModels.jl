@@ -26,6 +26,7 @@ Cite as
 - Tests:
 [![Master Build Status](https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl.svg)](https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl)
 [![Master Build status](https://ci.appveyor.com/api/projects/status/l1rs9ajxkyc0cer9/branch/master?svg=true)](https://ci.appveyor.com/project/dpo/nlpmodels-jl/branch/master)
+[![Build Status](https://api.cirrus-ci.com/github/JuliaSmoothOptimizers/NLPModels.jl.svg)](https://cirrus-ci.com/github/JuliaSmoothOptimizers/NLPModels.jl)
 [![Master Coverage Status](https://coveralls.io/repos/JuliaSmoothOptimizers/NLPModels.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/JuliaSmoothOptimizers/NLPModels.jl?branch=master)
 
 
