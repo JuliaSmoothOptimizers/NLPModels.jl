@@ -121,13 +121,13 @@ end
 
 function jprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nlp, :neval_jprod)
-  Jv[1:nlp.meta.ncon] = ForwardDiff.jacobian(nlp.c, x) * v
+  Jv[1:nlp.meta.ncon] = ForwardDiff.derivative(t -> nlp.c(x + t * v), 0)
   return Jv
 end
 
 function jtprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nlp, :neval_jtprod)
-  Jtv[1:nlp.meta.nvar] = ForwardDiff.jacobian(nlp.c, x)' * v
+  Jtv[1:nlp.meta.nvar] = ForwardDiff.gradient(x -> dot(nlp.c(x), v), x)
   return Jtv
 end
 

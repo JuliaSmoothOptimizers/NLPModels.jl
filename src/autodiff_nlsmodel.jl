@@ -80,13 +80,13 @@ end
 
 function jprod_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nls, :neval_jprod_residual)
-  Jv[1:nls.nls_meta.nequ] = ForwardDiff.jacobian(nls.F, x) * v
+  Jv[1:nls.nls_meta.nequ] = ForwardDiff.derivative(t -> nls.F(x + t * v), 0)
   return Jv
 end
 
 function jtprod_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nls, :neval_jtprod_residual)
-  Jtv[1:nls.meta.nvar] = ForwardDiff.jacobian(nls.F, x)' * v
+  Jtv[1:nls.meta.nvar] = ForwardDiff.gradient(x -> dot(nls.F(x), v), x)
   return Jtv
 end
 
@@ -123,7 +123,7 @@ end
 
 function hprod_residual!(nls :: ADNLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
   increment!(nls, :neval_hprod_residual)
-  Hiv[1:nls.meta.nvar] = ForwardDiff.hessian(x->nls.F(x)[i], x) * v
+  Hiv[1:nls.meta.nvar] = ForwardDiff.derivative(t -> ForwardDiff.gradient(x -> nls.F(x)[i], x + t * v), 0)
   return Hiv
 end
 
@@ -154,13 +154,13 @@ end
 
 function jprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nls, :neval_jprod)
-  Jv[1:nls.meta.ncon] = ForwardDiff.jacobian(nls.c, x) * v
+  Jv[1:nls.meta.ncon] = ForwardDiff.derivative(t -> nls.c(x + t * v), 0)
   return Jv
 end
 
 function jtprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nls, :neval_jtprod)
-  Jtv[1:nls.meta.nvar] = ForwardDiff.jacobian(nls.c, x)' * v
+  Jtv[1:nls.meta.nvar] = ForwardDiff.gradient(x -> dot(nls.c(x), v), x)
   return Jtv
 end
 
