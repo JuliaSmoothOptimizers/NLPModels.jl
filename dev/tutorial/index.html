@@ -3,7 +3,7 @@
 
 nlp = ADNLPModel(x-&gt;(x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2 , [-1.2; 1.0])</code></pre><pre><code class="language-none">ADNLPModel(Minimization problem Generic
 nvar = 2, ncon = 0 (0 linear)
-, Counters(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), getfield(Main.ex-adnlp, Symbol(&quot;##1#2&quot;))(), getfield(NLPModels, Symbol(&quot;##108#111&quot;))())</code></pre></div><p>This is enough to define the model. Let&#39;s get the objective function value at <span>$x^0$</span>, using only <code>nlp</code>.</p><div><pre><code class="language-julia">fx = obj(nlp, nlp.meta.x0)
+, Counters(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), getfield(Main.ex-adnlp, Symbol(&quot;##1#2&quot;))(), getfield(NLPModels, Symbol(&quot;##118#121&quot;))())</code></pre></div><p>This is enough to define the model. Let&#39;s get the objective function value at <span>$x^0$</span>, using only <code>nlp</code>.</p><div><pre><code class="language-julia">fx = obj(nlp, nlp.meta.x0)
 println(&quot;fx = $fx&quot;)</code></pre><pre><code class="language-none">fx = 24.199999999999996</code></pre></div><p>Done. Let&#39;s try the gradient and Hessian.</p><div><pre><code class="language-julia">gx = grad(nlp, nlp.meta.x0)
 Hx = hess(nlp, nlp.meta.x0)
 println(&quot;gx = $gx&quot;)
