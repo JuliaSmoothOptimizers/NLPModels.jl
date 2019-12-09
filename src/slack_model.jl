@@ -63,18 +63,19 @@ function slack_meta(meta :: NLPModelMeta; name=meta.name * "-slack")
   jlow = meta.jlow
   jupp = meta.jupp
   jrng = meta.jrng
+  T = eltype(meta.x0)
 
   # Don't introduce slacks for equality constraints!
   lvar = [meta.lvar ; meta.lcon[[jlow ; jupp ; jrng]]]  # l ≤ x  and  cₗ ≤ s
   uvar = [meta.uvar ; meta.ucon[[jlow ; jupp ; jrng]]]  # x ≤ u  and  s ≤ cᵤ
-  lcon = zeros(meta.ncon)
+  lcon = zeros(T, meta.ncon)
   lcon[meta.jfix] = meta.lcon[meta.jfix]
-  ucon = zeros(meta.ncon)
+  ucon = zeros(T, meta.ncon)
   ucon[meta.jfix] = meta.ucon[meta.jfix]
 
   return NLPModelMeta(
     meta.nvar + ns,
-    x0=[meta.x0 ; zeros(ns)],
+    x0=[meta.x0 ; zeros(T, ns)],
     lvar=lvar,
     uvar=uvar,
     ncon=meta.ncon,
@@ -108,7 +109,7 @@ function SlackNLSModel(model :: AbstractNLSModel; name=model.meta.name * "-slack
   meta = slack_meta(model.meta, name=name)
   nls_meta = NLSMeta(model.nls_meta.nequ,
                      model.meta.nvar + ns,
-                     x0=[model.meta.x0; zeros(ns)],
+                     x0=[model.meta.x0; zeros(eltype(model.meta.x0), ns)],
                      nnzj=model.nls_meta.nnzj,
                      nnzh=model.nls_meta.nnzh
                     )
@@ -273,18 +274,18 @@ function hess_coord!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVecto
 end
 
 # Kept in case some model implements `hess` but not `hess_coord/structure`
-function hess(nlp :: SlackModels, x :: AbstractVector; kwargs...)
+function hess(nlp :: SlackModels, x :: AbstractVector{T}; kwargs...) where T
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   Hx = hess(nlp.model, view(x, 1:n); kwargs...)
-  return [Hx spzeros(n, ns); spzeros(ns, n + ns)]
+  return [Hx spzeros(T, n, ns); spzeros(T, ns, n + ns)]
 end
 
-function hess(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector; kwargs...)
+function hess(nlp :: SlackModels, x :: AbstractVector{T}, y :: AbstractVector{T}; kwargs...) where T
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   Hx = hess(nlp.model, view(x, 1:n), y; kwargs...)
-  return [Hx spzeros(n, ns); spzeros(ns, n + ns)]
+  return [Hx spzeros(T, n, ns); spzeros(T, ns, n + ns)]
 end
 
 function hprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector,
@@ -311,15 +312,15 @@ function residual!(nlp :: SlackNLSModel, x :: AbstractVector, Fx :: AbstractVect
   return residual!(nlp.model, view(x, 1:nlp.model.meta.nvar), Fx)
 end
 
-function jac_residual(nlp :: SlackNLSModel, x :: AbstractVector)
+function jac_residual(nlp :: SlackNLSModel, x :: AbstractVector{T}) where T
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   ne = nlp.nls_meta.nequ
   Jx = jac_residual(nlp.model, @view x[1:n])
   if issparse(Jx)
-    return [Jx spzeros(ne, ns)]
+    return [Jx spzeros(T, ne, ns)]
   else
-    return [Jx zeros(ne, ns)]
+    return [Jx zeros(T, ne, ns)]
   end
 end
 
@@ -352,14 +353,14 @@ function jac_op_residual!(nls :: SlackNLSModel, x :: AbstractVector,
                                  false, false, prod, ctprod, ctprod)
 end
 
-function hess_residual(nlp :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector)
+function hess_residual(nlp :: SlackNLSModel, x :: AbstractVector{T}, v :: AbstractVector{T}) where T
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   Hx = hess_residual(nlp.model, view(x, 1:n), v)
   if issparse(Hx)
-    return [Hx spzeros(n, ns); spzeros(ns, n + ns)]
+    return [Hx spzeros(T, n, ns); spzeros(T, ns, n + ns)]
   else
-    return [Hx zeros(n, ns); zeros(ns, n + ns)]
+    return [Hx zeros(T, n, ns); zeros(T, ns, n + ns)]
   end
 end
 
@@ -371,14 +372,14 @@ function hess_coord_residual!(nls :: SlackNLSModel, x :: AbstractVector, v :: Ab
   return hess_coord_residual!(nls.model, view(x, 1:nls.model.meta.nvar), v, vals)
 end
 
-function jth_hess_residual(nlp :: SlackNLSModel, x :: AbstractVector, i :: Int)
+function jth_hess_residual(nlp :: SlackNLSModel, x :: AbstractVector{T}, i :: Int) where T
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   Hx = jth_hess_residual(nlp.model, view(x, 1:n), i)
   if issparse(Hx)
-    return [Hx spzeros(n, ns); spzeros(ns, n + ns)]
+    return [Hx spzeros(T, n, ns); spzeros(T, ns, n + ns)]
   else
-    return [Hx zeros(n, ns); zeros(ns, n + ns)]
+    return [Hx zeros(T, n, ns); zeros(T, ns, n + ns)]
   end
 end
 
