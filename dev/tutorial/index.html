@@ -50,16 +50,16 @@ iter = 17962</code></pre></div><p>Maybe this code is too complicated? If you&#39
 H(x) = Symmetric(hess(nlp, x), :L)
 x = nlp.meta.x0
 d = -H(x)\g(x)</code></pre><pre><code class="language-none">2-element Array{Float64,1}:
- 0.0247191011235955
- 0.38067415730337073</code></pre></div><p>or a few</p><div><pre><code class="language-julia">for i = 1:5
+ 0.02471910112359557
+ 0.3806741573033705</code></pre></div><p>or a few</p><div><pre><code class="language-julia">for i = 1:5
   global x
   x = x - H(x)\g(x)
   println(&quot;x = $x&quot;)
-end</code></pre><pre><code class="language-none">x = [-1.1752808988764045, 1.3806741573033707]
-x = [0.763114871176314, -3.1750338547478294]
-x = [0.7634296788839187, 0.5828247754969103]
-x = [0.9999953110849887, 0.9440273238532714]
-x = [0.9999956956536669, 0.9999913913257132]</code></pre></div><p>Also, notice how we can reuse the method.</p><div><pre><code class="language-julia">f(x) = (x[1]^2 + x[2]^2 - 5)^2 + (x[1]*x[2] - 2)^2
+end</code></pre><pre><code class="language-none">x = [-1.1752808988764043, 1.3806741573033705]
+x = [0.7631148711767448, -3.1750338547488415]
+x = [0.7634296788843487, 0.5828247754975671]
+x = [0.9999953110849988, 0.9440273238534903]
+x = [0.999995695653676, 0.9999913913257314]</code></pre></div><p>Also, notice how we can reuse the method.</p><div><pre><code class="language-julia">f(x) = (x[1]^2 + x[2]^2 - 5)^2 + (x[1]*x[2] - 2)^2
 x0 = [3.0; 2.0]
 nlp = ADNLPModel(f, x0)
 
