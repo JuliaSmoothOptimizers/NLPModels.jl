@@ -17,7 +17,7 @@ function test_autodiff_model()
   nlp = ADNLPModel(f, x0, c=c, lcon=[0], ucon=[0])
   @test obj(nlp, x0) == f(x0)
 
-  x = range(-1, 1, length=100)
+  x = range(-1, stop=1, length=100)
   y = 2x .+ 3 + randn(100) * 0.1
   regr = LinearRegression(x, y)
   nlp = ADNLPModel(regr, ones(2))
