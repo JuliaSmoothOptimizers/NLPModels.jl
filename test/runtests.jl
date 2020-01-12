@@ -76,7 +76,20 @@ end
 include("test_autodiff_model.jl")
 include("test_nlsmodels.jl")
 include("nls_consistency.jl")
-consistent_nls()
+for problem in ["LLS", "MGH01", "NLSHS20"]
+  include("nls_problems/$(lowercase(problem)).jl")
+  @printf("Checking problem %-20s", problem)
+  nls_ad = eval(Meta.parse(lowercase(problem) * "_autodiff"))()
+  nls_man = eval(Meta.parse(problem))()
+
+  nlss = [nls_ad, nls_man]
+  spc = lowercase(problem) * "_special"
+  if isdefined(Main, Symbol(spc))
+    push!(nlss, eval(Meta.parse(spc))())
+  end
+  consistent_nlss(nlss)
+  println("✓")
+end
 include("test_feasibility_form_nls.jl")
 include("multiple-precision.jl")
 include("test_view_subarray.jl")
