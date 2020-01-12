@@ -1,6 +1,5 @@
 using NLPModels: increment!
 
-#Problem 5 in the Hock-Schittkowski suite
 function mgh01_autodiff()
 
   x0 = [-1.2; 1.0]

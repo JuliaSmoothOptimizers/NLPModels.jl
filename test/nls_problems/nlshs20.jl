@@ -1,6 +1,5 @@
 using NLPModels: increment!
 
-#Problem 5 in the Hock-Schittkowski suite
 function nlshs20_autodiff()
 
   x0 = [-2.0; 1.0]
