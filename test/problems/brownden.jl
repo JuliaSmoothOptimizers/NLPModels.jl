@@ -10,10 +10,10 @@ function brownden_autodiff()
 
   x0 = [25.0; 5.0; -5.0; -1.0]
   f(x) = begin
-    s = 0.0
+    T = eltype(x)
+    s = zero(T)
     for i = 1:20
-      s += ((x[1] + x[2] * i/5 - exp(i/5))^2 + (x[3] + x[4] * sin(i/5) -
-          cos(i/5))^2)^2
+      s += ((x[1] + x[2] * T(i)/5 - exp(T(i)/5))^2 + (x[3] + x[4] * sin(T(i)/5) - cos(T(i)/5))^2)^2
     end
     return s
   end
@@ -32,9 +32,9 @@ function BROWNDEN()
   return BROWNDEN(meta, Counters())
 end
 
-function NLPModels.obj(nlp :: BROWNDEN, x :: AbstractVector)
+function NLPModels.obj(nlp :: BROWNDEN, x :: AbstractVector{T}) where T
   increment!(nlp, :neval_obj)
-  return sum(((x[1] + x[2] * i/5 - exp(i/5))^2 + (x[3] + x[4] * sin(i/5) - cos(i/5))^2)^2 for i = 1:20)
+  return sum(((x[1] + x[2] * T(i)/5 - exp(T(i)/5))^2 + (x[3] + x[4] * sin(T(i)/5) - cos(T(i)/5))^2)^2 for i = 1:20)
 end
 
 function NLPModels.grad!(nlp :: BROWNDEN, x :: AbstractVector, gx :: AbstractVector)
@@ -46,22 +46,22 @@ function NLPModels.grad!(nlp :: BROWNDEN, x :: AbstractVector, gx :: AbstractVec
   return gx
 end
 
-function NLPModels.hess(nlp :: BROWNDEN, x :: AbstractVector; obj_weight=1.0)
+function NLPModels.hess(nlp :: BROWNDEN, x :: AbstractVector{T}; obj_weight=1.0) where T
   increment!(nlp, :neval_hess)
-  α(x,i) = x[1] + x[2] * i/5 - exp(i/5)
-  β(x,i) = x[3] + x[4] * sin(i/5) - cos(i/5)
-  Hx = zeros(4, 4)
+  α(x,i) = x[1] + x[2] * T(i)/5 - exp(T(i)/5)
+  β(x,i) = x[3] + x[4] * sin(T(i)/5) - cos(T(i)/5)
+  Hx = zeros(T, 4, 4)
   if obj_weight == 0
     return Hx
   end
   for i = 1:20
     αi, βi = α(x,i), β(x,i)
-    vi, wi = [1; i/5; 0; 0], [0; 0; 1; sin(i/5)]
+    vi, wi = T[1; i/5; 0; 0], T[0; 0; 1; sin(i/5)]
     zi = αi * vi + βi * wi
     θi = αi^2 + βi^2
     Hx += (4vi * vi' + 4wi * wi') * θi + 8zi * zi'
   end
-  return obj_weight * tril(Hx)
+  return T(obj_weight) * tril(Hx)
 end
 
 function NLPModels.hess_structure!(nlp :: BROWNDEN, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})

@@ -5,7 +5,7 @@ function hs10_autodiff()
 
   x0 = [-10.0; 10.0]
   f(x) = x[1] - x[2]
-  c(x) = [-3 * x[1]^2 + 2 * x[1] * x[2] - x[2]^2 + 1.0]
+  c(x) = [-3 * x[1]^2 + 2 * x[1] * x[2] - x[2]^2 + 1]
   lcon = [0.0]
   ucon = [Inf]
 
@@ -29,20 +29,20 @@ function NLPModels.obj(nlp :: HS10, x :: AbstractVector)
   return x[1] - x[2]
 end
 
-function NLPModels.grad!(nlp :: HS10, x :: AbstractVector, gx :: AbstractVector)
+function NLPModels.grad!(nlp :: HS10, x :: AbstractVector{T}, gx :: AbstractVector{T}) where T
   increment!(nlp, :neval_grad)
-  gx .= [1.0; -1.0]
+  gx .= T[1; -1]
   return gx
 end
 
-function NLPModels.hess(nlp :: HS10, x :: AbstractVector; obj_weight=1.0)
+function NLPModels.hess(nlp :: HS10, x :: AbstractVector{T}; obj_weight=1.0) where T
   increment!(nlp, :neval_hess)
-  return spzeros(2, 2)
+  return spzeros(T, 2, 2)
 end
 
-function NLPModels.hess(nlp :: HS10, x :: AbstractVector, y :: AbstractVector; obj_weight=1.0)
+function NLPModels.hess(nlp :: HS10, x :: AbstractVector{T}, y :: AbstractVector{T}; obj_weight=1.0) where T
   increment!(nlp, :neval_hess)
-  return y[1] * [-6.0  0.0; 2.0  -2.0]
+  return y[1] * T[-6.0  0.0; 2.0  -2.0]
 end
 
 function NLPModels.hess_structure!(nlp :: HS10, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
@@ -51,33 +51,33 @@ function NLPModels.hess_structure!(nlp :: HS10, rows :: AbstractVector{Int}, col
   return rows, cols
 end
 
-function NLPModels.hess_coord!(nlp :: HS10, x :: AbstractVector, vals :: AbstractVector; obj_weight=1.0)
+function NLPModels.hess_coord!(nlp :: HS10, x :: AbstractVector{T}, vals :: AbstractVector{T}; obj_weight=1.0) where T
   increment!(nlp, :neval_hess)
-  vals .= 0.0
+  vals .= zero(T)
   return vals
 end
 
-function NLPModels.hess_coord!(nlp :: HS10, x :: AbstractVector, y :: AbstractVector, vals :: AbstractVector; obj_weight=1.0)
+function NLPModels.hess_coord!(nlp :: HS10, x :: AbstractVector{T}, y :: AbstractVector{T}, vals :: AbstractVector{T}; obj_weight=1.0) where T
   increment!(nlp, :neval_hess)
-  vals .= [-6.0, 2.0, -2.0] * y[1]
+  vals .= T[-6, 2, -2] * y[1]
   return vals
 end
 
-function NLPModels.hprod!(nlp :: HS10, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0)
+function NLPModels.hprod!(nlp :: HS10, x :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=1.0) where T
   increment!(nlp, :neval_hprod)
-  fill!(Hv, 0.0)
+  fill!(Hv, zero(T))
   return Hv
 end
 
 function NLPModels.hprod!(nlp :: HS10, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0)
   increment!(nlp, :neval_hprod)
-  Hv[1:nlp.meta.nvar] .= y[1] * [-6.0 * v[1] + 2.0 * v[2]; 2.0 * v[1] - 2.0 * v[2]]
+  Hv[1:nlp.meta.nvar] .= y[1] * [-6 * v[1] + 2 * v[2]; 2 * v[1] - 2 * v[2]]
   return Hv
 end
 
 function NLPModels.cons!(nlp :: HS10, x :: AbstractVector, cx :: AbstractVector)
   increment!(nlp, :neval_cons)
-  cx .= [-3 * x[1]^2 + 2 * x[1] * x[2] - x[2]^2 + 1.0]
+  cx .= [-3 * x[1]^2 + 2 * x[1] * x[2] - x[2]^2 + 1]
   return cx
 end
 

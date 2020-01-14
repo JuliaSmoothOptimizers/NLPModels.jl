@@ -73,6 +73,7 @@ include("test_qn_model.jl")
 @printf("For tests to pass, all models must have been written identically.\n")
 @printf("Constraints, if any, must have been declared in the same order.\n")
 
+include("multiple-precision.jl")
 include("consistency.jl")
 @printf("%24s\tConsistency   Derivative Check   Quasi-Newton  Slack variant\n", " ")
 for problem in problems
@@ -82,6 +83,10 @@ for problem in problems
 
   nlps = [nlp_ad, nlp_man]
   consistent_nlps(nlps)
+
+  for nlp in nlps ∪ SlackModel.(nlps)
+      multiple_precision(nlp)
+  end
 end
 
 include("test_autodiff_model.jl")
@@ -98,10 +103,19 @@ for problem in ["LLS", "MGH01", "NLSHS20"]
     push!(nlss, eval(Meta.parse(spc))())
   end
   consistent_nlss(nlss)
+
+  # LLSModel returns the internal A for jac, hence it doesn't respect type input
+  idx = findall(typeof.(nlss) .== LLSModel)
+  if length(idx) > 0
+    deleteat!(nlss, idx)
+  end
+
+  for nls in nlss ∪ SlackNLSModel.(nlss) ∪ FeasibilityFormNLS.(nlss)
+    multiple_precision(nls)
+  end
   println("✓")
 end
 include("test_feasibility_form_nls.jl")
-include("multiple-precision.jl")
 include("test_view_subarray.jl")
 test_view_subarrays()
 include("test_memory_of_coord.jl")
