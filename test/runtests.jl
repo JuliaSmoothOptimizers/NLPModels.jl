@@ -1,8 +1,14 @@
 using Test, NLPModels, LinearAlgebra, LinearOperators, Printf, SparseArrays
 
+problems = ["BROWNDEN", "HS5", "HS6", "HS10", "HS11", "HS14"]
+nls_problems = ["LLS", "MGH01", "NLSHS20"]
+
 # Including problems so that they won't be multiply loaded
-for problem in [:brownden, :genrose, :hs5, :hs6, :hs10, :hs11, :hs14]
-  include("$problem.jl")
+for problem in problems ∪ ["GENROSE"] # GENROSE does not have a manual version, so it's separate
+  include("problems/$(lowercase(problem)).jl")
+end
+for problem in nls_problems
+  include("nls_problems/$(lowercase(problem)).jl")
 end
 
 println("Testing printing of nlp.meta")
@@ -69,15 +75,19 @@ include("test_qn_model.jl")
 
 include("consistency.jl")
 @printf("%24s\tConsistency   Derivative Check   Quasi-Newton  Slack variant\n", " ")
-for problem in ["brownden", "hs5", "hs6", "hs10", "hs11", "hs14"]
-  consistency(problem)
+for problem in problems
+  @printf("Checking problem %-20s", problem)
+  nlp_ad = eval(Meta.parse(lowercase(problem) * "_autodiff"))()
+  nlp_man = eval(Meta.parse(problem))()
+
+  nlps = [nlp_ad, nlp_man]
+  consistent_nlps(nlps)
 end
 
 include("test_autodiff_model.jl")
 include("test_nlsmodels.jl")
 include("nls_consistency.jl")
 for problem in ["LLS", "MGH01", "NLSHS20"]
-  include("nls_problems/$(lowercase(problem)).jl")
   @printf("Checking problem %-20s", problem)
   nls_ad = eval(Meta.parse(lowercase(problem) * "_autodiff"))()
   nls_man = eval(Meta.parse(problem))()
