@@ -29,18 +29,18 @@ end
 
 function NLPModels.grad!(nlp :: HS6, x :: AbstractVector, gx :: AbstractVector)
   increment!(nlp, :neval_grad)
-  gx .= [2 * (x[1] - 1); 0.0]
+  gx .= [2 * (x[1] - 1); 0]
   return gx
 end
 
-function NLPModels.hess(nlp :: HS6, x :: AbstractVector; obj_weight=1.0)
+function NLPModels.hess(nlp :: HS6, x :: AbstractVector{T}; obj_weight=one(T)) where T
   increment!(nlp, :neval_hess)
-  return [2.0 * obj_weight  0.0; 0.0 0.0]
+  return [2obj_weight  0; 0 0]
 end
 
-function NLPModels.hess(nlp :: HS6, x :: AbstractVector, y :: AbstractVector; obj_weight=1.0)
+function NLPModels.hess(nlp :: HS6, x :: AbstractVector{T}, y :: AbstractVector{T}; obj_weight=one(T)) where T
   increment!(nlp, :neval_hess)
-  return [2.0 * obj_weight - 20 * y[1]   0.0; 0.0 0.0]
+  return [2obj_weight - 20y[1]   0; 0 0]
 end
 
 function NLPModels.hess_structure!(nlp :: HS6, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
@@ -49,27 +49,27 @@ function NLPModels.hess_structure!(nlp :: HS6, rows :: AbstractVector{Int}, cols
   return rows, cols
 end
 
-function NLPModels.hess_coord!(nlp :: HS6, x :: AbstractVector, vals :: AbstractVector; obj_weight=1.0)
+function NLPModels.hess_coord!(nlp :: HS6, x :: AbstractVector{T}, vals :: AbstractVector{T}; obj_weight=one(T)) where T
   increment!(nlp, :neval_hess)
-  vals[1] = 2.0 * obj_weight
+  vals[1] = 2obj_weight
   return vals
 end
 
-function NLPModels.hess_coord!(nlp :: HS6, x :: AbstractVector, y :: AbstractVector, vals :: AbstractVector; obj_weight=1.0)
+function NLPModels.hess_coord!(nlp :: HS6, x :: AbstractVector{T}, y :: AbstractVector{T}, vals :: AbstractVector{T}; obj_weight=one(T)) where T
   increment!(nlp, :neval_hess)
-  vals[1] = 2.0 * obj_weight - 20 * y[1]
+  vals[1] = 2obj_weight - 20y[1]
   return vals
 end
 
-function NLPModels.hprod!(nlp :: HS6, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0)
+function NLPModels.hprod!(nlp :: HS6, x :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=one(T)) where T
   increment!(nlp, :neval_hprod)
-  Hv .= [2.0 * obj_weight * v[1]; 0.0]
+  Hv .= [2obj_weight * v[1]; 0]
   return Hv
 end
 
-function NLPModels.hprod!(nlp :: HS6, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0)
+function NLPModels.hprod!(nlp :: HS6, x :: AbstractVector{T}, y :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=one(T)) where T
   increment!(nlp, :neval_hprod)
-  Hv .= [(2.0 * obj_weight - 20 * y[1]) * v[1]; 0.0]
+  Hv .= [(2obj_weight - 20y[1]) * v[1]; 0]
   return Hv
 end
 
@@ -81,7 +81,7 @@ end
 
 function NLPModels.jac(nlp :: HS6, x :: AbstractVector)
   increment!(nlp, :neval_jac)
-  return [-20 * x[1]  10.0]
+  return [-20 * x[1]  10]
 end
 
 function NLPModels.jac_structure!(nlp :: HS6, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
@@ -93,7 +93,7 @@ end
 function NLPModels.jac_coord!(nlp :: HS6, x :: AbstractVector, vals :: AbstractVector)
   increment!(nlp, :neval_jac)
   vals[1] = -20 * x[1]
-  vals[2] = 10.0
+  vals[2] = 10
   return vals
 end
 

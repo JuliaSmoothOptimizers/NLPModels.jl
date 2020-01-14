@@ -1,34 +1,31 @@
-function multiple_precision()
-  @testset "Test multiple precision models" begin
-    for T = [Float16, Float32, Float64, BigFloat]
-      nlp = ADNLPModel(x->sum(x.^4), ones(T, 2),
-                       c=x->[x[1]^2 + x[2]^2 - 1; x[1] * x[2]],
-                       lcon=zeros(T, 2), ucon=zeros(T, 2))
-      x = nlp.meta.x0
-      @test typeof(obj(nlp, x)) == T
-      @test eltype(grad(nlp, x)) == T
-      @test eltype(hess(nlp, x)) == T
-      @test eltype(hess(nlp, x, ones(T, 2))) == T
-      @test eltype(hess(nlp, x, ones(T, 2), obj_weight=one(T))) == T
+function multiple_precision(nlp :: AbstractNLPModel;
+                            precisions :: Array = [Float16, Float32, Float64, BigFloat])
+  for T in precisions
+    x = ones(T, nlp.meta.nvar)
+    @test typeof(obj(nlp, x)) == T
+    @test eltype(grad(nlp, x)) == T
+    @test eltype(hess(nlp, x)) == T
+    if nlp.meta.ncon > 0
       @test eltype(cons(nlp, x)) == T
       @test eltype(jac(nlp, x)) == T
-
-      nls = ADNLSModel(x->[x[1] - 1; exp(x[2]) - x[1]; sin(x[1]) * x[2]], ones(T, 2), 3,
-                       c=x->[x[1]^2 + x[2]^2 - 1; x[1] * x[2]],
-                       lcon=zeros(T, 2), ucon=zeros(T, 2))
-      x = nlp.meta.x0
-      @test typeof(obj(nls, x)) == T
-      @test eltype(grad(nls, x)) == T
-      @test eltype(hess(nls, x)) == T
-      @test eltype(hess(nlp, x, ones(T, 2))) == T
-      @test eltype(hess(nlp, x, ones(T, 2), obj_weight=one(T))) == T
-      @test eltype(cons(nls, x)) == T
-      @test eltype(jac(nls, x)) == T
-      @test eltype(residual(nls, x)) == T
-      @test eltype(jac_residual(nls, x)) == T
-      @test eltype(hess_residual(nls, x, ones(T, 3))) == T
+      @test eltype(hess(nlp, x, ones(T, nlp.meta.ncon))) == T
+      @test eltype(hess(nlp, x, ones(T, nlp.meta.ncon), obj_weight=one(T))) == T
     end
   end
 end
 
-multiple_precision()
+function multiple_precision(nls :: AbstractNLSModel;
+                            precisions :: Array = [Float16, Float32, Float64, BigFloat])
+  for T in precisions
+    x = ones(T, nls.meta.nvar)
+    @test eltype(residual(nls, x)) == T
+    @test eltype(jac_residual(nls, x)) == T
+    @test eltype(hess_residual(nls, x, ones(T, nls.nls_meta.nequ))) == T
+    @test typeof(obj(nls, x)) == T
+    @test eltype(grad(nls, x)) == T
+    if nls.meta.ncon > 0
+      @test eltype(cons(nls, x)) == T
+      @test eltype(jac(nls, x)) == T
+    end
+  end
+end

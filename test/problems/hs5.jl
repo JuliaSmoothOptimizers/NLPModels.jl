@@ -4,7 +4,7 @@ using NLPModels: increment!
 function hs5_autodiff()
 
   x0 = [0.0; 0.0]
-  f(x) = sin(x[1] + x[2]) + (x[1] - x[2])^2 - 1.5 * x[1] + 2.5 * x[2] + 1
+  f(x) = sin(x[1] + x[2]) + (x[1] - x[2])^2 - 3x[1] / 2 + 5x[2] / 2 + 1
   l = [-1.5; -3.0]
   u = [4.0; 3.0]
 
@@ -24,18 +24,18 @@ end
 
 function NLPModels.obj(nlp :: HS5, x :: AbstractVector)
   increment!(nlp, :neval_obj)
-  return sin(x[1] + x[2]) + (x[1] - x[2])^2 - 1.5 * x[1] + 2.5 * x[2] + 1
+  return sin(x[1] + x[2]) + (x[1] - x[2])^2 - 3x[1] / 2 + 5x[2] / 2 + 1
 end
 
-function NLPModels.grad!(nlp :: HS5, x :: AbstractVector, gx :: AbstractVector)
+function NLPModels.grad!(nlp :: HS5, x :: AbstractVector{T}, gx :: AbstractVector{T}) where T
   increment!(nlp, :neval_grad)
-  gx .= cos(x[1] + x[2]) * ones(2) + 2 * (x[1] - x[2]) * [1.0; -1.0] + [-1.5; 2.5]
+  gx .= cos(x[1] + x[2]) * ones(T, 2) + 2 * (x[1] - x[2]) * T[1; -1] + T[-1.5; 2.5]
   return gx
 end
 
-function NLPModels.hess(nlp :: HS5, x :: AbstractVector; obj_weight=1.0)
+function NLPModels.hess(nlp :: HS5, x :: AbstractVector{T}; obj_weight=one(T)) where T
   increment!(nlp, :neval_hess)
-  return tril(-sin(x[1] + x[2])*ones(2, 2) + [2.0 -2.0; -2.0 2.0]) * obj_weight
+  return tril(-sin(x[1] + x[2])*ones(T, 2, 2) + T[2 -2; -2 2]) * obj_weight
 end
 
 function NLPModels.hess_structure!(nlp :: HS5, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
@@ -53,8 +53,8 @@ function NLPModels.hess_coord!(nlp :: HS5, x :: AbstractVector, vals :: Abstract
   return vals
 end
 
-function NLPModels.hprod!(nlp :: HS5, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0)
+function NLPModels.hprod!(nlp :: HS5, x :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=one(T)) where T
   increment!(nlp, :neval_hprod)
-  Hv .= (- sin(x[1] + x[2]) * (v[1] + v[2]) * ones(2) + 2 * [v[1] - v[2]; v[2] - v[1]]) * obj_weight
+  Hv .= (- sin(x[1] + x[2]) * (v[1] + v[2]) * ones(T, 2) + 2 * [v[1] - v[2]; v[2] - v[1]]) * obj_weight
   return Hv
 end
