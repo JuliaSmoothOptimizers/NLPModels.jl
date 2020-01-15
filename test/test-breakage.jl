@@ -51,8 +51,11 @@ function test_breakage()
       end
 
       cd(joinpath(thispath, "test-breakage"))
+      rm("$package.jl", force=true, recursive=true)
       try
         # Testing on last tagged version
+        url = "https://github.com/JuliaSmoothOptimizers/$package.jl"
+        Git.run(`clone $url`)
         cd("$package.jl")
         tag = split(Git.readstring(`tag`))[end]
         tagged[i] = tag
