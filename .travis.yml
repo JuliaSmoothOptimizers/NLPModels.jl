@@ -29,15 +29,53 @@ branches:
 
 jobs:
   include:
-    - stage: Breakage
+    - &breakage
+      stage: Breakage
       julia: 1.3
       os: linux
       if: type = pull_request
+      script:
+        - julia -e 'using Pkg; pkg"add Git"; pkg"add JSON"; include("test/test-breakage.jl")'
+      after_success: skip
+      env: PKG=AmplNLReader     VERSION=master
+    - <<: *breakage
+      env: PKG=AmplNLReader     VERSION=stable
+    - <<: *breakage
+      env: PKG=CUTEst           VERSION=master
       addons:
         apt_packages:
           - gfortran
+    - <<: *breakage
+      env: PKG=CUTEst           VERSION=stable
+      addons:
+        apt_packages:
+          - gfortran
+    - <<: *breakage
+      env: PKG=CaNNOLeS         VERSION=master
+    - <<: *breakage
+      env: PKG=CaNNOLeS         VERSION=stable
+    - <<: *breakage
+      env: PKG=NLPModelsIpopt   VERSION=master
+    - <<: *breakage
+      env: PKG=NLPModelsIpopt   VERSION=stable
+    - <<: *breakage
+      env: PKG=NLPModelsJuMP    VERSION=master
+    - <<: *breakage
+      env: PKG=NLPModelsJuMP    VERSION=stable
+    - <<: *breakage
+      env: PKG=QuadraticModels  VERSION=master
+    - <<: *breakage
+      env: PKG=QuadraticModels  VERSION=stable
+    - <<: *breakage
+      env: PKG=SolverTools      VERSION=master
+    - <<: *breakage
+      env: PKG=SolverTools      VERSION=stable
+    - stage: "Breakage Deploy"
+      julia: 1.3
+      os: linux
+      if: type = pull_request
       script:
-        - julia -e 'using Pkg; pkg"add Git"; pkg"add GitHub"; include("test/test-breakage.jl")'
+        - julia -e 'using Pkg; pkg"add Git"; pkg"add GitHub"; pkg"add JSON"; include("test/test-breakage-deploy.jl")'
       after_success: skip
     - stage: Documentation
       julia: 1.3
@@ -50,6 +88,4 @@ jobs:
 after_success:
   - julia -e 'if Sys.islinux() && string(VERSION)[1:3] == "1.3"
       using Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())
-    else
-      println("Coverage skipped")
     end'

@@ -1,110 +1,89 @@
-using Git, GitHub, Pkg
+using Git, JSON, Pkg
 
 """
     test_breakage()
 
-Downloads each package and check if tests pass using the master of NLPModels.jl.
+Downloads a package (given by ENV["PKG"]) and check if its tests pass using the pull request version of NLPModels.jl.
 Packages are checked in two situations:
 
-- Tagged version
-- master branch
+- stable version (ENV["stable"])
+- master branch  (ENV["master"])
 
 If any tagged version breaks then the next version should be a major update or
 the broken package has bugs.
 """
 function test_breakage()
-  packages = ["AmplNLReader", "CaNNOLeS", "CUTEst", "QuadraticModels", "NLPModelsIpopt",
-              "NLPModelsJuMP", "SolverTools"]
+  if lowercase(get(ENV, "TRAVIS", "false")) == "false"
+    error("Only run in travis")
+  end
+  if get(ENV, "GITHUB_AUTH", nothing) === nothing
+    error("GITHUB_AUTH not found")
+  end
+  key = ENV["GITHUB_AUTH"]
 
-  msg(s) = printstyled(s, color=:red, bold=true)
-  msgn(s) = printstyled(s * "\n", color=:red, bold=true)
+  package = get(ENV, "PKG", nothing)
+  version = get(ENV, "VERSION", nothing)
+  package === nothing || version === nothing && error("No environment variable PKG defined")
+  tag = version
 
-  passing = fill(false, length(packages))
-  passing_master = fill(false, length(packages))
-  tagged = fill("", length(packages))
-
-  master_fail = "![](https://img.shields.io/badge/master-Fail-red)"
-  master_pass = "![](https://img.shields.io/badge/master-Pass-green)"
-  version_fail(n) = "![](https://img.shields.io/badge/$n-Fail-red)"
-  version_pass(n) = "![](https://img.shields.io/badge/$n-Pass-green)"
-
+  passing = false
   thispath = pwd()
   mkpath("test-breakage")
   try
-    for (i,package) in enumerate(packages)
-      msgn("#"^100)
-      msgn("  Testing package $package")
-      msgn("#"^100)
-      cd(joinpath(thispath, "test-breakage"))
-      try
-        url = "https://github.com/JuliaSmoothOptimizers/$package.jl"
-        Git.run(`clone $url`)
-        cd("$package.jl")
-        pkg"activate ."
-        pkg"instantiate"
-        pkg"dev ../.."
-        pkg"build"
-        pkg"test"
-        passing_master[i] = true
-      catch e
-        println(e)
-      end
+    println("#"^100)
+    println("  Testing package $package")
+    println("#"^100)
 
-      cd(joinpath(thispath, "test-breakage"))
-      rm("$package.jl", force=true, recursive=true)
-      try
-        # Testing on last tagged version
-        url = "https://github.com/JuliaSmoothOptimizers/$package.jl"
-        Git.run(`clone $url`)
-        cd("$package.jl")
-        tag = split(Git.readstring(`tag`))[end]
-        tagged[i] = tag
-        Git.run(`checkout $tag`)
-        pkg"up"
-        pkg"build"
-        pkg"test"
-        passing[i] = true
-      catch e
-        println(e)
-      end
+    cd(joinpath(thispath, "test-breakage"))
+    url = "https://github.com/JuliaSmoothOptimizers/$package.jl"
+    Git.run(`clone $url`)
+    cd("$package.jl")
+    if version == "stable"
+      tag = split(Git.readstring(`tag`))[end]
+      Git.run(`checkout $tag`)
     end
-  catch ex
-    @error ex
-  finally
-    cd(thispath)
+    pkg"activate ."
+    pkg"instantiate"
+    pkg"dev ../.."
+    pkg"build"
+    pkg"test"
+    passing = true
+  catch e
+    println(e)
   end
 
-  msgn("Summary\n")
-  for (i,package) in enumerate(packages)
-    msgn("- $package")
-    msgn("  Master branch: " * (passing_master[i] ? "✓" : "x"))
-    msgn("  Version $(tagged[i]): " * (passing[i] ? "✓" : "x"))
+  # Enter branch breakage-info and commit file $package-$version
+  info = Dict(:pass => passing,
+              :travis_link => ENV["TRAVIS_JOB_WEB_URL"],
+              :pr => ENV["TRAVIS_PULL_REQUEST"],
+              :tag => tag
+             )
+  cd(thispath)
+  repo = ENV["TRAVIS_REPO_SLUG"]
+  user = split(repo, "/")[1]
+  upstream = "https://$user:$key@github.com/$repo"
+  Git.run(`remote add upstream $upstream`)
+  Git.run(`fetch upstream`)
+  if !success(`git checkout -f -b breakage-info upstream/breakage-info`)
+    Git.run(`checkout --orphan breakage-info`)
+    Git.run(`reset --hard`)
+    Git.run(`commit --allow-empty -m "Initial commit"`)
   end
-
-  if lowercase(get(ENV, "TRAVIS", "false")) == "true"
-    if get(ENV, "GITHUB_AUTH", nothing) === nothing
-      @warn "GITHUB_AUTH not found, skipping comment push"
-      return
+  open("$package-$version", "w") do io
+    JSON.print(io, info, 2)
+  end
+  Git.run(`add $package-$version`)
+  Git.run(`commit -m ":robot: test-breakage of $package-$version"`)
+  tries = 0
+  while !Git.success(`push upstream breakage-info`)
+    if tries > 10
+      error("Too many failures in pushing")
     end
-    myauth = GitHub.authenticate(ENV["GITHUB_AUTH"])
-    myrepo = repo(ENV["TRAVIS_PULL_REQUEST_SLUG"], auth=myauth) # "JuliaSmoothOptimizers/NLPModels.jl"
-    prs = pull_requests(myrepo, auth=myauth)
-    pr = nothing
-    for p in prs[1]
-      if p.merge_commit_sha == ENV["TRAVIS_COMMIT"]
-        pr = p
-      end
-    end
-
-    output = ":robot: Testing breakage of this commit\n\n"
-    output *= "| Package Name | master | Tagged |\n"
-    output *= "|--|--|--|\n"
-    for (i,package) in enumerate(packages)
-      output *= "| $package | "
-      output *= (passing_master[i] ? master_pass : master_fail) * " | "
-      output *= (passing[i] ? version_pass(tagged[i]) : version_fail(tagged[i])) * " |\n"
-    end
-    create_comment(GitHub.DEFAULT_API, myrepo, pr, :pr, auth=myauth, params=Dict(:body => output))
+    @warn("push failed, trying again")
+    sleep(5)
+    Git.run(`fetch upstream`)
+    Git.run(`merge upstream/breakage-info`)
+    tries += 1
   end
 end
 
