@@ -60,7 +60,9 @@ function test_breakage()
         tag = split(Git.readstring(`tag`))[end]
         tagged[i] = tag
         Git.run(`checkout $tag`)
-        pkg"up"
+        pkg"activate ."
+        pkg"instantiate"
+        pkg"dev ../.."
         pkg"build"
         pkg"test"
         passing[i] = true
