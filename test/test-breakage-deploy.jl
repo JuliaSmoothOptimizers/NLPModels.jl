@@ -48,7 +48,7 @@ function test_breakage_deploy()
   prs = pull_requests(myrepo, auth=myauth)
   pr = nothing
   for p in prs[1]
-    if p.merge_commit_sha == ENV["TRAVIS_COMMIT"]
+    if p.number == Meta.parse(ENV["TRAVIS_PULL_REQUEST"])
       pr = p
     end
   end
