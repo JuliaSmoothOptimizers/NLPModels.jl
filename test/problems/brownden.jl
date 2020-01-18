@@ -84,7 +84,7 @@ function NLPModels.hess_coord!(nlp :: BROWNDEN, x :: AbstractVector, vals :: Abs
   return vals
 end
 
-function NLPModels.hprod!(nlp :: BROWNDEN, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0)
+function NLPModels.hprod!(nlp :: BROWNDEN, x :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=one(T)) where T
   increment!(nlp, :neval_hprod)
   α(x,i) = x[1] + x[2] * i/5 - exp(i/5)
   β(x,i) = x[3] + x[4] * sin(i/5) - cos(i/5)
@@ -97,7 +97,7 @@ function NLPModels.hprod!(nlp :: BROWNDEN, x :: AbstractVector, v :: AbstractVec
     vi, wi = [1; i/5; 0; 0], [0; 0; 1; sin(i/5)]
     zi = αi * vi + βi * wi
     θi = αi^2 + βi^2
-    Hv .+= (4 * dot(vi, v) * vi + 4 * dot(wi, v) * wi) * θi + 8 * dot(zi, v) * zi
+    Hv .+= obj_weight * ((4 * dot(vi, v) * vi + 4 * dot(wi, v) * wi) * θi + 8 * dot(zi, v) * zi)
   end
   return Hv
 end
