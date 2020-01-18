@@ -122,22 +122,24 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
   v = 10 * [-(-1.0)^i for i = 1:n]
 
   if !(hprod in exclude)
-    Hvs = Any[hprod(nlp, x, v) for nlp in nlps]
-    Hopvs = Any[hess_op(nlp, x) * v for nlp in nlps]
-    Hvmin = minimum(map(norm, Hvs))
-    for i = 1:N
-      for j = i+1:N
-        @test isapprox(Hvs[i], Hvs[j], atol=rtol * max(Hvmin, 1.0))
-        @test isapprox(Hvs[i], Hopvs[j], atol=rtol * max(Hvmin, 1.0))
+    for σ = [1.0; 0.5]
+      Hvs = Any[hprod(nlp, x, v, obj_weight=σ) for nlp in nlps]
+      Hopvs = Any[hess_op(nlp, x, obj_weight=σ) * v for nlp in nlps]
+      Hvmin = minimum(map(norm, Hvs))
+      for i = 1:N
+        for j = i+1:N
+          @test isapprox(Hvs[i], Hvs[j], atol=rtol * max(Hvmin, 1.0))
+          @test isapprox(Hvs[i], Hopvs[j], atol=rtol * max(Hvmin, 1.0))
+        end
+        tmphv = hprod!(nlps[i], x, v, tmp_n, obj_weight=σ)
+        @test isapprox(Hvs[i], tmp_n, atol=rtol * max(Hvmin, 1.0))
+        @test isapprox(tmphv, tmp_n, atol=rtol * max(Hvmin, 1.0))
+        fill!(tmp_n, 0)
+        H = hess_op!(nlps[i], x, tmp_n, obj_weight=σ)
+        res = H * v
+        @test isapprox(res, Hvs[i], atol=rtol * max(Hvmin, 1.0))
+        @test isapprox(res, tmp_n, atol=rtol * max(Hvmin, 1.0))
       end
-      tmphv = hprod!(nlps[i], x, v, tmp_n)
-      @test isapprox(Hvs[i], tmp_n, atol=rtol * max(Hvmin, 1.0))
-      @test isapprox(tmphv, tmp_n, atol=rtol * max(Hvmin, 1.0))
-      fill!(tmp_n, 0)
-      H = hess_op!(nlps[i], x, tmp_n)
-      res = H * v
-      @test isapprox(res, Hvs[i], atol=rtol * max(Hvmin, 1.0))
-      @test isapprox(res, tmp_n, atol=rtol * max(Hvmin, 1.0))
     end
   end
 
@@ -305,13 +307,15 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
     end
 
     if !(hprod in exclude)
-      Lps = Any[hprod(nlp, x, y, v) for nlp in nlps]
-      Hopvs = Any[hess_op(nlp, x, y) * v for nlp in nlps]
-      Lpmin = minimum(map(norm, Lps))
-      for i = 1:N-1
-        for j = i+1:N
-          @test isapprox(Lps[i], Lps[j], atol=rtol * max(Lpmin, 1.0))
-          @test isapprox(Lps[i], Hopvs[j], atol=rtol * max(Lpmin, 1.0))
+      for σ = [1.0; 0.5]
+        Lps = Any[hprod(nlp, x, y, v, obj_weight=σ) for nlp in nlps]
+        Hopvs = Any[hess_op(nlp, x, y, obj_weight=σ) * v for nlp in nlps]
+        Lpmin = minimum(map(norm, Lps))
+        for i = 1:N-1
+          for j = i+1:N
+            @test isapprox(Lps[i], Lps[j], atol=rtol * max(Lpmin, 1.0))
+            @test isapprox(Lps[i], Hopvs[j], atol=rtol * max(Lpmin, 1.0))
+          end
         end
       end
     end
