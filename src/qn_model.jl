@@ -16,13 +16,13 @@ end
 
 "Construct a `LBFGSModel` from another type of model."
 function LBFGSModel(nlp :: AbstractNLPModel; memory :: Int=5)
-  op = LBFGSOperator(nlp.meta.nvar, memory)
+  op = LBFGSOperator(nlp.nvar, memory)
   return LBFGSModel(nlp.meta, nlp, op)
 end
 
 "Construct a `LSR1Model` from another type of nlp."
 function LSR1Model(nlp :: AbstractNLPModel; memory :: Int=5)
-  op = LSR1Operator(nlp.meta.nvar, memory)
+  op = LSR1Operator(nlp.nvar, memory)
   return LSR1Model(nlp.meta, nlp, op)
 end
 
@@ -65,7 +65,7 @@ hess_op(nlp :: QuasiNewtonModel, x :: AbstractVector; kwargs...) = nlp.op
 hprod(nlp :: QuasiNewtonModel, x :: AbstractVector, v :: AbstractVector; kwargs...) = nlp.op * v
 function hprod!(nlp :: QuasiNewtonModel, x :: AbstractVector,
                 v :: AbstractVector, Hv :: AbstractVector; kwargs...)
-  Hv[1:nlp.meta.nvar] .= nlp.op * v
+  Hv[1:nlp.nvar] .= nlp.op * v
   return Hv
 end
 

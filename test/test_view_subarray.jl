@@ -1,6 +1,6 @@
 function test_view_subarray_nlp(nlp)
   @testset "Test view subarray of NLPs" begin
-    n, m = nlp.meta.nvar, nlp.meta.ncon
+    n, m = nlp.nvar, nlp.ncon
     N = 2n
     Vidxs = [1:2:N, collect(N:-2:1)]
     Cidxs = if m > 0
@@ -114,7 +114,7 @@ end
 
 function test_view_subarray_nls(nls)
   @testset "Test view subarray of NLSs" begin
-    n, ne = nls.meta.nvar, nls.nls_meta.nequ
+    n, ne = nls.nvar, nls.nls_nequ
     N = 2n
     Vidxs = [1:n, n.+(1:n), 1:2:N, collect(N:-2:1)]
     N = 2ne

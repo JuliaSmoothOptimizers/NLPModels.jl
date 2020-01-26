@@ -140,7 +140,7 @@ end
 
 function cons!(nls :: LLSModel, x :: AbstractVector, c :: AbstractVector)
   increment!(nls, :neval_cons)
-  c[1:nls.meta.ncon] = nls.C * x
+  c[1:nls.ncon] = nls.C * x
   return c
 end
 
@@ -181,13 +181,13 @@ end
 
 function jprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nls, :neval_jprod)
-  Jv[1:nls.meta.ncon] = nls.C * v
+  Jv[1:nls.ncon] = nls.C * v
   return Jv
 end
 
 function jtprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nls, :neval_jtprod)
-  Jtv[1:nls.meta.nvar] = nls.C' * v
+  Jtv[1:nls.nvar] = nls.C' * v
   return Jtv
 end
 

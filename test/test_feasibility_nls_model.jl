@@ -11,10 +11,10 @@ function feasibility_nls_test()
                      lcon=-ones(2), ucon=2*ones(2))
     nls = FeasibilityResidual(nlp)
 
-    @test nls.meta.nvar == 4
-    @test nls.nls_meta.nequ == 2
-    @test nls.meta.lvar == [-0.3; -0.5; -1.0; -1.0]
-    @test nls.meta.uvar == [ 1.2;  3.4;  2.0;  2.0]
+    @test nls.nvar == 4
+    @test nls.nls_nequ == 2
+    @test nls.lvar == [-0.3; -0.5; -1.0; -1.0]
+    @test nls.uvar == [ 1.2;  3.4;  2.0;  2.0]
     @test isapprox(residual(nls, [1.0; 1.0; 0.0; 0.0]), zeros(2), rtol=1e-8)
     @test isapprox(residual(nls, [0.0; 1.0; 2.0; 3.0]), [-3.0; -2.0], rtol=1e-8)
   end

@@ -71,7 +71,7 @@ end
 
 function NLPModels.hprod!(nlp :: HS10, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0)
   increment!(nlp, :neval_hprod)
-  Hv[1:nlp.meta.nvar] .= y[1] * [-6 * v[1] + 2 * v[2]; 2 * v[1] - 2 * v[2]]
+  Hv[1:nlp.nvar] .= y[1] * [-6 * v[1] + 2 * v[2]; 2 * v[1] - 2 * v[2]]
   return Hv
 end
 

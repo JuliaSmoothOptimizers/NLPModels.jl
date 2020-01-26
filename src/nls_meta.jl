@@ -25,3 +25,15 @@ function NLSMeta(nequ :: Int, nvar :: Int;
   nnzh = max(0, nnzh)
   return NLSMeta(nequ, nvar, x0, nnzj, nnzh)
 end
+
+const nls_fields = Dict(Symbol("nls_$x") => x for x in fieldnames(NLSMeta))
+
+function Base.getproperty(nls :: AbstractNLSModel, f :: Symbol)
+  if f in keys(nls_fields)
+    return getproperty(nls.nls_meta, nls_fields[f])
+  end
+  if f in fieldnames(NLPModelMeta)
+    return getproperty(nls.meta, f)
+  end
+  return getfield(nls, f)
+end

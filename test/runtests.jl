@@ -50,20 +50,20 @@ end
 
 # ADNLPModel with no functions
 model = ADNLPModel(x->dot(x,x), zeros(2), name="square")
-@assert model.meta.name == "square"
+@assert model.name == "square"
 
 model = genrose_autodiff()
 for counter in fieldnames(typeof(model.counters))
   @eval @assert $counter(model) == 0
 end
 
-obj(model, model.meta.x0)
+obj(model, model.x0)
 @assert neval_obj(model) == 1
 
 reset!(model)
 @assert neval_obj(model) == 0
 
-@test_throws(NotImplementedError, jth_con(model, model.meta.x0, 1))
+@test_throws(NotImplementedError, jth_con(model, model.x0, 1))
 
 include("test_tools.jl")
 

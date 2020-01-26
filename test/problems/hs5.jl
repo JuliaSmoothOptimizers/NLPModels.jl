@@ -39,7 +39,7 @@ function NLPModels.hess(nlp :: HS5, x :: AbstractVector{T}; obj_weight=one(T)) w
 end
 
 function NLPModels.hess_structure!(nlp :: HS5, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
-  I = ((i,j) for i = 1:nlp.meta.nvar, j = 1:nlp.meta.nvar if i ≥ j)
+  I = ((i,j) for i = 1:nlp.nvar, j = 1:nlp.nvar if i ≥ j)
   rows .= getindex.(I, 1)
   cols .= getindex.(I, 2)
   return rows, cols

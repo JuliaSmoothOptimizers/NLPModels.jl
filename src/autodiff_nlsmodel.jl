@@ -54,7 +54,7 @@ ADNLSModel(F, n :: Int, m :: Int; kwargs...) = ADNLSModel(F, zeros(n), m; kwargs
 
 function residual!(nls :: ADNLSModel, x :: AbstractVector, Fx :: AbstractVector)
   increment!(nls, :neval_residual)
-  Fx[1:nls.nls_meta.nequ] = nls.F(x)
+  Fx[1:nls.nls_nequ] = nls.F(x)
   return Fx
 end
 
@@ -64,7 +64,7 @@ function jac_residual(nls :: ADNLSModel, x :: AbstractVector)
 end
 
 function jac_structure_residual!(nls :: ADNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
-  m, n = nls.nls_meta.nequ, nls.meta.nvar
+  m, n = nls.nls_nequ, nls.nvar
   I = ((i,j) for i = 1:m, j = 1:n)
   rows .= getindex.(I, 1)[:]
   cols .= getindex.(I, 2)[:]
@@ -80,13 +80,13 @@ end
 
 function jprod_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nls, :neval_jprod_residual)
-  Jv[1:nls.nls_meta.nequ] = ForwardDiff.derivative(t -> nls.F(x + t * v), 0)
+  Jv[1:nls.nls_nequ] = ForwardDiff.derivative(t -> nls.F(x + t * v), 0)
   return Jv
 end
 
 function jtprod_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nls, :neval_jtprod_residual)
-  Jtv[1:nls.meta.nvar] = ForwardDiff.gradient(x -> dot(nls.F(x), v), x)
+  Jtv[1:nls.nvar] = ForwardDiff.gradient(x -> dot(nls.F(x), v), x)
   return Jtv
 end
 
@@ -96,7 +96,7 @@ function hess_residual(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVect
 end
 
 function hess_structure_residual!(nls :: ADNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
-  n = nls.meta.nvar
+  n = nls.nvar
   I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
   rows .= getindex.(I, 1)
   cols .= getindex.(I, 2)
@@ -107,8 +107,8 @@ function hess_coord_residual!(nls :: ADNLSModel, x :: AbstractVector, v :: Abstr
   increment!(nls, :neval_hess_residual)
   Hx = ForwardDiff.jacobian(x->ForwardDiff.jacobian(nls.F, x)' * v, x)
   k = 1
-  for j = 1:nls.meta.nvar
-    for i = j:nls.meta.nvar
+  for j = 1:nls.nvar
+    for i = j:nls.nvar
       vals[k] = Hx[i,j]
       k += 1
     end
@@ -123,13 +123,13 @@ end
 
 function hprod_residual!(nls :: ADNLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
   increment!(nls, :neval_hprod_residual)
-  Hiv[1:nls.meta.nvar] = ForwardDiff.derivative(t -> ForwardDiff.gradient(x -> nls.F(x)[i], x + t * v), 0)
+  Hiv[1:nls.nvar] = ForwardDiff.derivative(t -> ForwardDiff.gradient(x -> nls.F(x)[i], x + t * v), 0)
   return Hiv
 end
 
 function cons!(nls :: ADNLSModel, x :: AbstractVector, c :: AbstractVector)
   increment!(nls, :neval_cons)
-  c[1:nls.meta.ncon] = nls.c(x)
+  c[1:nls.ncon] = nls.c(x)
   return c
 end
 
@@ -139,7 +139,7 @@ function jac(nls :: ADNLSModel, x :: AbstractVector)
 end
 
 function jac_structure!(nls :: ADNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
-  m, n = nls.meta.ncon, nls.meta.nvar
+  m, n = nls.ncon, nls.nvar
   I = ((i,j) for i = 1:m, j = 1:n)
   rows .= getindex.(I, 1)[:]
   cols .= getindex.(I, 2)[:]
@@ -154,13 +154,13 @@ end
 
 function jprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nls, :neval_jprod)
-  Jv[1:nls.meta.ncon] = ForwardDiff.derivative(t -> nls.c(x + t * v), 0)
+  Jv[1:nls.ncon] = ForwardDiff.derivative(t -> nls.c(x + t * v), 0)
   return Jv
 end
 
 function jtprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nls, :neval_jtprod)
-  Jtv[1:nls.meta.nvar] = ForwardDiff.gradient(x -> dot(nls.c(x), v), x)
+  Jtv[1:nls.nvar] = ForwardDiff.gradient(x -> dot(nls.c(x), v), x)
   return Jtv
 end
 
@@ -179,7 +179,7 @@ function hess(nls :: ADNLSModel, x :: AbstractVector, y :: AbstractVector; obj_w
 end
 
 function hess_structure!(nls :: ADNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
-  n = nls.meta.nvar
+  n = nls.nvar
   I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
   rows .= getindex.(I, 1)
   cols .= getindex.(I, 2)
@@ -191,8 +191,8 @@ function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, vals :: AbstractVec
   ℓ(x) = obj_weight * sum(nls.F(x).^2) / 2
   Hx = ForwardDiff.hessian(ℓ, x)
   k = 1
-  for j = 1:nls.meta.nvar
-    for i = j:nls.meta.nvar
+  for j = 1:nls.nvar
+    for i = j:nls.nvar
       vals[k] = Hx[i,j]
       k += 1
     end
@@ -205,8 +205,8 @@ function hess_coord!(nls :: ADNLSModel, x :: AbstractVector, y :: AbstractVector
   ℓ(x) = obj_weight * sum(nls.F(x).^2) / 2 + dot(y, nls.c(x))
   Hx = ForwardDiff.hessian(ℓ, x)
   k = 1
-  for j = 1:nls.meta.nvar
-    for i = j:nls.meta.nvar
+  for j = 1:nls.nvar
+    for i = j:nls.nvar
       vals[k] = Hx[i,j]
       k += 1
     end

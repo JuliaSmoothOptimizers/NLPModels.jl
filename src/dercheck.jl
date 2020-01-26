@@ -12,7 +12,7 @@ This function returns a dictionary indexed by components of the gradient for
 which the relative error exceeds `rtol`.
 """
 function gradient_check(nlp :: AbstractNLPModel;
-                        x :: AbstractVector=nlp.meta.x0,
+                        x :: AbstractVector=nlp.x0,
                         atol :: Float64=1.0e-6, rtol :: Float64=1.0e-4)
 
   # Optimal-ish step for second-order centered finite differences.
@@ -21,8 +21,8 @@ function gradient_check(nlp :: AbstractNLPModel;
   # Check objective gradient.
   g_errs = Dict{Int, Float64}()
   g = grad(nlp, x)
-  h = zeros(nlp.meta.nvar)
-  for i = 1 : nlp.meta.nvar
+  h = zeros(nlp.nvar)
+  for i = 1 : nlp.nvar
     h[i] = step
     dfdxi = (obj(nlp, x + h) - obj(nlp, x - h)) / 2 / step
     err = abs(dfdxi - g[i])
@@ -43,28 +43,28 @@ relative error in the `i`-th partial derivative of the `j`-th constraint
 exceeds `rtol`.
 """
 function jacobian_check(nlp :: AbstractNLPModel;
-                        x :: AbstractVector=nlp.meta.x0,
+                        x :: AbstractVector=nlp.x0,
                         atol :: Float64=1.0e-6, rtol :: Float64=1.0e-4)
 
   # Fast exit if there are no constraints.
   J_errs = Dict{Tuple{Int,Int}, Float64}()
-  nlp.meta.ncon > 0 || return J_errs
+  nlp.ncon > 0 || return J_errs
 
   # Optimal-ish step for second-order centered finite differences.
   step = (eps(Float64) / 3)^(1/3)
 
   # Check constraints Jacobian.
   J = jac(nlp, x)
-  h = zeros(nlp.meta.nvar)
-  cxph = zeros(nlp.meta.ncon)
-  cxmh = zeros(nlp.meta.ncon)
+  h = zeros(nlp.nvar)
+  cxph = zeros(nlp.ncon)
+  cxmh = zeros(nlp.ncon)
   # Differentiate all constraints with respect to each variable in turn.
-  for i = 1 : nlp.meta.nvar
+  for i = 1 : nlp.nvar
     h[i] = step
     cons!(nlp, x + h, cxph)
     cons!(nlp, x - h, cxmh)
     dcdxi = (cxph - cxmh) / 2 / step
-    for j = 1 : nlp.meta.ncon
+    for j = 1 : nlp.ncon
       err = abs(dcdxi[j] - J[j, i])
       if err > atol + rtol * abs(dcdxi[j])
         J_errs[(j, i)] = err
@@ -98,7 +98,7 @@ values of the dictionary are dictionaries indexed by tuples (i, j) such that
 the relative error in the second derivative ∂²fₖ/∂xᵢ∂xⱼ exceeds `rtol`.
 """
 function hessian_check(nlp :: AbstractNLPModel;
-                       x :: AbstractVector=nlp.meta.x0,
+                       x :: AbstractVector=nlp.x0,
                        atol :: Float64=1.0e-6, rtol :: Float64=1.0e-4,
                        sgn :: Int=1)
 
@@ -108,13 +108,13 @@ function hessian_check(nlp :: AbstractNLPModel;
   step = eps(Float64)^(1/4)
   sgn == 0 && error("sgn cannot be zero")
   sgn = sign(sgn)
-  hi = zeros(nlp.meta.nvar)
-  hj = zeros(nlp.meta.nvar)
+  hi = zeros(nlp.nvar)
+  hj = zeros(nlp.nvar)
 
   k = 0
   H_errs[k] = Dict{Tuple{Int,Int}, Float64}()
   H = hess(nlp, x)
-  for i = 1 : nlp.meta.nvar
+  for i = 1 : nlp.nvar
     hi[i] = step
     for j = 1 : i
       hj[j] = step
@@ -128,16 +128,16 @@ function hessian_check(nlp :: AbstractNLPModel;
     hi[i] = 0
   end
 
-  y = zeros(nlp.meta.ncon)
-  cxpp = zeros(nlp.meta.ncon)
-  cxmp = zeros(nlp.meta.ncon)
-  cxpm = zeros(nlp.meta.ncon)
-  cxmm = zeros(nlp.meta.ncon)
-  for k = 1 : nlp.meta.ncon
+  y = zeros(nlp.ncon)
+  cxpp = zeros(nlp.ncon)
+  cxmp = zeros(nlp.ncon)
+  cxpm = zeros(nlp.ncon)
+  cxmm = zeros(nlp.ncon)
+  for k = 1 : nlp.ncon
     H_errs[k] = Dict{Tuple{Int,Int}, Float64}()
     y[k] = sgn
     Hk = hess(nlp, x, y, obj_weight=0.0)
-    for i = 1 : nlp.meta.nvar
+    for i = 1 : nlp.nvar
       hi[i] = step
       for j = 1 : i
         hj[j] = step
@@ -184,7 +184,7 @@ values of the dictionary are dictionaries indexed by tuples (i, j) such that
 the relative error in the second derivative ∂²fₖ/∂xᵢ∂xⱼ exceeds `rtol`.
 """
 function hessian_check_from_grad(nlp :: AbstractNLPModel;
-                                 x :: AbstractVector=nlp.meta.x0,
+                                 x :: AbstractVector=nlp.x0,
                                  atol :: Float64=1.0e-6, rtol :: Float64=1.0e-4,
                                  sgn :: Int=1)
 
@@ -194,14 +194,14 @@ function hessian_check_from_grad(nlp :: AbstractNLPModel;
   step = (eps(Float64) / 3)^(1/3)
   sgn == 0 && error("sgn cannot be zero")
   sgn = sign(sgn)
-  h = zeros(nlp.meta.nvar)
+  h = zeros(nlp.nvar)
 
   k = 0
   H_errs[k] = Dict{Tuple{Int,Int}, Float64}()
   H = hess(nlp, x)
-  gxph = zeros(nlp.meta.nvar)
-  gxmh = zeros(nlp.meta.nvar)
-  for i = 1 : nlp.meta.nvar
+  gxph = zeros(nlp.nvar)
+  gxmh = zeros(nlp.nvar)
+  for i = 1 : nlp.nvar
     h[i] = step
     grad!(nlp, x + h, gxph)
     grad!(nlp, x - h, gxmh)
@@ -215,12 +215,12 @@ function hessian_check_from_grad(nlp :: AbstractNLPModel;
     h[i] = 0
   end
 
-  y = zeros(nlp.meta.ncon)
-  for k = 1 : nlp.meta.ncon
+  y = zeros(nlp.ncon)
+  for k = 1 : nlp.ncon
     H_errs[k] = Dict{Tuple{Int,Int}, Float64}()
     y[k] = sgn
     Hk = hess(nlp, x, y, obj_weight=0.0)
-    for i = 1 : nlp.meta.nvar
+    for i = 1 : nlp.nvar
       h[i] = step
       dJdxi = (jac(nlp, x + h) - jac(nlp, x - h)) / 2 / step
       for j = 1 : i

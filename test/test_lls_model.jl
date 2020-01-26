@@ -25,8 +25,8 @@ function lls_test()
       V = jac_coord(nls, x)
       @test sparse(I, J, V, ncon, nvar) == C
 
-      @test nls.meta.nlin == length(nls.meta.lin) == ncon
-      @test nls.meta.nnln == length(nls.meta.nln) == 0
+      @test nls.nlin == length(nls.lin) == ncon
+      @test nls.nnln == length(nls.nln) == 0
     end
   end
 end

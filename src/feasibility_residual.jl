@@ -24,7 +24,7 @@ mutable struct FeasibilityResidual <: AbstractNLSModel
   nlp :: AbstractNLPModel
 end
 
-function FeasibilityResidual(nlp :: AbstractNLPModel; name=nlp.meta.name)
+function FeasibilityResidual(nlp :: AbstractNLPModel; name=nlp.name)
   if !equality_constrained(nlp)
     if unconstrained(nlp)
       throw(ErrorException("Can't handle unconstrained problem"))
@@ -33,11 +33,11 @@ function FeasibilityResidual(nlp :: AbstractNLPModel; name=nlp.meta.name)
     end
   end
 
-  m, n = nlp.meta.ncon, nlp.meta.nvar
+  m, n = nlp.ncon, nlp.nvar
   # TODO: What is copied?
-  meta = NLPModelMeta(n, x0=nlp.meta.x0, name=name, lvar=nlp.meta.lvar,
-                      uvar=nlp.meta.uvar, nnzj=0)
-  nls_meta = NLSMeta(m, n, nnzj=nlp.meta.nnzj, nnzh=nlp.meta.nnzh)
+  meta = NLPModelMeta(n, x0=nlp.x0, name=name, lvar=nlp.lvar,
+                      uvar=nlp.uvar, nnzj=0)
+  nls_meta = NLSMeta(m, n, nnzj=nlp.nnzj, nnzh=nlp.nnzh)
   nls = FeasibilityResidual(meta, nls_meta, NLSCounters(), nlp)
   finalizer(nls -> finalize(nls.nlp), nls)
 
@@ -47,7 +47,7 @@ end
 function residual!(nls :: FeasibilityResidual, x :: AbstractVector, Fx :: AbstractVector)
   increment!(nls, :neval_residual)
   cons!(nls.nlp, x, Fx)
-  Fx .-= nls.nlp.meta.lcon
+  Fx .-= nls.nlp.lcon
   return Fx
 end
 
@@ -91,14 +91,14 @@ end
 
 function jth_hess_residual(nls :: FeasibilityResidual, x :: AbstractVector, i :: Int)
   increment!(nls, :neval_jhess_residual)
-  y = zeros(nls.nls_meta.nequ)
+  y = zeros(nls.nls_nequ)
   y[i] = 1.0
   return hess(nls.nlp, x, y, obj_weight = 0.0)
 end
 
 function hprod_residual!(nls :: FeasibilityResidual, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
   increment!(nls, :neval_hprod_residual)
-  y = zeros(nls.nls_meta.nequ)
+  y = zeros(nls.nls_nequ)
   y[i] = 1.0
   return hprod!(nls.nlp, x, y, v, Hiv, obj_weight = 0.0)
 end
@@ -117,7 +117,7 @@ function hprod!(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVe
   cx = cons(nls.nlp, x)
   Jv = jprod(nls.nlp, x, v)
   jtprod!(nls.nlp, x, Jv, Hv)
-  Hiv = zeros(eltype(x), nls.meta.nvar)
+  Hiv = zeros(eltype(x), nls.nvar)
   hprod!(nls.nlp, x, cx, v, Hiv, obj_weight=0.0)
   Hv .+= Hiv
   return obj_weight * Hv

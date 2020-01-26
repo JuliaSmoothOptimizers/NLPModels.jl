@@ -4,10 +4,10 @@ function check_qn_model(qnmodel)
   rtol  = 1e-8
   model = qnmodel.model
   @assert typeof(qnmodel) <: NLPModels.QuasiNewtonModel
-  @assert qnmodel.meta.nvar == model.meta.nvar
-  @assert qnmodel.meta.ncon == model.meta.ncon
+  @assert qnmodel.nvar == model.nvar
+  @assert qnmodel.ncon == model.ncon
 
-  x = [-(-1.0)^i for i = 1:qnmodel.meta.nvar]
+  x = [-(-1.0)^i for i = 1:qnmodel.nvar]
 
   @assert isapprox(obj(model, x), obj(qnmodel, x), rtol=rtol)
   @assert neval_obj(model) == 2
@@ -21,8 +21,8 @@ function check_qn_model(qnmodel)
   @assert isapprox(jac(model, x), jac(qnmodel, x), rtol=rtol)
   @assert neval_jac(model) == 2
 
-  v = [-(-1.0)^i for i = 1:qnmodel.meta.nvar]
-  u = [-(-1.0)^i for i = 1:qnmodel.meta.ncon]
+  v = [-(-1.0)^i for i = 1:qnmodel.nvar]
+  u = [-(-1.0)^i for i = 1:qnmodel.ncon]
 
   @assert isapprox(jprod(model, x, v), jprod(qnmodel, x, v), rtol=rtol)
   @assert neval_jprod(model) == 2
@@ -32,7 +32,7 @@ function check_qn_model(qnmodel)
 
   H = hess_op(qnmodel, x)
   @assert typeof(H) <: LinearOperators.AbstractLinearOperator
-  @assert size(H) == (model.meta.nvar, model.meta.nvar)
+  @assert size(H) == (model.nvar, model.nvar)
   @assert isapprox(H * v, hprod(qnmodel, x, v), rtol=rtol)
 
   g = grad(qnmodel, x)

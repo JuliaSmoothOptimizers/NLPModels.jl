@@ -169,6 +169,14 @@ struct NLPModelMeta <: AbstractNLPModelMeta
   end
 end
 
+# Define nlp.X = nlp.X
+function Base.getproperty(nlp :: AbstractNLPModel, f :: Symbol)
+  if f in fieldnames(NLPModelMeta)
+    return getproperty(nlp.meta, f)
+  end
+  return getfield(nlp, f)
+end
+
 # Displaying NLPModelMeta instances.
 
 import Base.show, Base.print, Base.println

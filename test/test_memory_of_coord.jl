@@ -1,6 +1,6 @@
 function test_memory_of_coord_of_nlp(nlp :: AbstractNLPModel)
-  n = nlp.meta.nvar
-  m = nlp.meta.ncon
+  n = nlp.nvar
+  m = nlp.ncon
 
   x = 10 * [-(-1.0)^i for i = 1:n]
   y = [-(-1.0)^i for i = 1:m]
@@ -8,7 +8,7 @@ function test_memory_of_coord_of_nlp(nlp :: AbstractNLPModel)
   # Hessian unconstrained test
   vals = hess_coord(nlp, x)
   al1 = @allocated hess_coord(nlp, x)
-  V = zeros(nlp.meta.nnzh)
+  V = zeros(nlp.nnzh)
   hess_coord!(nlp, x, V)
   al2 = @allocated hess_coord!(nlp, x, V)
   @test al2 < al1 - 50
@@ -22,7 +22,7 @@ function test_memory_of_coord_of_nlp(nlp :: AbstractNLPModel)
 
     vals = jac_coord(nlp, x)
     al1 = @allocated vals = jac_coord(nlp, x)
-    V = zeros(nlp.meta.nnzj)
+    V = zeros(nlp.nnzj)
     jac_coord!(nlp, x, vals)
     al2 = @allocated jac_coord!(nlp, x, vals)
     @test al2 < al1 - 50

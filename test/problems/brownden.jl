@@ -65,7 +65,7 @@ function NLPModels.hess(nlp :: BROWNDEN, x :: AbstractVector{T}; obj_weight=1.0)
 end
 
 function NLPModels.hess_structure!(nlp :: BROWNDEN, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
-  n = nlp.meta.nvar
+  n = nlp.nvar
   I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
   rows .= getindex.(I, 1)
   cols .= getindex.(I, 2)

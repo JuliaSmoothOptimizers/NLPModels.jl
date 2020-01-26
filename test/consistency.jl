@@ -4,8 +4,8 @@ function consistent_meta(nlps; rtol=1.0e-8)
   N = length(nlps)
   for field in fields
     for i = 1:N-1
-      fi = getfield(nlps[i].meta, field)
-      fj = getfield(nlps[i+1].meta, field)
+      fi = getproperty(nlps[i], field)
+      fj = getproperty(nlps[i+1], field)
       @test isapprox(fi, fj, rtol=rtol)
     end
   end
@@ -28,8 +28,8 @@ end
 function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
 
   N = length(nlps)
-  n = nlps[1].meta.nvar
-  m = nlps[1].meta.ncon
+  n = nlps[1].nvar
+  m = nlps[1].ncon
 
   tmp_n = zeros(n)
   tmp_m = zeros(m)
@@ -100,7 +100,7 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
       I, J = hess_structure(nlps[i])
       tmp_h = sparse(I, J, V, n, n)
       @test isapprox(σ*Hs[i], tmp_h, atol=rtol * max(Hmin, 1.0))
-      tmp_V = zeros(nlps[i].meta.nnzh)
+      tmp_V = zeros(nlps[i].nnzh)
       hess_coord!(nlps[i], x, tmp_V, obj_weight=σ)
       @test tmp_V == V
     end
@@ -149,7 +149,7 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
       Hx = hess(nlp, x, obj_weight=0.5)
       V = hess_coord(nlp, x, obj_weight=0.5)
       I, J = hess_structure(nlp)
-      @test length(I) == length(J) == length(V) == nlp.meta.nnzh
+      @test length(I) == length(J) == length(V) == nlp.nnzh
       @test sparse(I, J, V, n, n) == Hx
     end
   end
@@ -157,8 +157,8 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
   if m > 0
     if !(cons in exclude)
       cs = Any[cons(nlp, x) for nlp in nlps]
-      cls = [nlp.meta.lcon for nlp in nlps]
-      cus = [nlp.meta.ucon for nlp in nlps]
+      cls = [nlp.lcon for nlp in nlps]
+      cus = [nlp.ucon for nlp in nlps]
       cmin = minimum(map(norm, cs))
       for i = 1:N
         tmpc = cons!(nlps[i], x, tmp_m)
@@ -206,13 +206,13 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
         end
         V = jac_coord(nlps[i], x)
         I, J = jac_structure(nlps[i])
-        @test length(I) == length(J) == length(V) == nlps[i].meta.nnzj
+        @test length(I) == length(J) == length(V) == nlps[i].nnzj
         @test isapprox(sparse(I, J, V, m, n), Js[i], atol=rtol * max(Jmin, 1.0))
-        IS, JS = zeros(Int, nlps[i].meta.nnzj), zeros(Int, nlps[i].meta.nnzj)
+        IS, JS = zeros(Int, nlps[i].nnzj), zeros(Int, nlps[i].nnzj)
         jac_structure!(nlps[i], IS, JS)
         @test IS == I
         @test JS == J
-        tmp_V = zeros(nlps[i].meta.nnzj)
+        tmp_V = zeros(nlps[i].nnzj)
         jac_coord!(nlps[i], x, tmp_V)
         @test tmp_V == V
       end
@@ -277,7 +277,7 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
         I, J = hess_structure(nlps[i])
         tmp_h = sparse(I, J, V, n, n)
         @test isapprox(σ*Ls[i], tmp_h, atol=rtol * max(Lmin, 1.0))
-        tmp_V = zeros(nlps[i].meta.nnzh)
+        tmp_V = zeros(nlps[i].nnzh)
         hess_coord!(nlps[i], x, σ*y, tmp_V, obj_weight=σ)
         @test tmp_V == V
       end
@@ -301,7 +301,7 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
         Hx = hess(nlp, x, y, obj_weight=0.5)
         V = hess_coord(nlp, x, y, obj_weight=0.5)
         I, J = hess_structure(nlp)
-        @test length(I) == length(J) == length(V) == nlp.meta.nnzh
+        @test length(I) == length(J) == length(V) == nlp.nnzh
         @test sparse(I, J, V, n, n) == Hx
       end
     end
@@ -349,7 +349,7 @@ function consistent_nlps(nlps; rtol=1.0e-8)
   @printf("✓%12s", " ")
 
   # If there are inequalities, test the SlackModels of each of these models
-  if nlps[1].meta.ncon > length(nlps[1].meta.jfix)
+  if nlps[1].ncon > length(nlps[1].jfix)
     slack_nlps = [SlackModel(nlp) for nlp in nlps]
     consistent_functions(slack_nlps)
     consistent_counters(slack_nlps)

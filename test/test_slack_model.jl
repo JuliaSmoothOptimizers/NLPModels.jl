@@ -26,19 +26,19 @@
     rtol  = 1e-8
     model = smodel.model
     @test typeof(smodel) == NLPModels.SlackModel
-    n = model.meta.nvar   # number of variables in original model
-    N = smodel.meta.nvar  # number of variables in slack model
-    jlow = model.meta.jlow; nlow = length(jlow)
-    jupp = model.meta.jupp; nupp = length(jupp)
-    jrng = model.meta.jrng; nrng = length(jrng)
-    jfix = model.meta.jfix; nfix = length(jfix)
+    n = model.nvar   # number of variables in original model
+    N = smodel.nvar  # number of variables in slack model
+    jlow = model.jlow; nlow = length(jlow)
+    jupp = model.jupp; nupp = length(jupp)
+    jrng = model.jrng; nrng = length(jrng)
+    jfix = model.jfix; nfix = length(jfix)
 
-    @test N == n + model.meta.ncon - nfix
-    @test smodel.meta.ncon == model.meta.ncon
+    @test N == n + model.ncon - nfix
+    @test smodel.ncon == model.ncon
 
     x = [-(-1.0)^i for i = 1:N]
     s = x[n+1:N]
-    y = [-(-1.0)^i for i = 1:smodel.meta.ncon]
+    y = [-(-1.0)^i for i = 1:smodel.ncon]
 
     # slack variables do not influence objective value
     @test isapprox(obj(model, x[1:n]), obj(smodel, x), rtol=rtol)
@@ -91,10 +91,10 @@
     v = [-(-1.0)^i for i = 1:N]
     Jv = J * v
     @test all(jprod(smodel, x, v) ≈ Jv)
-    jv = zeros(smodel.meta.ncon)
+    jv = zeros(smodel.ncon)
     @test all(jprod!(smodel, x, v, jv) ≈ Jv)
 
-    u = [-(-1.0)^i for i = 1:smodel.meta.ncon]
+    u = [-(-1.0)^i for i = 1:smodel.ncon]
     Jtu = J' * u
     @test all(jtprod(smodel, x, u) ≈ Jtu)
     jtu = zeros(N)
@@ -116,5 +116,5 @@ end
 @testset "Test that type is maintained (#217)" begin
   nlp = ADNLPModel(x -> dot(x, x), ones(Float16, 2), c=x->sum(x), lcon=[-1.0], ucon=[1.0])
   snlp = SlackModel(nlp)
-  @test eltype(snlp.meta.x0) == Float16
+  @test eltype(snlp.x0) == Float16
 end

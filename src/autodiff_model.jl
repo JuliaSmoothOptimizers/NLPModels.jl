@@ -95,7 +95,7 @@ end
 
 function cons!(nlp :: ADNLPModel, x :: AbstractVector, c :: AbstractVector)
   increment!(nlp, :neval_cons)
-  c[1:nlp.meta.ncon] = nlp.c(x)
+  c[1:nlp.ncon] = nlp.c(x)
   return c
 end
 
@@ -105,29 +105,29 @@ function jac(nlp :: ADNLPModel, x :: AbstractVector)
 end
 
 function jac_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
-  m, n = nlp.meta.ncon, nlp.meta.nvar
+  m, n = nlp.ncon, nlp.nvar
   I = ((i,j) for i = 1:m, j = 1:n)
-  rows[1 : nlp.meta.nnzj] .= getindex.(I, 1)[:]
-  cols[1 : nlp.meta.nnzj] .= getindex.(I, 2)[:]
+  rows[1 : nlp.nnzj] .= getindex.(I, 1)[:]
+  cols[1 : nlp.nnzj] .= getindex.(I, 2)[:]
   return rows, cols
 end
 
 function jac_coord!(nlp :: ADNLPModel, x :: AbstractVector, vals :: AbstractVector)
   increment!(nlp, :neval_jac)
   Jx = ForwardDiff.jacobian(nlp.c, x)
-  vals[1 : nlp.meta.nnzj] .= Jx[:]
+  vals[1 : nlp.nnzj] .= Jx[:]
   return vals
 end
 
 function jprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nlp, :neval_jprod)
-  Jv[1:nlp.meta.ncon] = ForwardDiff.derivative(t -> nlp.c(x + t * v), 0)
+  Jv[1:nlp.ncon] = ForwardDiff.derivative(t -> nlp.c(x + t * v), 0)
   return Jv
 end
 
 function jtprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nlp, :neval_jtprod)
-  Jtv[1:nlp.meta.nvar] = ForwardDiff.gradient(x -> dot(nlp.c(x), v), x)
+  Jtv[1:nlp.nvar] = ForwardDiff.gradient(x -> dot(nlp.c(x), v), x)
   return Jtv
 end
 
@@ -146,10 +146,10 @@ function hess(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector; obj_w
 end
 
 function hess_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
-  n = nlp.meta.nvar
+  n = nlp.nvar
   I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
-  rows[1 : nlp.meta.nnzh] .= getindex.(I, 1)
-  cols[1 : nlp.meta.nnzh] .= getindex.(I, 2)
+  rows[1 : nlp.nnzh] .= getindex.(I, 1)
+  cols[1 : nlp.nnzh] .= getindex.(I, 2)
   return rows, cols
 end
 
@@ -158,8 +158,8 @@ function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, vals :: AbstractVec
   ℓ(x) = obj_weight * nlp.f(x)
   Hx = ForwardDiff.hessian(ℓ, x)
   k = 1
-  for j = 1 : nlp.meta.nvar
-    for i = j : nlp.meta.nvar
+  for j = 1 : nlp.nvar
+    for i = j : nlp.nvar
       vals[k] = Hx[i, j]
       k += 1
     end
@@ -172,8 +172,8 @@ function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector
   ℓ(x) = obj_weight * nlp.f(x) + dot(nlp.c(x), y)
   Hx = ForwardDiff.hessian(ℓ, x)
   k = 1
-  for j = 1 : nlp.meta.nvar
-    for i = j : nlp.meta.nvar
+  for j = 1 : nlp.nvar
+    for i = j : nlp.nvar
       vals[k] = Hx[i, j]
       k += 1
     end
@@ -183,7 +183,7 @@ end
 
 function hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   increment!(nlp, :neval_hprod)
-  n = nlp.meta.nvar
+  n = nlp.nvar
   ℓ(x) = obj_weight * nlp.f(x)
   Hv .= ForwardDiff.derivative(t -> ForwardDiff.gradient(ℓ, x + t * v), 0)
   return Hv
@@ -191,7 +191,7 @@ end
 
 function hprod!(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   increment!(nlp, :neval_hprod)
-  n = nlp.meta.nvar
+  n = nlp.nvar
   ℓ(x) = obj_weight * nlp.f(x) + dot(nlp.c(x), y)
   Hv .= ForwardDiff.derivative(t -> ForwardDiff.gradient(ℓ, x + t * v), 0)
   return Hv
