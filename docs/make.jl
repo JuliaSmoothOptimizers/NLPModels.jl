@@ -5,10 +5,7 @@ makedocs(
   doctest = true,
   linkcheck = true,
   strict = true,
-  assets = ["assets/style.css"],
-  format = Documenter.HTML(
-             prettyurls = get(ENV, "CI", nothing) == "true"
-            ),
+  format = Documenter.HTML(assets = ["assets/style.css"], prettyurls = get(ENV, "CI", nothing) == "true"),
   sitename = "NLPModels.jl",
   pages = ["Home" => "index.md",
            "Models" => "models.md",
@@ -19,8 +16,4 @@ makedocs(
           ]
 )
 
-deploydocs(deps = nothing, make = nothing,
-  repo = "github.com/JuliaSmoothOptimizers/NLPModels.jl.git",
-  target = "build",
-  devbranch = "master"
-)
+deploydocs(repo = "github.com/JuliaSmoothOptimizers/NLPModels.jl.git")
