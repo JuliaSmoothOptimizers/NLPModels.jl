@@ -73,7 +73,7 @@ jobs:
     - stage: "Breakage Deploy"
       julia: 1.3
       os: linux
-      if: type = pull_request
+      if: type = pull_request AND fork = false
       script:
         - julia -e 'using Pkg; pkg"add Git"; pkg"add GitHub"; pkg"add JSON"; include("test/test-breakage-deploy.jl")'
       after_success: skip
