@@ -9,26 +9,13 @@ Cite as
     http://doi.org/10.5281/zenodo.2558627
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2558627.svg)](https://doi.org/10.5281/zenodo.2558627)
-
-### Stable release [![GitHub release](https://img.shields.io/github/release/JuliaSmoothOptimizers/NLPModels.jl.svg)](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/releases/latest)
-
-- Documentation:
+[![GitHub release](https://img.shields.io/github/release/JuliaSmoothOptimizers/NLPModels.jl.svg)](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/releases/latest)
 [![](https://img.shields.io/badge/docs-stable-3f51b5.svg)](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/stable)
-- Package Evaluator:
-[![NLPModels](http://pkg.julialang.org/badges/NLPModels_0.5.svg)](http://pkg.julialang.org/?pkg=NLPModels)
-[![NLPModels](http://pkg.julialang.org/badges/NLPModels_0.6.svg)](http://pkg.julialang.org/?pkg=NLPModels)
-- Chat: [![Gitter](https://img.shields.io/gitter/room/JuliaSmoothOptimizers/JuliaSmoothOptimizers.svg)](https://gitter.im/JuliaSmoothOptimizers/JuliaSmoothOptimizers)
-
-### Development version
-
-- Documentation:
 [![](https://img.shields.io/badge/docs-latest-3f51b5.svg)](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/latest)
-- Tests:
-[![Master Build Status](https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl.svg)](https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl)
+[![Master Build Status](https://img.shields.io/travis/JuliaSmoothOptimizers/NLPModels.jl?logo=travis)](https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl)
 [![Master Build status](https://ci.appveyor.com/api/projects/status/l1rs9ajxkyc0cer9/branch/master?svg=true)](https://ci.appveyor.com/project/dpo/nlpmodels-jl/branch/master)
-[![Build Status](https://api.cirrus-ci.com/github/JuliaSmoothOptimizers/NLPModels.jl.svg)](https://cirrus-ci.com/github/JuliaSmoothOptimizers/NLPModels.jl)
+[![Cirrus CI - Base Branch Build Status](https://img.shields.io/cirrus/github/JuliaSmoothOptimizers/NLPModels.jl?logo=Cirrus%20CI)](https://cirrus-ci.com/github/JuliaSmoothOptimizers/NLPModels.jl)
 [![Master Coverage Status](https://coveralls.io/repos/JuliaSmoothOptimizers/NLPModels.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/JuliaSmoothOptimizers/NLPModels.jl?branch=master)
-
 
 ## Optimization Problems
 
@@ -44,7 +31,7 @@ details on the models, a tutorial and the API.
 ## Installation
 
 ```julia
-Pkg.add("NLPModels")
+pkg> add NLPModels
 ```
 
 ## External models
@@ -56,8 +43,8 @@ for specific needs:
   for [AMPL](http://www.ampl.com/);
 - [CUTEst.jl](https://github.com/JuliaSmoothOptimizers/CUTEst.jl): Interface for CUTEst
   problems;
-- [NLPJuMPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPJuMPModels.jl):
-  Converts MathProgBase/JuMP models to and from NLPModels.
+- [NLPModelsJuMP.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl):
+  Converts MathOptInterface/JuMP models to and from NLPModels.
 
 ## Main Methods
 
