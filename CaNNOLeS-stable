@@ -1,12 +1,6 @@
 {
-  "tag": {
-    "major": 0,
-    "minor": 1,
-    "patch": 1,
-    "prerelease": [],
-    "build": []
-  },
+  "tag": "v0.1.1",
   "pass": false,
-  "travis_link": "https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl/jobs/653257288",
+  "travis_link": "https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl/jobs/653416632",
   "pr": "244"
 }
