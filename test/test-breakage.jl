@@ -39,7 +39,7 @@ function test_breakage()
     Git.run(`clone $url`)
     cd("$package.jl")
     if version == "stable"
-      tag = split(Git.readstring(`tag`))[end]
+      tag = "v" * string(sort(VersionNumber.(split(Git.readstring(`tag`))))[end])
       Git.run(`checkout $tag`)
     end
     pkg"activate ."
