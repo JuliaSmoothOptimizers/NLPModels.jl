@@ -139,6 +139,22 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
         res = H * v
         @test isapprox(res, Hvs[i], atol=rtol * max(Hvmin, 1.0))
         @test isapprox(res, tmp_n, atol=rtol * max(Hvmin, 1.0))
+
+        if !(hess_coord in exclude)
+          rows, cols = hess_structure(nlps[i])
+          vals = hess_coord(nlps[i], x, obj_weight=σ)
+          hprod!(nlps[i], rows, cols, vals, v, tmp_n)
+          @test isapprox(Hvs[i], tmp_n, atol=rtol * max(Hvmin, 1.0))
+          hprod!(nlps[i], x, rows, cols, v, tmp_n, obj_weight=σ)
+          @test isapprox(Hvs[i], tmp_n, atol=rtol * max(Hvmin, 1.0))
+
+          H = hess_op!(nlps[i], x, rows, cols, tmp_n, obj_weight=σ)
+          res = H * v
+          @test isapprox(Hvs[i], res, atol=rtol * max(Hvmin, 1.0))
+          H = hess_op!(nlps[i], x, tmp_n, obj_weight=σ)
+          res = H * v
+          @test isapprox(Hvs[i], res, atol=rtol * max(Hvmin, 1.0))
+        end
       end
     end
   end
@@ -235,6 +251,19 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
         res = J * v
         @test isapprox(res, Jps[i], atol=rtol * max(Jmin, 1.0))
         @test isapprox(res, tmp_m, atol=rtol * max(Jmin, 1.0))
+
+        if !(jac_coord in exclude)
+          rows, cols = jac_structure(nlps[i])
+          vals = jac_coord(nlps[i], x)
+          jprod!(nlps[i], rows, cols, vals, v, tmp_m)
+          @test isapprox(Jps[i], tmp_m, atol=rtol * max(Jmin, 1.0))
+          jprod!(nlps[i], x, rows, cols, v, tmp_m)
+          @test isapprox(Jps[i], tmp_m, atol=rtol * max(Jmin, 1.0))
+
+          J = jac_op!(nlps[i], x, rows, cols, tmp_m, tmp_n)
+          res = J * v
+          @test isapprox(res, Jps[i], atol=rtol * max(Jmin, 1.0))
+        end
       end
     end
 
@@ -255,6 +284,19 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
         res = J' * w
         @test isapprox(res, Jtps[i], atol=rtol * max(Jmin, 1.0))
         @test isapprox(res, tmp_n, atol=rtol * max(Jmin, 1.0))
+
+        if !(jac_coord in exclude)
+          rows, cols = jac_structure(nlps[i])
+          vals = jac_coord(nlps[i], x)
+          jtprod!(nlps[i], rows, cols, vals, w, tmp_n)
+          @test isapprox(Jtps[i], tmp_n, atol=rtol * max(Jmin, 1.0))
+          jtprod!(nlps[i], x, rows, cols, w, tmp_n)
+          @test isapprox(Jtps[i], tmp_n, atol=rtol * max(Jmin, 1.0))
+
+          J = jac_op!(nlps[i], x, rows, cols, tmp_m, tmp_n)
+          res = J' * w
+          @test isapprox(res, Jtps[i], atol=rtol * max(Jmin, 1.0))
+        end
       end
     end
 
@@ -311,10 +353,26 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
         Lps = Any[hprod(nlp, x, y, v, obj_weight=σ) for nlp in nlps]
         Hopvs = Any[hess_op(nlp, x, y, obj_weight=σ) * v for nlp in nlps]
         Lpmin = minimum(map(norm, Lps))
-        for i = 1:N-1
+        for i = 1:N
           for j = i+1:N
             @test isapprox(Lps[i], Lps[j], atol=rtol * max(Lpmin, 1.0))
             @test isapprox(Lps[i], Hopvs[j], atol=rtol * max(Lpmin, 1.0))
+          end
+
+          if !(hess_coord in exclude)
+            rows, cols = hess_structure(nlps[i])
+            vals = hess_coord(nlps[i], x, y, obj_weight=σ)
+            hprod!(nlps[i], rows, cols, vals, v, tmp_n)
+            @test isapprox(Lps[i], tmp_n, atol=rtol * max(Lpmin, 1.0))
+            hprod!(nlps[i], x, y, rows, cols, v, tmp_n, obj_weight=σ)
+            @test isapprox(Lps[i], tmp_n, atol=rtol * max(Lpmin, 1.0))
+
+            H = hess_op!(nlps[i], x, y, rows, cols, tmp_n, obj_weight=σ)
+            res = H * v
+            @test isapprox(Lps[i], res, atol=rtol * max(Lpmin, 1.0))
+            H = hess_op!(nlps[i], x, y, tmp_n, obj_weight=σ)
+            res = H * v
+            @test isapprox(Lps[i], res, atol=rtol * max(Lpmin, 1.0))
           end
         end
       end

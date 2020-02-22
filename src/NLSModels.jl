@@ -32,6 +32,14 @@ function increment!(nls :: AbstractNLSModel, s :: Symbol)
   end
 end
 
+function decrement!(nls :: AbstractNLSModel, s :: Symbol)
+  if s in fieldnames(NLSCounters)
+    setfield!(nls.counters, s, getfield(nls.counters, s) - 1)
+  else
+    setfield!(nls.counters.counters, s, getfield(nls.counters.counters, s) - 1)
+  end
+end
+
 function sum_counters(c :: NLSCounters)
   s = sum_counters(c.counters)
   for field in fieldnames(NLSCounters)
@@ -180,6 +188,25 @@ function jprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, v :: Abst
 end
 
 """
+    Jv = jprod_residual!(nls, rows, cols, vals, v, Jv)
+
+Computes the product of the Jacobian of the residual given by `(rows, cols, vals)`
+and a vector, i.e.,  J(x)*v, storing it in `Jv`.
+"""
+function jprod_residual!(nls :: AbstractNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
+  increment!(nls, :neval_jprod_residual)
+  coo_prod!(rows, cols, vals, v, Jv)
+end
+
+"""
+    Jv = jprod_residual!(nls, x, rows, cols, v, Jv)
+
+Computes the product of the Jacobian of the residual at x and a vector, i.e.,  J(x)*v, storing it in `Jv`.
+The structure of the Jacobian is given by `(rows, cols)`.
+"""
+jprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, v :: AbstractVector, Jv :: AbstractVector) = jprod_residual!(nls, x, v, Jv)
+
+"""
     Jtv = jtprod_residual(nls, x, v)
 
 Computes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  J(x)'*v.
@@ -197,6 +224,25 @@ Computes the product of the transpose of the Jacobian of the residual at x and a
 function jtprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   throw(NotImplementedError("jtprod_residual!"))
 end
+
+"""
+    Jtv = jtprod_residual!(nls, rows, cols, vals, v, Jtv)
+
+Computes the product of the transpose of the Jacobian of the residual given by `(rows, cols, vals)`
+and a vector, i.e.,  J(x)'*v, storing it in `Jv`.
+"""
+function jtprod_residual!(nls :: AbstractNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
+  increment!(nls, :neval_jtprod_residual)
+  coo_prod!(cols, rows, vals, v, Jtv)
+end
+
+"""
+    Jtv = jtprod_residual!(nls, x, rows, cols, v, Jtv)
+
+Computes the product of the transpose Jacobian of the residual at x and a vector, i.e.,  J(x)'*v, storing it in `Jv`.
+The structure of the Jacobian is given by `(rows, cols)`.
+"""
+jtprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, v :: AbstractVector, Jtv :: AbstractVector) = jtprod_residual!(nls, x, v, Jtv)
 
 """
     Jx = jac_op_residual(nls, x)
@@ -222,6 +268,32 @@ function jac_op_residual!(nls :: AbstractNLSModel, x :: AbstractVector,
   ctprod = @closure v -> jtprod_residual!(nls, x, v, Jtv)
   return LinearOperator{Float64}(nls_meta(nls).nequ, nls_meta(nls).nvar,
                                  false, false, prod, ctprod, ctprod)
+end
+
+"""
+    Jx = jac_op_residual!(nls, rows, cols, vals, Jv, Jtv)
+
+Computes J(x), the Jacobian of the residual given by `(rows, cols, vals)`, in linear operator form. The
+vectors `Jv` and `Jtv` are used as preallocated storage for the operations.
+"""
+function jac_op_residual!(nls :: AbstractNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector, Jv :: AbstractVector, Jtv :: AbstractVector)
+  prod = @closure v -> jprod_residual!(nls, rows, cols, vals, v, Jv)
+  ctprod = @closure v -> jtprod_residual!(nls, rows, cols, vals, v, Jtv)
+  return LinearOperator{Float64}(nls_meta(nls).nequ, nls_meta(nls).nvar,
+                                 false, false, prod, ctprod, ctprod)
+end
+
+"""
+    Jx = jac_op_residual!(nls, x, rows, cols, Jv, Jtv)
+
+Computes J(x), the Jacobian of the residual at x, in linear operator form. The
+vectors `Jv` and `Jtv` are used as preallocated storage for the operations.
+The structure of the Jacobian should be given by `(rows, cols)`.
+"""
+function jac_op_residual!(nls :: AbstractNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, Jv :: AbstractVector, Jtv :: AbstractVector)
+  vals = jac_coord_residual(nls, x)
+  decrement!(nls, :neval_jac_residual)
+  return jac_op_residual!(nls, rows, cols, vals, Jv, Jtv)
 end
 
 """
