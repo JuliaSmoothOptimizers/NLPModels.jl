@@ -136,5 +136,8 @@ hessian_check_from_grad
 ## Internal
 
 ```@docs
+coo_prod!
+coo_sym_prod!
 NLPModels.increment!
+NLPModels.decrement!
 ```

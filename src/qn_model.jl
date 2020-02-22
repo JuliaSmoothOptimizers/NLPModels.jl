@@ -40,6 +40,10 @@ function increment!(nlp :: QuasiNewtonModel, s :: Symbol)
   increment!(nlp.model, s)
 end
 
+function decrement!(nlp :: QuasiNewtonModel, s :: Symbol)
+  decrement!(nlp.model, s)
+end
+
 function reset!(nlp :: QuasiNewtonModel)
   reset!(nlp.model.counters)
   reset!(nlp.op)

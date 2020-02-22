@@ -68,6 +68,15 @@ function increment!(nlp :: AbstractNLPModel, s :: Symbol)
 end
 
 """
+    decrement!(nlp, s)
+
+Decrement counter `s` of problem `nlp`.
+"""
+function decrement!(nlp :: AbstractNLPModel, s :: Symbol)
+  setfield!(nlp.counters, s, getfield(nlp.counters, s) - 1)
+end
+
+"""
     sum_counters(counters)
 
 Sum all counters of `counters`.
@@ -273,6 +282,25 @@ jprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector)
   throw(NotImplementedError("jprod!"))
 
 """
+    Jv = jprod!(nlp, rows, cols, vals, v, Jv)
+
+Evaluate ``∇c(x)v``, the Jacobian-vector product, where the Jacobian is given by
+`(rows, cols, vals)` in triplet format.
+"""
+function jprod!(nlp::AbstractNLPModel, rows::AbstractVector{<: Integer}, cols::AbstractVector{<: Integer}, vals::AbstractVector, v::AbstractVector, Jv::AbstractVector)
+  increment!(nlp, :neval_jprod)
+  coo_prod!(rows, cols, vals, v, Jv)
+end
+
+"""
+    Jv = jprod!(nlp, x, rows, cols, v, Jv)
+
+Evaluate ``∇c(x)v``, the Jacobian-vector product at `x` in place.
+`(rows, cols)` should be the Jacobian structure in triplet format.
+"""
+jprod!(nlp::AbstractNLPModel, x::AbstractVector, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}, v::AbstractVector, Jv::AbstractVector) = jprod!(nlp, x, v, Jv)
+
+"""
     Jtv = jtprod(nlp, x, v, Jtv)
 
 Evaluate ``∇c(x)^Tv``, the transposed-Jacobian-vector product at `x`.
@@ -289,6 +317,25 @@ Evaluate ``∇c(x)^Tv``, the transposed-Jacobian-vector product at `x` in place.
 """
 jtprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("jtprod!"))
+
+"""
+    Jtv = jtprod!(nlp, rows, cols, vals, v, Jtv)
+
+Evaluate ``∇c(x)^Tv``, the transposed-Jacobian-vector product, where the
+Jacobian is given by `(rows, cols, vals)` in triplet format.
+"""
+function jtprod!(nlp::AbstractNLPModel, rows::AbstractVector{<: Integer}, cols::AbstractVector{<: Integer}, vals::AbstractVector, v::AbstractVector, Jtv::AbstractVector)
+  increment!(nlp, :neval_jtprod)
+  coo_prod!(cols, rows, vals, v, Jtv)
+end
+
+"""
+    Jtv = jtprod!(nlp, x, rows, cols, v, Jtv)
+
+Evaluate ``∇c(x)^Tv``, the transposed-Jacobian-vector product at `x` in place.
+`(rows, cols)` should be the Jacobian structure in triplet format.
+"""
+jtprod!(nlp::AbstractNLPModel, x::AbstractVector, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}, v::AbstractVector, Jtv::AbstractVector) = jtprod!(nlp, x, v, Jtv)
 
 """
     J = jac_op(nlp, x)
@@ -318,6 +365,34 @@ function jac_op!(nlp :: AbstractNLPModel, x :: AbstractVector,
   ctprod = @closure v -> jtprod!(nlp, x, v, Jtv)
   return LinearOperator{eltype(x)}(nlp.meta.ncon, nlp.meta.nvar,
                                    false, false, prod, ctprod, ctprod)
+end
+
+"""
+    J = jac_op!(nlp, rows, cols, vals, Jv, Jtv)
+
+Return the Jacobian given by `(rows, cols, vals)` as a linear operator.
+The resulting object may be used as if it were a matrix, e.g., `J * v` or `J' * v`.
+The values `Jv` and `Jtv` are used as preallocated storage for the operations.
+"""
+function jac_op!(nlp :: AbstractNLPModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector, Jv :: AbstractVector, Jtv :: AbstractVector)
+  prod = @closure v -> jprod!(nlp, rows, cols, vals, v, Jv)
+  ctprod = @closure v -> jtprod!(nlp, rows, cols, vals, v, Jtv)
+  return LinearOperator{Float64}(nlp.meta.ncon, nlp.meta.nvar,
+                                 false, false, prod, ctprod, ctprod)
+end
+
+"""
+    J = jac_op!(nlp, x, rows, cols, Jv, Jtv)
+
+Return the Jacobian at `x` as a linear operator.
+The resulting object may be used as if it were a matrix, e.g., `J * v` or
+`J' * v`. `(rows, cols)` should be the sparsity structure of the Jacobian.
+The values `Jv` and `Jtv` are used as preallocated storage for the operations.
+"""
+function jac_op!(nlp :: AbstractNLPModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, Jv :: AbstractVector, Jtv :: AbstractVector)
+  vals = jac_coord(nlp, x)
+  decrement!(nlp, :neval_jac)
+  return jac_op!(nlp, rows, cols, vals, Jv, Jtv)
 end
 
 function jth_hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, j::Integer)
@@ -470,6 +545,27 @@ function hprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Hv:
 end
 
 """
+    Hv = hprod!(nlp, rows, cols, vals, v, Hv)
+
+Evaluate the product of the objective or Lagrangian Hessian given by `(rows, cols, vals)` in
+triplet format with the vector `v` in place. Only one triangle of the Hessian should be given.
+"""
+function hprod!(nlp::AbstractNLPModel, rows::AbstractVector{<: Integer}, cols::AbstractVector{<: Integer}, vals::AbstractVector, v::AbstractVector, Hv::AbstractVector)
+  increment!(nlp, :neval_hprod)
+  coo_sym_prod!(cols, rows, vals, v, Hv)
+end
+
+"""
+    Hv = hprod!(nlp, x, rows, cols, v, Hv)
+
+Evaluate the product of the objective Hessian at `x` with the vector `v` in
+place, where the objective Hessian is
+$(OBJECTIVE_HESSIAN).
+`(rows, cols)` should be the Hessian structure in triplet format.
+"""
+hprod!(nlp::AbstractNLPModel, x::AbstractVector, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}, v::AbstractVector, Hv::AbstractVector; obj_weight::Real=1.0) = hprod!(nlp, x, v, Hv, obj_weight=obj_weight)
+
+"""
     Hv = hprod!(nlp, x, y, v, Hv; obj_weight=1.0)
 
 Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in
@@ -478,6 +574,16 @@ $(LAGRANGIAN_HESSIAN).
 """
 hprod!(nlp::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector, ::AbstractVector; obj_weight :: Real=1.0) =
   throw(NotImplementedError("hprod!"))
+
+"""
+    Hv = hprod!(nlp, x, y, rows, cols, v, Hv)
+
+Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in
+place, where the Lagrangian Hessian is
+$(LAGRANGIAN_HESSIAN).
+`(rows, cols)` should be the Hessian structure in triplet format.
+"""
+hprod!(nlp::AbstractNLPModel, x::AbstractVector, y::AbstractVector, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}, v::AbstractVector, Hv::AbstractVector; obj_weight::Real=1.0) = hprod!(nlp, x, y, v, Hv, obj_weight=obj_weight)
 
 """
     H = hess_op(nlp, x; obj_weight=1.0)
@@ -524,6 +630,38 @@ function hess_op!(nlp :: AbstractNLPModel, x :: AbstractVector, Hv :: AbstractVe
 end
 
 """
+    H = hess_op!(nlp, rows, cols, vals, Hv)
+
+Return the Hessian given by `(rows, cols, vals)` as a linear operator,
+and storing the result on `Hv`. The resulting
+object may be used as if it were a matrix, e.g., `w = H * v`.
+  The vector `Hv` is used as preallocated storage for the operation.  The linear operator H
+represents
+$(OBJECTIVE_HESSIAN).
+"""
+function hess_op!(nlp :: AbstractNLPModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector, Hv :: AbstractVector)
+  prod = @closure v -> hprod!(nlp, rows, cols, vals, v, Hv)
+  return LinearOperator{Float64}(nlp.meta.nvar, nlp.meta.nvar,
+                                 true, true, prod, prod, prod)
+end
+
+"""
+    H = hess_op!(nlp, x, rows, cols, Hv; obj_weight=1.0)
+
+Return the objective Hessian at `x` with objective function scaled by
+`obj_weight` as a linear operator, and storing the result on `Hv`. The resulting
+object may be used as if it were a matrix, e.g., `w = H * v`.
+`(rows, cols)` should be the sparsity structure of the Hessian.
+The vector `Hv` is used as preallocated storage for the operation.  The linear operator H
+represents
+$(OBJECTIVE_HESSIAN).
+"""
+function hess_op!(nlp :: AbstractNLPModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, Hv :: AbstractVector; obj_weight::Real=one(eltype(x)))
+  vals = hess_coord(nlp, x, obj_weight=obj_weight)
+  return hess_op!(nlp, rows, cols, vals, Hv)
+end
+
+"""
     H = hess_op!(nlp, x, y, Hv; obj_weight=1.0)
 
 Return the Lagrangian Hessian at `(x,y)` with objective function scaled by
@@ -538,6 +676,24 @@ function hess_op!(nlp :: AbstractNLPModel, x :: AbstractVector, y :: AbstractVec
   return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar,
                                    true, true, prod, prod, prod)
 end
+
+"""
+    H = hess_op!(nlp, x, y, rows, cols, Hv; obj_weight=1.0)
+
+Return the Lagrangian Hessian at `(x,y)` with objective function scaled by
+`obj_weight` as a linear operator, and storing the result on `Hv`. The resulting
+object may be used as if it were a matrix, e.g., `w = H * v`.
+`(rows, cols)` should be the sparsity structure of the Hessian.
+The vector `Hv` is used as preallocated storage for the operation.  The linear operator H
+represents
+$(OBJECTIVE_HESSIAN).
+"""
+function hess_op!(nlp :: AbstractNLPModel, x :: AbstractVector, y :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, Hv :: AbstractVector; obj_weight::Real=one(eltype(x)))
+  vals = hess_coord(nlp, x, y, obj_weight=obj_weight)
+  decrement!(nlp, :neval_hess)
+  return hess_op!(nlp, rows, cols, vals, Hv)
+end
+
 
 push!(nlp :: AbstractNLPModel, args...; kwargs...) =
   throw(NotImplementedError("push!"))

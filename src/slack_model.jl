@@ -150,6 +150,10 @@ function increment!(nlp :: SlackModels, s :: Symbol)
   increment!(nlp.model, s)
 end
 
+function decrement!(nlp :: SlackModels, s :: Symbol)
+  decrement!(nlp.model, s)
+end
+
 function reset!(nlp :: SlackModels)
   reset!(nlp.model.counters)
   return nlp

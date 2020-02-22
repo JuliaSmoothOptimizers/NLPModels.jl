@@ -1,3 +1,5 @@
+export coo_prod!, coo_sym_prod!
+
 # Check that arrays have a prescribed size.
 # https://groups.google.com/forum/?fromgroups=#!topic/julia-users/b6RbQ2amKzg
 macro lencheck(l, vars...)
@@ -22,4 +24,40 @@ macro rangecheck(lo, hi, vars...)
             end))
   end
   Expr(:block, exprs...)
+end
+
+"""
+    coo_prod!(rows, cols, vals, v, Av)
+
+Compute the product of a matrix `A` given by `(rows, cols, vals)` and the vector `v`.
+The result is stored in `Av`, which should have length equals to the number of rows of `A`.
+"""
+function coo_prod!(rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector, v :: AbstractVector, Av :: AbstractVector)
+  fill!(Av, zero(eltype(v)))
+  nnz = length(rows)
+  @inbounds for k = 1:nnz
+    i, j = rows[k], cols[k]
+    Av[i] += vals[k] * v[j]
+  end
+  return Av
+end
+
+"""
+    coo_sym_prod!(rows, cols, vals, v, Av)
+
+Compute the product of a symmetric matrix `A` given by `(rows, cols, vals)` and the vector `v`.
+The result is stored in `Av`, which should have length equals to the number of rows of `A`.
+Only one triangle of `A` should be passed.
+"""
+function coo_sym_prod!(rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector, v :: AbstractVector, Av :: AbstractVector)
+  fill!(Av, zero(eltype(v)))
+  nnz = length(rows)
+  @inbounds for k = 1:nnz
+    i, j, a = rows[k], cols[k], vals[k]
+    Av[i] += a * v[j]
+    if i != j
+      Av[j] += a * v[i]
+    end
+  end
+  return Av
 end
