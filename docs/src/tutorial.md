@@ -146,22 +146,7 @@ nlp = ADNLPModel(f, x0)
 x, fx, ngx, optimal, iter = steepest(nlp)
 ```
 
-Even using a different model. In this case, a model from
-[NLPModelsJuMP](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl) implemented in
-[OptimizationProblems](https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl).
-
-```@example adnlp
-#= Commented out until NLPModelsJuMP is updated
-using NLPModelsJuMP, OptimizationProblems
-
-nlp = MathProgNLPModel(woods())
-x, fx, ngx, optimal, iter = steepest(nlp)
-println("fx = $fx")
-println("ngx = $ngx")
-println("optimal = $optimal")
-println("iter = $iter")
-=#
-```
+External models can be tested with `steepest` as well, as long as they implement `obj` and `grad`.
 
 For constrained minimization, you need the constraints vector and bounds too.
 Bounds on the variables can be passed through a new vector.
