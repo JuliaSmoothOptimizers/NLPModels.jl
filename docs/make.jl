@@ -9,6 +9,7 @@ makedocs(
   sitename = "NLPModels.jl",
   pages = ["Home" => "index.md",
            "Models" => "models.md",
+           "Guidelines" => "guidelines.md",
            "Tools" => "tools.md",
            "Tutorial" => "tutorial.md",
            "API" => "api.md",
