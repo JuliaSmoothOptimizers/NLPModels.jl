@@ -5,8 +5,6 @@ Julia and a standardized API to evaluate the functions and their derivatives.
 The main objective is to be able to rely on that [API](@ref) when designing
 optimization solvers in Julia.
 
-Current NLPModels.jl works on Julia 1.0.
-
 ## Introduction
 
 The general form of the optimization problem is
@@ -114,6 +112,8 @@ See the [Models](@ref), the [Tools](@ref tools-section), the [Tutorial](@ref), o
    used.
 
 If you want your interface here, open a PR.
+
+If you want to create your own interface, check these [Guidelines](@ref).
 
 ## Attributes
 
