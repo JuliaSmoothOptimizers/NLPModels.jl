@@ -206,8 +206,8 @@ Computes J(x), the Jacobian of the residual at x, in linear operator form.
 function jac_op_residual(nls :: AbstractNLSModel, x :: AbstractVector)
   prod = @closure v -> jprod_residual(nls, x, v)
   ctprod = @closure v -> jtprod_residual(nls, x, v)
-  return LinearOperator{Float64}(nls_meta(nls).nequ, nls_meta(nls).nvar,
-                                 false, false, prod, ctprod, ctprod)
+  return LinearOperator{eltype(x)}(nls_meta(nls).nequ, nls_meta(nls).nvar,
+                                   false, false, prod, ctprod, ctprod)
 end
 
 """
@@ -220,8 +220,8 @@ function jac_op_residual!(nls :: AbstractNLSModel, x :: AbstractVector,
                           Jv :: AbstractVector, Jtv :: AbstractVector)
   prod = @closure v -> jprod_residual!(nls, x, v, Jv)
   ctprod = @closure v -> jtprod_residual!(nls, x, v, Jtv)
-  return LinearOperator{Float64}(nls_meta(nls).nequ, nls_meta(nls).nvar,
-                                 false, false, prod, ctprod, ctprod)
+  return LinearOperator{eltype(x)}(nls_meta(nls).nequ, nls_meta(nls).nvar,
+                                   false, false, prod, ctprod, ctprod)
 end
 
 """
@@ -312,8 +312,8 @@ Computes the Hessian of the i-th residual at x, in linear operator form.
 """
 function hess_op_residual(nls :: AbstractNLSModel, x :: AbstractVector, i :: Int)
   prod = @closure v -> hprod_residual(nls, x, i, v)
-  return LinearOperator{Float64}(nls_meta(nls).nvar, nls_meta(nls).nvar,
-                                 true, true, prod, prod, prod)
+  return LinearOperator{eltype(x)}(nls_meta(nls).nvar, nls_meta(nls).nvar,
+                                   true, true, prod, prod, prod)
 end
 
 """
@@ -323,8 +323,8 @@ Computes the Hessian of the i-th residual at x, in linear operator form. The vec
 """
 function hess_op_residual!(nls :: AbstractNLSModel, x :: AbstractVector, i :: Int, Hiv :: AbstractVector)
   prod = @closure v -> hprod_residual!(nls, x, i, v, Hiv)
-  return LinearOperator{Float64}(nls_meta(nls).nvar, nls_meta(nls).nvar,
-                                 true, true, prod, prod, prod)
+  return LinearOperator{eltype(x)}(nls_meta(nls).nvar, nls_meta(nls).nvar,
+                                   true, true, prod, prod, prod)
 end
 
 function obj(nls :: AbstractNLSModel, x :: AbstractVector)
