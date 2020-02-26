@@ -26,26 +26,14 @@ function LSR1Model(nlp :: AbstractNLPModel; memory :: Int=5)
   return LSR1Model(nlp.meta, nlp, op)
 end
 
-# retrieve counters from underlying model
-for counter in fieldnames(Counters)
-  @eval begin
-    $counter(nlp :: QuasiNewtonModel) = $counter(nlp.model)
-    export $counter
-  end
-end
-
-sum_counters(nlp :: QuasiNewtonModel) = sum_counters(nlp.model)
-
-function increment!(nlp :: QuasiNewtonModel, s :: Symbol)
-  increment!(nlp.model, s)
-end
+@default_inner_counters QuasiNewtonModel model
 
 function decrement!(nlp :: QuasiNewtonModel, s :: Symbol)
   decrement!(nlp.model, s)
 end
 
 function reset!(nlp :: QuasiNewtonModel)
-  reset!(nlp.model.counters)
+  reset!(nlp.model)
   reset!(nlp.op)
   return nlp
 end

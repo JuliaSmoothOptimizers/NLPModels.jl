@@ -127,37 +127,10 @@ import Base.show
 # show(nlp :: SlackModel) = show(nlp.model)
 
 # retrieve counters from underlying model
-for counter in fieldnames(Counters)
-  @eval begin
-    $counter(nlp :: SlackModels) = $counter(nlp.model)
-    export $counter
-  end
-end
-
-for counter in fieldnames(NLSCounters)
-  counter == :Counters && continue
-  @eval begin
-    $counter(nlp :: SlackNLSModel) = $counter(nlp.model)
-    export $counter
-  end
-end
-
-sum_counters(nlp :: SlackModels) = sum_counters(nlp.model)
+@default_inner_counters SlackModels model
+@default_inner_nlscounters SlackNLSModel model
 
 nls_meta(nlp :: SlackNLSModel) = nlp.nls_meta
-
-function increment!(nlp :: SlackModels, s :: Symbol)
-  increment!(nlp.model, s)
-end
-
-function decrement!(nlp :: SlackModels, s :: Symbol)
-  decrement!(nlp.model, s)
-end
-
-function reset!(nlp :: SlackModels)
-  reset!(nlp.model.counters)
-  return nlp
-end
 
 function obj(nlp :: SlackModels, x :: AbstractVector)
   # f(X) = f(x)
