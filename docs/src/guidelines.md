@@ -112,6 +112,7 @@ manual = ADNLPModel(x -> f(x) + ρ * norm(x - z)^2 / 2, [-1.2; 1.0])
 
 consistent_nlps([rnlp, manual])
 ```
+The complete example is available in the repository [RegularizationModel.jl](https://github.com/JuliaSmoothOptimizers/RegularizationModel.jl).
 
 ## [Expected behaviour](@id expected-behaviour)
 
