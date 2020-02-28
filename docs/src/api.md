@@ -3,11 +3,11 @@
 As stated in the [Home](@ref) page, we consider the nonlinear optimization
 problem in the following format:
 ```math
-\begin{align*}
+\begin{aligned}
 \min \quad & f(x) \\
 & c_L \leq c(x) \leq c_U \\
 & \ell \leq x \leq u.
-\end{align*}
+\end{aligned}
 ```
 To develop an optimization algorithm, we are usually worried not only with
 ``f(x)`` and ``c(x)``, but also with their derivatives.
@@ -15,7 +15,7 @@ Namely,
 
 - ``\nabla f(x)``, the gradient of ``f`` at the point ``x``;
 - ``\nabla^2 f(x)``, the Hessian of ``f`` at the point ``x``;
-- ``J(x) = \nabla c(x)``, the Jacobian of ``c`` at the point ``x``;
+- ``J(x) = \nabla c(x)^T``, the Jacobian of ``c`` at the point ``x``;
 - ``\nabla^2 f(x) + \sum_{i=1}^m \lambda_i \nabla^2 c_i(x)``,
   the Hessian of the Lagrangian function at the point ``(x,\lambda)``.
 
@@ -44,13 +44,13 @@ NLPModels instances.
 | ``J(x)``            | [`jac`](@ref), [`jac_op`](@ref), [`jac_op!`](@ref), [`jac_coord`](@ref), [`jac_coord!`](@ref), [`jac_structure`](@ref), [`jprod`](@ref), [`jprod!`](@ref), [`jtprod`](@ref), [`jtprod!`](@ref) |
 | ``\nabla^2 L(x,y)`` | [`hess`](@ref), [`hess_op`](@ref), [`hess_coord`](@ref), [`hess_coord!`](@ref), [`hess_structure`](@ref), [`hess_structure!`](@ref), [`hprod`](@ref), [`hprod!`](@ref) |
 
-## API for NLSModels
+## [API for NLSModels](@id nls-api)
 
 For the Nonlinear Least Squares models, ``f(x) = \Vert F(x)\Vert^2``,
 and these models have additional function to access the residual value
 and its derivatives. Namely,
 
-- ``J_F(x) = \nabla F(x)``
+- ``J_F(x) = \nabla F(x)^T``
 - ``\nabla^2 F_i(x)``
 
 | Function            | function |

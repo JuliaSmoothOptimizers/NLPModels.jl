@@ -302,11 +302,11 @@ jac_residual(nls, x0)
 We can also define a linear least squares by passing the matrices that define the
 problem
 ```math
-\begin{align*}
+\begin{aligned}
 \min \quad & \tfrac{1}{2}\|Ax - b\|^2 \\
 & c_L  \leq Cx \leq c_U \\
 & \ell \leq  x \leq u.
-\end{align*}
+\end{aligned}
 ```
 ```@example nls
 using LinearAlgebra # hide

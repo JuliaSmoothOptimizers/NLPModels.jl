@@ -3,19 +3,27 @@ export FeasibilityResidual
 # TODO: Extend to handle bounds
 """
 A feasibility residual model is created from a NLPModel of the form
-
-    min f(x)
-    s.t cℓ ≤ c(x) ≤ cu
-        bℓ ≤   x  ≤ bu
-
-by creating slack variables s and defining F(x,s) = c(x) - s. The resulting NLS problem is
-
-    min ¹/₂‖c(x) - s‖²
-        bℓ ≤ x ≤ bu
-        cℓ ≤ s ≤ bu
-
-This is done using SlackModel first, and then defining the NLS. Notice that if bℓᵢ =
-buᵢ, no slack variable is created.
+```math
+\\begin{aligned}
+       \\min_x \\quad & f(x) \\\\
+\\mathrm{s.t.} \\quad & c_L ≤ c(x) ≤ c_U \\\\
+                      & \\ell ≤   x  ≤ u,
+\\end{aligned}
+```
+by creating slack variables ``s = c(x)`` and defining an NLS problem from the equality constraints.
+The resulting problem is a bound-constrained nonlinear least-squares problem with residual
+function ``F(x,s) = c(x) - s``:
+```math
+\\begin{aligned}
+       \\min_x \\quad & \\tfrac{1}{2} \\|c(x) - s\\|^2 \\\\
+\\mathrm{s.t.} \\quad & \\ell ≤ x ≤ u \\\\
+                      & c_L ≤ s ≤ c_U.
+\\end{aligned}
+```
+Notice that this problem is an `AbstractNLSModel`, thus the residual value, Jacobian and Hessian are explicitly defined through the [NLS API](@ref nls-api).
+The slack variables are created using SlackModel.
+If ``\\ell_i = u_i``, no slack variable is created.
+In particular, if there are only equality constrained of the form ``c(x) = 0``, the resulting NLS is simply ``\\min_x \\tfrac{1}{2}\\|c(x)\\|^2``.
 """
 mutable struct FeasibilityResidual <: AbstractNLSModel
   meta :: NLPModelMeta

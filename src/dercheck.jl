@@ -5,7 +5,10 @@
 export gradient_check, jacobian_check, hessian_check, hessian_check_from_grad
 
 
-"""Check the first derivatives of the objective at `x` against centered
+"""
+    gradient_check(nlp; x=nlp.meta.x0, atol=1e-6, rtol=1e-4)
+
+Check the first derivatives of the objective at `x` against centered
 finite differences.
 
 This function returns a dictionary indexed by components of the gradient for
@@ -35,7 +38,10 @@ function gradient_check(nlp :: AbstractNLPModel;
 end
 
 
-"""Check the first derivatives of the constraints at `x` against centered
+"""
+    jacobian_check(nlp; x=nlp.meta.x0, atol=1e-6, rtol=1e-4)
+
+Check the first derivatives of the constraints at `x` against centered
 finite differences.
 
 This function returns a dictionary indexed by (j, i) tuples such that the
@@ -76,21 +82,23 @@ function jacobian_check(nlp :: AbstractNLPModel;
 end
 
 
-"""Check the second derivatives of the objective and each constraints at `x`
+"""
+    hessian_check(nlp; x=nlp.meta.x0, atol=1e-6, rtol=1e-4, sgn=1)
+
+Check the second derivatives of the objective and each constraints at `x`
 against centered finite differences. This check does not rely on exactness of
 the first derivatives, only on objective and constraint values.
 
 The `sgn` arguments refers to the formulation of the Lagrangian in the problem.
 It should have a positive value if the Lagrangian is formulated as
-
-    L(x,y) = f(x) + ∑ yⱼ cⱼ(x)
-
-e.g., as in `JuMPNLPModel`s, and a negative value if the Lagrangian is
-formulated as
-
-    L(x,y) = f(x) - ∑ yⱼ cⱼ(x)
-
-e.g., as in `AmplModel`s. Only the sign of `sgn` is important.
+```math
+L(x,y) = f(x) + \\sum_j yⱼ cⱼ(x),
+```
+and a negative value if the Lagrangian is formulated as
+```math
+L(x,y) = f(x) - \\sum_j yⱼ cⱼ(x).
+```
+Only the sign of `sgn` is important.
 
 This function returns a dictionary indexed by functions. The 0-th function is
 the objective while the k-th function (for k > 0) is the k-th constraint. The
@@ -162,21 +170,23 @@ function hessian_check(nlp :: AbstractNLPModel;
 end
 
 
-"""Check the second derivatives of the objective and each constraints at `x`
+"""
+    hessian_check_from_grad(nlp; x=nlp.meta.x0, atol=1e-6, rtol=1e-4, sgn=1)
+
+Check the second derivatives of the objective and each constraints at `x`
 against centered finite differences. This check assumes exactness of the first
 derivatives.
 
 The `sgn` arguments refers to the formulation of the Lagrangian in the problem.
 It should have a positive value if the Lagrangian is formulated as
-
-    L(x,y) = f(x) + ∑ yⱼ cⱼ(x)
-
-e.g., as in `JuMPNLPModel`s, and a negative value if the Lagrangian is
-formulated as
-
-    L(x,y) = f(x) - ∑ yⱼ cⱼ(x)
-
-e.g., as in `AmplModel`s. Only the sign of `sgn` is important.
+```math
+L(x,y) = f(x) + \\sum_j yⱼ cⱼ(x),
+```
+and a negative value if the Lagrangian is formulated as
+```math
+L(x,y) = f(x) - \\sum_j yⱼ cⱼ(x).
+```
+Only the sign of `sgn` is important.
 
 This function returns a dictionary indexed by functions. The 0-th function is
 the objective while the k-th function (for k > 0) is the k-th constraint. The
