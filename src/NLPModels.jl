@@ -12,7 +12,7 @@ with `σ = obj_weight`
 """
 const LAGRANGIAN_HESSIAN = raw"""
 ```math
-∇²L(x,y) = σ ∇²f(x) + ∑ᵢ yᵢ ∇²cᵢ(x),
+∇²L(x,y) = σ ∇²f(x) + \sum_i yᵢ ∇²cᵢ(x),
 ```
 with `σ = obj_weight`
 """
@@ -237,7 +237,7 @@ jac_structure!(:: AbstractNLPModel, :: AbstractVector{<:Integer}, :: AbstractVec
 """
     vals = jac_coord!(nlp, x, vals)
 
-Evaluate ``∇c(x)``, the constraint's Jacobian at `x` in sparse coordinate format,
+Evaluate ``J(x)``, the constraint's Jacobian at `x` in sparse coordinate format,
 rewriting `vals`.
 """
 jac_coord!(:: AbstractNLPModel, :: AbstractVector, ::AbstractVector) = throw(NotImplementedError("jac_coord!"))
@@ -245,7 +245,7 @@ jac_coord!(:: AbstractNLPModel, :: AbstractVector, ::AbstractVector) = throw(Not
 """
     vals = jac_coord(nlp, x)
 
-Evaluate ``∇c(x)``, the constraint's Jacobian at `x` in sparse coordinate format.
+Evaluate ``J(x)``, the constraint's Jacobian at `x` in sparse coordinate format.
 """
 function jac_coord(nlp :: AbstractNLPModel, x :: AbstractVector)
   vals = Vector{eltype(x)}(undef, nlp.meta.nnzj)
@@ -255,7 +255,7 @@ end
 """
     Jx = jac(nlp, x)
 
-Evaluate ``∇c(x)``, the constraint's Jacobian at `x` as a sparse matrix.
+Evaluate ``J(x)``, the constraint's Jacobian at `x` as a sparse matrix.
 """
 function jac(nlp::AbstractNLPModel, x::AbstractVector)
   rows, cols = jac_structure(nlp)
@@ -266,7 +266,7 @@ end
 """
     Jv = jprod(nlp, x, v)
 
-Evaluate ``∇c(x)v``, the Jacobian-vector product at `x`.
+Evaluate ``J(x)v``, the Jacobian-vector product at `x`.
 """
 function jprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector)
   Jv = similar(v, nlp.meta.ncon)
@@ -276,7 +276,7 @@ end
 """
     Jv = jprod!(nlp, x, v, Jv)
 
-Evaluate ``∇c(x)v``, the Jacobian-vector product at `x` in place.
+Evaluate ``J(x)v``, the Jacobian-vector product at `x` in place.
 """
 jprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("jprod!"))
@@ -284,7 +284,7 @@ jprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector)
 """
     Jv = jprod!(nlp, rows, cols, vals, v, Jv)
 
-Evaluate ``∇c(x)v``, the Jacobian-vector product, where the Jacobian is given by
+Evaluate ``J(x)v``, the Jacobian-vector product, where the Jacobian is given by
 `(rows, cols, vals)` in triplet format.
 """
 function jprod!(nlp::AbstractNLPModel, rows::AbstractVector{<: Integer}, cols::AbstractVector{<: Integer}, vals::AbstractVector, v::AbstractVector, Jv::AbstractVector)
@@ -295,7 +295,7 @@ end
 """
     Jv = jprod!(nlp, x, rows, cols, v, Jv)
 
-Evaluate ``∇c(x)v``, the Jacobian-vector product at `x` in place.
+Evaluate ``J(x)v``, the Jacobian-vector product at `x` in place.
 `(rows, cols)` should be the Jacobian structure in triplet format.
 """
 jprod!(nlp::AbstractNLPModel, x::AbstractVector, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}, v::AbstractVector, Jv::AbstractVector) = jprod!(nlp, x, v, Jv)
@@ -303,7 +303,7 @@ jprod!(nlp::AbstractNLPModel, x::AbstractVector, ::AbstractVector{<: Integer}, :
 """
     Jtv = jtprod(nlp, x, v, Jtv)
 
-Evaluate ``∇c(x)^Tv``, the transposed-Jacobian-vector product at `x`.
+Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product at `x`.
 """
 function jtprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector)
   Jtv = similar(x)
@@ -313,7 +313,7 @@ end
 """
     Jtv = jtprod!(nlp, x, v, Jtv)
 
-Evaluate ``∇c(x)^Tv``, the transposed-Jacobian-vector product at `x` in place.
+Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product at `x` in place.
 """
 jtprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
   throw(NotImplementedError("jtprod!"))
@@ -321,7 +321,7 @@ jtprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector
 """
     Jtv = jtprod!(nlp, rows, cols, vals, v, Jtv)
 
-Evaluate ``∇c(x)^Tv``, the transposed-Jacobian-vector product, where the
+Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product, where the
 Jacobian is given by `(rows, cols, vals)` in triplet format.
 """
 function jtprod!(nlp::AbstractNLPModel, rows::AbstractVector{<: Integer}, cols::AbstractVector{<: Integer}, vals::AbstractVector, v::AbstractVector, Jtv::AbstractVector)
@@ -332,7 +332,7 @@ end
 """
     Jtv = jtprod!(nlp, x, rows, cols, v, Jtv)
 
-Evaluate ``∇c(x)^Tv``, the transposed-Jacobian-vector product at `x` in place.
+Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product at `x` in place.
 `(rows, cols)` should be the Jacobian structure in triplet format.
 """
 jtprod!(nlp::AbstractNLPModel, x::AbstractVector, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}, v::AbstractVector, Jtv::AbstractVector) = jtprod!(nlp, x, v, Jtv)

@@ -11,12 +11,12 @@ Current NLPModels.jl works on Julia 1.0.
 
 The general form of the optimization problem is
 ```math
-\begin{align*}
+\begin{aligned}
 \min \quad & f(x) \\
 & c_i(x) = 0, \quad i \in E, \\
 & c_{L_i} \leq c_i(x) \leq c_{U_i}, \quad i \in I, \\
 & \ell \leq x \leq u,
-\end{align*}
+\end{aligned}
 ```
 where ``f:\mathbb{R}^n\rightarrow\mathbb{R}``,
 ``c:\mathbb{R}^n\rightarrow\mathbb{R}^m``,
@@ -27,11 +27,11 @@ for ``i = 1,\dots,m`` and ``j = 1,\dots,n``.
 
 For computational reasons, we write
 ```math
-\begin{align*}
+\begin{aligned}
 \min \quad & f(x) \\
 & c_L \leq c(x) \leq c_U \\
 & \ell \leq x \leq u,
-\end{align*}
+\end{aligned}
 ```
 defining ``c_{L_i} = c_{U_i}`` for all ``i \in E``.
 The Lagrangian of this problem is defined as

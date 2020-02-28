@@ -24,6 +24,8 @@ There are other external models implemented. In particular,
 There are currently two models implemented in this package, besides the
 external ones.
 
+# NLPModels
+
 ## ADNLPModel
 
 ```@docs
@@ -74,6 +76,8 @@ NLPModels.LBFGSModel
 ```@docs
 NLPModels.LSR1Model
 ```
+
+# NLSModels
 
 ## ADNLSModel
 

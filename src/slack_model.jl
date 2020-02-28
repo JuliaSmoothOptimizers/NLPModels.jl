@@ -9,33 +9,33 @@ equality constraints and bounds. More precisely, if the original model has the
 form
 
 ```math
-\begin{align*}
+\begin{aligned}
        \min_x \quad & f(x)\\
 \mathrm{s.t.} \quad & c_L ≤ c(x) ≤ c_U,\\
                     &  ℓ  ≤  x   ≤  u,
-\end{align*}
+\end{aligned}
 ```
 
 the new model appears to the user as
 
 ```math
-\begin{align*}
+\begin{aligned}
        \min_X \quad & f(X)\\
 \mathrm{s.t.} \quad & g(X) = 0,\\
                     & L ≤ X ≤ U.
-\end{align*}
+\end{aligned}
 ```
 
 The unknowns ``X = (x, s)`` contain the original variables and slack variables
 ``s``. The latter are such that the new model has the general form
 
 ```math
-\begin{align*}
+\begin{aligned}
        \min_x \quad & f(x)\\
 \mathrm{s.t.} \quad & c(x) - s = 0,\\
                     & c_L ≤ s ≤ c_U,\\
                     &  ℓ  ≤ x ≤ u.
-\end{align*}
+\end{aligned}
 ```
 
 although no slack variables are introduced for equality constraints.
