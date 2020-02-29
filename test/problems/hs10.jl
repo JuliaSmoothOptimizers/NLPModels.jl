@@ -63,12 +63,6 @@ function NLPModels.hess_coord!(nlp :: HS10, x :: AbstractVector{T}, y :: Abstrac
   return vals
 end
 
-function NLPModels.hprod!(nlp :: HS10, x :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=1.0) where T
-  increment!(nlp, :neval_hprod)
-  fill!(Hv, zero(T))
-  return Hv
-end
-
 function NLPModels.hprod!(nlp :: HS10, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0)
   increment!(nlp, :neval_hprod)
   Hv[1:nlp.meta.nvar] .= y[1] * [-6 * v[1] + 2 * v[2]; 2 * v[1] - 2 * v[2]]

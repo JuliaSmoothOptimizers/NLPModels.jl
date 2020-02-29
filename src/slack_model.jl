@@ -173,7 +173,7 @@ function grad!(nlp :: SlackModels, x :: AbstractVector, g :: AbstractVector)
   return g
 end
 
-function objgrad!(nlp :: SlackModels, x :: Array{Float64}, g :: Array{Float64})
+function objgrad!(nlp :: SlackModels, x :: AbstractVector, g :: AbstractVector)
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   @views f, _ = objgrad!(nlp.model, x[1:n], g[1:n])
@@ -266,13 +266,13 @@ function hess_structure!(nlp :: SlackModels, rows :: AbstractVector{<: Integer},
 end
 
 function hess_coord!(nlp :: SlackModels, x :: AbstractVector, vals :: AbstractVector;
-                     obj_weight :: Float64=1.0)
+                     obj_weight :: Real=one(eltype(x)))
   n = nlp.model.meta.nvar
   return hess_coord!(nlp.model, view(x, 1:n), vals, obj_weight=obj_weight)
 end
 
 function hess_coord!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector, vals :: AbstractVector;
-                     obj_weight :: Float64=1.0)
+                     obj_weight :: Real=one(eltype(x)))
   n = nlp.model.meta.nvar
   return hess_coord!(nlp.model, view(x, 1:n), y, vals, obj_weight=obj_weight)
 end
@@ -294,7 +294,7 @@ end
 
 function hprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector,
     hv :: AbstractVector;
-    obj_weight :: Float64=1.0)
+    obj_weight :: Real=one(eltype(x)))
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   # using hv[1:n] doesn't seem to work here
@@ -303,7 +303,7 @@ function hprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector,
   return hv
 end
 
-function hprod!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, hv :: AbstractVector; obj_weight :: Float64=1.0)
+function hprod!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, hv :: AbstractVector; obj_weight :: Real=one(eltype(x)))
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
   # using hv[1:n] doesn't seem to work here
@@ -353,7 +353,7 @@ function jac_op_residual!(nls :: SlackNLSModel, x :: AbstractVector,
                           Jv :: AbstractVector, Jtv :: AbstractVector)
   prod = @closure v -> jprod_residual!(nls, x, v, Jv)
   ctprod = @closure v -> jtprod_residual!(nls, x, v, Jtv)
-  return LinearOperator{Float64}(nls_meta(nls).nequ, nls_meta(nls).nvar,
+  return LinearOperator{eltype(x)}(nls_meta(nls).nequ, nls_meta(nls).nvar,
                                  false, false, prod, ctprod, ctprod)
 end
 
@@ -397,6 +397,6 @@ end
 
 function hess_op_residual!(nls :: SlackNLSModel, x :: AbstractVector, i :: Int, Hiv :: AbstractVector)
   prod = @closure v -> hprod_residual!(nls, x, i, v, Hiv)
-  return LinearOperator{Float64}(nls_meta(nls).nvar, nls_meta(nls).nvar,
+  return LinearOperator{eltype(x)}(nls_meta(nls).nvar, nls_meta(nls).nvar,
                                  true, true, prod, prod, prod)
 end
