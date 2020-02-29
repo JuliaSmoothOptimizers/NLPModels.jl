@@ -279,7 +279,7 @@ vectors `Jv` and `Jtv` are used as preallocated storage for the operations.
 function jac_op_residual!(nls :: AbstractNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector, Jv :: AbstractVector, Jtv :: AbstractVector)
   prod = @closure v -> jprod_residual!(nls, rows, cols, vals, v, Jv)
   ctprod = @closure v -> jtprod_residual!(nls, rows, cols, vals, v, Jtv)
-  return LinearOperator{Float64}(nls_meta(nls).nequ, nls_meta(nls).nvar,
+  return LinearOperator{eltype(vals)}(nls_meta(nls).nequ, nls_meta(nls).nvar,
                                  false, false, prod, ctprod, ctprod)
 end
 

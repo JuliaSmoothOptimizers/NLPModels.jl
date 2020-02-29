@@ -61,12 +61,6 @@ function NLPModels.hess_coord!(nlp :: HS6, x :: AbstractVector{T}, y :: Abstract
   return vals
 end
 
-function NLPModels.hprod!(nlp :: HS6, x :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=one(T)) where T
-  increment!(nlp, :neval_hprod)
-  Hv .= [2obj_weight * v[1]; 0]
-  return Hv
-end
-
 function NLPModels.hprod!(nlp :: HS6, x :: AbstractVector{T}, y :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=one(T)) where T
   increment!(nlp, :neval_hprod)
   Hv .= [(2obj_weight - 20y[1]) * v[1]; 0]

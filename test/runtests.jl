@@ -28,22 +28,25 @@ end
 model = DummyModel(NLPModelMeta(1))
 @test_throws(NotImplementedError, lagscale(model, 1.0))
 for meth in [:obj, :varscale, :conscale]
-  @eval @test_throws(NotImplementedError, $meth(model, [0]))
+  @eval @test_throws(NotImplementedError, $meth(model, [0.0]))
 end
-for meth in [:grad!, :cons!, :jac_structure!, :hess_structure!, :jac_coord!, :hess_coord!]
+for meth in [:jac_structure!, :hess_structure!]
   @eval @test_throws(NotImplementedError, $meth(model, [0], [1]))
 end
+for meth in [:grad!, :cons!, :jac_coord!]
+  @eval @test_throws(NotImplementedError, $meth(model, [0.0], [1.0]))
+end
 for meth in [:jth_con, :jth_congrad, :jth_sparse_congrad]
-  @eval @test_throws(NotImplementedError, $meth(model, [0], 1))
+  @eval @test_throws(NotImplementedError, $meth(model, [0.0], 1))
 end
-@test_throws(NotImplementedError, jth_congrad!(model, [0], 1, [2]))
-for meth in [:jprod!, :jtprod!, :hprod!, :hess_coord!]
-  @eval @test_throws(NotImplementedError, $meth(model, [0], [1], [2]))
+@test_throws(NotImplementedError, jth_congrad!(model, [0.0], 1, [2.0]))
+for meth in [:jprod!, :jtprod!]
+  @eval @test_throws(NotImplementedError, $meth(model, [0.0], [1.0], [2.0]))
 end
-@test_throws(NotImplementedError, jth_hprod(model, [0], [1], 2))
-@test_throws(NotImplementedError, jth_hprod!(model, [0], [1], 2, [3]))
-for meth in [:ghjvprod!, :hprod!]
-  @eval @test_throws(NotImplementedError, $meth(model, [0], [1], [2], [3]))
+@test_throws(NotImplementedError, jth_hprod(model, [0.0], [1.0], 2))
+@test_throws(NotImplementedError, jth_hprod!(model, [0.0], [1.0], 2, [3.0]))
+for meth in [:ghjvprod!]
+  @eval @test_throws(NotImplementedError, $meth(model, [0.0], [1.0], [2.0], [3.0]))
 end
 @assert isa(hess_op(model, [0.]), LinearOperator)
 @assert isa(jac_op(model, [0.]), LinearOperator)

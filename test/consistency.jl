@@ -155,6 +155,10 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
           res = H * v
           @test isapprox(Hvs[i], res, atol=rtol * max(Hvmin, 1.0))
         end
+        if σ == 1 # Check hprod! with default obj_weight
+          hprod!(nlps[i], x, v, tmp_n)
+          @test isapprox(Hvs[i], tmp_n, atol=rtol * max(Hvmin, 1.0))
+        end
       end
     end
   end
