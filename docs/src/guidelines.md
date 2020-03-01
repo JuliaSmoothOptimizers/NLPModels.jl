@@ -148,8 +148,8 @@ $counter(nlp :: SlackModel) = $counter(nlp.model)
 reset!(nlp :: SlackModel) = reset!(nlp.model)
 increment!(nlp :: SlackModel, s :: Symbol) = increment!(nlp.model, s)
 ```
-This construction can be replicated calling the macro `@default_inner_counters Model inner`.
+This construction can be replicated calling the macro `@default_counters Model inner`.
 In the case of SlackModel, the equivalent call is
 ```julia
-@default_inner_counters SlackModel model
+@default_counters SlackModel model
 ```

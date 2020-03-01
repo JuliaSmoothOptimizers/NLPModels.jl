@@ -1,5 +1,5 @@
 export coo_prod!, coo_sym_prod!,
-       @default_inner_counters, @default_inner_nlscounters
+       @default_counters, @default_nlscounters
 
 # Check that arrays have a prescribed size.
 # https://groups.google.com/forum/?fromgroups=#!topic/julia-users/b6RbQ2amKzg
@@ -64,11 +64,11 @@ function coo_sym_prod!(rows :: AbstractVector{<: Integer}, cols :: AbstractVecto
 end
 
 """
-    @default_inner_counters Model inner
+    @default_counters Model inner
 
 Define functions relating counters of `Model` to counters of `Model.inner`.
 """
-macro default_inner_counters(Model, inner)
+macro default_counters(Model, inner)
   ex = Expr(:block)
   for foo in fieldnames(Counters) ∪ [:sum_counters, :reset!]
     push!(ex.args, :(NLPModels.$foo(nlp :: $(esc(Model))) = $foo(nlp.$inner)))
@@ -78,11 +78,11 @@ macro default_inner_counters(Model, inner)
 end
 
 """
-    @default_inner_nlscounters Model inner
+    @default_nlscounters Model inner
 
 Define functions relating NLS counters of `Model` to NLS counters of `Model.inner`.
 """
-macro default_inner_nlscounters(Model, inner)
+macro default_nlscounters(Model, inner)
   ex = Expr(:block)
   for foo in fieldnames(NLSCounters) ∪ [:sum_counters, :reset!]
     foo == :counters && continue
