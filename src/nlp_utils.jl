@@ -74,6 +74,7 @@ macro default_counters(Model, inner)
     push!(ex.args, :(NLPModels.$foo(nlp :: $(esc(Model))) = $foo(nlp.$inner)))
   end
   push!(ex.args, :(NLPModels.increment!(nlp :: $(esc(Model)), s :: Symbol) = increment!(nlp.$inner, s)))
+  push!(ex.args, :(NLPModels.decrement!(nlp :: $(esc(Model)), s :: Symbol) = decrement!(nlp.$inner, s)))
   ex
 end
 
@@ -89,5 +90,6 @@ macro default_nlscounters(Model, inner)
     push!(ex.args, :(NLPModels.$foo(nlp :: $(esc(Model))) = $foo(nlp.$inner)))
   end
   push!(ex.args, :(NLPModels.increment!(nlp :: $(esc(Model)), s :: Symbol) = increment!(nlp.$inner, s)))
+  push!(ex.args, :(NLPModels.decrement!(nlp :: $(esc(Model)), s :: Symbol) = decrement!(nlp.$inner, s)))
   ex
 end
