@@ -26,7 +26,7 @@ function LSR1Model(nlp :: AbstractNLPModel; memory :: Int=5)
   return LSR1Model(nlp.meta, nlp, op)
 end
 
-@default_inner_counters QuasiNewtonModel model
+@default_counters QuasiNewtonModel model
 
 function decrement!(nlp :: QuasiNewtonModel, s :: Symbol)
   decrement!(nlp.model, s)

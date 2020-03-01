@@ -127,8 +127,8 @@ import Base.show
 # show(nlp :: SlackModel) = show(nlp.model)
 
 # retrieve counters from underlying model
-@default_inner_counters SlackModels model
-@default_inner_nlscounters SlackNLSModel model
+@default_counters SlackModels model
+@default_nlscounters SlackNLSModel model
 
 nls_meta(nlp :: SlackNLSModel) = nlp.nls_meta
 
