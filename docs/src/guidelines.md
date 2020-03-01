@@ -4,9 +4,9 @@ These are guidelines for the creation of models using NLPModels to help keeping 
 
 Table of contents:
 - [Bare minimum](@ref bare-minimum)
-- [Testing your model](@ref testing-your-model)
 - [Expected behaviour](@ref expected-behaviour)
 - [Advanced counters](@ref advanced-counters)
+- [Advanced tests](@ref advanced-tests)
 
 ## [Bare minimum](@id bare-minimum)
 
@@ -72,7 +72,47 @@ The following functions should be defined:
   - `hess_coord!(nlp, x, y, hvals; obj_weight=1)`
   - `hprod!(nlp, x, y, v, Hv; obj_weight=1)`
 
-## [Testing your model](@id testing-your-model)
+## [Expected behaviour](@id expected-behaviour)
+
+The following is a non-exhaustive list of expected behaviour for methods.
+
+- All in place methods should also return the modified vectors.
+- Vector inputs should have the correct size. If necessary, the user should pass them using views or slices.
+- The triplet format does not assume order nor uniqueness.
+
+## [Advanced counters](@id advanced-counters)
+
+If a model does not implement `counters`, then it needs to define
+- `neval_xxx(nlp)` - get field `xxx` of `Counters`
+- `reset!(nlp)` - resetting all counters
+- `increment!(nlp, s)` - increment counter `s`
+For instance
+```julia
+for counter in fieldnames(Counters)
+  @eval begin
+    $counter(nlp :: MyModel) = SOMETHING
+  end
+end
+function reset!(nlp :: MyModel)
+  RESET COUNTERS
+end
+function increment!(nlp :: MyModel, s :: Symbol)
+  INCREMENT COUNTER s
+end
+```
+One example of such model is the `SlackModel`, which stores an internal `model :: AbstractNLPModel`, thus defining
+```julia
+$counter(nlp :: SlackModel) = $counter(nlp.model)
+reset!(nlp :: SlackModel) = reset!(nlp.model)
+increment!(nlp :: SlackModel, s :: Symbol) = increment!(nlp.model, s)
+```
+This construction can be replicated calling the macro `@default_counters Model inner`.
+In the case of SlackModel, the equivalent call is
+```julia
+@default_counters SlackModel model
+```
+
+## [Advanced tests](@id advanced-tests)
 
 To test your model, in addition to writing specific test functions, it is also advised to write consistency checks.
 If your model can implement general problems, you can use the 6 problems in our `test/problems` folder implemented both as `ADNLPModel` and by explicitly defining these problem as models.
@@ -114,42 +154,3 @@ consistent_nlps([rnlp, manual])
 ```
 The complete example is available in the repository [RegularizationModel.jl](https://github.com/JuliaSmoothOptimizers/RegularizationModel.jl).
 
-## [Expected behaviour](@id expected-behaviour)
-
-The following is a non-exhaustive list of expected behaviour for methods.
-
-- All in place methods should also return the modified vectors.
-- Vector inputs should have the correct size. If necessary, the user should pass them using views or slices.
-- The triplet format does not assume order nor uniqueness.
-
-## [Advanced counters](@id advanced-counters)
-
-If a model does not implement `counters`, then it needs to define
-- `neval_xxx(nlp)` - get field `xxx` of `Counters`
-- `reset!(nlp)` - resetting all counters
-- `increment!(nlp, s)` - increment counter `s`
-For instance
-```julia
-for counter in fieldnames(Counters)
-  @eval begin
-    $counter(nlp :: MyModel) = SOMETHING
-  end
-end
-function reset!(nlp :: MyModel)
-  RESET COUNTERS
-end
-function increment!(nlp :: MyModel, s :: Symbol)
-  INCREMENT COUNTER s
-end
-```
-One example of such model is the `SlackModel`, which stores an internal `model :: AbstractNLPModel`, thus defining
-```julia
-$counter(nlp :: SlackModel) = $counter(nlp.model)
-reset!(nlp :: SlackModel) = reset!(nlp.model)
-increment!(nlp :: SlackModel, s :: Symbol) = increment!(nlp.model, s)
-```
-This construction can be replicated calling the macro `@default_counters Model inner`.
-In the case of SlackModel, the equivalent call is
-```julia
-@default_counters SlackModel model
-```
