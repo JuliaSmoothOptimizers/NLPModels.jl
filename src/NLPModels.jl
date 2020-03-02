@@ -556,7 +556,7 @@ function hprod!(nlp::AbstractNLPModel, rows::AbstractVector{<: Integer}, cols::A
 end
 
 """
-    Hv = hprod!(nlp, x, rows, cols, v, Hv)
+    Hv = hprod!(nlp, x, rows, cols, v, Hv; obj_weight=1.0)
 
 Evaluate the product of the objective Hessian at `x` with the vector `v` in
 place, where the objective Hessian is
@@ -576,7 +576,7 @@ hprod!(nlp::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVect
   throw(NotImplementedError("hprod!"))
 
 """
-    Hv = hprod!(nlp, x, y, rows, cols, v, Hv)
+    Hv = hprod!(nlp, x, y, rows, cols, v, Hv; obj_weight=1.0)
 
 Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in
 place, where the Lagrangian Hessian is

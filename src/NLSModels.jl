@@ -354,8 +354,11 @@ end
 
 Computes the Hessian of the j-th residual at x.
 """
-function jth_hess_residual(nls :: AbstractNLSModel, x :: AbstractVector, i :: Int)
-  throw(NotImplementedError("jth_hess_residual"))
+function jth_hess_residual(nls :: AbstractNLSModel, x :: AbstractVector, j :: Int)
+  increment!(nls, :neval_jhess_residual)
+  decrement!(nls, :neval_hess_residual)
+  v = [i == j ? one(eltype(x)) : zero(eltype(x)) for i = 1 : nls.nls_meta.nequ]
+  return hess_residual(nls, x, v)
 end
 
 """
