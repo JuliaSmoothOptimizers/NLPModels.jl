@@ -50,7 +50,7 @@ iter = 17962</code></pre><p>Maybe this code is too complicated? If you&#39;re in
 H(x) = Symmetric(hess(nlp, x), :L)
 x = nlp.meta.x0
 d = -H(x)\g(x)</code></pre><pre><code class="language-none">2-element Array{Float64,1}:
- 0.0247191011235955 
+ 0.0247191011235955
  0.38067415730337073</code></pre><p>or a few</p><pre><code class="language-julia">for i = 1:5
   global x
   x = x - H(x)\g(x)
@@ -160,7 +160,7 @@ x = hs6.meta.x0
 x0 = [-1.2; 1.0]
 nls = ADNLSModel(F, x0, 2) # 2 nonlinear equations
 residual(nls, x0)</code></pre><pre><code class="language-none">2-element Array{Float64,1}:
- -2.2               
+ -2.2
  -4.3999999999999995</code></pre><pre><code class="language-julia">jac_residual(nls, x0)</code></pre><pre><code class="language-none">2×2 Array{Float64,2}:
   1.0   0.0
  24.0  10.0</code></pre><p>We can also define a linear least squares by passing the matrices that define the problem</p><div>\[\begin{aligned}
@@ -184,4 +184,4 @@ for t = 1:100
   x = rand(2)
   s += norm(residual(nls, x) - cons(nlp, x))
 end
-@info &quot;s = $s&quot;</code></pre><pre><code class="language-none">[ Info: s = 0.0</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tools/">« Tools</a><a class="docs-footer-nextpage" href="../api/">API »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 1 March 2020 19:26">Sunday 1 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+@info &quot;s = $s&quot;</code></pre><pre><code class="language-none">[ Info: s = 0.0</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tools/">« Tools</a><a class="docs-footer-nextpage" href="../api/">API »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 8 March 2020 14:31">Sunday 8 March 2020</span>. Using Julia version 1.4.0-rc2.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
