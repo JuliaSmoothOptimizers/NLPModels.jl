@@ -138,6 +138,8 @@ hessian_check_from_grad
 ```@docs
 coo_prod!
 coo_sym_prod!
+@default_counters
+@default_nlscounters
 NLPModels.increment!
 NLPModels.decrement!
 ```
