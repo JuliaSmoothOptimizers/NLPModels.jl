@@ -9,16 +9,16 @@ function lincon_autodiff()
 
   x0 = zeros(15)
   f(x) = sum(i + x[i]^4 for i = 1:15)
-  con(x) = [15 * x[15] - 21;
-            c' * x[10:12] + 2;
-            d' * x[13:14] - 4;
-            b' * x[8:9] + 1;
-            C * x[6:7] + d;
-            A * x[1:2] + b;
-            B * x[3:5] - c]
+  con(x) = [15 * x[15];
+            c' * x[10:12];
+            d' * x[13:14];
+            b' * x[8:9];
+            C * x[6:7];
+            A * x[1:2];
+            B * x[3:5]]
 
-  lcon = [1.0; 3.0; -Inf; -10.0; zeros(2);      zeros(2); -Inf * ones(3)]
-  ucon = [1.0; Inf; 12.0;  10.0; zeros(2); Inf * ones(2);       zeros(3)]
+  lcon = [22.0; 1.0; -Inf; -11.0; -d;            -b; -Inf * ones(3)]
+  ucon = [22.0; Inf; 16.0;   9.0; -d; Inf * ones(2);              c]
 
   return ADNLPModel(f, x0, c=con, lcon=lcon, ucon=ucon)
 end
@@ -29,7 +29,7 @@ mutable struct LINCON <: AbstractNLPModel
 end
 
 function LINCON()
-  meta = NLPModelMeta(15, nnzh=15, nnzj=17, ncon=11, x0=zeros(15), lcon = [1.0; 3.0; -Inf; -10.0; zeros(2); zeros(2); -Inf * ones(3)], ucon=[1.0; Inf; 12.0;  10.0; zeros(2); Inf * ones(2); zeros(3)], name="LINCON")
+  meta = NLPModelMeta(15, nnzh=15, nnzj=17, ncon=11, x0=zeros(15), lcon = [22.0; 1.0; -Inf; -11.0; -1.0; 1.0; -5.0; -6.0; -Inf * ones(3)], ucon=[22.0; Inf; 16.0; 9.0; -1.0; 1.0; Inf * ones(2); 1.0; 2.0; 3.0], name="LINCON")
 
   return LINCON(meta, Counters())
 end
@@ -47,7 +47,7 @@ end
 
 function NLPModels.hess(nlp :: LINCON, x :: AbstractVector{T}; obj_weight=one(T)) where T
   increment!(nlp, :neval_hess)
-  return T.(diagm([12.0 * x[i]^2 for i=1:nlp.meta.nvar])) * obj_weight
+  return obj_weight * diagm([12 * x[i]^2 for i=1:nlp.meta.nvar])
 end
 
 function NLPModels.hess(nlp :: LINCON, x :: AbstractVector{T}, y :: AbstractVector{T}; obj_weight=one(T)) where T
@@ -84,13 +84,13 @@ end
 
 function NLPModels.cons!(nlp :: LINCON, x :: AbstractVector, cx :: AbstractVector)
   increment!(nlp, :neval_cons)
-  cx .= [15 * x[15] - 21;
-            [1; 2; 3]' * x[10:12] + 2;
-            [1; -1]' * x[13:14] - 4;
-            [5; 6]' * x[8:9] + 1;
-            [0 -2; 4 0] * x[6:7] + [1; -1];
-            [1 2; 3 4] * x[1:2] + [5; 6];
-            diagm([3 * i for i = 3:5]) * x[3:5] - [1; 2; 3]]
+  cx .= [15 * x[15];
+        [1; 2; 3]' * x[10:12];
+        [1; -1]' * x[13:14];
+        [5; 6]' * x[8:9];
+        [0 -2; 4 0] * x[6:7];
+        [1 2; 3 4] * x[1:2];
+        diagm([3 * i for i = 3:5]) * x[3:5]]
   return cx
 end
 
