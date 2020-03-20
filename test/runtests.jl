@@ -1,6 +1,6 @@
 using Test, NLPModels, LinearAlgebra, LinearOperators, Printf, SparseArrays
 
-problems = ["BROWNDEN", "HS5", "HS6", "HS10", "HS11", "HS14"]
+problems = ["BROWNDEN", "HS5", "HS6", "HS10", "HS11", "HS14", "LINCON"]
 nls_problems = ["LLS", "MGH01", "NLSHS20"]
 
 # Including problems so that they won't be multiply loaded

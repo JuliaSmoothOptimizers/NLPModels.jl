@@ -413,7 +413,7 @@ function consistent_nlps(nlps; rtol=1.0e-8)
   # If there are inequalities, test the SlackModels of each of these models
   if nlps[1].meta.ncon > length(nlps[1].meta.jfix)
     slack_nlps = [SlackModel(nlp) for nlp in nlps]
-    consistent_functions(slack_nlps)
+    consistent_functions(slack_nlps, exclude=[cons])
     consistent_counters(slack_nlps)
     @printf("✓")
   else
