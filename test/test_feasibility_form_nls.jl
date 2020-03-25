@@ -39,7 +39,7 @@ function test_nls_to_cons()
                         C=[A -Ine; C spzeros(m,ne)],
                         lcon=[b; zeros(m)], ucon=[b; zeros(m)])
 
-        consistent_functions([nlpcon; lls2], exclude=[hess_coord])
+        consistent_functions([nlpcon; lls2], exclude=[hess, hess_coord])
         consistent_nls_functions([nlpcon; lls2])
       end
     end
@@ -64,7 +64,7 @@ function test_nls_to_cons()
     ffnls = FeasibilityFormNLS(FeasibilityResidual(nlp))
     nlp2 = LLSModel([spzeros(m, n)  I], zeros(m),
                     C=[A -I], lcon=b, ucon=b)
-    consistent_functions([ffnls; nlp2], exclude=[hess_coord])
+    consistent_functions([ffnls; nlp2], exclude=[hess, hess_coord])
     consistent_nls_functions([ffnls; nlp2])
   end
 end

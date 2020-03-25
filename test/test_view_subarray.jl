@@ -197,15 +197,12 @@ function test_view_subarrays()
     snls = SlackNLSModel(adnls)
 
     fnls = FeasibilityResidual(ADNLPModel(x->0, zeros(5), c=c, lcon=zeros(3), ucon=zeros(3)))
-    lls = LLSModel(Matrix(1.0I, 20, 5) .+ 1, collect(1:20),
-                   C=[Matrix(1.0I, 5, 5); -Matrix(1.0I, 5, 5)],
-                   lcon=-ones(10), ucon=ones(10))
 
-    for nlp in [adnlp, snlp, adnls, snls, fnls, lls]
+    for nlp in [adnlp, snlp, adnls, snls, fnls]
       test_view_subarray_nlp(nlp)
     end
 
-    for nls in [adnls, snls, fnls, lls]
+    for nls in [adnls, snls, fnls]
       test_view_subarray_nls(nls)
     end
   end
