@@ -1,7 +1,7 @@
 using Test, NLPModels, LinearAlgebra, LinearOperators, Printf, SparseArrays
 
 problems = ["BROWNDEN", "HS5", "HS6", "HS10", "HS11", "HS14", "LINCON"]
-nls_problems = ["LLS", "MGH01", "NLSHS20"]
+nls_problems = ["LLS", "MGH01", "NLSHS20", "NLSLC"]
 
 # Including problems so that they won't be multiply loaded
 for problem in problems ∪ ["GENROSE"] # GENROSE does not have a manual version, so it's separate
@@ -95,7 +95,7 @@ end
 include("test_autodiff_model.jl")
 include("test_nlsmodels.jl")
 include("nls_consistency.jl")
-for problem in ["LLS", "MGH01", "NLSHS20"]
+for problem in nls_problems
   @printf("Checking problem %-20s", problem)
   nls_ad = eval(Meta.parse(lowercase(problem) * "_autodiff"))()
   nls_man = eval(Meta.parse(problem))()
