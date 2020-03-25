@@ -103,12 +103,25 @@ function reset!(counters :: Counters)
 end
 
 """
+    reset_data!(nlp)
+
+Reset model data if appropriate.
+This method should be overloaded if a subtype of `AbstractNLPModel`
+contains data that should be reset, such as a quasi-Newton linear
+operator.
+"""
+function reset_data!(nlp :: AbstractNLPModel)
+  return nlp
+end
+
+"""
     reset!(nlp)
 
 Reset evaluation count in `nlp`
 """
 function reset!(nlp :: AbstractNLPModel)
   reset!(nlp.counters)
+  reset_data!(nlp)
   return nlp
 end
 
