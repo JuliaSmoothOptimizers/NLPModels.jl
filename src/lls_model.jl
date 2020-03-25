@@ -12,110 +12,114 @@ mutable struct LLSModel <: AbstractNLSModel
   nls_meta :: NLSMeta
   counters :: NLSCounters
 
-  A :: Union{AbstractMatrix, AbstractLinearOperator}
+  Arows :: Vector{Int}
+  Acols :: Vector{Int}
+  Avals :: Vector
   b :: AbstractVector
-  C :: Union{AbstractMatrix, AbstractLinearOperator}
+  Crows :: Vector{Int}
+  Ccols :: Vector{Int}
+  Cvals :: Vector
 end
 
-function LLSModel(A :: Union{AbstractMatrix, AbstractLinearOperator}, b :: AbstractVector;
+function LLSModel(A :: AbstractMatrix, b :: AbstractVector;
                   x0 :: AbstractVector = zeros(size(A,2)),
                   lvar :: AbstractVector = fill(-Inf, size(A, 2)),
                   uvar :: AbstractVector = fill(Inf, size(A, 2)),
-                  C :: Union{AbstractMatrix, AbstractLinearOperator} = Matrix{Float64}(undef, 0, 0),
+                  C :: AbstractMatrix  = Matrix{Float64}(undef, 0, 0),
                   lcon :: AbstractVector = Float64[],
                   ucon :: AbstractVector = Float64[],
                   y0 :: AbstractVector = zeros(size(C,1)))
-  m, n = size(A)
-  if length(b) != m
-    error("Incompatibility detected: A is $m×$n and b has length $(length(b))")
-  end
-  ncon = size(C, 1)
-  if !(ncon == length(lcon) == length(ucon) == length(y0))
-    error("The number of rows in C must be the same length as lcon, ucon and y0")
-  end
-  nnzjF, nnzh = if A isa AbstractSparseMatrix
-    nnz(A), nnz(tril(A' * A))
-  elseif A isa AbstractLinearOperator
-    0, 0 # Can't provide coordinates
+  nvar = size(A, 2)
+  Arows, Acols, Avals = if A isa AbstractSparseMatrix
+    findnz(A)
   else
-    m * n, div(n * (n + 1), 2) # Full
+    m, n = size(A)
+    I = ((i,j) for i = 1:m, j = 1:n)
+    getindex.(I, 1)[:], getindex.(I, 2)[:], A[:]
   end
-  nnzj = if ncon == 0 || C isa AbstractLinearOperator
-    0
-  elseif C isa AbstractSparseMatrix
-    nnz(C)
+  Crows, Ccols, Cvals = if C isa AbstractSparseMatrix
+    findnz(C)
   else
-    n * ncon
+    m, n = size(C)
+    I = ((i,j) for i = 1:m, j = 1:n)
+    getindex.(I, 1)[:], getindex.(I, 2)[:], C[:]
+  end
+  LLSModel(Arows, Acols, Avals, nvar, b, x0=x0, lvar=lvar, uvar=uvar,
+           Crows=Crows, Ccols=Ccols, Cvals=Cvals, lcon=lcon, ucon=ucon, y0=y0)
+end
+
+function LLSModel(Arows :: AbstractVector{<: Integer},
+                  Acols :: AbstractVector{<: Integer},
+                  Avals :: AbstractVector,
+                  nvar :: Integer,
+                  b :: AbstractVector;
+                  x0 :: AbstractVector = zeros(nvar),
+                  lvar :: AbstractVector = fill(-Inf, nvar),
+                  uvar :: AbstractVector = fill(Inf, nvar),
+                  Crows :: AbstractVector{<: Integer} = Int[],
+                  Ccols :: AbstractVector{<: Integer} = Int[],
+                  Cvals :: AbstractVector = Float64[],
+                  lcon :: AbstractVector = Float64[],
+                  ucon :: AbstractVector = Float64[],
+                  y0 :: AbstractVector = zeros(length(lcon)))
+
+  nequ = length(b)
+  ncon = length(lcon)
+  if !(ncon == length(ucon) == length(y0))
+    error("The length of lcon, ucon and y0 must be the same")
+  end
+  nnzjF = length(Avals)
+  if !(nnzjF == length(Arows) == length(Acols))
+    error("The length of Arows, Acols and Avals must be the same")
+  end
+  nnzj = length(Cvals)
+  if !(nnzj == length(Crows) == length(Ccols))
+    error("The length of Crows, Ccols and Cvals must be the same")
   end
 
-  meta = NLPModelMeta(n, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0, lin=1:ncon,
-                      nln=Int[], lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=nnzh)
+  meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0, lin=1:ncon,
+                      nln=Int[], lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=0)
 
-  nls_meta = NLSMeta(m, n, nnzj=nnzjF, nnzh=0)
+  nls_meta = NLSMeta(nequ, nvar, nnzj=nnzjF, nnzh=0)
 
-  return LLSModel(meta, nls_meta, NLSCounters(), A, b, C)
+  return LLSModel(meta, nls_meta, NLSCounters(), Arows, Acols, Avals, b, Crows, Ccols, Cvals)
 end
 
 function residual!(nls :: LLSModel, x :: AbstractVector, Fx :: AbstractVector)
   increment!(nls, :neval_residual)
-  Fx[:] = nls.A * x - nls.b
+  coo_prod!(nls.Arows, nls.Acols, nls.Avals, x, Fx)
+  Fx .-= nls.b
   return Fx
 end
 
-function jac_residual(nls :: LLSModel, x :: AbstractVector)
-  increment!(nls, :neval_jac_residual)
-  if isa(nls.A, AbstractLinearOperator)
-    error("Jacobian is a LinearOperator. Use `jac_op_residual` instead.")
-  else
-    return nls.A
-  end
-end
-
 function jac_structure_residual!(nls :: LLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
-  if isa(nls.A, AbstractLinearOperator)
-    error("Jacobian is a LinearOperator. Use `jac_op_residual` instead.")
-  elseif nls.A isa AbstractSparseMatrix
-    fnz = findnz(nls.A)
-    rows .= fnz[1]
-    cols .= fnz[2]
-    return rows, cols
-  else
-    m, n = size(nls.A)
-    I = ((i,j) for i = 1:m, j = 1:n)
-    rows .= getindex.(I, 1)[:]
-    cols .= getindex.(I, 2)[:]
-    return rows, cols
-  end
+  rows[1 : nls.nls_meta.nnzj] = nls.Arows
+  cols[1 : nls.nls_meta.nnzj] = nls.Acols
+  return rows, cols
 end
 
 function jac_coord_residual!(nls :: LLSModel, x :: AbstractVector, vals :: AbstractVector)
   increment!(nls, :neval_jac_residual)
-  if isa(nls.A, AbstractLinearOperator)
-    error("Jacobian is a LinearOperator. Use `jac_op_residual` instead.")
-  elseif nls.A isa AbstractSparseMatrix
-    vals .= nls.A.nzval
-  else
-    vals .= nls.A[:]
-  end
+  vals[1 : nls.nls_meta.nnzj] = nls.Avals
   return vals
 end
 
 function jprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nls, :neval_jprod_residual)
-  Jv[:] = nls.A * v
+  coo_prod!(nls.Arows, nls.Acols, nls.Avals, v, Jv)
   return Jv
 end
 
 function jtprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nls, :neval_jtprod_residual)
-  Jtv[:] = nls.A' * v
+  coo_prod!(nls.Acols, nls.Arows, nls.Avals, v, Jtv)
   return Jtv
 end
 
 function hess_residual(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector)
   increment!(nls, :neval_hess_residual)
-  n = size(nls.A, 2)
-  return zeros(n, n)
+  n = nls.meta.nvar
+  return spzeros(n, n)
 end
 
 function hess_structure_residual!(nls :: LLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
@@ -129,92 +133,52 @@ end
 
 function jth_hess_residual(nls :: LLSModel, x :: AbstractVector, i :: Int)
   increment!(nls, :neval_jhess_residual)
-  n = size(nls.A, 2)
-  return zeros(n, n)
+  n = nls.meta.nvar
+  return spzeros(n, n)
 end
 
 function hprod_residual!(nls :: LLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
   increment!(nls, :neval_hprod_residual)
-  fill!(Hiv, 0.0)
+  fill!(Hiv, zero(eltype(x)))
   return Hiv
 end
 
 function cons!(nls :: LLSModel, x :: AbstractVector, c :: AbstractVector)
   increment!(nls, :neval_cons)
-  c[1:nls.meta.ncon] = nls.C * x
+  coo_prod!(nls.Crows, nls.Ccols, nls.Cvals, x, c)
   return c
 end
 
 function jac_structure!(nls :: LLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
-  if isa(nls.C, AbstractLinearOperator)
-    error("jac_coord is not defined for LinearOperators")
-  end
-  if isa(nls.C, AbstractSparseMatrix)
-    fnz = findnz(nls.C)
-    rows .= fnz[1]
-    cols .= fnz[2]
-    return rows, cols
-  else
-    m, n = size(nls.C)
-    I = ((i,j) for i = 1:m, j = 1:n)
-    rows .= getindex.(I, 1)[:]
-    cols .= getindex.(I, 2)[:]
-    return rows, cols
-  end
+  rows[1 : nls.meta.nnzj] = nls.Crows
+  cols[1 : nls.meta.nnzj] = nls.Ccols
+  return rows, cols
 end
 
 function jac_coord!(nls :: LLSModel, x :: AbstractVector, vals :: AbstractVector)
   increment!(nls, :neval_jac)
-  if isa(nls.C, AbstractLinearOperator)
-    error("jac_coord is not defined for LinearOperators")
-  elseif nls.C isa AbstractSparseMatrix
-    vals .= nls.C.nzval
-  else
-    vals .= nls.C[:]
-  end
+  vals[1 : nls.meta.nnzj] = nls.Cvals
   return vals
-end
-
-function jac(nls :: LLSModel, x :: AbstractVector)
-  increment!(nls, :neval_jac)
-  return nls.C
 end
 
 function jprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   increment!(nls, :neval_jprod)
-  Jv[1:nls.meta.ncon] = nls.C * v
+  coo_prod!(nls.Crows, nls.Ccols, nls.Cvals, v, Jv)
   return Jv
 end
 
 function jtprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   increment!(nls, :neval_jtprod)
-  Jtv[1:nls.meta.nvar] = nls.C' * v
+  coo_prod!(nls.Ccols, nls.Crows, nls.Cvals, v, Jtv)
   return Jtv
 end
 
-function hess(nls :: LLSModel, x :: AbstractVector; obj_weight = 1.0)
-  increment!(nls, :neval_hess)
-  if obj_weight != 0.0
-    if isa(nls.A, AbstractLinearOperator)
-      error("hess is not defined for LinearOperators")
-    end
-    return tril(obj_weight * (nls.A' * nls.A))
-  else
-    n = length(x)
-    return zeros(n, n)
-  end
-end
-
-hess(nls :: LLSModel, x :: AbstractVector, y :: AbstractVector; obj_weight=1.0) = hess(nls, x, obj_weight=obj_weight)
-
 function hprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight = 1.0)
   increment!(nls, :neval_hprod)
-  n = length(x)
-  if obj_weight != 0.0
-    Hv[1:n] .= obj_weight * (nls.A' * (nls.A * v) )
-  else
-    Hv[1:n] .= 0.0
-  end
+  Av = zeros(nls.nls_meta.nequ)
+  coo_prod!(nls.Arows, nls.Acols, nls.Avals, v, Av)
+  coo_prod!(nls.Acols, nls.Arows, nls.Avals, Av, Hv)
+  Hv .*= obj_weight
   return Hv
 end
 
