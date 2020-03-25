@@ -28,12 +28,7 @@ end
 
 @default_counters QuasiNewtonModel model
 
-function decrement!(nlp :: QuasiNewtonModel, s :: Symbol)
-  decrement!(nlp.model, s)
-end
-
-function reset!(nlp :: QuasiNewtonModel)
-  reset!(nlp.model)
+function reset_data!(nlp :: QuasiNewtonModel)
   reset!(nlp.op)
   return nlp
 end
