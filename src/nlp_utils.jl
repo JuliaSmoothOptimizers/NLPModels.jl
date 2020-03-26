@@ -70,9 +70,14 @@ Define functions relating counters of `Model` to counters of `Model.inner`.
 """
 macro default_counters(Model, inner)
   ex = Expr(:block)
-  for foo in fieldnames(Counters) ∪ [:sum_counters, :reset!]
+  for foo in fieldnames(Counters) ∪ [:sum_counters]
     push!(ex.args, :(NLPModels.$foo(nlp :: $(esc(Model))) = $foo(nlp.$inner)))
   end
+  push!(ex.args, :(NLPModels.reset!(nlp :: $(esc(Model))) = begin
+                     reset!(nlp.$inner)
+                     reset_data!(nlp)
+                   end
+                  ))
   push!(ex.args, :(NLPModels.increment!(nlp :: $(esc(Model)), s :: Symbol) = increment!(nlp.$inner, s)))
   push!(ex.args, :(NLPModels.decrement!(nlp :: $(esc(Model)), s :: Symbol) = decrement!(nlp.$inner, s)))
   ex
