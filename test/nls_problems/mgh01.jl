@@ -5,7 +5,7 @@ function mgh01_autodiff()
   x0 = [-1.2; 1.0]
   F(x) = [10 * (x[2] - x[1]^2); 1 - x[1]]
 
-  return ADNLSModel(F, x0, 2)
+  return ADNLSModel(F, x0, 2, name="mgh01_autodiff")
 end
 
 mgh01_special() = FeasibilityResidual(MGH01Feas())
@@ -17,7 +17,7 @@ mutable struct MGH01 <: AbstractNLSModel
 end
 
 function MGH01()
-  meta = NLPModelMeta(2, x0=[-1.2; 1.0], name="MGH01")
+  meta = NLPModelMeta(2, x0=[-1.2; 1.0], name="MGH01_manual")
   nls_meta = NLSMeta(2, 2, nnzj=3, nnzh=1)
 
   return MGH01(meta, nls_meta, NLSCounters())
@@ -91,7 +91,7 @@ mutable struct MGH01Feas <: AbstractNLPModel
 end
 
 function MGH01Feas()
-  meta = NLPModelMeta(2, x0=[-1.2; 1.0], name="MGH01Feas", ncon=2, lcon=zeros(2), ucon=zeros(2), nnzj=3, nnzh=1)
+  meta = NLPModelMeta(2, x0=[-1.2; 1.0], name="MGH01Feas_manual", ncon=2, lcon=zeros(2), ucon=zeros(2), nnzj=3, nnzh=1)
 
   return MGH01Feas(meta, Counters())
 end

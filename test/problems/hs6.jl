@@ -8,7 +8,7 @@ function hs6_autodiff()
   lcon = [0.0]
   ucon = [0.0]
 
-  return ADNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon)
+  return ADNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon, name="hs6_autodiff")
 end
 
 mutable struct HS6 <: AbstractNLPModel
@@ -17,7 +17,7 @@ mutable struct HS6 <: AbstractNLPModel
 end
 
 function HS6()
-  meta = NLPModelMeta(2, ncon=1, nnzh=1, nnzj=2, x0=[-1.2; 1.0], lcon=[0.0], ucon=[0.0], name="hs6")
+  meta = NLPModelMeta(2, ncon=1, nnzh=1, nnzj=2, x0=[-1.2; 1.0], lcon=[0.0], ucon=[0.0], name="HS6_manual")
 
   return HS6(meta, Counters())
 end

@@ -18,7 +18,7 @@ function brownden_autodiff()
     return s
   end
 
-  return ADNLPModel(f, x0)
+  return ADNLPModel(f, x0, name="brownden_autodiff")
 end
 
 mutable struct BROWNDEN <: AbstractNLPModel
@@ -27,7 +27,7 @@ mutable struct BROWNDEN <: AbstractNLPModel
 end
 
 function BROWNDEN()
-  meta = NLPModelMeta(4, x0=[25.0; 5.0; -5.0; -1.0], name="brownden", nnzh=10)
+  meta = NLPModelMeta(4, x0=[25.0; 5.0; -5.0; -1.0], name="BROWNDEN_manual", nnzh=10)
 
   return BROWNDEN(meta, Counters())
 end

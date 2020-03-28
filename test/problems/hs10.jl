@@ -9,7 +9,7 @@ function hs10_autodiff()
   lcon = [0.0]
   ucon = [Inf]
 
-  return ADNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon)
+  return ADNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon, name="hs10_autodiff")
 end
 
 mutable struct HS10 <: AbstractNLPModel
@@ -19,7 +19,7 @@ end
 
 function HS10()
   meta = NLPModelMeta(2, ncon=1, x0=[-10.0; 10.0],
-                      lcon=[0.0], ucon=[Inf], name="HS10")
+                      lcon=[0.0], ucon=[Inf], name="HS10_manual")
 
   return HS10(meta, Counters())
 end

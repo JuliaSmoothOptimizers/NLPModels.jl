@@ -394,30 +394,23 @@ function consistent_nlps(nlps; rtol=1.0e-8)
     reset!(nlp)
   end
   consistent_counters(nlps)
-  @printf("✓%15s", " ")
   for nlp in nlps
     @assert length(gradient_check(nlp)) == 0
     @assert length(jacobian_check(nlp)) == 0
     @assert sum(map(length, values(hessian_check(nlp)))) == 0
     @assert sum(map(length, values(hessian_check_from_grad(nlp)))) == 0
   end
-  @printf("✓%18s", " ")
 
   # Test Quasi-Newton models
   qnmodels = [[LBFGSModel(nlp) for nlp in nlps];
               [LSR1Model(nlp) for nlp in nlps]]
   consistent_functions([nlps; qnmodels], exclude=[hess, hess_coord, hprod])
   consistent_counters([nlps; qnmodels])
-  @printf("✓%12s", " ")
 
   # If there are inequalities, test the SlackModels of each of these models
-  if nlps[1].meta.ncon > length(nlps[1].meta.jfix)
+  if nlps[1].meta.ncon == length(nlps[1].meta.jfix)
     slack_nlps = [SlackModel(nlp) for nlp in nlps]
     consistent_functions(slack_nlps)
     consistent_counters(slack_nlps)
-    @printf("✓")
-  else
-    @printf("-")
   end
-  @printf("\n")
 end

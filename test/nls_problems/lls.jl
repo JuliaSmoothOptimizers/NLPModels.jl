@@ -8,11 +8,11 @@ function lls_autodiff()
   lcon = [0.0]
   ucon = [Inf]
 
-  return ADNLSModel(F, x0, 3, c=c, lcon=lcon, ucon=ucon)
+  return ADNLSModel(F, x0, 3, c=c, lcon=lcon, ucon=ucon, name="lls_autodiff")
 end
 
 function lls_special()
-  return LLSModel([1.0 -1; 1 1; 0 1], [0.0; 2; 2], x0=zeros(2), C=[1.0 1], lcon=[0.0], ucon=[Inf])
+  return LLSModel([1.0 -1; 1 1; 0 1], [0.0; 2; 2], x0=zeros(2), C=[1.0 1], lcon=[0.0], ucon=[Inf], name="lls_LLSModel")
 end
 
 
@@ -23,7 +23,7 @@ mutable struct LLS <: AbstractNLSModel
 end
 
 function LLS()
-  meta = NLPModelMeta(2, x0=zeros(2), name="LLS", ncon=1, lcon=[0.0], ucon=[Inf], nnzj=2)
+  meta = NLPModelMeta(2, x0=zeros(2), name="LLS_manual", ncon=1, lcon=[0.0], ucon=[Inf], nnzj=2)
   nls_meta = NLSMeta(3, 2, nnzj=5, nnzh=0)
 
   return LLS(meta, nls_meta, NLSCounters())

@@ -10,7 +10,7 @@ function nlshs20_autodiff()
   lcon = zeros(3)
   ucon = fill(Inf, 3)
 
-  return ADNLSModel(F, x0, 2, lvar=lvar, uvar=uvar, c=c, lcon=lcon, ucon=ucon)
+  return ADNLSModel(F, x0, 2, lvar=lvar, uvar=uvar, c=c, lcon=lcon, ucon=ucon, name="nlshs20_autodiff")
 end
 
 mutable struct NLSHS20 <: AbstractNLSModel
@@ -20,7 +20,7 @@ mutable struct NLSHS20 <: AbstractNLSModel
 end
 
 function NLSHS20()
-  meta = NLPModelMeta(2, x0=[-2.0; 1.0], name="NLSHS20", lvar=[-0.5; -Inf], uvar=[0.5; Inf], ncon=3, lcon=zeros(3), ucon=fill(Inf, 3), nnzj=6)
+  meta = NLPModelMeta(2, x0=[-2.0; 1.0], name="NLSHS20_manual", lvar=[-0.5; -Inf], uvar=[0.5; Inf], ncon=3, lcon=zeros(3), ucon=fill(Inf, 3), nnzj=6)
   nls_meta = NLSMeta(2, 2, nnzj=3, nnzh=1)
 
   return NLSHS20(meta, nls_meta, NLSCounters())
