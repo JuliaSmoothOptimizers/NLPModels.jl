@@ -7,7 +7,7 @@ function hs14_autodiff()
   lcon = [0.0; 0.0]
   ucon = [0.0; Inf]
 
-  return ADNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon)
+  return ADNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon, name="hs14_autodiff")
 end
 
 mutable struct HS14 <: AbstractNLPModel
@@ -16,7 +16,7 @@ mutable struct HS14 <: AbstractNLPModel
 end
 
 function HS14()
-  meta = NLPModelMeta(2, nnzh=2, ncon=2, x0=[2.0; 2.0], lcon=[0.0; 0.0], ucon=[0.0; Inf], name="HS14")
+  meta = NLPModelMeta(2, nnzh=2, ncon=2, x0=[2.0; 2.0], lcon=[0.0; 0.0], ucon=[0.0; Inf], name="HS14_manual")
 
   return HS14(meta, Counters())
 end

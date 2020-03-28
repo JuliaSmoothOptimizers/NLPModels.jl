@@ -20,7 +20,7 @@ function lincon_autodiff()
   lcon = [22.0; 1.0; -Inf; -11.0; -d;            -b; -Inf * ones(3)]
   ucon = [22.0; Inf; 16.0;   9.0; -d; Inf * ones(2);              c]
 
-  return ADNLPModel(f, x0, c=con, lcon=lcon, ucon=ucon)
+  return ADNLPModel(f, x0, c=con, lcon=lcon, ucon=ucon, name="lincon_autodiff")
 end
 
 mutable struct LINCON <: AbstractNLPModel
@@ -29,7 +29,7 @@ mutable struct LINCON <: AbstractNLPModel
 end
 
 function LINCON()
-  meta = NLPModelMeta(15, nnzh=15, nnzj=17, ncon=11, x0=zeros(15), lcon = [22.0; 1.0; -Inf; -11.0; -1.0; 1.0; -5.0; -6.0; -Inf * ones(3)], ucon=[22.0; Inf; 16.0; 9.0; -1.0; 1.0; Inf * ones(2); 1.0; 2.0; 3.0], name="LINCON")
+  meta = NLPModelMeta(15, nnzh=15, nnzj=17, ncon=11, x0=zeros(15), lcon = [22.0; 1.0; -Inf; -11.0; -1.0; 1.0; -5.0; -6.0; -Inf * ones(3)], ucon=[22.0; Inf; 16.0; 9.0; -1.0; 1.0; Inf * ones(2); 1.0; 2.0; 3.0], name="LINCON_manual")
 
   return LINCON(meta, Counters())
 end

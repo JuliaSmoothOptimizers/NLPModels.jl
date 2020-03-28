@@ -11,7 +11,7 @@ for problem in nls_problems
   include("nls_problems/$(lowercase(problem)).jl")
 end
 
-println("Testing printing of nlp.meta")
+@info("Testing printing of nlp.meta")
 print(ADNLPModel(x->0, zeros(10), lvar=[-ones(5); -Inf*ones(5)],
                  uvar=[ones(3); Inf*ones(4); collect(2:4)],
                  name="Unconstrained example").meta)
@@ -73,22 +73,23 @@ include("test_tools.jl")
 include("test_slack_model.jl")
 include("test_qn_model.jl")
 
-@printf("For tests to pass, all models must have been written identically.\n")
-@printf("Constraints, if any, must have been declared in the same order.\n")
+@info("For tests to pass, all models must have been written identically.\n")
+@info("Constraints, if any, must have been declared in the same order.\n")
 
 include("multiple-precision.jl")
 include("consistency.jl")
-@printf("%24s\tConsistency   Derivative Check   Quasi-Newton  Slack variant\n", " ")
 for problem in problems
-  @printf("Checking problem %-20s", problem)
+  @info "Checking consistency of problem $problem"
   nlp_ad = eval(Meta.parse(lowercase(problem) * "_autodiff"))()
   nlp_man = eval(Meta.parse(problem))()
 
   nlps = [nlp_ad, nlp_man]
   consistent_nlps(nlps)
+  @info "  Consistency checks ✓"
 
   for nlp in nlps ∪ SlackModel.(nlps)
-      multiple_precision(nlp)
+    @info "  Checking multiple precision support by $(nlp.meta.name)"
+    multiple_precision(nlp)
   end
 end
 
@@ -96,7 +97,7 @@ include("test_autodiff_model.jl")
 include("test_nlsmodels.jl")
 include("nls_consistency.jl")
 for problem in nls_problems
-  @printf("Checking problem %-20s", problem)
+  @info "Checking consistency of NLS problem $problem"
   nls_ad = eval(Meta.parse(lowercase(problem) * "_autodiff"))()
   nls_man = eval(Meta.parse(problem))()
 
@@ -106,6 +107,7 @@ for problem in nls_problems
     push!(nlss, eval(Meta.parse(spc))())
   end
   consistent_nlss(nlss)
+  @info "  Consistency checks ✓"
 
   # LLSModel returns the internal A for jac, hence it doesn't respect type input
   idx = findall(typeof.(nlss) .== LLSModel)
@@ -114,9 +116,9 @@ for problem in nls_problems
   end
 
   for nls in nlss ∪ SlackNLSModel.(nlss) ∪ FeasibilityFormNLS.(nlss)
+    @info "  Checking multiple precision support by $(nls.meta.name)"
     multiple_precision(nls)
   end
-  println("✓")
 end
 include("test_feasibility_form_nls.jl")
 include("test_view_subarray.jl")

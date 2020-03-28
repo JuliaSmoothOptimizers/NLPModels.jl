@@ -7,7 +7,7 @@ function hs11_autodiff()
   lcon = [-Inf]
   ucon = [0.0]
 
-  return ADNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon)
+  return ADNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon, name="hs11_autodiff")
 
 end
 
@@ -17,7 +17,7 @@ mutable struct HS11 <: AbstractNLPModel
 end
 
 function HS11()
-  meta = NLPModelMeta(2, ncon=1, nnzh=2, nnzj=2, x0=[4.9; 0.1], lcon=[-Inf], ucon=[0.0], name="HS11")
+  meta = NLPModelMeta(2, ncon=1, nnzh=2, nnzj=2, x0=[4.9; 0.1], lcon=[-Inf], ucon=[0.0], name="HS11_manual")
 
   return HS11(meta, Counters())
 end

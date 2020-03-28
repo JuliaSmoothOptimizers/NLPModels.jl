@@ -28,7 +28,9 @@ function LLSModel(A :: AbstractMatrix, b :: AbstractVector;
                   C :: AbstractMatrix  = Matrix{Float64}(undef, 0, 0),
                   lcon :: AbstractVector = Float64[],
                   ucon :: AbstractVector = Float64[],
-                  y0 :: AbstractVector = zeros(size(C,1)))
+                  y0 :: AbstractVector = zeros(size(C,1)),
+                  name :: String = "generic-LLSModel"
+                 )
   nvar = size(A, 2)
   Arows, Acols, Avals = if A isa AbstractSparseMatrix
     findnz(A)
@@ -45,7 +47,7 @@ function LLSModel(A :: AbstractMatrix, b :: AbstractVector;
     getindex.(I, 1)[:], getindex.(I, 2)[:], C[:]
   end
   LLSModel(Arows, Acols, Avals, nvar, b, x0=x0, lvar=lvar, uvar=uvar,
-           Crows=Crows, Ccols=Ccols, Cvals=Cvals, lcon=lcon, ucon=ucon, y0=y0)
+           Crows=Crows, Ccols=Ccols, Cvals=Cvals, lcon=lcon, ucon=ucon, y0=y0, name=name)
 end
 
 function LLSModel(Arows :: AbstractVector{<: Integer},
@@ -61,7 +63,9 @@ function LLSModel(Arows :: AbstractVector{<: Integer},
                   Cvals :: AbstractVector = Float64[],
                   lcon :: AbstractVector = Float64[],
                   ucon :: AbstractVector = Float64[],
-                  y0 :: AbstractVector = zeros(length(lcon)))
+                  y0 :: AbstractVector = zeros(length(lcon)),
+                  name :: String = "generic-LLSModel"
+                 )
 
   nequ = length(b)
   ncon = length(lcon)
@@ -78,7 +82,7 @@ function LLSModel(Arows :: AbstractVector{<: Integer},
   end
 
   meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0, lin=1:ncon,
-                      nln=Int[], lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=0)
+                      nln=Int[], lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=0, name=name)
 
   nls_meta = NLSMeta(nequ, nvar, nnzj=nnzjF, nnzh=0)
 

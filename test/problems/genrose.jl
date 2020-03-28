@@ -50,5 +50,5 @@ function genrose_autodiff(n :: Int=500)
     return s
   end
 
-  return ADNLPModel(f, x0)
+  return ADNLPModel(f, x0, name="genrose_autodiff")
 end

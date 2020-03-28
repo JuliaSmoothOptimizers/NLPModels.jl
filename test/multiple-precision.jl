@@ -1,8 +1,6 @@
 function multiple_precision(nlp :: AbstractNLPModel;
                             precisions :: Array = [Float16, Float32, Float64, BigFloat])
-  print("Testing NLP with types: ")
   for T in precisions
-    print("$T ")
     x = ones(T, nlp.meta.nvar)
     @test typeof(obj(nlp, x)) == T
     @test eltype(grad(nlp, x)) == T
@@ -33,16 +31,13 @@ function multiple_precision(nlp :: AbstractNLPModel;
       Hv = zeros(T, nlp.meta.nvar)
       @test eltype(hess_op!(nlp, rows, cols, vals, Hv)) == T
     end
-    print("✓ ")
+    @info "    $T ✓ "
   end
-  println("")
 end
 
 function multiple_precision(nls :: AbstractNLSModel;
                             precisions :: Array = [Float16, Float32, Float64, BigFloat])
-  print("Testing NLS with types: ")
   for T in precisions
-    print("$T ")
     x = ones(T, nls.meta.nvar)
     @test eltype(residual(nls, x)) == T
     @test eltype(jac_residual(nls, x)) == T
@@ -70,7 +65,6 @@ function multiple_precision(nls :: AbstractNLSModel;
       Atv = zeros(T, nls.meta.nvar)
       @test eltype(jac_op!(nls, rows, cols, vals, Av, Atv)) == T
     end
-    print("✓ ")
+    @info "    $T ✓ "
   end
-  println("")
 end
