@@ -93,6 +93,7 @@ hess_op!
 hprod
 hprod!
 reset!
+reset_data!
 print
 ```
 
