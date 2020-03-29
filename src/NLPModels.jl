@@ -20,7 +20,7 @@ with `σ = obj_weight`
 using LinearAlgebra, LinearOperators, Printf, SparseArrays, FastClosures
 
 export AbstractNLPModelMeta, NLPModelMeta, AbstractNLPModel, Counters
-export reset!, sum_counters,
+export reset_data!, reset!, sum_counters,
        obj, grad, grad!, objgrad, objgrad!, objcons, objcons!,
        cons, cons!, jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad,
        jac_structure!, jac_structure, jac_coord!, jac_coord,
