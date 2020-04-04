@@ -16,9 +16,9 @@ function lls_test()
       I, J = hess_structure_residual(nls)
       V = hess_coord_residual(nls, x, ones(nequ))
       @test sparse(I, J, V, nvar, nvar) == zeros(nvar, nvar)
-      @test hess_residual(nls, x, ones(10)) == zeros(3,3)
-      for i = 1:10
-        @test isapprox(zeros(3, 3), jth_hess_residual(nls, x, i), rtol=1e-8)
+      @test hess_residual(nls, x, ones(nequ)) == zeros(nvar,nvar)
+      for i = 1:nequ
+        @test isapprox(zeros(nvar, nvar), jth_hess_residual(nls, x, i), rtol=1e-8)
       end
 
       I, J = jac_structure(nls)

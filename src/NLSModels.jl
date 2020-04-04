@@ -104,6 +104,7 @@ include("feasibility_residual.jl")
 Computes ``F(x)``, the residual at x.
 """
 function residual(nls :: AbstractNLSModel, x :: AbstractVector)
+  @lencheck nls.meta.nvar x
   Fx = zeros(eltype(x), nls_meta(nls).nequ)
   residual!(nls, x, Fx)
 end
@@ -123,6 +124,7 @@ end
 Computes ``J(x)``, the Jacobian of the residual at x.
 """
 function jac_residual(nls :: AbstractNLSModel, x :: AbstractVector)
+  @lencheck nls.meta.nvar x
   rows, cols = jac_structure_residual(nls)
   vals = jac_coord_residual(nls, x)
   sparse(rows, cols, vals, nls.nls_meta.nequ, nls.meta.nvar)
@@ -164,6 +166,7 @@ end
 Computes the Jacobian of the residual at `x` in sparse coordinate format.
 """
 function jac_coord_residual(nls :: AbstractNLSModel, x :: AbstractVector)
+  @lencheck nls.meta.nvar x
   vals = Vector{eltype(x)}(undef, nls.nls_meta.nnzj)
   jac_coord_residual!(nls, x, vals)
 end
@@ -174,6 +177,7 @@ end
 Computes the product of the Jacobian of the residual at x and a vector, i.e.,  ``J(x)v``.
 """
 function jprod_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector)
+  @lencheck nls.meta.nvar x v
   Jv = zeros(eltype(x), nls_meta(nls).nequ)
   jprod_residual!(nls, x, v, Jv)
 end
@@ -194,6 +198,9 @@ Computes the product of the Jacobian of the residual given by `(rows, cols, vals
 and a vector, i.e.,  ``J(x)v``, storing it in `Jv`.
 """
 function jprod_residual!(nls :: AbstractNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
+  @lencheck nls.nls_meta.nnzj rows cols vals
+  @lencheck nls.meta.nvar v
+  @lencheck nls.nls_meta.nequ Jv
   increment!(nls, :neval_jprod_residual)
   coo_prod!(rows, cols, vals, v, Jv)
 end
@@ -204,7 +211,12 @@ end
 Computes the product of the Jacobian of the residual at x and a vector, i.e.,  ``J(x)v``, storing it in `Jv`.
 The structure of the Jacobian is given by `(rows, cols)`.
 """
-jprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, v :: AbstractVector, Jv :: AbstractVector) = jprod_residual!(nls, x, v, Jv)
+function jprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, v :: AbstractVector, Jv :: AbstractVector)
+  @lencheck nls.meta.nvar x v
+  @lencheck nls.nls_meta.nnzj rows cols
+  @lencheck nls.nls_meta.nequ Jv
+  jprod_residual!(nls, x, v, Jv)
+end
 
 """
     Jtv = jtprod_residual(nls, x, v)
@@ -212,6 +224,8 @@ jprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, rows :: AbstractVe
 Computes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  ``J(x)^Tv``.
 """
 function jtprod_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector)
+  @lencheck nls.meta.nvar x
+  @lencheck nls.nls_meta.nequ v
   Jtv = zeros(eltype(x), nls_meta(nls).nvar)
   jtprod_residual!(nls, x, v, Jtv)
 end
@@ -232,6 +246,9 @@ Computes the product of the transpose of the Jacobian of the residual given by `
 and a vector, i.e.,  ``J(x)^Tv``, storing it in `Jv`.
 """
 function jtprod_residual!(nls :: AbstractNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
+  @lencheck nls.nls_meta.nnzj rows cols vals
+  @lencheck nls.nls_meta.nequ v
+  @lencheck nls.meta.nvar Jtv
   increment!(nls, :neval_jtprod_residual)
   coo_prod!(cols, rows, vals, v, Jtv)
 end
@@ -242,7 +259,12 @@ end
 Computes the product of the transpose Jacobian of the residual at x and a vector, i.e.,  ``J(x)^Tv``, storing it in `Jv`.
 The structure of the Jacobian is given by `(rows, cols)`.
 """
-jtprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, v :: AbstractVector, Jtv :: AbstractVector) = jtprod_residual!(nls, x, v, Jtv)
+function jtprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, v :: AbstractVector, Jtv :: AbstractVector)
+  @lencheck nls.meta.nvar x Jtv
+  @lencheck nls.nls_meta.nnzj rows cols
+  @lencheck nls.nls_meta.nequ v
+  jtprod_residual!(nls, x, v, Jtv)
+end
 
 """
     Jx = jac_op_residual(nls, x)
@@ -250,6 +272,7 @@ jtprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, rows :: AbstractV
 Computes ``J(x)``, the Jacobian of the residual at x, in linear operator form.
 """
 function jac_op_residual(nls :: AbstractNLSModel, x :: AbstractVector)
+  @lencheck nls.meta.nvar x
   prod = @closure v -> jprod_residual(nls, x, v)
   ctprod = @closure v -> jtprod_residual(nls, x, v)
   return LinearOperator{eltype(x)}(nls_meta(nls).nequ, nls_meta(nls).nvar,
@@ -264,6 +287,8 @@ vectors `Jv` and `Jtv` are used as preallocated storage for the operations.
 """
 function jac_op_residual!(nls :: AbstractNLSModel, x :: AbstractVector,
                           Jv :: AbstractVector, Jtv :: AbstractVector)
+  @lencheck nls.meta.nvar x Jtv
+  @lencheck nls.nls_meta.nequ Jv
   prod = @closure v -> jprod_residual!(nls, x, v, Jv)
   ctprod = @closure v -> jtprod_residual!(nls, x, v, Jtv)
   return LinearOperator{eltype(x)}(nls_meta(nls).nequ, nls_meta(nls).nvar,
@@ -277,6 +302,9 @@ Computes ``J(x)``, the Jacobian of the residual given by `(rows, cols, vals)`, i
 vectors `Jv` and `Jtv` are used as preallocated storage for the operations.
 """
 function jac_op_residual!(nls :: AbstractNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, vals :: AbstractVector, Jv :: AbstractVector, Jtv :: AbstractVector)
+  @lencheck nls.nls_meta.nnzj rows cols vals
+  @lencheck nls.nls_meta.nequ Jv
+  @lencheck nls.meta.nvar Jtv
   prod = @closure v -> jprod_residual!(nls, rows, cols, vals, v, Jv)
   ctprod = @closure v -> jtprod_residual!(nls, rows, cols, vals, v, Jtv)
   return LinearOperator{eltype(vals)}(nls_meta(nls).nequ, nls_meta(nls).nvar,
@@ -291,6 +319,9 @@ vectors `Jv` and `Jtv` are used as preallocated storage for the operations.
 The structure of the Jacobian should be given by `(rows, cols)`.
 """
 function jac_op_residual!(nls :: AbstractNLSModel, x :: AbstractVector, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer}, Jv :: AbstractVector, Jtv :: AbstractVector)
+  @lencheck nls.meta.nvar x Jtv
+  @lencheck nls.nls_meta.nnzj rows cols
+  @lencheck nls.nls_meta.nequ Jv
   vals = jac_coord_residual(nls, x)
   decrement!(nls, :neval_jac_residual)
   return jac_op_residual!(nls, rows, cols, vals, Jv, Jtv)
@@ -303,6 +334,8 @@ Computes the linear combination of the Hessians of the residuals at `x` with coe
 `v`.
 """
 function hess_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector)
+  @lencheck nls.meta.nvar x
+  @lencheck nls.nls_meta.nequ v
   rows, cols = hess_structure_residual(nls)
   vals = hess_coord_residual(nls, x, v)
   sparse(rows, cols, vals, nls.meta.nvar, nls.meta.nvar)
@@ -345,6 +378,8 @@ Computes the linear combination of the Hessians of the residuals at `x` with coe
 `v` in sparse coordinate format.
 """
 function hess_coord_residual(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector)
+  @lencheck nls.meta.nvar x
+  @lencheck nls.nls_meta.nequ v
   vals = Vector{eltype(x)}(undef, nls.nls_meta.nnzh)
   hess_coord_residual!(nls, x, v, vals)
 end
@@ -355,6 +390,7 @@ end
 Computes the Hessian of the j-th residual at x.
 """
 function jth_hess_residual(nls :: AbstractNLSModel, x :: AbstractVector, j :: Int)
+  @lencheck nls.meta.nvar x
   increment!(nls, :neval_jhess_residual)
   decrement!(nls, :neval_hess_residual)
   v = [i == j ? one(eltype(x)) : zero(eltype(x)) for i = 1 : nls.nls_meta.nequ]
@@ -367,6 +403,7 @@ end
 Computes the product of the Hessian of the i-th residual at x, times the vector v.
 """
 function hprod_residual(nls :: AbstractNLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector)
+  @lencheck nls.meta.nvar x
   Hv = zeros(eltype(x), nls_meta(nls).nvar)
   hprod_residual!(nls, x, i, v, Hv)
 end
@@ -386,6 +423,7 @@ end
 Computes the Hessian of the i-th residual at x, in linear operator form.
 """
 function hess_op_residual(nls :: AbstractNLSModel, x :: AbstractVector, i :: Int)
+  @lencheck nls.meta.nvar x
   prod = @closure v -> hprod_residual(nls, x, i, v)
   return LinearOperator{eltype(x)}(nls_meta(nls).nvar, nls_meta(nls).nvar,
                                    true, true, prod, prod, prod)
@@ -397,24 +435,28 @@ end
 Computes the Hessian of the i-th residual at x, in linear operator form. The vector `Hiv` is used as preallocated storage for the operation.
 """
 function hess_op_residual!(nls :: AbstractNLSModel, x :: AbstractVector, i :: Int, Hiv :: AbstractVector)
+  @lencheck nls.meta.nvar x Hiv
   prod = @closure v -> hprod_residual!(nls, x, i, v, Hiv)
   return LinearOperator{eltype(x)}(nls_meta(nls).nvar, nls_meta(nls).nvar,
                                    true, true, prod, prod, prod)
 end
 
 function obj(nls :: AbstractNLSModel, x :: AbstractVector)
+  @lencheck nls.meta.nvar x
   increment!(nls, :neval_obj)
   Fx = residual(nls, x)
   return dot(Fx, Fx) / 2
 end
 
 function grad!(nls :: AbstractNLSModel, x :: AbstractVector, g :: AbstractVector)
+  @lencheck nls.meta.nvar x g
   increment!(nls, :neval_grad)
   Fx = residual(nls, x)
   return jtprod_residual!(nls, x, Fx, g)
 end
 
 function objgrad!(nls :: AbstractNLSModel, x :: AbstractVector, g :: AbstractVector)
+  @lencheck nls.meta.nvar x g
   increment!(nls, :neval_obj)
   increment!(nls, :neval_grad)
   Fx = residual(nls, x)

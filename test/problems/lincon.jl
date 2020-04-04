@@ -35,26 +35,32 @@ function LINCON()
 end
 
 function NLPModels.obj(nlp :: LINCON, x :: AbstractVector)
+  @lencheck 15 x
   increment!(nlp, :neval_obj)
   return sum(i + x[i]^4 for i = 1:nlp.meta.nvar)
 end
 
 function NLPModels.grad!(nlp :: LINCON, x :: AbstractVector, gx :: AbstractVector)
+  @lencheck 15 x gx
   increment!(nlp, :neval_grad)
   gx .= [4 * x[i]^3 for i =1:nlp.meta.nvar]
   return gx
 end
 
 function NLPModels.hess(nlp :: LINCON, x :: AbstractVector{T}; obj_weight=one(T)) where T
+  @lencheck 15 x
   increment!(nlp, :neval_hess)
   return obj_weight * diagm([12 * x[i]^2 for i=1:nlp.meta.nvar])
 end
 
 function NLPModels.hess(nlp :: LINCON, x :: AbstractVector{T}, y :: AbstractVector{T}; obj_weight=one(T)) where T
+  @lencheck 15 x
+  @lencheck 11 y
   hess(nlp, x; obj_weight=obj_weight)
 end
 
 function NLPModels.hess_structure!(nlp :: LINCON, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
+  @lencheck 15 rows cols
   for i = 1:nlp.meta.nnzh
     rows[i] = i
     cols[i] = i
@@ -63,6 +69,7 @@ function NLPModels.hess_structure!(nlp :: LINCON, rows :: AbstractVector{Int}, c
 end
 
 function NLPModels.hess_coord!(nlp :: LINCON, x :: AbstractVector{T}, vals :: AbstractVector{T}; obj_weight=one(T)) where T
+  @lencheck 15 x vals
   increment!(nlp, :neval_hess)
   for i = 1:nlp.meta.nnzh
     vals[i] = 12 * obj_weight * x[i]^2
@@ -71,10 +78,13 @@ function NLPModels.hess_coord!(nlp :: LINCON, x :: AbstractVector{T}, vals :: Ab
 end
 
 function NLPModels.hess_coord!(nlp :: LINCON, x :: AbstractVector{T}, y :: AbstractVector{T}, vals :: AbstractVector{T}; obj_weight=one(T)) where T
+  @lencheck 15 x vals
+  @lencheck 11 y
   hess_coord!(nlp, x, vals, obj_weight=obj_weight)
 end
 
 function NLPModels.hprod!(nlp :: LINCON, x :: AbstractVector{T}, y :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=one(T)) where T
+  @lencheck 15 x
   increment!(nlp, :neval_hprod)
   for i=1:nlp.meta.nvar
     Hv[i] = 12 * obj_weight * x[i]^2 * v[i]
@@ -83,6 +93,8 @@ function NLPModels.hprod!(nlp :: LINCON, x :: AbstractVector{T}, y :: AbstractVe
 end
 
 function NLPModels.cons!(nlp :: LINCON, x :: AbstractVector, cx :: AbstractVector)
+  @lencheck 15 x
+  @lencheck 11 cx
   increment!(nlp, :neval_cons)
   cx .= [15 * x[15];
         [1; 2; 3]' * x[10:12];
@@ -95,6 +107,7 @@ function NLPModels.cons!(nlp :: LINCON, x :: AbstractVector, cx :: AbstractVecto
 end
 
 function NLPModels.jac(nlp :: LINCON, x :: AbstractVector)
+  @lencheck 15 x
   increment!(nlp, :neval_jac)
   J = spzeros(eltype(x), nlp.meta.ncon, nlp.meta.nvar)
   J[1,15]     = 15
@@ -108,18 +121,23 @@ function NLPModels.jac(nlp :: LINCON, x :: AbstractVector)
 end
 
 function NLPModels.jac_structure!(nlp :: LINCON, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
-  rows[1:nlp.meta.nnzj] .= [ 1,  2,  2,  2,  3,  3, 4, 4, 5, 6, 7, 7, 8, 8, 9, 10, 11]
-  cols[1:nlp.meta.nnzj] .= [15, 10, 11, 12, 13, 14, 8, 9, 7, 6, 1, 2, 1, 2, 3,  4,  5]
+  @lencheck 17 rows cols
+  rows .= [ 1,  2,  2,  2,  3,  3, 4, 4, 5, 6, 7, 7, 8, 8, 9, 10, 11]
+  cols .= [15, 10, 11, 12, 13, 14, 8, 9, 7, 6, 1, 2, 1, 2, 3,  4,  5]
   return rows, cols
 end
 
 function NLPModels.jac_coord!(nlp :: LINCON, x :: AbstractVector, vals :: AbstractVector)
+  @lencheck 15 x
+  @lencheck 17 vals
   increment!(nlp, :neval_jac)
   vals .= eltype(x).([15, 1, 2, 3, 1, -1, 5, 6, -2, 4, 1, 2, 3, 4, 9, 12, 15])
   return vals
 end
 
 function NLPModels.jprod!(nlp :: LINCON, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
+  @lencheck 15 x v
+  @lencheck 11 Jv
   increment!(nlp, :neval_jprod)
   Jv[1]    = 15 * v[15]
   Jv[2]    = [1; 2; 3]' * v[10:12]
@@ -132,6 +150,8 @@ function NLPModels.jprod!(nlp :: LINCON, x :: AbstractVector, v :: AbstractVecto
 end
 
 function NLPModels.jtprod!(nlp :: LINCON, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
+  @lencheck 15 x Jtv
+  @lencheck 11 v
   increment!(nlp, :neval_jtprod)
   Jtv[1]  = 1 * v[7] + 3 * v[8]
   Jtv[2]  = 2 * v[7] + 4 * v[8]  

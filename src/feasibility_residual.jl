@@ -32,7 +32,7 @@ mutable struct FeasibilityResidual <: AbstractNLSModel
   nlp :: AbstractNLPModel
 end
 
-function FeasibilityResidual(nlp :: AbstractNLPModel; name=nlp.meta.name)
+function FeasibilityResidual(nlp :: AbstractNLPModel; name="$(nlp.meta.name)-feasres")
   if !equality_constrained(nlp)
     if unconstrained(nlp)
       throw(ErrorException("Can't handle unconstrained problem"))
