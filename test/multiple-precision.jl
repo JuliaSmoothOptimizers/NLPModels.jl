@@ -47,7 +47,7 @@ function multiple_precision(nls :: AbstractNLSModel;
     @test eltype(vals) == T
     Av = zeros(T, nls.nls_meta.nequ)
     Atv = zeros(T, nls.meta.nvar)
-    @test eltype(jac_op!(nls, rows, cols, vals, Av, Atv)) == T
+    @test eltype(jac_op_residual!(nls, rows, cols, vals, Av, Atv)) == T
     @test eltype(hess_residual(nls, x, ones(T, nls.nls_meta.nequ))) == T
     for i = 1:nls.nls_meta.nequ
       @test eltype(hess_op_residual(nls, x, i)) == T

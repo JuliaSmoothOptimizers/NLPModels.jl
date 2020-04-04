@@ -77,6 +77,7 @@ include("test_qn_model.jl")
 @info("Constraints, if any, must have been declared in the same order.\n")
 
 include("multiple-precision.jl")
+include("check-dimensions.jl")
 include("consistency.jl")
 for problem in problems
   @info "Checking consistency of problem $problem"
@@ -86,6 +87,11 @@ for problem in problems
   nlps = [nlp_ad, nlp_man]
   consistent_nlps(nlps)
   @info "  Consistency checks ✓"
+
+  for nlp in nlps ∪ SlackModel.(nlps)
+    @info "  Checking that wrong input dimensions throw errors in $(nlp.meta.name)"
+    check_nlp_dimensions(nlp)
+  end
 
   for nlp in nlps ∪ SlackModel.(nlps)
     @info "  Checking multiple precision support by $(nlp.meta.name)"
@@ -108,6 +114,12 @@ for problem in nls_problems
   end
   consistent_nlss(nlss)
   @info "  Consistency checks ✓"
+
+  for nls in nlss ∪ SlackNLSModel.(nlss) ∪ FeasibilityFormNLS.(nlss)
+    @info "  Checking that wrong input dimensions throw errors in $(nls.meta.name)"
+    check_nls_dimensions(nls)
+    check_nlp_dimensions(nls, exclude_hess=true)
+  end
 
   # LLSModel returns the internal A for jac, hence it doesn't respect type input
   idx = findall(typeof.(nlss) .== LLSModel)

@@ -33,11 +33,13 @@ function BROWNDEN()
 end
 
 function NLPModels.obj(nlp :: BROWNDEN, x :: AbstractVector{T}) where T
+  @lencheck 4 x
   increment!(nlp, :neval_obj)
   return sum(((x[1] + x[2] * T(i)/5 - exp(T(i)/5))^2 + (x[3] + x[4] * sin(T(i)/5) - cos(T(i)/5))^2)^2 for i = 1:20)
 end
 
 function NLPModels.grad!(nlp :: BROWNDEN, x :: AbstractVector, gx :: AbstractVector)
+  @lencheck 4 x gx
   increment!(nlp, :neval_grad)
   α(x,i) = x[1] + x[2] * i/5 - exp(i/5)
   β(x,i) = x[3] + x[4] * sin(i/5) - cos(i/5)
@@ -47,6 +49,7 @@ function NLPModels.grad!(nlp :: BROWNDEN, x :: AbstractVector, gx :: AbstractVec
 end
 
 function NLPModels.hess(nlp :: BROWNDEN, x :: AbstractVector{T}; obj_weight=1.0) where T
+  @lencheck 4 x
   increment!(nlp, :neval_hess)
   α(x,i) = x[1] + x[2] * T(i)/5 - exp(T(i)/5)
   β(x,i) = x[3] + x[4] * sin(T(i)/5) - cos(T(i)/5)
@@ -65,6 +68,7 @@ function NLPModels.hess(nlp :: BROWNDEN, x :: AbstractVector{T}; obj_weight=1.0)
 end
 
 function NLPModels.hess_structure!(nlp :: BROWNDEN, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
+  @lencheck 10 rows cols
   n = nlp.meta.nvar
   I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
   rows .= getindex.(I, 1)
@@ -73,6 +77,8 @@ function NLPModels.hess_structure!(nlp :: BROWNDEN, rows :: AbstractVector{Int},
 end
 
 function NLPModels.hess_coord!(nlp :: BROWNDEN, x :: AbstractVector, vals :: AbstractVector; obj_weight=1.0)
+  @lencheck 4 x
+  @lencheck 10 vals
   Hx = hess(nlp, x, obj_weight=obj_weight)
   k = 1
   for j = 1:4
@@ -85,6 +91,7 @@ function NLPModels.hess_coord!(nlp :: BROWNDEN, x :: AbstractVector, vals :: Abs
 end
 
 function NLPModels.hprod!(nlp :: BROWNDEN, x :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=one(T)) where T
+  @lencheck 4 x v Hv
   increment!(nlp, :neval_hprod)
   α(x,i) = x[1] + x[2] * i/5 - exp(i/5)
   β(x,i) = x[3] + x[4] * sin(i/5) - cos(i/5)
