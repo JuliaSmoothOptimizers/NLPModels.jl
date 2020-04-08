@@ -49,9 +49,13 @@ for problem in ["hs10", "hs11", "hs14"]
   @printf("Checking LBFGS formulation of %-8s\t", problem)
   qn_model = LBFGSModel(nlp)
   check_qn_model(qn_model)
+  qn_model = LBFGSModel(nlp, mem=2)
+  check_qn_model(qn_model)
   @printf("✓\n")
   @printf("Checking LSR1 formulation of %-8s\t", problem)
   qn_model = LSR1Model(nlp)
+  check_qn_model(qn_model)
+  qn_model = LSR1Model(nlp, mem=2)
   check_qn_model(qn_model)
   @printf("✓\n")
 end
