@@ -7,7 +7,7 @@ compute the derivatives.
 
 ````
 ADNLSModel(F, x0, m; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,
-  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = "Generic")
+  c = nothing, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = "Generic")
 ````
 
   - `F` - The residual function \$F\$. Should be callable;
@@ -33,7 +33,7 @@ function ADNLSModel(F, x0 :: AbstractVector, m :: Int;
                     name :: String = "Generic",
                     lvar :: AbstractVector = fill(-eltype(x0)(Inf), length(x0)),
                     uvar :: AbstractVector = fill( eltype(x0)(Inf), length(x0)),
-                    c = (args...)->throw(NotImplementedError("cons")),
+                    c = nothing,
                     lcon :: AbstractVector = eltype(x0)[],
                     ucon :: AbstractVector = eltype(x0)[],
                     y0 :: AbstractVector = zeros(eltype(x0), max(length(lcon), length(ucon))),
