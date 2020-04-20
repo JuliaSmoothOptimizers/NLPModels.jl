@@ -21,32 +21,32 @@ print(ADNLPModel(x->0, zeros(10), c=x->[0.0;0.0;0.0], lcon=[0.0;0.0;-Inf],
 # A problem with zero variables doesn't make sense.
 @test_throws(ErrorException, NLPModelMeta(0))
 
-# Default methods should throw NotImplementedError.
+# Default methods should throw MethodError since they're not defined
 mutable struct DummyModel <: AbstractNLPModel
   meta :: NLPModelMeta
 end
 model = DummyModel(NLPModelMeta(1))
-@test_throws(NotImplementedError, lagscale(model, 1.0))
+@test_throws(MethodError, lagscale(model, 1.0))
 for meth in [:obj, :varscale, :conscale]
-  @eval @test_throws(NotImplementedError, $meth(model, [0.0]))
+  @eval @test_throws(MethodError, $meth(model, [0.0]))
 end
 for meth in [:jac_structure!, :hess_structure!]
-  @eval @test_throws(NotImplementedError, $meth(model, [0], [1]))
+  @eval @test_throws(MethodError, $meth(model, [0], [1]))
 end
 for meth in [:grad!, :cons!, :jac_coord!]
-  @eval @test_throws(NotImplementedError, $meth(model, [0.0], [1.0]))
+  @eval @test_throws(MethodError, $meth(model, [0.0], [1.0]))
 end
 for meth in [:jth_con, :jth_congrad, :jth_sparse_congrad]
-  @eval @test_throws(NotImplementedError, $meth(model, [0.0], 1))
+  @eval @test_throws(MethodError, $meth(model, [0.0], 1))
 end
-@test_throws(NotImplementedError, jth_congrad!(model, [0.0], 1, [2.0]))
+@test_throws(MethodError, jth_congrad!(model, [0.0], 1, [2.0]))
 for meth in [:jprod!, :jtprod!]
-  @eval @test_throws(NotImplementedError, $meth(model, [0.0], [1.0], [2.0]))
+  @eval @test_throws(MethodError, $meth(model, [0.0], [1.0], [2.0]))
 end
-@test_throws(NotImplementedError, jth_hprod(model, [0.0], [1.0], 2))
-@test_throws(NotImplementedError, jth_hprod!(model, [0.0], [1.0], 2, [3.0]))
+@test_throws(MethodError, jth_hprod(model, [0.0], [1.0], 2))
+@test_throws(MethodError, jth_hprod!(model, [0.0], [1.0], 2, [3.0]))
 for meth in [:ghjvprod!]
-  @eval @test_throws(NotImplementedError, $meth(model, [0.0], [1.0], [2.0], [3.0]))
+  @eval @test_throws(MethodError, $meth(model, [0.0], [1.0], [2.0], [3.0]))
 end
 @assert isa(hess_op(model, [0.]), LinearOperator)
 @assert isa(jac_op(model, [0.]), LinearOperator)
@@ -66,7 +66,7 @@ obj(model, model.meta.x0)
 reset!(model)
 @assert neval_obj(model) == 0
 
-@test_throws(NotImplementedError, jth_con(model, model.meta.x0, 1))
+@test_throws(MethodError, jth_con(model, model.meta.x0, 1))
 
 include("test_tools.jl")
 

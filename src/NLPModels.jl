@@ -27,19 +27,11 @@ export reset_data!, reset!, sum_counters,
        jac, jprod, jprod!, jtprod, jtprod!, jac_op, jac_op!,
        jth_hprod, jth_hprod!, ghjvprod, ghjvprod!,
        hess_structure!, hess_structure, hess_coord!, hess_coord, hess, hprod, hprod!, hess_op, hess_op!,
-       push!,
-       varscale, lagscale, conscale,
-       NotImplementedError
+       push!, varscale, lagscale, conscale
 
 # import methods we override
 import Base.push!
 import LinearOperators.reset!
-
-struct NotImplementedError <: Exception
-  name :: Union{Symbol,Function,String}
-end
-
-Base.showerror(io::IO, e::NotImplementedError) = print(io, e.name, " not implemented")
 
 include("nlp_utils.jl")
 include("nlp_types.jl")
@@ -131,8 +123,7 @@ end
 
 Evaluate ``f(x)``, the objective function of `nlp` at `x`.
 """
-obj(::AbstractNLPModel, ::AbstractVector) =
-  throw(NotImplementedError("obj"))
+function obj end
 
 """
     g = grad(nlp, x)
@@ -150,8 +141,7 @@ end
 
 Evaluate ``∇f(x)``, the gradient of the objective function at `x` in place.
 """
-grad!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
-  throw(NotImplementedError("grad!"))
+function grad! end
 
 """
     c = cons(nlp, x)
@@ -169,11 +159,9 @@ end
 
 Evaluate ``c(x)``, the constraints at `x` in place.
 """
-cons!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector) =
-  throw(NotImplementedError("cons!"))
+function cons! end
 
-jth_con(::AbstractNLPModel, ::AbstractVector, ::Integer) =
-  throw(NotImplementedError("jth_con"))
+function jth_con end
 
 function jth_congrad(nlp::AbstractNLPModel, x::AbstractVector, j::Integer)
   @lencheck nlp.meta.nvar x
@@ -181,11 +169,9 @@ function jth_congrad(nlp::AbstractNLPModel, x::AbstractVector, j::Integer)
   return jth_congrad!(nlp, x, j, g)
 end
 
-jth_congrad!(::AbstractNLPModel, ::AbstractVector, ::Integer, ::AbstractVector) =
-  throw(NotImplementedError("jth_congrad!"))
+function jth_congrad! end
 
-jth_sparse_congrad(::AbstractNLPModel, ::AbstractVector, ::Integer) =
-  throw(NotImplementedError("jth_sparse_congrad"))
+function jth_sparse_congrad end
 
 """
     f, c = objcons(nlp, x)
@@ -253,7 +239,7 @@ end
 
 Return the structure of the constraint's Jacobian in sparse coordinate format in place.
 """
-jac_structure!(:: AbstractNLPModel, :: AbstractVector{<:Integer}, :: AbstractVector{<:Integer}) = throw(NotImplementedError("jac_structure!"))
+function jac_structure! end
 
 """
     vals = jac_coord!(nlp, x, vals)
@@ -261,7 +247,7 @@ jac_structure!(:: AbstractNLPModel, :: AbstractVector{<:Integer}, :: AbstractVec
 Evaluate ``J(x)``, the constraint's Jacobian at `x` in sparse coordinate format,
 rewriting `vals`.
 """
-jac_coord!(:: AbstractNLPModel, :: AbstractVector, ::AbstractVector) = throw(NotImplementedError("jac_coord!"))
+function jac_coord! end
 
 """
     vals = jac_coord(nlp, x)
@@ -302,8 +288,7 @@ end
 
 Evaluate ``J(x)v``, the Jacobian-vector product at `x` in place.
 """
-jprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
-  throw(NotImplementedError("jprod!"))
+function jprod! end
 
 """
     Jv = jprod!(nlp, rows, cols, vals, v, Jv)
@@ -344,8 +329,7 @@ end
 
 Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product at `x` in place.
 """
-jtprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
-  throw(NotImplementedError("jtprod!"))
+function jtprod! end
 
 """
     Jtv = jtprod!(nlp, rows, cols, vals, v, Jtv)
@@ -442,8 +426,7 @@ function jth_hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, 
   return jth_hprod!(nlp, x, v, j, hv)
 end
 
-jth_hprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::Integer, ::AbstractVector) =
-  throw(NotImplementedError("jth_hprod!"))
+function jth_hprod! end
 
 function ghjvprod(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector, v::AbstractVector)
   @lencheck nlp.meta.nvar x g v
@@ -451,8 +434,7 @@ function ghjvprod(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector, v
   return ghjvprod!(nlp, x, g, v, gHv)
 end
 
-ghjvprod!(::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector, ::AbstractVector) =
-  throw(NotImplementedError("ghjvprod!"))
+function ghjvprod! end
 
 """
     (rows,cols) = hess_structure(nlp)
@@ -470,7 +452,7 @@ end
 
 Return the structure of the Lagrangian Hessian in sparse coordinate format in place.
 """
-hess_structure!(:: AbstractNLPModel, ::AbstractVector{<: Integer}, ::AbstractVector{<: Integer}) = throw(NotImplementedError("hess_structure!"))
+function hess_structure! end
 
 """
     vals = hess_coord!(nlp, x, vals; obj_weight=1.0)
@@ -494,7 +476,7 @@ with objective function scaled by `obj_weight`, i.e.,
 $(LAGRANGIAN_HESSIAN), rewriting `vals`.
 Only the lower triangle is returned.
 """
-hess_coord!(nlp:: AbstractNLPModel, :: AbstractVector, :: AbstractVector, ::AbstractVector; obj_weight :: Real=one(eltype(x))) = throw(NotImplementedError("hess_coord!"))
+function hess_coord! end
 
 """
     vals = hess_coord(nlp, x; obj_weight=1.0)
@@ -629,8 +611,7 @@ Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in
 place, with objective function scaled by `obj_weight`, where the Lagrangian Hessian is
 $(LAGRANGIAN_HESSIAN).
 """
-hprod!(nlp::AbstractNLPModel, ::AbstractVector, ::AbstractVector, ::AbstractVector, ::AbstractVector; obj_weight :: Real=one(eltype(x))) =
-  throw(NotImplementedError("hprod!"))
+function hprod! end
 
 """
     Hv = hprod!(nlp, x, y, rows, cols, v, Hv; obj_weight=1.0)
@@ -764,15 +745,10 @@ function hess_op!(nlp :: AbstractNLPModel, x :: AbstractVector, y :: AbstractVec
   return hess_op!(nlp, rows, cols, vals, Hv)
 end
 
-
-push!(nlp :: AbstractNLPModel, args...; kwargs...) =
-  throw(NotImplementedError("push!"))
-varscale(::AbstractNLPModel, ::AbstractVector) =
-  throw(NotImplementedError("varscale"))
-lagscale(::AbstractNLPModel, ::Real) =
-  throw(NotImplementedError("lagscale"))
-conscale(::AbstractNLPModel, ::AbstractVector) =
-  throw(NotImplementedError("conscale"))
+function push! end
+function varscale end
+function lagscale end
+function conscale end
 
 include("autodiff_model.jl")
 include("slack_model.jl")

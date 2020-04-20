@@ -12,7 +12,7 @@ inital estimate to the Lagrangian multipliers can also be provided.
 
 ````
 ADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,
-  c = NotImplemented, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = "Generic")
+  c = nothing, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = "Generic")
 ````
 
   - `f` - The objective function ``f``. Should be callable;
@@ -54,7 +54,7 @@ show_header(io :: IO, nlp :: ADNLPModel) = println(io, "ADNLPModel - Model with 
 function ADNLPModel(f, x0::AbstractVector; y0::AbstractVector = eltype(x0)[],
                     lvar::AbstractVector = eltype(x0)[], uvar::AbstractVector = eltype(x0)[],
                     lcon::AbstractVector = eltype(x0)[], ucon::AbstractVector = eltype(x0)[],
-                    c = (args...)->throw(NotImplementedError("cons")),
+                    c = nothing,
                     name::String = "Generic", lin::AbstractVector{<: Integer}=Int[])
 
   nvar = length(x0)

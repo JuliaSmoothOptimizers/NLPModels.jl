@@ -4,8 +4,7 @@ export AbstractNLSModel, nls_meta, NLSCounters, reset!,
        jtprod_residual, jtprod_residual!, jac_op_residual, jac_op_residual!,
        hess_residual, hess_structure_residual, hess_structure_residual!,
        hess_coord_residual!, hess_coord_residual, jth_hess_residual,
-       hprod_residual, hprod_residual!, hess_op_residual, hess_op_residual!,
-       NotImplementedError
+       hprod_residual, hprod_residual!, hess_op_residual, hess_op_residual!
 
 abstract type AbstractNLSModel <: AbstractNLPModel end
 
@@ -115,9 +114,7 @@ end
 
 Computes ``F(x)``, the residual at x.
 """
-function residual!(nls :: AbstractNLSModel, x :: AbstractVector, Fx :: AbstractVector)
-  throw(NotImplementedError("residual!"))
-end
+function residual! end
 
 """
     Jx = jac_residual(nls, x)
@@ -136,9 +133,7 @@ end
 
 Returns the structure of the constraint's Jacobian in sparse coordinate format in place.
 """
-function jac_structure_residual!(nls :: AbstractNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
-  throw(NotImplementedError("jac_structure_residual!"))
-end
+function jac_structure_residual! end
 
 """
     (rows,cols) = jac_structure_residual(nls)
@@ -157,9 +152,7 @@ end
 Computes the Jacobian of the residual at `x` in sparse coordinate format, rewriting
 `vals`. `rows` and `cols` are not rewritten.
 """
-function jac_coord_residual!(nls :: AbstractNLSModel, x :: AbstractVector, vals :: AbstractVector)
-  throw(NotImplementedError("jac_coord_residual!"))
-end
+function jac_coord_residual! end
 
 """
     (rows,cols,vals) = jac_coord_residual(nls, x)
@@ -188,9 +181,7 @@ end
 
 Computes the product of the Jacobian of the residual at x and a vector, i.e.,  ``J(x)v``, storing it in `Jv`.
 """
-function jprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
-  throw(NotImplementedError("jprod_residual!"))
-end
+function jprod_residual! end
 
 """
     Jv = jprod_residual!(nls, rows, cols, vals, v, Jv)
@@ -236,9 +227,7 @@ end
 
 Computes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  ``J(x)^Tv``, storing it in `Jtv`.
 """
-function jtprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
-  throw(NotImplementedError("jtprod_residual!"))
-end
+function jtprod_residual! end
 
 """
     Jtv = jtprod_residual!(nls, rows, cols, vals, v, Jtv)
@@ -358,9 +347,7 @@ end
 
 Returns the structure of the residual Hessian in place.
 """
-function hess_structure_residual!(nls :: AbstractNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
-  throw(NotImplementedError("hess_structure_residual!"))
-end
+function hess_structure_residual! end
 
 """
     vals = hess_coord_residual!(nls, x, v, vals)
@@ -368,9 +355,7 @@ end
 Computes the linear combination of the Hessians of the residuals at `x` with coefficients
 `v` in sparse coordinate format, rewriting `vals`.
 """
-function hess_coord_residual!(nls :: AbstractNLSModel, x :: AbstractVector, v :: AbstractVector, vals :: AbstractVector)
-  throw(NotImplementedError("hess_coord_residual!"))
-end
+function hess_coord_residual! end
 
 """
     vals = hess_coord_residual(nls, x, v)
@@ -414,9 +399,7 @@ end
 
 Computes the product of the Hessian of the i-th residual at x, times the vector v, and stores it in vector Hiv.
 """
-function hprod_residual!(nls :: AbstractNLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
-  throw(NotImplementedError("hprod_residual!"))
-end
+function hprod_residual! end
 
 """
     Hop = hess_op_residual(nls, x, i)
