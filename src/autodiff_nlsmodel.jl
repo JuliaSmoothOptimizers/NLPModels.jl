@@ -7,7 +7,7 @@ compute the derivatives.
 
 ````
 ADNLSModel(F, x0, m; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,
-  c = nothing, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = "Generic")
+  c = x->[], lcon = [], ucon = [], name = "Generic")
 ````
 
   - `F` - The residual function \$F\$. Should be callable;
@@ -33,18 +33,20 @@ function ADNLSModel(F, x0 :: AbstractVector, m :: Int;
                     name :: String = "Generic",
                     lvar :: AbstractVector = fill(-eltype(x0)(Inf), length(x0)),
                     uvar :: AbstractVector = fill( eltype(x0)(Inf), length(x0)),
-                    c = nothing,
+                    c = x -> eltype(x0)[],
                     lcon :: AbstractVector = eltype(x0)[],
                     ucon :: AbstractVector = eltype(x0)[],
-                    y0 :: AbstractVector = zeros(eltype(x0), max(length(lcon), length(ucon))),
+                    y0 :: AbstractVector = eltype(x0)[],
                     lin :: AbstractVector{<: Integer} = Int[],
                     linequ :: AbstractVector{<: Integer} = Int[],
                    )
+  T = eltype(x0)
   nvar = length(x0)
   ncon = maximum([length(lcon); length(ucon); length(y0)])
-  if !(length(lcon) == length(ucon) == length(y0))
-    error("lcon, ucon and y0 need to be the same length")
-  end
+  length(lcon) == 0 && (lcon = fill(-T(Inf), ncon))
+  length(ucon) == 0 && (ucon = fill(T(Inf), ncon))
+  length(y0) == 0 && (y0 = zeros(T, ncon))
+  @lencheck ncon lcon ucon y0
   nnzj = nvar * ncon
 
   nln = setdiff(1:ncon, lin)

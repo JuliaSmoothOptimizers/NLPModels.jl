@@ -12,7 +12,7 @@ inital estimate to the Lagrangian multipliers can also be provided.
 
 ````
 ADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,
-  c = nothing, lcon = [-∞,…,-∞], ucon = [∞,…,∞], name = "Generic")
+  c = x->[], lcon = [], ucon = [], name = "Generic")
 ````
 
   - `f` - The objective function ``f``. Should be callable;
@@ -51,26 +51,23 @@ end
 
 show_header(io :: IO, nlp :: ADNLPModel) = println(io, "ADNLPModel - Model with automatic differentiation")
 
-function ADNLPModel(f, x0::AbstractVector; y0::AbstractVector = eltype(x0)[],
-                    lvar::AbstractVector = eltype(x0)[], uvar::AbstractVector = eltype(x0)[],
+function ADNLPModel(f, x0::AbstractVector;
+                    lvar::AbstractVector = fill(-Inf, length(x0)), uvar::AbstractVector = fill(Inf, length(x0)),
                     lcon::AbstractVector = eltype(x0)[], ucon::AbstractVector = eltype(x0)[],
-                    c = nothing,
+                    c = x -> eltype(x0)[], y0::AbstractVector = eltype(x0)[],
                     name::String = "Generic", lin::AbstractVector{<: Integer}=Int[])
 
+  T = eltype(x0)
   nvar = length(x0)
-  length(lvar) == 0 && (lvar = -Inf*ones(nvar))
-  length(uvar) == 0 && (uvar =  Inf*ones(nvar))
   ncon = maximum([length(lcon); length(ucon); length(y0)])
+  length(lcon) == 0 && (lcon = fill(-T(Inf), ncon))
+  length(ucon) == 0 && (ucon = fill(T(Inf), ncon))
+  length(y0) == 0 && (y0 = zeros(T, ncon))
+  @lencheck ncon lcon ucon y0
 
   nnzh = nvar * (nvar + 1) / 2
-  nnzj = 0
+  nnzj = nvar * ncon
 
-  if ncon > 0
-    length(lcon) == 0 && (lcon = -Inf*ones(ncon))
-    length(ucon) == 0 && (ucon =  Inf*ones(ncon))
-    length(y0) == 0   && (y0 = zeros(ncon))
-    nnzj = nvar * ncon
-  end
   nln = setdiff(1:ncon, lin)
 
   meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0,
