@@ -24,6 +24,20 @@ function test_autodiff_model()
   β = [ones(100) x] \ y
   @test abs(obj(nlp, β) - norm(y .- β[1] - β[2] * x)^2 / 2) < 1e-12
   @test norm(grad(nlp, β)) < 1e-12
+
+  # Testing input
+  nlp = ADNLPModel(f, x0, c=c, lcon=[0.0])
+  nlp = ADNLPModel(f, x0, c=c, ucon=[0.0])
+  nlp = ADNLPModel(f, x0, c=c, y0=[0.0])
+  nlp = ADNLPModel(f, x0, c=c, lcon=[0.0], ucon=[0.0])
+  nlp = ADNLPModel(f, x0, c=c, lcon=[0.0], y0=[0.0])
+  nlp = ADNLPModel(f, x0, c=c, ucon=[0.0], y0=[0.0])
+  nlp = ADNLPModel(f, x0, c=c, lcon=[0.0], ucon=[0.0], y0=[0.0])
+  @test_throws DimensionError ADNLPModel(f, x0, c=c, lcon=[0.0], ucon=[0.0; 0.0])
+  @test_throws DimensionError ADNLPModel(f, x0, c=c, lcon=[0.0; 0.0], ucon=[0.0])
+  @test_throws DimensionError ADNLPModel(f, x0, c=c, lcon=[0.0], ucon=[0.0; 0.0], y0=[0.0])
+  @test_throws DimensionError ADNLPModel(f, x0, c=c, lcon=[0.0; 0.0], ucon=[0.0], y0=[0.0])
+  @test_throws DimensionError ADNLPModel(f, x0, c=c, lcon=[0.0], ucon=[0.0], y0=[0.0; 0.0])
 end
 
 test_autodiff_model()
