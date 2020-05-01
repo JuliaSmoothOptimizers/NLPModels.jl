@@ -58,7 +58,7 @@ function LLSModel end
 
 function LLSMatrixModel(A :: AbstractMatrix, b :: AbstractVector;
                         x0 :: AbstractVector = zeros(eltype(A), size(A,2)),
-                        lvar :: AbstractVector = fill(-eltype(A)(Inf), size(A, 2)),
+                        lvar :: AbstractVector = fill(eltype(A)(-Inf), size(A, 2)),
                         uvar :: AbstractVector = fill(eltype(A)(Inf), size(A, 2)),
                         C :: AbstractMatrix  = Matrix{eltype(A)}(undef, 0, 0),
                         lcon :: AbstractVector = eltype(A)[],
@@ -80,7 +80,7 @@ end
 
 function LLSOperatorModel(A :: LinearOperator, b :: AbstractVector;
                           x0 :: AbstractVector = zeros(eltype(A), size(A,2)),
-                          lvar :: AbstractVector = fill(-eltype(A)(Inf), size(A, 2)),
+                          lvar :: AbstractVector = fill(eltype(A)(-Inf), size(A, 2)),
                           uvar :: AbstractVector = fill(eltype(A)(Inf), size(A, 2)),
                           C :: LinearOperator  = opZeros(eltype(A), 0, size(A, 2)),
                           lcon :: AbstractVector = eltype(A)[],
@@ -103,7 +103,7 @@ function LLSTripletModel(Arows :: AbstractVector{<: Integer},
                          nvar :: Integer,
                          b :: AbstractVector;
                          x0 :: AbstractVector = zeros(eltype(Avals), nvar),
-                         lvar :: AbstractVector = fill(-eltype(Avals)(Inf), nvar),
+                         lvar :: AbstractVector = fill(eltype(Avals)(-Inf), nvar),
                          uvar :: AbstractVector = fill(eltype(Avals)(Inf), nvar),
                          Crows :: AbstractVector{<: Integer} = eltype(Arows)[],
                          Ccols :: AbstractVector{<: Integer} = eltype(Arows)[],
@@ -132,7 +132,7 @@ end
 function LLSModel(A :: AbstractMatrix, b :: AbstractVector;
                   variant = :matrix, kwargs...)
   if !(variant in [:matrix, :operator, :triplet])
-    error("variant should be one of [:matrix, :operator, :triplet")
+    error("variant should be one of :matrix, :operator, :triplet")
   end
   LLSModel(Val(variant), A, b; kwargs...)
 end
@@ -142,28 +142,15 @@ function LLSModel(::Val{:matrix}, A :: AbstractMatrix, b :: AbstractVector; kwar
 end
 
 function LLSModel(::Val{:operator}, A :: AbstractMatrix, b :: AbstractVector;
-                  x0 :: AbstractVector = zeros(size(A,2)),
-                  lvar :: AbstractVector = fill(-eltype(A)(Inf), size(A, 2)),
-                  uvar :: AbstractVector = fill(eltype(A)(Inf), size(A, 2)),
                   C :: AbstractMatrix  = Matrix{eltype(A)}(undef, 0, 0),
-                  lcon :: AbstractVector = eltype(A)[],
-                  ucon :: AbstractVector = eltype(A)[],
-                  y0 :: AbstractVector = zeros(eltype(A), size(C,1)),
-                  name :: String = "generic-LLSModel"
+                  kwargs...
                  )
-  LLSOperatorModel(LinearOperator(A), b, x0=x0, lvar=lvar, uvar=uvar,
-                   C=LinearOperator(C), lcon=lcon, ucon=ucon, y0=y0, name=name)
+  LLSOperatorModel(LinearOperator(A), b; C=LinearOperator(C), kwargs...)
 end
 
 function LLSModel(::Val{:triplet}, A :: AbstractMatrix, b :: AbstractVector;
-                  x0 :: AbstractVector = zeros(size(A,2)),
-                  lvar :: AbstractVector = fill(-eltype(A)(Inf), size(A, 2)),
-                  uvar :: AbstractVector = fill(eltype(A)(Inf), size(A, 2)),
                   C :: AbstractMatrix  = Matrix{eltype(A)}(undef, 0, 0),
-                  lcon :: AbstractVector = eltype(A)[],
-                  ucon :: AbstractVector = eltype(A)[],
-                  y0 :: AbstractVector = zeros(eltype(A), size(C,1)),
-                  name :: String = "generic-LLSModel"
+                  kwargs...
                  )
   nvar = size(A, 2)
   Arows, Acols, Avals = if A isa AbstractSparseMatrix
@@ -180,8 +167,7 @@ function LLSModel(::Val{:triplet}, A :: AbstractMatrix, b :: AbstractVector;
     I = ((i,j) for i = 1:m, j = 1:n)
     getindex.(I, 1)[:], getindex.(I, 2)[:], C[:]
   end
-  LLSTripletModel(Arows, Acols, Avals, nvar, b, x0=x0, lvar=lvar, uvar=uvar,
-                  Crows=Crows, Ccols=Ccols, Cvals=Cvals, lcon=lcon, ucon=ucon, y0=y0, name=name)
+  LLSTripletModel(Arows, Acols, Avals, nvar, b; Crows=Crows, Ccols=Ccols, Cvals=Cvals, kwargs...)
 end
 
 function LLSModel(A :: LinearOperator, b :: AbstractVector; kwargs...)
@@ -195,7 +181,7 @@ function LLSModel(Arows :: AbstractVector{<: Integer},
                   b :: AbstractVector;
                   variant=:triplet, kwargs...)
   if !(variant in [:matrix, :operator, :triplet])
-    error("variant should be one of [:matrix, :operator, :triplet")
+    error("variant should be one of :matrix, :operator, :triplet")
   end
   LLSModel(Val(variant), Arows, Acols, Avals, nvar, b; kwargs...)
 end
@@ -207,7 +193,7 @@ function LLSModel(::Val{:matrix},
                   nvar :: Integer,
                   b :: AbstractVector;
                   x0 :: AbstractVector = zeros(eltype(Avals), nvar),
-                  lvar :: AbstractVector = fill(-eltype(Avals)(Inf), nvar),
+                  lvar :: AbstractVector = fill(eltype(Avals)(-Inf), nvar),
                   uvar :: AbstractVector = fill(eltype(Avals)(Inf), nvar),
                   Crows :: AbstractVector{<: Integer} = eltype(Arows)[],
                   Ccols :: AbstractVector{<: Integer} = eltype(Arows)[],
@@ -232,8 +218,8 @@ function LLSModel(::Val{:operator},
                   Avals :: AbstractVector,
                   nvar :: Integer,
                   b :: AbstractVector;
-                  x0 :: AbstractVector = zeros(nvar),
-                  lvar :: AbstractVector = fill(-eltype(Avals)(Inf), nvar),
+                  x0 :: AbstractVector = zeros(eltype(Avals), nvar),
+                  lvar :: AbstractVector = fill(eltype(Avals)(-Inf), nvar),
                   uvar :: AbstractVector = fill(eltype(Avals)(Inf), nvar),
                   Crows :: AbstractVector{<: Integer} = eltype(Arows)[],
                   Ccols :: AbstractVector{<: Integer} = eltype(Arows)[],
