@@ -37,19 +37,6 @@ function NLPModels.grad!(nlp :: HS10, x :: AbstractVector{T}, gx :: AbstractVect
   return gx
 end
 
-function NLPModels.hess(nlp :: HS10, x :: AbstractVector{T}; obj_weight=1.0) where T
-  @lencheck 2 x
-  increment!(nlp, :neval_hess)
-  return spzeros(T, 2, 2)
-end
-
-function NLPModels.hess(nlp :: HS10, x :: AbstractVector{T}, y :: AbstractVector{T}; obj_weight=1.0) where T
-  @lencheck 2 x
-  @lencheck 1 y
-  increment!(nlp, :neval_hess)
-  return y[1] * T[-6.0  0.0; 2.0  -2.0]
-end
-
 function NLPModels.hess_structure!(nlp :: HS10, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
   @lencheck 3 rows cols
   rows[1] = 1; rows[2] = 2; rows[3] = 2
@@ -88,12 +75,6 @@ function NLPModels.cons!(nlp :: HS10, x :: AbstractVector, cx :: AbstractVector)
   increment!(nlp, :neval_cons)
   cx .= [-3 * x[1]^2 + 2 * x[1] * x[2] - x[2]^2 + 1]
   return cx
-end
-
-function NLPModels.jac(nlp :: HS10, x :: AbstractVector)
-  @lencheck 2 x
-  increment!(nlp, :neval_jac)
-  return [-6 * x[1] + 2 * x[2]   2 * x[1] - 2 * x[2]]
 end
 
 function NLPModels.jac_structure!(nlp :: HS10, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})

@@ -47,18 +47,6 @@ function NLPModels.grad!(nlp :: LINCON, x :: AbstractVector, gx :: AbstractVecto
   return gx
 end
 
-function NLPModels.hess(nlp :: LINCON, x :: AbstractVector{T}; obj_weight=one(T)) where T
-  @lencheck 15 x
-  increment!(nlp, :neval_hess)
-  return obj_weight * diagm([12 * x[i]^2 for i=1:nlp.meta.nvar])
-end
-
-function NLPModels.hess(nlp :: LINCON, x :: AbstractVector{T}, y :: AbstractVector{T}; obj_weight=one(T)) where T
-  @lencheck 15 x
-  @lencheck 11 y
-  hess(nlp, x; obj_weight=obj_weight)
-end
-
 function NLPModels.hess_structure!(nlp :: LINCON, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
   @lencheck 15 rows cols
   for i = 1:nlp.meta.nnzh
@@ -105,20 +93,6 @@ function NLPModels.cons!(nlp :: LINCON, x :: AbstractVector, cx :: AbstractVecto
         [1 2; 3 4] * x[1:2];
         diagm([3 * i for i = 3:5]) * x[3:5]]
   return cx
-end
-
-function NLPModels.jac(nlp :: LINCON, x :: AbstractVector)
-  @lencheck 15 x
-  increment!(nlp, :neval_jac)
-  J = spzeros(eltype(x), nlp.meta.ncon, nlp.meta.nvar)
-  J[1,15]     = 15
-  J[2,10:12]  = [1; 2; 3]
-  J[3,13:14]  = [1; -1]
-  J[4,8:9]    = [5; 6]
-  J[5:6,6:7]  = [0 -2; 4 0]
-  J[7:8,1:2]  = [1 2; 3 4]
-  J[9:11,3:5] = diagm([3 * i for i = 3:5])
-  return J
 end
 
 function NLPModels.jac_structure!(nlp :: LINCON, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})

@@ -82,12 +82,6 @@ function NLPModels.hess_coord_residual!(nls :: LLS, x :: AbstractVector, v :: Ab
   return vals
 end
 
-function NLPModels.jth_hess_residual(nls :: LLS, x :: AbstractVector, j :: Int)
-  @lencheck 2 x
-  increment!(nls, :neval_jhess_residual)
-  return zeros(eltype(x), 2, 2)
-end
-
 function NLPModels.hprod_residual!(nls :: LLS, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
   @lencheck 2 x v Hiv
   increment!(nls, :neval_hprod_residual)

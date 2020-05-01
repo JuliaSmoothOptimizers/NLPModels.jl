@@ -35,27 +35,20 @@ function NLPModels.grad!(nlp :: HS5, x :: AbstractVector{T}, gx :: AbstractVecto
   return gx
 end
 
-function NLPModels.hess(nlp :: HS5, x :: AbstractVector{T}; obj_weight=one(T)) where T
-  @lencheck 2 x
-  increment!(nlp, :neval_hess)
-  return tril(-sin(x[1] + x[2])*ones(T, 2, 2) + T[2 -2; -2 2]) * obj_weight
-end
-
 function NLPModels.hess_structure!(nlp :: HS5, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
   @lencheck 3 rows cols
-  I = ((i,j) for i = 1:nlp.meta.nvar, j = 1:nlp.meta.nvar if i ≥ j)
-  rows .= getindex.(I, 1)
-  cols .= getindex.(I, 2)
+  rows .= [1; 2; 2]
+  cols .= [1; 1; 2]
   return rows, cols
 end
 
 function NLPModels.hess_coord!(nlp :: HS5, x :: AbstractVector, vals :: AbstractVector; obj_weight=1.0)
   @lencheck 2 x
   @lencheck 3 vals
-  H = hess(nlp, x, obj_weight=obj_weight)
-  vals[1] = H[1,1]
-  vals[2] = H[2,1]
-  vals[3] = H[2,2]
+  increment!(nlp, :neval_hess)
+  vals[1] = vals[3] = -sin(x[1] + x[2]) + 2
+  vals[2] = -sin(x[1] + x[2]) - 2
+  vals .*= obj_weight
   return vals
 end
 
