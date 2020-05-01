@@ -84,7 +84,8 @@ function NLPModels.hess_coord!(nlp :: LINCON, x :: AbstractVector{T}, y :: Abstr
 end
 
 function NLPModels.hprod!(nlp :: LINCON, x :: AbstractVector{T}, y :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=one(T)) where T
-  @lencheck 15 x
+  @lencheck 15 x v Hv
+  @lencheck 11 y
   increment!(nlp, :neval_hprod)
   for i=1:nlp.meta.nvar
     Hv[i] = 12 * obj_weight * x[i]^2 * v[i]
