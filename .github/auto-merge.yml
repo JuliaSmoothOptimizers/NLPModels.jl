@@ -1,0 +1,5 @@
+minApprovals:
+  OWNER: 2
+reportStatus: true
+deleteBranchAfterMerge: true
+mergeMethod: rebase
