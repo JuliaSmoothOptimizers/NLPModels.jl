@@ -169,50 +169,39 @@ struct NLPModelMeta <: AbstractNLPModelMeta
   end
 end
 
-# Displaying NLPModelMeta instances.
+import Base.show
+show_header(io :: IO, nlp :: AbstractNLPModel) = println(io, typeof(nlp))
 
-import Base.show, Base.print, Base.println
-function show(io :: IO, nlp :: NLPModelMeta)
-  s  = nlp.minimize ? @sprintf("Minimization ") : @sprintf("Maximization ")
-  s *= @sprintf("problem %s\n", nlp.name)
-  s *= @sprintf("nvar = %d, ncon = %d (%d linear)\n", nlp.nvar, nlp.ncon, nlp.nlin)
-  print(io, s)
+function show(io :: IO, nlp :: AbstractNLPModel)
+  show_header(io, nlp)
+  show(io, nlp.meta)
+  show(io, nlp.counters)
 end
 
-"""
-    print(io, meta)
+function show(io :: IO, m :: NLPModelMeta)
+  sep(a) = (a == "" ? " " : "…")^(18-length(a))
+  println(io, "  Problem name: $(m.name)")
+  for (a,b,c,d) in [("Total variables", m.nvar,   "Total constraints", m.ncon),
+                    ("  free", length(m.ifree),   "  linear", m.nlin),
+                    ("  lower", length(m.ilow),   "  nonlinear", m.nnln),
+                    ("  upper", length(m.iupp),   "  equality", length(m.jfix)),
+                    ("  low/upp", length(m.irng), "  lower", length(m.jlow)),
+                    ("  fixed", length(m.ifix),   "  upper", length(m.jupp)),
+                    ("  nnzh", m.nnzh,            "  low/upp", length(m.jupp)),
+                    ("", "",                      "  nnzj", m.nnzj)]
+    @printf(io, "  %s%s%-6s  %s%s%-6d\n", a, sep(a), b, c, sep(c), d)
+  end
+end
 
-Prints meta information - x0, nvar, ncon, etc.
-"""
-function print(io :: IO, nlp :: NLPModelMeta)
-  nlp.minimize ? @printf(io, "Minimization ") : @printf(io, "Maximization ")
-  dsp(x) = length(x) == 0 ? print(io, "∅") :
-    (length(x) <= 5 ? Base.show_delim_array(io, x, "", "  ", "", false) :
-     begin
-      Base.show_delim_array(io, x[1:4], "", "  ", "", false)
-      print("  ⋯  $(x[end])")
-    end)
-  @printf(io, "problem %s\n", nlp.name)
-  @printf(io, "nvar = %d, ncon = %d (%d linear)\n", nlp.nvar, nlp.ncon, nlp.nlin)
-  @printf(io, "lvar = "); dsp(nlp.lvar'); @printf(io, "\n")
-  @printf(io, "uvar = "); dsp(nlp.uvar'); @printf(io, "\n")
-  @printf(io, "lcon = "); dsp(nlp.lcon'); @printf(io, "\n")
-  @printf(io, "ucon = "); dsp(nlp.ucon'); @printf(io, "\n")
-  @printf(io, "x0 = ");   dsp(nlp.x0'); @printf(io, "\n")
-  @printf(io, "y0 = ");   dsp(nlp.y0'); @printf(io, "\n")
-  @printf(io, "nnzh = %d\n", nlp.nnzh)
-  @printf(io, "nnzj = %d\n", nlp.nnzj)
-  if nlp.nlin > 0
-    @printf(io, "linear constraints:    "); dsp(nlp.lin'); @printf(io, "\n")
-  end
-  if nlp.nnln > 0
-    @printf(io, "nonlinear constraints: "); dsp(nlp.nln'); @printf(io, "\n")
-  end
-  if nlp.nlnet > 0
-    @printf(io, "linear network constraints:   "); dsp(nlp.lnet'); @printf(io, "\n")
-  end
-  if nlp.nnnet > 0
-    @printf(io, "nonlinear network constraints:   "); dsp(nlp.nnet'); @printf(io, "\n")
+function show(io :: IO, c :: Counters)
+  println(io, "  Counters:")
+  k = 0
+  sep(s) = (s == "" ? " " : "…")^(8-length(s))
+  for f in fieldnames(Counters)
+    s = string(f)[7:end]
+    @printf(io, "    %s%s%-6s", s, sep(s), getproperty(c, f))
+    k += 1
+    k % 5 == 0 && println(io, "")
   end
 end
 

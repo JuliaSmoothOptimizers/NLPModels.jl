@@ -26,6 +26,14 @@ function LSR1Model(nlp :: AbstractNLPModel; kwargs...)
   return LSR1Model(nlp.meta, nlp, op)
 end
 
+show_header(io :: IO, nlp :: QuasiNewtonModel) = println(io, "$(typeof(nlp)) - A QuasiNewtonModel")
+
+function show(io :: IO, nlp :: QuasiNewtonModel)
+  show_header(io, nlp)
+  show(io, nlp.meta)
+  show(io, nlp.model.counters)
+end
+
 @default_counters QuasiNewtonModel model
 
 function reset_data!(nlp :: QuasiNewtonModel)

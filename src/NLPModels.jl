@@ -64,7 +64,7 @@ end
 Increment counter `s` of problem `nlp`.
 """
 function increment!(nlp :: AbstractNLPModel, s :: Symbol)
-  setfield!(nlp.counters, s, getfield(nlp.counters, s) + 1)
+  setproperty!(nlp.counters, s, getproperty(nlp.counters, s) + 1)
 end
 
 """
@@ -73,7 +73,7 @@ end
 Decrement counter `s` of problem `nlp`.
 """
 function decrement!(nlp :: AbstractNLPModel, s :: Symbol)
-  setfield!(nlp.counters, s, getfield(nlp.counters, s) - 1)
+  setproperty!(nlp.counters, s, getproperty(nlp.counters, s) - 1)
 end
 
 """
@@ -81,7 +81,7 @@ end
 
 Sum all counters of `counters`.
 """
-sum_counters(c :: Counters) = sum(getfield(c, x) for x in fieldnames(Counters))
+sum_counters(c :: Counters) = sum(getproperty(c, x) for x in fieldnames(Counters))
 
 """
     sum_counters(nlp)

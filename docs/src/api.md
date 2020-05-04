@@ -94,7 +94,6 @@ hprod
 hprod!
 reset!
 reset_data!
-print
 ```
 
 ## AbstractNLSModel
