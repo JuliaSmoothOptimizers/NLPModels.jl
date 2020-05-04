@@ -50,12 +50,29 @@ mutable struct SlackModel <: AbstractNLPModel
   model :: AbstractNLPModel
 end
 
+show_header(io :: IO, nlp :: SlackModel) = println(io, "SlackModel - Model with slack variables")
+
+function show(io :: IO, nlp :: SlackModel)
+  show_header(io, nlp)
+  show(io, nlp.meta)
+  show(io, nlp.model.counters)
+end
+
 """Like `SlackModel`, this model converts inequalities into equalities and bounds.
 """
 mutable struct SlackNLSModel <: AbstractNLSModel
   meta :: NLPModelMeta
   nls_meta :: NLSMeta
   model :: AbstractNLPModel
+end
+
+show_header(io :: IO, nls :: SlackNLSModel) = println(io, "SlackNLSModel - Nonlinear least-squares model with slack variables")
+
+function show(io :: IO, nls :: SlackNLSModel)
+  show_header(io, nls)
+  show(io, nls.meta)
+  show(io, nls.nls_meta)
+  show(io, nls.model.counters)
 end
 
 function slack_meta(meta :: NLPModelMeta; name=meta.name * "-slack")
@@ -123,10 +140,6 @@ function SlackNLSModel(model :: AbstractNLSModel; name=model.meta.name * "-slack
 end
 
 const SlackModels = Union{SlackModel,SlackNLSModel}
-
-import Base.show
-# TODO: improve this!
-# show(nlp :: SlackModel) = show(nlp.model)
 
 # retrieve counters from underlying model
 @default_counters SlackModels model

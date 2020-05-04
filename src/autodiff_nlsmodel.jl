@@ -27,6 +27,8 @@ mutable struct ADNLSModel <: AbstractNLSModel
   c
 end
 
+show_header(io :: IO, nls :: ADNLSModel) = println(io, "ADNLSModel - Nonlinear least-squares model with automatic differentiation")
+
 function ADNLSModel(F, x0 :: AbstractVector, m :: Int;
                     name :: String = "Generic",
                     lvar :: AbstractVector = fill(-eltype(x0)(Inf), length(x0)),

@@ -32,6 +32,8 @@ mutable struct FeasibilityResidual <: AbstractNLSModel
   nlp :: AbstractNLPModel
 end
 
+show_header(io :: IO, nls :: FeasibilityResidual) = println(io, "FeasibilityResidual - Nonlinear least-squares defined from constraints of another problem")
+
 function FeasibilityResidual(nlp :: AbstractNLPModel; name="$(nlp.meta.name)-feasres")
   if !equality_constrained(nlp)
     if unconstrained(nlp)

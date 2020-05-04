@@ -21,6 +21,8 @@ mutable struct LLSModel <: AbstractNLSModel
   Cvals :: Vector
 end
 
+show_header(io :: IO, nls :: LLSModel) = println(io, "LLSModel - Linear least-squares model")
+
 function LLSModel(A :: AbstractMatrix, b :: AbstractVector;
                   x0 :: AbstractVector = zeros(size(A,2)),
                   lvar :: AbstractVector = fill(-Inf, size(A, 2)),

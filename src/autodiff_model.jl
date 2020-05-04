@@ -49,6 +49,8 @@ mutable struct ADNLPModel <: AbstractNLPModel
   c
 end
 
+show_header(io :: IO, nlp :: ADNLPModel) = println(io, "ADNLPModel - Model with automatic differentiation")
+
 function ADNLPModel(f, x0::AbstractVector; y0::AbstractVector = eltype(x0)[],
                     lvar::AbstractVector = eltype(x0)[], uvar::AbstractVector = eltype(x0)[],
                     lcon::AbstractVector = eltype(x0)[], ucon::AbstractVector = eltype(x0)[],

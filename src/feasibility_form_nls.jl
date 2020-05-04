@@ -30,6 +30,8 @@ mutable struct FeasibilityFormNLS <: AbstractNLSModel
   counters :: NLSCounters
 end
 
+show_header(io :: IO, nls :: FeasibilityFormNLS) = println(io, "FeasibilityFormNLS - Nonlinear least-squares moving the residual to constraints")
+
 """
     FeasibilityFormNLS(nls)
 

@@ -85,6 +85,10 @@ for problem in problems
   nlp_man = eval(Meta.parse(problem))()
 
   nlps = [nlp_ad, nlp_man]
+  for nlp in nlps
+    show(nlp)
+  end
+
   consistent_nlps(nlps)
   @info "  Consistency checks ✓"
 
@@ -112,6 +116,10 @@ for problem in nls_problems
   if isdefined(Main, Symbol(spc))
     push!(nlss, eval(Meta.parse(spc))())
   end
+  for nls in nlss
+    show(nls)
+  end
+
   consistent_nlss(nlss)
   @info "  Consistency checks ✓"
 

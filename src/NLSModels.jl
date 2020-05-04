@@ -24,19 +24,20 @@ mutable struct NLSCounters
   end
 end
 
-function increment!(nls :: AbstractNLSModel, s :: Symbol)
-  if s in fieldnames(NLSCounters)
-    setfield!(nls.counters, s, getfield(nls.counters, s) + 1)
+import Base.getproperty, Base.setproperty!
+function getproperty(c :: NLSCounters, f :: Symbol)
+  if f in fieldnames(Counters)
+    getfield(c.counters, f)
   else
-    setfield!(nls.counters.counters, s, getfield(nls.counters.counters, s) + 1)
+    getfield(c, f)
   end
 end
 
-function decrement!(nls :: AbstractNLSModel, s :: Symbol)
-  if s in fieldnames(NLSCounters)
-    setfield!(nls.counters, s, getfield(nls.counters, s) - 1)
+function setproperty!(c :: NLSCounters, f :: Symbol, x)
+  if f in fieldnames(Counters)
+    setfield!(c.counters, f, x)
   else
-    setfield!(nls.counters.counters, s, getfield(nls.counters.counters, s) - 1)
+    setfield!(c, f, x)
   end
 end
 

@@ -32,3 +32,35 @@ function NLSMeta(nequ :: Int, nvar :: Int;
   nnzh = max(0, nnzh)
   return NLSMeta(nequ, nvar, x0, nnzj, nnzh, nln, length(nln), lin, length(lin))
 end
+
+import Base.show
+function show(io :: IO, nls :: AbstractNLSModel)
+  show_header(io, nls)
+  show(io, nls.meta)
+  show(io, nls.nls_meta)
+  show(io, nls.counters)
+end
+
+function show(io :: IO, nm :: NLSMeta)
+  sep(a) = (a == "" ? " " : "…")^(18-length(a))
+  for (a,b) in [("Total residuals", nm.nequ),
+                ("  linear", nm.nlin),
+                ("  nonlinear", nm.nnln),
+                ("  nnzj", nm.nnzj),
+                ("  nnzh", nm.nnzh)]
+    @printf(io, "  %s%s%-6s\n", a, sep(a), b)
+  end
+end
+
+function show(io :: IO, c :: NLSCounters)
+  println(io, "  Counters:")
+  k = 0
+  sep(s) = (s == "" ? " " : "…")^(17-length(s))
+  for f in fieldnames(Counters) ∪ fieldnames(NLSCounters)
+    f == :counters && continue
+    s = string(f)[7:end]
+    @printf(io, "    %s%s%-6s", s, sep(s), getproperty(c, f))
+    k += 1
+    k % 4 == 0 && println(io, "")
+  end
+end

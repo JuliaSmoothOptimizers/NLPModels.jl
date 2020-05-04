@@ -277,6 +277,9 @@ using NLPModels # hide
 F(x) = [x[1] - 1.0; 10 * (x[2] - x[1]^2)]
 x0 = [-1.2; 1.0]
 nls = ADNLSModel(F, x0, 2) # 2 nonlinear equations
+```
+
+```@example nls
 residual(nls, x0)
 ```
 
@@ -299,7 +302,9 @@ A = rand(10, 3)
 b = rand(10)
 C = rand(2, 3)
 nls = LLSModel(A, b, C=C, lcon=zeros(2), ucon=zeros(2), lvar=-ones(3), uvar=ones(3))
+```
 
+```@example nls
 @info norm(jac_residual(nls, zeros(3)) - A)
 @info norm(jac(nls, zeros(3)) - C)
 ```
@@ -311,6 +316,9 @@ nlp = ADNLPModel(x->0, # objective doesn't matter,
                  ones(2), c=x->[x[1] + x[2] - 1; x[1] * x[2] - 2],
                  lcon=zeros(2), ucon=zeros(2))
 nls = FeasibilityResidual(nlp)
+```
+
+```@example nls
 s = 0.0
 for t = 1:100
   global s
