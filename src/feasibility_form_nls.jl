@@ -55,7 +55,7 @@ function FeasibilityFormNLS(nls :: AbstractNLSModel; name="$(nls.meta.name)-ffnl
                       nnzh=nnzh,
                       name=name
                      )
-  nls_meta = NLSMeta(nequ, nvar, x0=[meta.x0; zeros(nequ)], nnzj=nequ, nnzh=0)
+  nls_meta = NLSMeta(nequ, nvar, x0=[meta.x0; zeros(nequ)], nnzj=nequ, nnzh=0, lin=1:nequ, nln=Int[])
 
   nlp = FeasibilityFormNLS(meta, nls_meta, nls, NLSCounters())
   finalizer(nlp -> finalize(nlp.internal), nlp)

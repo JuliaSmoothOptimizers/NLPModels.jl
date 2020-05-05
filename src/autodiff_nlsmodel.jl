@@ -34,7 +34,9 @@ function ADNLSModel(F, x0 :: AbstractVector, m :: Int;
                     c = (args...)->throw(NotImplementedError("cons")),
                     lcon :: AbstractVector = eltype(x0)[],
                     ucon :: AbstractVector = eltype(x0)[],
-                    y0 :: AbstractVector = zeros(eltype(x0), max(length(lcon), length(ucon)))
+                    y0 :: AbstractVector = zeros(eltype(x0), max(length(lcon), length(ucon))),
+                    lin :: AbstractVector{<: Integer} = Int[],
+                    linequ :: AbstractVector{<: Integer} = Int[],
                    )
   nvar = length(x0)
   ncon = maximum([length(lcon); length(ucon); length(y0)])
@@ -43,9 +45,11 @@ function ADNLSModel(F, x0 :: AbstractVector, m :: Int;
   end
   nnzj = nvar * ncon
 
+  nln = setdiff(1:ncon, lin)
   meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0,
-                      lcon=lcon, ucon=ucon, nnzj=nnzj, name=name)
-  nls_meta = NLSMeta(m, nvar, nnzj=m * nvar, nnzh=div(nvar * (nvar + 1), 2))
+                      lcon=lcon, ucon=ucon, nnzj=nnzj, name=name, lin=lin, nln=nln)
+  nlnequ = setdiff(1:m, linequ)
+  nls_meta = NLSMeta(m, nvar, nnzj=m * nvar, nnzh=div(nvar * (nvar + 1), 2), lin=linequ, nln=nlnequ)
 
   return ADNLSModel(meta, nls_meta, NLSCounters(), F, c)
 end

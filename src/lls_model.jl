@@ -84,7 +84,7 @@ function LLSModel(Arows :: AbstractVector{<: Integer},
   meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0, lin=1:ncon,
                       nln=Int[], lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=0, name=name)
 
-  nls_meta = NLSMeta(nequ, nvar, nnzj=nnzjF, nnzh=0)
+  nls_meta = NLSMeta(nequ, nvar, nnzj=nnzjF, nnzh=0, lin=1:nequ, nln=Int[])
 
   return LLSModel(meta, nls_meta, NLSCounters(), Arows, Acols, Avals, b, Crows, Ccols, Cvals)
 end
