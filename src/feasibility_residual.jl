@@ -45,7 +45,7 @@ function FeasibilityResidual(nlp :: AbstractNLPModel; name="$(nlp.meta.name)-fea
   # TODO: What is copied?
   meta = NLPModelMeta(n, x0=nlp.meta.x0, name=name, lvar=nlp.meta.lvar,
                       uvar=nlp.meta.uvar, nnzj=0)
-  nls_meta = NLSMeta(m, n, nnzj=nlp.meta.nnzj, nnzh=nlp.meta.nnzh)
+  nls_meta = NLSMeta(m, n, nnzj=nlp.meta.nnzj, nnzh=nlp.meta.nnzh, lin=nlp.meta.lin, nln=nlp.meta.nln)
   nls = FeasibilityResidual(meta, nls_meta, NLSCounters(), nlp)
   finalizer(nls -> finalize(nls.nlp), nls)
 

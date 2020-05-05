@@ -111,7 +111,9 @@ function SlackNLSModel(model :: AbstractNLSModel; name=model.meta.name * "-slack
                      model.meta.nvar + ns,
                      x0=[model.meta.x0; zeros(eltype(model.meta.x0), ns)],
                      nnzj=model.nls_meta.nnzj,
-                     nnzh=model.nls_meta.nnzh
+                     nnzh=model.nls_meta.nnzh,
+                     lin=model.nls_meta.lin,
+                     nln=model.nls_meta.nln
                     )
 
   snls = SlackNLSModel(meta, nls_meta, model)
