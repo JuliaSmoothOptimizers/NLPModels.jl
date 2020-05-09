@@ -72,6 +72,7 @@ function show(io :: IO, nls :: SlackNLSModel)
   show_header(io, nls)
   show(io, nls.meta)
   show(io, nls.nls_meta)
+  printn(io, "")
   show(io, nls.model.counters)
 end
 
