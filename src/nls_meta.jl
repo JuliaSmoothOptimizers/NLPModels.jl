@@ -38,6 +38,7 @@ function show(io :: IO, nls :: AbstractNLSModel)
   show_header(io, nls)
   show(io, nls.meta)
   show(io, nls.nls_meta)
+  println(io, "")
   show(io, nls.counters)
 end
 
