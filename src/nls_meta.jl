@@ -36,32 +36,35 @@ end
 import Base.show
 function show(io :: IO, nls :: AbstractNLSModel)
   show_header(io, nls)
-  show(io, nls.meta)
-  show(io, nls.nls_meta)
-  println(io, "")
+  show(io, nls.meta, nls.nls_meta)
   show(io, nls.counters)
 end
 
+function lines_of_description(nm :: NLSMeta)
+  V = [nm.nequ, nm.nlin, nm.nnln]
+  S = ["All residuals", "linear", "nonlinear"]
+  lines = lines_of_hist(S, V)
+  push!(lines, histline("nnzj", nm.nnzj, nm.nvar * nm.nequ), histline("nnzh", nm.nnzh, nm.nvar * (nm.nvar + 1) / 2))
+
+  return lines
+end
+
 function show(io :: IO, nm :: NLSMeta)
-  sep(a) = (a == "" ? " " : "…")^(18-length(a))
-  for (a,b) in [("Total residuals", nm.nequ),
-                ("  linear", nm.nlin),
-                ("  nonlinear", nm.nnln),
-                ("  nnzj", nm.nnzj),
-                ("  nnzh", nm.nnzh)]
-    @printf(io, "  %s%s%-6s\n", a, sep(a), b)
-  end
+  lines = lines_of_description(nm)
+  println(io, join(lines, "\n") * "\n")
+end
+
+function show(io :: IO, m :: NLPModelMeta, nm :: NLSMeta)
+  println("  Problem name: $(m.name)")
+  nlplines = lines_of_description(m)
+  nlslines = lines_of_description(nm)
+  append!(nlslines, repeat([""], length(nlplines) - length(nlslines)))
+  lines = nlplines .* nlslines
+  println(io, join(lines, "\n") * "\n")
 end
 
 function show(io :: IO, c :: NLSCounters)
   println(io, "  Counters:")
-  k = 0
-  sep(s) = (s == "" ? " " : "…")^(17-length(s))
-  for f in fieldnames(Counters) ∪ fieldnames(NLSCounters)
-    f == :counters && continue
-    s = string(f)[7:end]
-    @printf(io, "    %s%s%-6s", s, sep(s), getproperty(c, f))
-    k += 1
-    k % 4 == 0 && println(io, "")
-  end
+  F = setdiff(fieldnames(Counters) ∪ fieldnames(NLSCounters), [:counters])
+  show_counters(io, c, F)
 end
