@@ -1,9 +1,20 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial · NLPModels.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link href="../assets/style.css" rel="stylesheet" type="text/css"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.png" alt="NLPModels.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">NLPModels.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../models/">Models</a></li><li><a class="tocitem" href="../guidelines/">Guidelines</a></li><li><a class="tocitem" href="../tools/">Tools</a></li><li class="is-active"><a class="tocitem" href>Tutorial</a><ul class="internal"><li><a class="tocitem" href="#ADNLPModel-Tutorial-1"><span>ADNLPModel Tutorial</span></a></li><li><a class="tocitem" href="#Manual-model-1"><span>Manual model</span></a></li><li><a class="tocitem" href="#Nonlinear-least-squares-models-1"><span>Nonlinear least squares models</span></a></li></ul></li><li><a class="tocitem" href="../api/">API</a></li><li><a class="tocitem" href="../reference/">Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Tutorial</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Tutorial</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl/blob/master/docs/src/tutorial.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Tutorial-1"><a class="docs-heading-anchor" href="#Tutorial-1">Tutorial</a><a class="docs-heading-anchor-permalink" href="#Tutorial-1" title="Permalink"></a></h1><ul><li><a href="#Tutorial-1">Tutorial</a></li><ul><li><a href="#ADNLPModel-Tutorial-1">ADNLPModel Tutorial</a></li><li><a href="#Manual-model-1">Manual model</a></li><li><a href="#Nonlinear-least-squares-models-1">Nonlinear least squares models</a></li></ul></ul><p>NLPModels.jl was created for two purposes:</p><ul><li>Allow users to access problem databases in an unified way.</li></ul><p>Mainly, this means  <a href="https://github.com/JuliaSmoothOptimizers/CUTEst.jl">CUTEst.jl</a>,  but it also gives access to <a href="https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl">AMPL  problems</a>,  as well as JuMP defined problems (e.g. as in  <a href="https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl">OptimizationProblems.jl</a>).</p><ul><li>Allow users to create their own problems in the same way.</li></ul><p>As a consequence, optimization methods designed according to the NLPModels API  will accept NLPModels of any provenance.  See, for instance,  <a href="https://github.com/JuliaSmoothOptimizers/JSOSolvers.jl">JSOSolvers.jl</a> and  <a href="https://github.com/JuliaSmoothOptimizers/NLPModelsIpopt.jl">NLPModelsIpopt.jl</a>.</p><p>The main interface for user defined problems is <a href="../models/#ADNLPModel-1">ADNLPModel</a>, which defines a model easily, using automatic differentiation.</p><h2 id="ADNLPModel-Tutorial-1"><a class="docs-heading-anchor" href="#ADNLPModel-Tutorial-1">ADNLPModel Tutorial</a><a class="docs-heading-anchor-permalink" href="#ADNLPModel-Tutorial-1" title="Permalink"></a></h2><p>ADNLPModel is simple to use and is useful for classrooms. It only needs the objective function <span>$f$</span> and a starting point <span>$x^0$</span> to be well-defined. For constrained problems, you&#39;ll also need the constraints function <span>$c$</span>, and the constraints vectors <span>$c_L$</span> and <span>$c_U$</span>, such that <span>$c_L \leq c(x) \leq c_U$</span>. Equality constraints will be automatically identified as those indices <span>$i$</span> for which <span>$c_{L_i} = c_{U_i}$</span>.</p><p>Let&#39;s define the famous Rosenbrock function</p><div>\[f(x) = (x_1 - 1)^2 + 100(x_2 - x_1^2)^2,\]</div><p>with starting point <span>$x^0 = (-1.2,1.0)$</span>.</p><pre><code class="language-julia">using NLPModels
 
-nlp = ADNLPModel(x-&gt;(x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2 , [-1.2; 1.0])</code></pre><pre><code class="language-none">ADNLPModel(Minimization problem Generic
-nvar = 2, ncon = 0 (0 linear)
-, Counters(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), Main.ex-adnlp.var&quot;#1#2&quot;(), NLPModels.var&quot;#133#136&quot;())</code></pre><p>This is enough to define the model. Let&#39;s get the objective function value at <span>$x^0$</span>, using only <code>nlp</code>.</p><pre><code class="language-julia">fx = obj(nlp, nlp.meta.x0)
+nlp = ADNLPModel(x-&gt;(x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2 , [-1.2; 1.0])</code></pre><pre><code class="language-none">ADNLPModel - Model with automatic differentiation
+  Problem name: Generic
+  Total variables………2       Total constraints…0     
+    free………………………………2         linear…………………………0     
+    lower……………………………0         nonlinear…………………0     
+    upper……………………………0         equality……………………0     
+    low/upp………………………0         lower……………………………0     
+    fixed……………………………0         upper……………………………0     
+    nnzh………………………………3         low/upp………………………0     
+                              nnzj………………………………0     
+  Counters:
+    obj……………0         grad…………0         cons…………0         jcon…………0         jgrad………0     
+    jac……………0         jprod………0         jtprod……0         hess…………0         hprod………0     
+    jhprod……0     </code></pre><p>This is enough to define the model. Let&#39;s get the objective function value at <span>$x^0$</span>, using only <code>nlp</code>.</p><pre><code class="language-julia">fx = obj(nlp, nlp.meta.x0)
 println(&quot;fx = $fx&quot;)</code></pre><pre><code class="language-none">fx = 24.199999999999996</code></pre><p>Done. Let&#39;s try the gradient and Hessian.</p><pre><code class="language-julia">gx = grad(nlp, nlp.meta.x0)
 Hx = hess(nlp, nlp.meta.x0)
 println(&quot;gx = $gx&quot;)
@@ -149,8 +160,28 @@ x = hs6.meta.x0
 (obj(hs6, x), grad(hs6, x))</code></pre><pre><code class="language-none">(4.840000000000001, [-4.4, 0.0])</code></pre><pre><code class="language-julia">cons(hs6, x)</code></pre><pre><code class="language-none">1-element Array{Float64,1}:
  -4.3999999999999995</code></pre><p>Notice that we did not define <code>grad</code> nor <code>cons</code>, but <code>grad!</code> and <code>cons!</code> were defined. The default <code>grad</code> and <code>cons</code> uses the inplace version, so there&#39;s no need to redefine them.</p><h2 id="Nonlinear-least-squares-models-1"><a class="docs-heading-anchor" href="#Nonlinear-least-squares-models-1">Nonlinear least squares models</a><a class="docs-heading-anchor-permalink" href="#Nonlinear-least-squares-models-1" title="Permalink"></a></h2><p>In addition to the general nonlinear model, we can define the residual function for a nonlinear least-squares problem. In other words, the objective function of the problem is of the form <span>$f(x) = \tfrac{1}{2}\|F(x)\|^2$</span>, and we can define the function <span>$F$</span> and its derivatives.</p><p>A simple way to define an NLS problem is with <code>ADNLSModel</code>, which uses automatic differentiation.</p><pre><code class="language-julia">F(x) = [x[1] - 1.0; 10 * (x[2] - x[1]^2)]
 x0 = [-1.2; 1.0]
-nls = ADNLSModel(F, x0, 2) # 2 nonlinear equations
-residual(nls, x0)</code></pre><pre><code class="language-none">2-element Array{Float64,1}:
+nls = ADNLSModel(F, x0, 2) # 2 nonlinear equations</code></pre><pre><code class="language-none">ADNLSModel - Nonlinear least-squares model with automatic differentiation
+  Problem name: Generic
+  Total variables………2       Total constraints…0     
+    free………………………………2         linear…………………………0     
+    lower……………………………0         nonlinear…………………0     
+    upper……………………………0         equality……………………0     
+    low/upp………………………0         lower……………………………0     
+    fixed……………………………0         upper……………………………0     
+    nnzh………………………………3         low/upp………………………0     
+                              nnzj………………………………0     
+  Total residuals………2     
+    linear…………………………0     
+    nonlinear…………………2     
+    nnzj………………………………4     
+    nnzh………………………………3     
+
+  Counters:
+    obj……………………………………0         grad…………………………………0         cons…………………………………0         jcon…………………………………0     
+    jgrad………………………………0         jac……………………………………0         jprod………………………………0         jtprod……………………………0     
+    hess…………………………………0         hprod………………………………0         jhprod……………………………0         residual………………………0     
+    jac_residual……………0         jprod_residual………0         jtprod_residual……0         hess_residual…………0     
+    jhess_residual………0         hprod_residual………0     </code></pre><pre><code class="language-julia">residual(nls, x0)</code></pre><pre><code class="language-none">2-element Array{Float64,1}:
  -2.2
  -4.3999999999999995</code></pre><pre><code class="language-julia">jac_residual(nls, x0)</code></pre><pre><code class="language-none">2×2 Array{Float64,2}:
   1.0   0.0
@@ -161,18 +192,57 @@ residual(nls, x0)</code></pre><pre><code class="language-none">2-element Array{F
 \end{aligned}\]</div><pre><code class="language-julia">A = rand(10, 3)
 b = rand(10)
 C = rand(2, 3)
-nls = LLSModel(A, b, C=C, lcon=zeros(2), ucon=zeros(2), lvar=-ones(3), uvar=ones(3))
+nls = LLSModel(A, b, C=C, lcon=zeros(2), ucon=zeros(2), lvar=-ones(3), uvar=ones(3))</code></pre><pre><code class="language-none">LLSModel - Linear least-squares model
+  Problem name: generic-LLSModel
+  Total variables………3       Total constraints…2     
+    free………………………………0         linear…………………………2     
+    lower……………………………0         nonlinear…………………0     
+    upper……………………………0         equality……………………2     
+    low/upp………………………3         lower……………………………0     
+    fixed……………………………0         upper……………………………0     
+    nnzh………………………………0         low/upp………………………0     
+                              nnzj………………………………6     
+  Total residuals………10    
+    linear…………………………10    
+    nonlinear…………………0     
+    nnzj………………………………30    
+    nnzh………………………………0     
 
-@info norm(jac_residual(nls, zeros(3)) - A)
+  Counters:
+    obj……………………………………0         grad…………………………………0         cons…………………………………0         jcon…………………………………0     
+    jgrad………………………………0         jac……………………………………0         jprod………………………………0         jtprod……………………………0     
+    hess…………………………………0         hprod………………………………0         jhprod……………………………0         residual………………………0     
+    jac_residual……………0         jprod_residual………0         jtprod_residual……0         hess_residual…………0     
+    jhess_residual………0         hprod_residual………0     </code></pre><pre><code class="language-julia">@info norm(jac_residual(nls, zeros(3)) - A)
 @info norm(jac(nls, zeros(3)) - C)</code></pre><pre><code class="language-none">[ Info: 0.0
 [ Info: 0.0</code></pre><p>Another way to define a nonlinear least squares is using <code>FeasibilityResidual</code> to consider the constraints of a general nonlinear problem as the residual of the NLS.</p><pre><code class="language-julia">nlp = ADNLPModel(x-&gt;0, # objective doesn&#39;t matter,
                  ones(2), c=x-&gt;[x[1] + x[2] - 1; x[1] * x[2] - 2],
                  lcon=zeros(2), ucon=zeros(2))
-nls = FeasibilityResidual(nlp)
-s = 0.0
+nls = FeasibilityResidual(nlp)</code></pre><pre><code class="language-none">FeasibilityResidual - Nonlinear least-squares defined from constraints of another problem
+  Problem name: Generic-feasres
+  Total variables………2       Total constraints…0     
+    free………………………………2         linear…………………………0     
+    lower……………………………0         nonlinear…………………0     
+    upper……………………………0         equality……………………0     
+    low/upp………………………0         lower……………………………0     
+    fixed……………………………0         upper……………………………0     
+    nnzh………………………………3         low/upp………………………0     
+                              nnzj………………………………0     
+  Total residuals………2     
+    linear…………………………0     
+    nonlinear…………………2     
+    nnzj………………………………4     
+    nnzh………………………………3     
+
+  Counters:
+    obj……………………………………0         grad…………………………………0         cons…………………………………0         jcon…………………………………0     
+    jgrad………………………………0         jac……………………………………0         jprod………………………………0         jtprod……………………………0     
+    hess…………………………………0         hprod………………………………0         jhprod……………………………0         residual………………………0     
+    jac_residual……………0         jprod_residual………0         jtprod_residual……0         hess_residual…………0     
+    jhess_residual………0         hprod_residual………0     </code></pre><pre><code class="language-julia">s = 0.0
 for t = 1:100
   global s
   x = rand(2)
   s += norm(residual(nls, x) - cons(nlp, x))
 end
-@info &quot;s = $s&quot;</code></pre><pre><code class="language-none">[ Info: s = 0.0</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tools/">« Tools</a><a class="docs-footer-nextpage" href="../api/">API »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Wednesday 6 May 2020 02:07">Wednesday 6 May 2020</span>. Using Julia version 1.4.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+@info &quot;s = $s&quot;</code></pre><pre><code class="language-none">[ Info: s = 0.0</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tools/">« Tools</a><a class="docs-footer-nextpage" href="../api/">API »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 10 May 2020 14:51">Sunday 10 May 2020</span>. Using Julia version 1.4.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
