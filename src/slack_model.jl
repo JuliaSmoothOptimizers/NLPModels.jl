@@ -70,9 +70,7 @@ show_header(io :: IO, nls :: SlackNLSModel) = println(io, "SlackNLSModel - Nonli
 
 function show(io :: IO, nls :: SlackNLSModel)
   show_header(io, nls)
-  show(io, nls.meta)
-  show(io, nls.nls_meta)
-  printn(io, "")
+  show(io, nls.meta, nls.nls_meta)
   show(io, nls.model.counters)
 end
 
