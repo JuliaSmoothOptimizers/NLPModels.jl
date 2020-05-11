@@ -3,7 +3,7 @@ using NLPModels: increment!
 function nlshs20_autodiff()
 
   x0 = [-2.0; 1.0]
-  F(x) = [10 * (x[2] - x[1]^2); 1 - x[1]]
+  F(x) = [1 - x[1]; 10 * (x[2] - x[1]^2)]
   lvar = [-0.5; -Inf]
   uvar = [0.5; Inf]
   c(x) = [x[1] + x[2]^2; x[1]^2 + x[2]; x[1]^2 + x[2]^2 - 1]
@@ -29,15 +29,15 @@ end
 function NLPModels.residual!(nls :: NLSHS20, x :: AbstractVector, Fx :: AbstractVector)
   @lencheck 2 x Fx
   increment!(nls, :neval_residual)
-  Fx .= [10 * (x[2] - x[1]^2); 1 - x[1]]
+  Fx .= [1 - x[1]; 10 * (x[2] - x[1]^2)]
   return Fx
 end
 
-# Jx = [-20x₁  10;  -1  0]
+# Jx = [-1  0; -20x₁  10]
 function NLPModels.jac_structure_residual!(nls :: NLSHS20, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   @lencheck 3 rows cols
-  rows .= [1, 1, 2]
-  cols .= [1, 2, 1]
+  rows .= [1, 2, 2]
+  cols .= [1, 1, 2]
   return rows, cols
 end
 
@@ -45,21 +45,21 @@ function NLPModels.jac_coord_residual!(nls :: NLSHS20, x :: AbstractVector, vals
   @lencheck 2 x
   @lencheck 3 vals
   increment!(nls, :neval_jac_residual)
-  vals .= [-20x[1], 10, -1]
+  vals .= [-1, -20x[1], 10]
   return vals
 end
 
 function NLPModels.jprod_residual!(nls :: NLSHS20, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   @lencheck 2 x v Jv
   increment!(nls, :neval_jprod_residual)
-  Jv .= [-20x[1] * v[1] + 10v[2]; -v[1]]
+  Jv .= [-v[1]; - 20 * x[1] * v[1] + 10 * v[2]]
   return Jv
 end
 
 function NLPModels.jtprod_residual!(nls :: NLSHS20, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   @lencheck 2 x v Jtv
   increment!(nls, :neval_jtprod_residual)
-  Jtv .= [-20x[1] * v[1] - v[2]; 10v[1]]
+  Jtv .= [-v[1] - 20 * x[1] * v[2]; 10 * v[2]]
   return Jtv
 end
 
@@ -74,14 +74,14 @@ function NLPModels.hess_coord_residual!(nls :: NLSHS20, x :: AbstractVector, v :
   @lencheck 2 x v
   @lencheck 1 vals
   increment!(nls, :neval_hess_residual)
-  vals[1] = -20v[1]
+  vals[1] = -20v[2]
   return vals
 end
 
 function NLPModels.hprod_residual!(nls :: NLSHS20, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
   @lencheck 2 x v Hiv
   increment!(nls, :neval_hprod_residual)
-  if i == 1
+  if i == 2
     Hiv .= [-20v[1]; 0]
   else
     Hiv .= zero(eltype(x))
