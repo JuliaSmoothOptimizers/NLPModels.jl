@@ -62,10 +62,6 @@ function ADNLPModel(f, x0::AbstractVector; y0::AbstractVector = eltype(x0)[],
   length(uvar) == 0 && (uvar =  Inf*ones(nvar))
   ncon = maximum([length(lcon); length(ucon); length(y0)])
 
-  A = ForwardDiff.hessian(f, x0)
-  for i = 1:ncon
-    A += ForwardDiff.hessian(x->c(x)[i], x0) * (-1)^i
-  end
   nnzh = nvar * (nvar + 1) / 2
   nnzj = 0
 
