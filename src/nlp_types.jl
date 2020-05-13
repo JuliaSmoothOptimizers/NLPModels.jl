@@ -184,6 +184,14 @@ function histline(s, v, maxv)
   return @sprintf("%16s: %s %-6s", s, "█"^λ * "⋅"^(20 - λ), v)
 end
 
+function sparsityline(s, v, maxv)
+  if maxv == 0
+    @sprintf("%16s: (------%% sparsity)   %-6s", s, " ")
+  else
+    @sprintf("%16s: (%6.2f%% sparsity)   %-6s", s, 100 * (1 - v / maxv), v)
+  end
+end
+
 function lines_of_hist(S, V)
   maxv = maximum(V)
   lines = histline.(S, V, maxv)
@@ -195,14 +203,14 @@ function lines_of_description(m :: NLPModelMeta)
   V = [sum(V); V]
   S = ["All variables", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
   varlines = lines_of_hist(S, V)
-  push!(varlines, histline("nnzh", m.nnzh, m.nvar * (m.nvar + 1) / 2))
+  push!(varlines, sparsityline("nnzh", m.nnzh, m.nvar * (m.nvar + 1) / 2))
 
   V = [length(m.jfree), length(m.jlow), length(m.jupp), length(m.jrng), length(m.jfix), length(m.jinf)]
   V = [sum(V); V]
   S = ["All constraints", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
   conlines = lines_of_hist(S, V)
   push!(conlines, histline("linear", m.nlin, m.ncon), histline("nonlinear", m.nnln, m.ncon))
-  push!(conlines, histline("nnzj", m.nnzj, m.nvar * m.ncon))
+  push!(conlines, sparsityline("nnzj", m.nnzj, m.nvar * m.ncon))
 
   append!(varlines, repeat([" "^length(varlines[1])], length(conlines) - length(varlines)))
   lines = varlines .* conlines
