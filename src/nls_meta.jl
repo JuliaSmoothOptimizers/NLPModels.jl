@@ -44,7 +44,9 @@ function lines_of_description(nm :: NLSMeta)
   V = [nm.nequ, nm.nlin, nm.nnln]
   S = ["All residuals", "linear", "nonlinear"]
   lines = lines_of_hist(S, V)
-  push!(lines, histline("nnzj", nm.nnzj, nm.nvar * nm.nequ), histline("nnzh", nm.nnzh, nm.nvar * (nm.nvar + 1) / 2))
+  push!(lines,
+        sparsityline("nnzj", nm.nnzj, nm.nvar * nm.nequ),
+        sparsityline("nnzh", nm.nnzh, nm.nvar * (nm.nvar + 1) / 2))
 
   return lines
 end
