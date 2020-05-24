@@ -188,15 +188,13 @@ end
 function test_view_subarrays()
   @testset "Test view subarrays for many models" begin
     c(x) = [dot(x, x) - 4.0; sum(x) - 1.0; x[1] * x[2] * x[3]]
-    adnlp = ADNLPModel(x -> sum(x.^4), ones(5), lvar=-ones(5), uvar=fill(Inf, 5),
-                       c=c, lcon=-ones(3), ucon=ones(3))
+    adnlp = ADNLPModel(x -> sum(x.^4), ones(5), -ones(5), fill(Inf, 5), c, -ones(3), ones(3))
     snlp = SlackModel(adnlp)
     adnls = ADNLSModel(x -> [sum(x) - 1; sum(x.^2) - 2; sum(x.^3) - 3], ones(5), 3,
-                       lvar=-ones(5), uvar=fill(Inf, 5),
-                       c=c, lcon=-ones(3), ucon=ones(3))
+                       -ones(5), fill(Inf, 5), c, -ones(3), ones(3))
     snls = SlackNLSModel(adnls)
 
-    fnls = FeasibilityResidual(ADNLPModel(x->0, zeros(5), c=c, lcon=zeros(3), ucon=zeros(3)))
+    fnls = FeasibilityResidual(ADNLPModel(x->0, zeros(5), c, zeros(3), zeros(3)))
 
     for nlp in [adnlp, snlp, adnls, snls, fnls]
       test_view_subarray_nlp(nlp)

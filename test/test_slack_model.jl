@@ -114,7 +114,7 @@
 end
 
 @testset "Test that type is maintained (#217)" begin
-  nlp = ADNLPModel(x -> dot(x, x), ones(Float16, 2), c=x->sum(x), lcon=[-1.0], ucon=[1.0])
+  nlp = ADNLPModel(x -> dot(x, x), ones(Float16, 2), x->sum(x), [-1.0], [1.0])
   snlp = SlackModel(nlp)
   @test eltype(snlp.meta.x0) == Float16
 end

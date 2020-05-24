@@ -9,7 +9,7 @@ function hs10_autodiff()
   lcon = [0.0]
   ucon = [Inf]
 
-  return ADNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon, name="hs10_autodiff")
+  return ADNLPModel(f, x0, c, lcon, ucon, name="hs10_autodiff")
 end
 
 mutable struct HS10 <: AbstractNLPModel

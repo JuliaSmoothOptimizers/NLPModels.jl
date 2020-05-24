@@ -10,7 +10,7 @@ function nlshs20_autodiff()
   lcon = zeros(3)
   ucon = fill(Inf, 3)
 
-  return ADNLSModel(F, x0, 2, lvar=lvar, uvar=uvar, c=c, lcon=lcon, ucon=ucon, name="nlshs20_autodiff")
+  return ADNLSModel(F, x0, 2, lvar, uvar, c, lcon, ucon, name="nlshs20_autodiff")
 end
 
 mutable struct NLSHS20 <: AbstractNLSModel

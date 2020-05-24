@@ -36,7 +36,7 @@ function test_memory_of_coord()
       nlp = eval(p)()
       test_memory_of_coord_of_nlp(nlp)
     end
-    nlp = ADNLPModel(x -> dot(x, x), rand(2), c=x->[x[1] * x[2]], lcon=zeros(1), ucon=zeros(1))
+    nlp = ADNLPModel(x -> dot(x, x), rand(2), x->[x[1] * x[2]], zeros(1), zeros(1))
     test_memory_of_coord_of_nlp(nlp)
   end
 end

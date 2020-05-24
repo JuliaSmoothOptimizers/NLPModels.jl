@@ -6,7 +6,7 @@ function linsv_autodiff()
   lcon = [3; 1]
   ucon = [Inf; Inf]
 
-  return ADNLPModel(f, x0, c=con, lcon=lcon, ucon=ucon, name="linsv_autodiff")
+  return ADNLPModel(f, x0, con, lcon, ucon, name="linsv_autodiff")
 end
 
 mutable struct LINSV <: AbstractNLPModel

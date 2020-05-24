@@ -8,7 +8,7 @@ function hs5_autodiff()
   l = [-1.5; -3.0]
   u = [4.0; 3.0]
 
-  return ADNLPModel(f, x0, lvar=l, uvar=u, name="hs5_autodiff")
+  return ADNLPModel(f, x0, l, u, name="hs5_autodiff")
 end
 
 mutable struct HS5 <: AbstractNLPModel

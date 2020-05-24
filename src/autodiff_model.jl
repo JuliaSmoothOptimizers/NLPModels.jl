@@ -2,43 +2,6 @@ using ForwardDiff
 
 export ADNLPModel
 
-@doc raw"""ADNLPModel is an AbstractNLPModel using ForwardDiff to compute the
-derivatives.
-In this interface, the objective function ``f`` and an initial estimate are
-required. If there are constraints, the function
-``c:ℝⁿ → ℝᵐ``  and the vectors
-``c_L`` and ``c_U`` also need to be passed. Bounds on the variables and an
-inital estimate to the Lagrangian multipliers can also be provided.
-
-````
-ADNLPModel(f, x0; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,
-  c = x->[], lcon = [], ucon = [], name = "Generic")
-````
-
-  - `f` - The objective function ``f``. Should be callable;
-  - `x0 :: AbstractVector` - The initial point of the problem;
-  - `lvar :: AbstractVector` - ``ℓ``, the lower bound of the variables;
-  - `uvar :: AbstractVector` - ``u``, the upper bound of the variables;
-  - `c` - The constraints function ``c``. Should be callable;
-  - `y0 :: AbstractVector` - The initial value of the Lagrangian estimates;
-  - `lcon :: AbstractVector` - ``c_L``, the lower bounds of the constraints function;
-  - `ucon :: AbstractVector` - ``c_U``, the upper bounds of the constraints function;
-  - `name :: String` - A name for the model.
-
-The functions follow the same restrictions of ForwardDiff functions, summarised
-here:
-
-  - The function can only be composed of generic Julia functions;
-  - The function must accept only one argument;
-  - The function's argument must accept a subtype of AbstractVector;
-  - The function should be type-stable.
-
-For contrained problems, the function ``c`` is required, and it must return
-an array even when m = 1,
-and ``c_L`` and ``c_U`` should be passed, otherwise the problem is ill-formed.
-For equality constraints, the corresponding index of ``c_L`` and ``c_U`` should be the
-same.
-"""
 mutable struct ADNLPModel <: AbstractNLPModel
   meta :: NLPModelMeta
 
@@ -51,19 +14,82 @@ end
 
 show_header(io :: IO, nlp :: ADNLPModel) = println(io, "ADNLPModel - Model with automatic differentiation")
 
-function ADNLPModel(f, x0::AbstractVector;
-                    lvar::AbstractVector = fill(-Inf, length(x0)), uvar::AbstractVector = fill(Inf, length(x0)),
-                    lcon::AbstractVector = eltype(x0)[], ucon::AbstractVector = eltype(x0)[],
-                    c = x -> eltype(x0)[], y0::AbstractVector = eltype(x0)[],
-                    name::String = "Generic", lin::AbstractVector{<: Integer}=Int[])
+"""
+    ADNLPModel(f, x0)
+    ADNLPModel(f, x0, lvar, uvar)
+    ADNLPModel(f, x0, c, lcon, ucon)
+    ADNLPModel(f, x0, lvar, uvar, c, lcon, ucon)
 
-  T = eltype(x0)
+ADNLPModel is an AbstractNLPModel using ForwardDiff to compute the derivatives.
+The problem is defined as
+
+     min  f(x)
+    s.to  lcon ≤ c(x) ≤ ucon
+          lvar ≤   x  ≤ uvar.
+
+The following keyword arguments are available to all constructors:
+
+- `name`: The name of the model (default: "Generic")
+
+The following keyword arguments are available to the constructors for constrained problems:
+
+- `lin`: An array of indexes of the linear constraints (default: `Int[]`)
+- `y0`: An inital estimate to the Lagrangian multipliers (default: zeros)
+"""
+function ADNLPModel end
+
+function ADNLPModel(f, x0::AbstractVector{T}; name::String = "Generic") where T
   nvar = length(x0)
-  ncon = maximum([length(lcon); length(ucon); length(y0)])
-  length(lcon) == 0 && (lcon = fill(-T(Inf), ncon))
-  length(ucon) == 0 && (ucon = fill(T(Inf), ncon))
-  length(y0) == 0 && (y0 = zeros(T, ncon))
-  @lencheck ncon lcon ucon y0
+  @lencheck nvar x0
+
+  nnzh = nvar * (nvar + 1) / 2
+
+  meta = NLPModelMeta(nvar, x0=x0, nnzh=nnzh, minimize=true, islp=false, name=name)
+
+  return ADNLPModel(meta, Counters(), f, x->T[])
+end
+
+function ADNLPModel(f, x0::AbstractVector{T}, lvar::AbstractVector, uvar::AbstractVector;
+                    name::String = "Generic") where T
+  nvar = length(x0)
+  @lencheck nvar x0 lvar uvar
+
+  nnzh = nvar * (nvar + 1) / 2
+
+  meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, nnzh=nnzh, minimize=true, islp=false, name=name)
+
+  return ADNLPModel(meta, Counters(), f, x->T[])
+end
+
+function ADNLPModel(f, x0::AbstractVector{T}, c, lcon::AbstractVector, ucon::AbstractVector;
+                    y0::AbstractVector=fill!(similar(lcon), zero(T)),
+                    name::String = "Generic", lin::AbstractVector{<: Integer}=Int[]) where T
+  
+  nvar = length(x0)
+  ncon = length(lcon)
+  @lencheck nvar x0
+  @lencheck ncon ucon y0
+
+  nnzh = nvar * (nvar + 1) / 2
+  nnzj = nvar * ncon
+
+  nln = setdiff(1:ncon, lin)
+
+  meta = NLPModelMeta(nvar, x0=x0, ncon=ncon, y0=y0, lcon=lcon, ucon=ucon,
+    nnzj=nnzj, nnzh=nnzh, lin=lin, nln=nln, minimize=true, islp=false, name=name)
+
+  return ADNLPModel(meta, Counters(), f, c)
+end
+
+function ADNLPModel(f, x0::AbstractVector{T}, lvar::AbstractVector, uvar::AbstractVector,
+                    c, lcon::AbstractVector, ucon::AbstractVector;
+                    y0::AbstractVector=fill!(similar(lcon), zero(T)),
+                    name::String = "Generic", lin::AbstractVector{<: Integer}=Int[]) where T
+
+  nvar = length(x0)
+  ncon = length(lcon)
+  @lencheck nvar x0 lvar uvar
+  @lencheck ncon y0 ucon
 
   nnzh = nvar * (nvar + 1) / 2
   nnzj = nvar * ncon
