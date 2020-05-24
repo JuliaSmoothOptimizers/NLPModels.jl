@@ -8,7 +8,7 @@ function lls_autodiff()
   lcon = [0.0]
   ucon = [Inf]
 
-  return ADNLSModel(F, x0, 3, c=c, lcon=lcon, ucon=ucon, name="lls_autodiff")
+  return ADNLSModel(F, x0, 3, c, lcon, ucon, name="lls_autodiff")
 end
 
 function lls_special()

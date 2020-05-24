@@ -60,7 +60,7 @@ using NLPModels
 f(x) = x[1]^2 + 4x[2]^2
 c(x) = [x[1]*x[2] - 1]
 x = [2.0; 2.0]
-nlp = ADNLPModel(f, x, c=c, lcon=[0.0])
+nlp = ADNLPModel(f, x, c, [0.0], [0.0])
 nlp_slack = SlackModel(nlp)
 nlp_slack.meta.lvar
 ```

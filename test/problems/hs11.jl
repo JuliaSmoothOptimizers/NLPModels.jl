@@ -7,7 +7,7 @@ function hs11_autodiff()
   lcon = [-Inf]
   ucon = [0.0]
 
-  return ADNLPModel(f, x0, c=c, lcon=lcon, ucon=ucon, name="hs11_autodiff")
+  return ADNLPModel(f, x0, c, lcon, ucon, name="hs11_autodiff")
 
 end
 

@@ -2,21 +2,6 @@ using ForwardDiff
 
 export ADNLSModel
 
-"""ADNLSModel is an Nonlinear Least Squares model using ForwardDiff to
-compute the derivatives.
-
-````
-ADNLSModel(F, x0, m; lvar = [-∞,…,-∞], uvar = [∞,…,∞], y0 = zeros,
-  c = x->[], lcon = [], ucon = [], name = "Generic")
-````
-
-  - `F` - The residual function \$F\$. Should be callable;
-  - `x0 :: AbstractVector` - The initial point of the problem;
-  - `m :: Int` - The dimension of \$F(x)\$, i.e., the number of
-  equations in the nonlinear system.
-
-The other parameters are as in `ADNLPModel`.
-"""
 mutable struct ADNLSModel <: AbstractNLSModel
   meta :: NLPModelMeta
   nls_meta :: NLSMeta
@@ -29,36 +14,107 @@ end
 
 show_header(io :: IO, nls :: ADNLSModel) = println(io, "ADNLSModel - Nonlinear least-squares model with automatic differentiation")
 
-function ADNLSModel(F, x0 :: AbstractVector, m :: Int;
+"""
+    ADNLSModel(F, x0, nequ)
+    ADNLSModel(F, x0, nequ, lvar, uvar)
+    ADNLSModel(F, x0, nequ, c, lcon, ucon)
+    ADNLSModel(F, x0, nequ, lvar, uvar, c, lcon, ucon)
+
+ADNLSModel is an Nonlinear Least Squares model using ForwardDiff to
+compute the derivatives.
+The problem is defined as
+
+     min  ½‖F(x)‖²
+    s.to  lcon ≤ c(x) ≤ ucon
+          lvar ≤   x  ≤ uvar
+
+The following keyword arguments are available to all constructors:
+
+- `linequ`: An array of indexes of the linear equations (default: `Int[]`)
+- `name`: The name of the model (default: "Generic")
+
+The following keyword arguments are available to the constructors for constrained problems:
+
+- `lin`: An array of indexes of the linear constraints (default: `Int[]`)
+- `y0`: An inital estimate to the Lagrangian multipliers (default: zeros)
+"""
+function ADNLSModel end
+
+function ADNLSModel(F, x0 :: AbstractVector{T}, nequ :: Integer;
+                    linequ :: AbstractVector{<: Integer} = Int[],
                     name :: String = "Generic",
-                    lvar :: AbstractVector = fill(-eltype(x0)(Inf), length(x0)),
-                    uvar :: AbstractVector = fill( eltype(x0)(Inf), length(x0)),
-                    c = x -> eltype(x0)[],
-                    lcon :: AbstractVector = eltype(x0)[],
-                    ucon :: AbstractVector = eltype(x0)[],
-                    y0 :: AbstractVector = eltype(x0)[],
+                   ) where T
+
+  nvar = length(x0)
+
+  meta = NLPModelMeta(nvar, x0=x0, name=name)
+  nlnequ = setdiff(1:nequ, linequ)
+  nls_meta = NLSMeta(nequ, nvar, nnzj=nequ * nvar, nnzh=div(nvar * (nvar + 1), 2), lin=linequ, nln=nlnequ)
+
+  return ADNLSModel(meta, nls_meta, NLSCounters(), F, x->T[])
+end
+
+function ADNLSModel(F, x0 :: AbstractVector{T}, nequ :: Integer,
+                    lvar :: AbstractVector, uvar :: AbstractVector;
+                    linequ :: AbstractVector{<: Integer} = Int[],
+                    name :: String = "Generic",
+                   ) where T
+
+  nvar = length(x0)
+  @lencheck nvar lvar uvar
+
+  meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, name=name)
+  nlnequ = setdiff(1:nequ, linequ)
+  nls_meta = NLSMeta(nequ, nvar, nnzj=nequ * nvar, nnzh=div(nvar * (nvar + 1), 2), lin=linequ, nln=nlnequ)
+
+  return ADNLSModel(meta, nls_meta, NLSCounters(), F, x->T[])
+end
+
+function ADNLSModel(F, x0 :: AbstractVector{T}, nequ :: Integer,
+                    c, lcon :: AbstractVector, ucon :: AbstractVector;
+                    y0 :: AbstractVector = fill!(similar(lcon), zero(T)),
                     lin :: AbstractVector{<: Integer} = Int[],
                     linequ :: AbstractVector{<: Integer} = Int[],
-                   )
-  T = eltype(x0)
+                    name :: String = "Generic",
+                   ) where T
+  
   nvar = length(x0)
-  ncon = maximum([length(lcon); length(ucon); length(y0)])
-  length(lcon) == 0 && (lcon = fill(-T(Inf), ncon))
-  length(ucon) == 0 && (ucon = fill(T(Inf), ncon))
-  length(y0) == 0 && (y0 = zeros(T, ncon))
-  @lencheck ncon lcon ucon y0
+  ncon = length(lcon)
+  @lencheck ncon ucon y0
+  nnzj = nvar * ncon
+
+  nln = setdiff(1:ncon, lin)
+  meta = NLPModelMeta(nvar, x0=x0, ncon=ncon, y0=y0, lcon=lcon, ucon=ucon,
+                      nnzj=nnzj, name=name, lin=lin, nln=nln)
+  nlnequ = setdiff(1:nequ, linequ)
+  nls_meta = NLSMeta(nequ, nvar, nnzj=nequ * nvar, nnzh=div(nvar * (nvar + 1), 2), lin=linequ, nln=nlnequ)
+
+  return ADNLSModel(meta, nls_meta, NLSCounters(), F, c)
+end
+
+function ADNLSModel(F, x0 :: AbstractVector{T}, nequ :: Integer,
+                    lvar :: AbstractVector, uvar :: AbstractVector,
+                    c, lcon :: AbstractVector, ucon :: AbstractVector;
+                    y0 :: AbstractVector = fill!(similar(lcon), zero(T)),
+                    lin :: AbstractVector{<: Integer} = Int[],
+                    linequ :: AbstractVector{<: Integer} = Int[],
+                    name :: String = "Generic",
+                   ) where T
+  
+  nvar = length(x0)
+  ncon = length(lcon)
+  @lencheck nvar lvar uvar
+  @lencheck ncon ucon y0
   nnzj = nvar * ncon
 
   nln = setdiff(1:ncon, lin)
   meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0,
                       lcon=lcon, ucon=ucon, nnzj=nnzj, name=name, lin=lin, nln=nln)
-  nlnequ = setdiff(1:m, linequ)
-  nls_meta = NLSMeta(m, nvar, nnzj=m * nvar, nnzh=div(nvar * (nvar + 1), 2), lin=linequ, nln=nlnequ)
+  nlnequ = setdiff(1:nequ, linequ)
+  nls_meta = NLSMeta(nequ, nvar, nnzj=nequ * nvar, nnzh=div(nvar * (nvar + 1), 2), lin=linequ, nln=nlnequ)
 
   return ADNLSModel(meta, nls_meta, NLSCounters(), F, c)
 end
-
-ADNLSModel(F, n :: Int, m :: Int; kwargs...) = ADNLSModel(F, zeros(n), m; kwargs...)
 
 function residual!(nls :: ADNLSModel, x :: AbstractVector, Fx :: AbstractVector)
   @lencheck nls.meta.nvar x

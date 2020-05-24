@@ -7,17 +7,17 @@ function test_nls_to_cons()
     for (F,n,ne) in [(F1,2,2), (F2,5,1), (F3,2,3)],
         (c,m) in [(x->zeros(0),0), (c1,2)]
       x0 = [-(1.0)^i for i = 1:n]
-      nls = ADNLSModel(F, x0, ne, c=c, lcon=zeros(m), ucon=zeros(m))
+      nls = ADNLSModel(F, x0, ne, c, zeros(m), zeros(m))
 
       nlpcon = FeasibilityFormNLS(nls)
       adnlp = ADNLPModel(x->sum(x[n+1:end].^2) / 2, [x0; zeros(ne)],
-                        c=x->[F(x[1:n]) - x[n+1:end]; c(x[1:n])],
-                        lcon=zeros(ne+m), ucon=zeros(ne+m))
+                        x->[F(x[1:n]) - x[n+1:end]; c(x[1:n])],
+                        zeros(ne+m), zeros(ne+m))
       consistent_functions([nlpcon; adnlp])
 
       adnls = ADNLSModel(x->x[n+1:end], [x0; zeros(ne)], ne,
-                        c=x->[F(x[1:n]) - x[n+1:end]; c(x[1:n])],
-                        lcon=zeros(ne+m), ucon=zeros(ne+m))
+                        x->[F(x[1:n]) - x[n+1:end]; c(x[1:n])],
+                        zeros(ne+m), zeros(ne+m))
       consistent_functions([nlpcon; adnls])
       consistent_nls_functions([nlpcon; adnls])
     end
@@ -48,10 +48,10 @@ function test_nls_to_cons()
   @testset "Test FeasibilityFormNLS of a FeasibilityResidual" begin
     c(x) = [x[1]^2 + x[2]^2 - 5; x[1] * x[2] - 2; x[1] - 1; x[2] - 1]
     x0 = [0.5; 1.5]
-    nlp = ADNLPModel(x->0, x0, c=c, lcon=zeros(4), ucon=zeros(4))
+    nlp = ADNLPModel(x->0, x0, c, zeros(4), zeros(4))
     ffnls = FeasibilityFormNLS(FeasibilityResidual(nlp))
     nlp2 = ADNLSModel(x->x[3:6], [x0; zeros(4)], 4,
-                      c=x->c(x[1:2]) - x[3:6], lcon=zeros(4), ucon=zeros(4))
+                      x->c(x[1:2]) - x[3:6], zeros(4), zeros(4))
     consistent_functions([ffnls; nlp2])
     consistent_nls_functions([ffnls; nlp2])
 

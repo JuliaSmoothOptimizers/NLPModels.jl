@@ -160,7 +160,7 @@ uvar = [0.5; 0.5]
 c(x) = [x[1] + x[2] - 2; x[1]^2 + x[2]^2]
 lcon = [0.0; -Inf]
 ucon = [Inf; 1.0]
-nlp = ADNLPModel(f, x0, c=c, lvar=lvar, uvar=uvar, lcon=lcon, ucon=ucon)
+nlp = ADNLPModel(f, x0, lvar, uvar, c, lcon, ucon)
 
 println("cx = $(cons(nlp, nlp.meta.x0))")
 println("Jx = $(jac(nlp, nlp.meta.x0))")
@@ -313,8 +313,9 @@ Another way to define a nonlinear least squares is using `FeasibilityResidual` t
 consider the constraints of a general nonlinear problem as the residual of the NLS.
 ```@example nls
 nlp = ADNLPModel(x->0, # objective doesn't matter,
-                 ones(2), c=x->[x[1] + x[2] - 1; x[1] * x[2] - 2],
-                 lcon=zeros(2), ucon=zeros(2))
+                 ones(2),
+                 x->[x[1] + x[2] - 1; x[1] * x[2] - 2], # c(x)
+                 zeros(2), zeros(2)) # lcon, ucon
 nls = FeasibilityResidual(nlp)
 ```
 
