@@ -86,7 +86,7 @@ uvar = [0.5; 0.5]
 c(x) = [x[1] + x[2] - 2; x[1]^2 + x[2]^2]
 lcon = [0.0; -Inf]
 ucon = [Inf; 1.0]
-nlp = ADNLPModel(f, x0, c=c, lvar=lvar, uvar=uvar, lcon=lcon, ucon=ucon)
+nlp = ADNLPModel(f, x0, lvar, uvar, c, lcon, ucon)
 
 println(&quot;cx = $(cons(nlp, nlp.meta.x0))&quot;)
 println(&quot;Jx = $(jac(nlp, nlp.meta.x0))&quot;)</code></pre><pre><code class="language-none">cx = [-2.2, 2.44]
@@ -217,8 +217,9 @@ nls = LLSModel(A, b, C=C, lcon=zeros(2), ucon=zeros(2), lvar=-ones(3), uvar=ones
 </code></pre><pre><code class="language-julia">@info norm(jac_residual(nls, zeros(3)) - A)
 @info norm(jac(nls, zeros(3)) - C)</code></pre><pre><code class="language-none">[ Info: 0.0
 [ Info: 0.0</code></pre><p>Another way to define a nonlinear least squares is using <code>FeasibilityResidual</code> to consider the constraints of a general nonlinear problem as the residual of the NLS.</p><pre><code class="language-julia">nlp = ADNLPModel(x-&gt;0, # objective doesn&#39;t matter,
-                 ones(2), c=x-&gt;[x[1] + x[2] - 1; x[1] * x[2] - 2],
-                 lcon=zeros(2), ucon=zeros(2))
+                 ones(2),
+                 x-&gt;[x[1] + x[2] - 1; x[1] * x[2] - 2], # c(x)
+                 zeros(2), zeros(2)) # lcon, ucon
 nls = FeasibilityResidual(nlp)</code></pre><pre><code class="language-none">FeasibilityResidual - Nonlinear least-squares defined from constraints of another problem
    All variables: ████████████████████ 2      All constraints: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0        All residuals: ████████████████████ 2     
             free: ████████████████████ 2                 free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
@@ -244,4 +245,4 @@ for t = 1:100
   x = rand(2)
   s += norm(residual(nls, x) - cons(nlp, x))
 end
-@info &quot;s = $s&quot;</code></pre><pre><code class="language-none">[ Info: s = 0.0</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tools/">« Tools</a><a class="docs-footer-nextpage" href="../api/">API »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 24 May 2020 03:04">Sunday 24 May 2020</span>. Using Julia version 1.4.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+@info &quot;s = $s&quot;</code></pre><pre><code class="language-none">[ Info: s = 0.0</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tools/">« Tools</a><a class="docs-footer-nextpage" href="../api/">API »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Saturday 6 June 2020 14:23">Saturday 6 June 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
