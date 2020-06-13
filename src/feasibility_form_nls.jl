@@ -23,10 +23,10 @@ to
 If you rather have the first problem, the `nls` model already works as an NLPModel of
 that format.
 """
-mutable struct FeasibilityFormNLS <: AbstractNLSModel
+mutable struct FeasibilityFormNLS{M <: AbstractNLSModel} <: AbstractNLSModel
   meta :: NLPModelMeta
   nls_meta :: NLSMeta
-  internal :: AbstractNLSModel
+  internal :: M
   counters :: NLSCounters
 end
 
@@ -59,13 +59,13 @@ function FeasibilityFormNLS(nls :: AbstractNLSModel; name="$(nls.meta.name)-ffnl
                      )
   nls_meta = NLSMeta(nequ, nvar, x0=[meta.x0; zeros(nequ)], nnzj=nequ, nnzh=0, lin=1:nequ, nln=Int[])
 
-  nlp = FeasibilityFormNLS(meta, nls_meta, nls, NLSCounters())
+  nlp = FeasibilityFormNLS{typeof(nls)}(meta, nls_meta, nls, NLSCounters())
   finalizer(nlp -> finalize(nlp.internal), nlp)
 
   return nlp
 end
 
-function FeasibilityFormNLS(nls :: FeasibilityResidual)
+function FeasibilityFormNLS(nls :: FeasibilityResidual; name="$(nls.meta.name)-ffnls")
   meta = nls.nlp.meta
   nequ = meta.ncon
   nvar = meta.nvar + nequ
@@ -81,11 +81,12 @@ function FeasibilityFormNLS(nls :: FeasibilityResidual)
                       y0=meta.y0,
                       lin=meta.lin,
                       nln=meta.nln,
-                      nnzj=nnzj, nnzh=nnzh
+                      nnzj=nnzj, nnzh=nnzh,
+                      name=name
                      )
   nls_meta = NLSMeta(nequ, nvar, x0=[meta.x0; zeros(nequ)], nnzj=nequ, nnzh=0)
 
-  nlp = FeasibilityFormNLS(meta, nls_meta, nls, NLSCounters())
+  nlp = FeasibilityFormNLS{FeasibilityResidual}(meta, nls_meta, nls, NLSCounters())
   finalizer(nlp -> finalize(nlp.internal), nlp)
 
   return nlp
@@ -212,6 +213,14 @@ function hess_structure!(nlp :: FeasibilityFormNLS, rows :: AbstractVector{<: In
   return rows, cols
 end
 
+function hess_structure!(nlp :: FeasibilityFormNLS{LLSModel}, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+  @lencheck nlp.meta.nnzh rows cols
+  n, ne = nlp.internal.meta.nvar, nlp.internal.nls_meta.nequ
+  rows .= n+1:n+ne
+  cols .= n+1:n+ne
+  return rows, cols
+end
+
 function hess_coord!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, y :: AbstractVector, vals :: AbstractVector;
                      obj_weight :: Float64=1.0)
   @lencheck nlp.meta.nvar xr
@@ -231,6 +240,16 @@ function hess_coord!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, y :: Abstr
     @views hess_coord!(nlp.internal, x, y2, vals[I], obj_weight=0.0)
   end
   vals[nnzhF+nnzhc+1:nnzhF+nnzhc+ne] .= obj_weight
+  return vals
+end
+
+function hess_coord!(nlp :: FeasibilityFormNLS{LLSModel}, xr :: AbstractVector, y :: AbstractVector, vals :: AbstractVector;
+                     obj_weight :: Float64=1.0)
+  @lencheck nlp.meta.nvar xr
+  @lencheck nlp.meta.ncon y
+  @lencheck nlp.meta.nnzh vals
+  increment!(nlp, :neval_hess)
+  vals .= obj_weight
   return vals
 end
 

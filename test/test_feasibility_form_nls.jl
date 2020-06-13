@@ -61,11 +61,19 @@ function test_nls_to_cons()
     A = [spdiagm(0 => 2 * ones(n), 1 => -ones(n-1), -1 => -ones(n-1)); -I]
     b = zeros(m)
     nlp = LLSModel(spzeros(0, n), zeros(0), C=A, lcon=b, ucon=b)
-    ffnls = FeasibilityFormNLS(FeasibilityResidual(nlp))
+    ffnls = FeasibilityFormNLS(FeasibilityResidual(nlp), name="feas-of-feas")
     nlp2 = LLSModel([spzeros(m, n)  I], zeros(m),
                     C=[A -I], lcon=b, ucon=b)
     consistent_functions([ffnls; nlp2], exclude=[hess, hess_coord])
     consistent_nls_functions([ffnls; nlp2])
+  end
+
+  @testset "FeasibilityFormNLS of an LLSModel should handle hess related function" begin
+    lls = LLSModel(rand(10, 5), rand(10), C=rand(2,5), lcon=zeros(2), ucon=zeros(2))
+    nls = FeasibilityFormNLS(lls)
+    @test hess_structure(nls) == (6:15, 6:15)
+    @test hess_coord(nls, zeros(15)) == ones(10)
+    @test hess_coord(nls, zeros(15), obj_weight=0.3) == 0.3 * ones(10)
   end
 end
 
