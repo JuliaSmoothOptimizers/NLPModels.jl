@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial · NLPModels.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link href="../assets/style.css" rel="stylesheet" type="text/css"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.png" alt="NLPModels.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">NLPModels.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../models/">Models</a></li><li><a class="tocitem" href="../guidelines/">Guidelines</a></li><li><a class="tocitem" href="../tools/">Tools</a></li><li class="is-active"><a class="tocitem" href>Tutorial</a><ul class="internal"><li><a class="tocitem" href="#ADNLPModel-Tutorial-1"><span>ADNLPModel Tutorial</span></a></li><li><a class="tocitem" href="#Manual-model-1"><span>Manual model</span></a></li><li><a class="tocitem" href="#Nonlinear-least-squares-models-1"><span>Nonlinear least squares models</span></a></li></ul></li><li><a class="tocitem" href="../api/">API</a></li><li><a class="tocitem" href="../reference/">Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Tutorial</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Tutorial</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl/blob/master/docs/src/tutorial.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Tutorial-1"><a class="docs-heading-anchor" href="#Tutorial-1">Tutorial</a><a class="docs-heading-anchor-permalink" href="#Tutorial-1" title="Permalink"></a></h1><ul><li><a href="#Tutorial-1">Tutorial</a></li><ul><li><a href="#ADNLPModel-Tutorial-1">ADNLPModel Tutorial</a></li><li><a href="#Manual-model-1">Manual model</a></li><li><a href="#Nonlinear-least-squares-models-1">Nonlinear least squares models</a></li></ul></ul><p>NLPModels.jl was created for two purposes:</p><ul><li>Allow users to access problem databases in an unified way.</li></ul><p>Mainly, this means  <a href="https://github.com/JuliaSmoothOptimizers/CUTEst.jl">CUTEst.jl</a>,  but it also gives access to <a href="https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl">AMPL  problems</a>,  as well as JuMP defined problems (e.g. as in  <a href="https://github.com/JuliaSmoothOptimizers/OptimizationProblems.jl">OptimizationProblems.jl</a>).</p><ul><li>Allow users to create their own problems in the same way.</li></ul><p>As a consequence, optimization methods designed according to the NLPModels API  will accept NLPModels of any provenance.  See, for instance,  <a href="https://github.com/JuliaSmoothOptimizers/JSOSolvers.jl">JSOSolvers.jl</a> and  <a href="https://github.com/JuliaSmoothOptimizers/NLPModelsIpopt.jl">NLPModelsIpopt.jl</a>.</p><p>The main interface for user defined problems is <a href="../models/#ADNLPModel-1">ADNLPModel</a>, which defines a model easily, using automatic differentiation.</p><h2 id="ADNLPModel-Tutorial-1"><a class="docs-heading-anchor" href="#ADNLPModel-Tutorial-1">ADNLPModel Tutorial</a><a class="docs-heading-anchor-permalink" href="#ADNLPModel-Tutorial-1" title="Permalink"></a></h2><p>ADNLPModel is simple to use and is useful for classrooms. It only needs the objective function <span>$f$</span> and a starting point <span>$x^0$</span> to be well-defined. For constrained problems, you&#39;ll also need the constraints function <span>$c$</span>, and the constraints vectors <span>$c_L$</span> and <span>$c_U$</span>, such that <span>$c_L \leq c(x) \leq c_U$</span>. Equality constraints will be automatically identified as those indices <span>$i$</span> for which <span>$c_{L_i} = c_{U_i}$</span>.</p><p>Let&#39;s define the famous Rosenbrock function</p><div>\[f(x) = (x_1 - 1)^2 + 100(x_2 - x_1^2)^2,\]</div><p>with starting point <span>$x^0 = (-1.2,1.0)$</span>.</p><pre><code class="language-julia">using NLPModels
+
+nlp = ADNLPModel(x-&gt;(x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2 , [-1.2; 1.0])</code></pre><pre><code class="language-none">ADNLPModel - Model with automatic differentiation
+  Problem name: Generic
+   All variables: ████████████████████ 2      All constraints: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            free: ████████████████████ 2                 free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+         low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0              low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+          infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            nnzh: (  0.00% sparsity)   3               linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                    nonlinear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                         nnzj: (------% sparsity)         
+
+  Counters:
+             obj: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 grad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 cons: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            jcon: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jtprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 hess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+</code></pre><p>This is enough to define the model. Let&#39;s get the objective function value at <span>$x^0$</span>, using only <code>nlp</code>.</p><pre><code class="language-julia">fx = obj(nlp, nlp.meta.x0)
+println(&quot;fx = $fx&quot;)</code></pre><pre><code class="language-none">fx = 24.199999999999996</code></pre><p>Done. Let&#39;s try the gradient and Hessian.</p><pre><code class="language-julia">gx = grad(nlp, nlp.meta.x0)
+Hx = hess(nlp, nlp.meta.x0)
+println(&quot;gx = $gx&quot;)
+println(&quot;Hx = $Hx&quot;)</code></pre><pre><code class="language-none">gx = [-215.59999999999997, -87.99999999999999]
+Hx = [1330.0 0.0; 480.0 200.0]</code></pre><p>Notice how only the lower triangle of the Hessian is stored. Also notice that it is <em>dense</em>. This is a current limitation of this model. It doesn&#39;t return sparse matrices, so use it with care.</p><p>Let&#39;s do something a little more complex here, defining a function to try to solve this problem through steepest descent method with Armijo search. Namely, the method</p><ol><li>Given <span>$x^0$</span>, <span>$\varepsilon &gt; 0$</span>, and <span>$\eta \in (0,1)$</span>. Set <span>$k = 0$</span>;</li><li>If <span>$\Vert \nabla f(x^k) \Vert &lt; \varepsilon$</span> STOP with <span>$x^* = x^k$</span>;</li><li>Compute <span>$d^k = -\nabla f(x^k)$</span>;</li><li>Compute <span>$\alpha_k \in (0,1]$</span> such that <span>$f(x^k + \alpha_kd^k) &lt; f(x^k) + \alpha_k\eta \nabla f(x^k)^Td^k$</span></li><li>Define <span>$x^{k+1} = x^k + \alpha_kx^k$</span></li><li>Update <span>$k = k + 1$</span> and go to step 2.</li></ol><pre><code class="language-julia">using LinearAlgebra
+
+function steepest(nlp; itmax=100000, eta=1e-4, eps=1e-6, sigma=0.66)
+  x = nlp.meta.x0
+  fx = obj(nlp, x)
+  ∇fx = grad(nlp, x)
+  slope = dot(∇fx, ∇fx)
+  ∇f_norm = sqrt(slope)
+  iter = 0
+  while ∇f_norm &gt; eps &amp;&amp; iter &lt; itmax
+    t = 1.0
+    x_trial = x - t * ∇fx
+    f_trial = obj(nlp, x_trial)
+    while f_trial &gt; fx - eta * t * slope
+      t *= sigma
+      x_trial = x - t * ∇fx
+      f_trial = obj(nlp, x_trial)
+    end
+    x = x_trial
+    fx = f_trial
+    ∇fx = grad(nlp, x)
+    slope = dot(∇fx, ∇fx)
+    ∇f_norm = sqrt(slope)
+    iter += 1
+  end
+  optimal = ∇f_norm &lt;= eps
+  return x, fx, ∇f_norm, optimal, iter
+end
+
+x, fx, ngx, optimal, iter = steepest(nlp)
+println(&quot;x = $x&quot;)
+println(&quot;fx = $fx&quot;)
+println(&quot;ngx = $ngx&quot;)
+println(&quot;optimal = $optimal&quot;)
+println(&quot;iter = $iter&quot;)</code></pre><pre><code class="language-none">x = [1.0000006499501406, 1.0000013043156974]
+fx = 4.2438440239813445e-13
+ngx = 9.984661274466946e-7
+optimal = true
+iter = 17962</code></pre><p>Maybe this code is too complicated? If you&#39;re in a class you just want to show a Newton step.</p><pre><code class="language-julia">g(x) = grad(nlp, x)
+H(x) = Symmetric(hess(nlp, x), :L)
+x = nlp.meta.x0
+d = -H(x)\g(x)</code></pre><pre><code class="language-none">2-element Array{Float64,1}:
+ 0.0247191011235955
+ 0.38067415730337073</code></pre><p>or a few</p><pre><code class="language-julia">for i = 1:5
+  global x
+  x = x - H(x)\g(x)
+  println(&quot;x = $x&quot;)
+end</code></pre><pre><code class="language-none">x = [-1.1752808988764045, 1.3806741573033707]
+x = [0.763114871176314, -3.1750338547478294]
+x = [0.7634296788839187, 0.5828247754969103]
+x = [0.9999953110849887, 0.9440273238532714]
+x = [0.9999956956536669, 0.9999913913257132]</code></pre><p>Also, notice how we can reuse the method.</p><pre><code class="language-julia">f(x) = (x[1]^2 + x[2]^2 - 5)^2 + (x[1]*x[2] - 2)^2
+x0 = [3.0; 2.0]
+nlp = ADNLPModel(f, x0)
+
+x, fx, ngx, optimal, iter = steepest(nlp)</code></pre><pre><code class="language-none">([1.9999999068493834, 1.000000113517522], 3.911490500207018e-14, 8.979870927068038e-7, true, 153)</code></pre><p>External models can be tested with <code>steepest</code> as well, as long as they implement <code>obj</code> and <code>grad</code>.</p><p>For constrained minimization, you need the constraints vector and bounds too. Bounds on the variables can be passed through a new vector.</p><pre><code class="language-julia">f(x) = (x[1] - 1.0)^2 + 100*(x[2] - x[1]^2)^2
+x0 = [-1.2; 1.0]
+lvar = [-Inf; 0.1]
+uvar = [0.5; 0.5]
+c(x) = [x[1] + x[2] - 2; x[1]^2 + x[2]^2]
+lcon = [0.0; -Inf]
+ucon = [Inf; 1.0]
+nlp = ADNLPModel(f, x0, lvar, uvar, c, lcon, ucon)
+
+println(&quot;cx = $(cons(nlp, nlp.meta.x0))&quot;)
+println(&quot;Jx = $(jac(nlp, nlp.meta.x0))&quot;)</code></pre><pre><code class="language-none">cx = [-2.2, 2.44]
+Jx = [1.0 1.0; -2.4 2.0]</code></pre><h2 id="Manual-model-1"><a class="docs-heading-anchor" href="#Manual-model-1">Manual model</a><a class="docs-heading-anchor-permalink" href="#Manual-model-1" title="Permalink"></a></h2><p>Sometimes you want or need to input your derivatives by hand the easier way to do so is to define a new model. Which functions you want to define depend on which solver you are using. In out <code>test</code> folder, we have the files <code>hs5.jl</code>, <code>hs6.jl</code>, <code>hs10.jl</code>, <code>hs11.jl</code>, <code>hs14.jl</code> and <code>brownden.jl</code> as examples. We present the relevant part of <code>hs6.jl</code> here as well:</p><pre><code class="language-julia">import NLPModels: increment!
+using NLPModels
+
+mutable struct HS6 &lt;: AbstractNLPModel
+  meta :: NLPModelMeta
+  counters :: Counters
+end
+
+function HS6()
+  meta = NLPModelMeta(2, ncon=1, nnzh=1, nnzj=2, x0=[-1.2; 1.0], lcon=[0.0], ucon=[0.0], name=&quot;hs6&quot;)
+
+  return HS6(meta, Counters())
+end
+
+function NLPModels.obj(nlp :: HS6, x :: AbstractVector)
+  increment!(nlp, :neval_obj)
+  return (1 - x[1])^2
+end
+
+function NLPModels.grad!(nlp :: HS6, x :: AbstractVector, gx :: AbstractVector)
+  increment!(nlp, :neval_grad)
+  gx .= [2 * (x[1] - 1); 0.0]
+  return gx
+end
+
+function NLPModels.hess(nlp :: HS6, x :: AbstractVector; obj_weight=1.0, y=Float64[])
+  increment!(nlp, :neval_hess)
+  w = length(y) &gt; 0 ? y[1] : 0.0
+  return [2.0 * obj_weight - 20 * w   0.0; 0.0 0.0]
+end
+
+function NLPModels.hess_coord(nlp :: HS6, x :: AbstractVector; obj_weight=1.0, y=Float64[])
+  increment!(nlp, :neval_hess)
+  w = length(y) &gt; 0 ? y[1] : 0.0
+  return ([1], [1], [2.0 * obj_weight - 20 * w])
+end
+
+function NLPModels.hprod!(nlp :: HS6, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight=1.0, y=Float64[])
+  increment!(nlp, :neval_hprod)
+  w = length(y) &gt; 0 ? y[1] : 0.0
+  Hv .= [(2.0 * obj_weight - 20 * w) * v[1]; 0.0]
+  return Hv
+end
+
+function NLPModels.cons!(nlp :: HS6, x :: AbstractVector, cx :: AbstractVector)
+  increment!(nlp, :neval_cons)
+  cx[1] = 10 * (x[2] - x[1]^2)
+  return cx
+end
+
+function NLPModels.jac(nlp :: HS6, x :: AbstractVector)
+  increment!(nlp, :neval_jac)
+  return [-20 * x[1]  10.0]
+end
+
+function NLPModels.jac_coord(nlp :: HS6, x :: AbstractVector)
+  increment!(nlp, :neval_jac)
+  return ([1, 1], [1, 2], [-20 * x[1], 10.0])
+end
+
+function NLPModels.jprod!(nlp :: HS6, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
+  increment!(nlp, :neval_jprod)
+  Jv .= [-20 * x[1] * v[1] + 10 * v[2]]
+  return Jv
+end
+
+function NLPModels.jtprod!(nlp :: HS6, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
+  increment!(nlp, :neval_jtprod)
+  Jtv .= [-20 * x[1]; 10] * v[1]
+  return Jtv
+end</code></pre><pre><code class="language-julia">hs6 = HS6()
+x = hs6.meta.x0
+(obj(hs6, x), grad(hs6, x))</code></pre><pre><code class="language-none">(4.840000000000001, [-4.4, 0.0])</code></pre><pre><code class="language-julia">cons(hs6, x)</code></pre><pre><code class="language-none">1-element Array{Float64,1}:
+ -4.3999999999999995</code></pre><p>Notice that we did not define <code>grad</code> nor <code>cons</code>, but <code>grad!</code> and <code>cons!</code> were defined. The default <code>grad</code> and <code>cons</code> uses the inplace version, so there&#39;s no need to redefine them.</p><h2 id="Nonlinear-least-squares-models-1"><a class="docs-heading-anchor" href="#Nonlinear-least-squares-models-1">Nonlinear least squares models</a><a class="docs-heading-anchor-permalink" href="#Nonlinear-least-squares-models-1" title="Permalink"></a></h2><p>In addition to the general nonlinear model, we can define the residual function for a nonlinear least-squares problem. In other words, the objective function of the problem is of the form <span>$f(x) = \tfrac{1}{2}\|F(x)\|^2$</span>, and we can define the function <span>$F$</span> and its derivatives.</p><p>A simple way to define an NLS problem is with <code>ADNLSModel</code>, which uses automatic differentiation.</p><pre><code class="language-julia">F(x) = [x[1] - 1.0; 10 * (x[2] - x[1]^2)]
+x0 = [-1.2; 1.0]
+nls = ADNLSModel(F, x0, 2) # 2 nonlinear equations</code></pre><pre><code class="language-none">ADNLSModel - Nonlinear least-squares model with automatic differentiation
+   All variables: ████████████████████ 2      All constraints: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0        All residuals: ████████████████████ 2     
+            free: ████████████████████ 2                 free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0            nonlinear: ████████████████████ 2     
+           upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 nnzj: (  0.00% sparsity)   4     
+         low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0              low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 nnzh: (  0.00% sparsity)   3     
+           fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+          infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            nnzh: (  0.00% sparsity)   3               linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                    nonlinear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                         nnzj: (------% sparsity)         
+
+  Counters:
+             obj: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 grad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 cons: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            jcon: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jtprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 hess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0             residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+    jac_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       jprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0      jtprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+   hess_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       jhess_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       hprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+</code></pre><pre><code class="language-julia">residual(nls, x0)</code></pre><pre><code class="language-none">2-element Array{Float64,1}:
+ -2.2
+ -4.3999999999999995</code></pre><pre><code class="language-julia">jac_residual(nls, x0)</code></pre><pre><code class="language-none">2×2 Array{Float64,2}:
+  1.0   0.0
+ 24.0  10.0</code></pre><p>We can also define a linear least squares by passing the matrices that define the problem</p><div>\[\begin{aligned}
+\min \quad &amp; \tfrac{1}{2}\|Ax - b\|^2 \\
+&amp; c_L  \leq Cx \leq c_U \\
+&amp; \ell \leq  x \leq u.
+\end{aligned}\]</div><pre><code class="language-julia">A = rand(10, 3)
+b = rand(10)
+C = rand(2, 3)
+nls = LLSModel(A, b, C=C, lcon=zeros(2), ucon=zeros(2), lvar=-ones(3), uvar=ones(3))</code></pre><pre><code class="language-none">LLSModel - Linear least-squares model
+   All variables: ████████████████████ 3      All constraints: ████████████████████ 2        All residuals: ████████████████████ 10    
+            free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               linear: ████████████████████ 10    
+           lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0            nonlinear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 nnzj: (  0.00% sparsity)   30    
+         low/upp: ████████████████████ 3              low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 nnzh: (100.00% sparsity)   0     
+           fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                fixed: ████████████████████ 2     
+          infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            nnzh: (100.00% sparsity)   0               linear: ████████████████████ 2     
+                                                    nonlinear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                         nnzj: (  0.00% sparsity)   6     
+
+  Counters:
+             obj: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 grad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 cons: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            jcon: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jtprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 hess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0             residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+    jac_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       jprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0      jtprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+   hess_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       jhess_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       hprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+</code></pre><pre><code class="language-julia">@info norm(jac_residual(nls, zeros(3)) - A)
+@info norm(jac(nls, zeros(3)) - C)</code></pre><pre><code class="language-none">[ Info: 0.0
+[ Info: 0.0</code></pre><p>Another way to define a nonlinear least squares is using <code>FeasibilityResidual</code> to consider the constraints of a general nonlinear problem as the residual of the NLS.</p><pre><code class="language-julia">nlp = ADNLPModel(x-&gt;0, # objective doesn&#39;t matter,
+                 ones(2),
+                 x-&gt;[x[1] + x[2] - 1; x[1] * x[2] - 2], # c(x)
+                 zeros(2), zeros(2)) # lcon, ucon
+nls = FeasibilityResidual(nlp)</code></pre><pre><code class="language-none">FeasibilityResidual - Nonlinear least-squares defined from constraints of another problem
+   All variables: ████████████████████ 2      All constraints: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0        All residuals: ████████████████████ 2     
+            free: ████████████████████ 2                 free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0            nonlinear: ████████████████████ 2     
+           upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 nnzj: (  0.00% sparsity)   4     
+         low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0              low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 nnzh: (  0.00% sparsity)   3     
+           fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+          infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            nnzh: (  0.00% sparsity)   3               linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                    nonlinear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                         nnzj: (------% sparsity)         
+
+  Counters:
+             obj: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 grad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 cons: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            jcon: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jtprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 hess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0             residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+    jac_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       jprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0      jtprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+   hess_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       jhess_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       hprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+</code></pre><pre><code class="language-julia">s = 0.0
+for t = 1:100
+  global s
+  x = rand(2)
+  s += norm(residual(nls, x) - cons(nlp, x))
+end
+@info &quot;s = $s&quot;</code></pre><pre><code class="language-none">[ Info: s = 0.0</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tools/">« Tools</a><a class="docs-footer-nextpage" href="../api/">API »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 14 June 2020 15:08">Sunday 14 June 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
