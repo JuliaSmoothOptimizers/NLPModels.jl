@@ -56,6 +56,24 @@ function lls_test()
       C = LinearOperator(rand(1, 3))
       nls = LLSModel(A, b, C=C, lcon=[0.0], ucon=[0.0])
     end
+
+    @testset "Hess related functions" begin
+      b = rand(10)
+      A = rand(10, 5)
+      AtA = A' * A
+      lls = LLSModel(A, b)
+      I, J = hess_structure(lls)
+      V = hess_coord(lls, lls.meta.x0)
+      ijv = ((i,j,AtA[i,j]) for i = 1:5, j = 1:5 if i ≥ j)
+      @test I == getindex.(ijv, 1)
+      @test J == getindex.(ijv, 2)
+      @test V == getindex.(ijv, 3)
+      A = sprand(10, 5, 0.2)
+      lls = LLSModel(A, b)
+      I, J = hess_structure(lls)
+      V = hess_coord(lls, lls.meta.x0)
+      @test (I, J, V) == findnz(tril(A' * A))
+    end
   end
 end
 

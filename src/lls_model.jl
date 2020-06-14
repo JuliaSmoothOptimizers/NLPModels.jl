@@ -69,11 +69,11 @@ function LLSMatrixModel(A :: AbstractMatrix, b :: AbstractVector;
   nequ, nvar = size(A)
   ncon = size(C, 1)
   nnzjF = issparse(A) ? nnz(A) : nequ * nvar
-  nnzh  = issparse(A) ? nnz(A' * A) : nvar * nvar
+  nnzh  = issparse(A) ? nnz(tril(A' * A)) : div(nvar * (nvar + 1), 2)
   nnzj  = issparse(C) ? nnz(C) : ncon * nvar
   meta = NLPModelMeta(nvar, x0=x0, lvar=lvar, uvar=uvar, ncon=ncon, y0=y0, lin=1:ncon,
                       nln=Int[], lcon=lcon, ucon=ucon, nnzj=nnzj, nnzh=nnzh, name=name)
-  nls_meta = NLSMeta(nequ, nvar, nnzj=nnzjF, nnzh=0, , lin=1:nequ, nln=Int[])
+  nls_meta = NLSMeta(nequ, nvar, nnzj=nnzjF, nnzh=0, lin=1:nequ, nln=Int[])
 
   LLSMatrixModel(meta, nls_meta, NLSCounters(), A, b, C)
 end
@@ -251,7 +251,7 @@ function LLSModel(::Val{:operator},
   C = LinearOperator{TC}(ncon, nvar, false, false, Cprod, Ctprod, Ctprod)
 
   LLSOperatorModel(A, b, x0=x0, lvar=lvar, uvar=uvar,
-                   C=C, lcon=lcon, ucon=ucon, y0=y0, name=name, lin=1:nequ, nln=Int[])
+                   C=C, lcon=lcon, ucon=ucon, y0=y0, name=name)
 end
 
 function LLSModel(::Val{:triplet},
@@ -536,14 +536,14 @@ end
 hess(nls :: LLSMatrixModel, x :: AbstractVector, y :: AbstractVector; obj_weight = 1.0) = hess(nls, x, obj_weight=obj_weight)
 
 function hess_structure!(nls :: LLSMatrixModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
-  @lencheck nls.nls_meta.nnzh rows cols
+  @lencheck nls.meta.nnzh rows cols
   AtA = tril(nls.A' * nls.A)
   if issparse(AtA)
     I, J, V = findnz(AtA)
     rows .= I
     cols .= J
   else
-    n = size(nls.A)
+    n = size(nls.A, 2)
     I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
     rows .= getindex.(I, 1)
     cols .= getindex.(I, 2)
@@ -553,12 +553,13 @@ end
 
 function hess_coord!(nls :: LLSMatrixModel, x :: AbstractVector, vals :: AbstractVector; obj_weight = 1.0)
   @lencheck nls.meta.nvar x
-  @lencheck nls.nls_meta.nnzh vals
+  @lencheck nls.meta.nnzh vals
   increment!(nls, :neval_hess)
   AtA = tril(nls.A' * nls.A)
   if issparse(AtA)
     vals .= AtA.nzval
   else
+    n = size(nls.A, 2)
     vals .= (AtA[i,j] for i = 1:n, j = 1:n if i ≥ j)
   end
   return vals
