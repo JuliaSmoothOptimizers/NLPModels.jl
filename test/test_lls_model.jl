@@ -46,6 +46,15 @@ function lls_test()
             V = jac_coord(nls, x)
             @test C == sparse(I, J, V, ncon, nvar)
           end
+
+          # Improving coverage
+          @test jprod_residual(nls, x, ones(nvar)) == A * ones(nvar)
+          @test jtprod_residual(nls, x, ones(nequ)) == A' * ones(nequ)
+          @test hprod(nls, x, ones(nvar), obj_weight=0.5) == 0.5 * A' * A * ones(nvar)
+          if ncon > 0
+            @test jprod(nls, x, ones(nvar)) == C * ones(nvar)
+            @test jtprod(nls, x, ones(ncon)) == C' * ones(ncon)
+          end
         end
       end
     end
@@ -58,21 +67,41 @@ function lls_test()
     end
 
     @testset "Hess related functions" begin
+      # dense
       b = rand(10)
       A = rand(10, 5)
       AtA = A' * A
       lls = LLSModel(A, b)
+      x = lls.meta.x0
       I, J = hess_structure(lls)
-      V = hess_coord(lls, lls.meta.x0)
+      V = hess_coord(lls, x, obj_weight=0.5)
       ijv = ((i,j,AtA[i,j]) for i = 1:5, j = 1:5 if i ≥ j)
       @test I == getindex.(ijv, 1)
       @test J == getindex.(ijv, 2)
-      @test V == getindex.(ijv, 3)
+      @test V == 0.5 * getindex.(ijv, 3)
+      @test hess(lls, x, obj_weight=0.5) == 0.5 * tril(A' * A)
+      @test hess(lls, x, [0.0], obj_weight=0.5) == 0.5 * tril(A' * A)
+      # sparse
       A = sprand(10, 5, 0.2)
       lls = LLSModel(A, b)
       I, J = hess_structure(lls)
-      V = hess_coord(lls, lls.meta.x0)
-      @test (I, J, V) == findnz(tril(A' * A))
+      V = hess_coord(lls, x, obj_weight=0.5)
+      @test (I, J, 2V) == findnz(tril(A' * A))
+      @test hess(lls, x, obj_weight=0.5) == 0.5 * tril(A' * A)
+      @test hess(lls, x, [0.0], obj_weight=0.5) == 0.5 * tril(A' * A)
+    end
+
+    @testset "Wrong variant" begin
+      @test_throws ErrorException LLSModel(rand(10,3), rand(10), variant=:wrong_variant)
+      @test_throws ErrorException LLSModel([1,2], [1,1], ones(2), 1, [1.0; 2.0], variant=:wrong_variant)
+    end
+    
+    @testset "jac_op of LLSOperatorModel" begin
+      A = LinearOperator(rand(10, 3))
+      C = LinearOperator(rand(2, 3))
+      lls = LLSModel(A, ones(10), C=C, lcon=zeros(2), ucon=zeros(2))
+      @test jac_op_residual(lls) == A
+      @test jac_op(lls) == C
     end
   end
 end
