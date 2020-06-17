@@ -238,7 +238,7 @@ function LLSModel(::Val{:operator},
   @lencheck nnzj Crows Ccols
   nequ = length(b)
 
-  TA, TC = eltype(Avals), eltype(Acols)
+  TA, TC = eltype(Avals), eltype(Cvals)
   Av = zeros(TA, nequ)
   Atv = zeros(TA, nvar)
   Aprod(v)  = coo_prod!(Arows, Acols, Avals, v, Av)
@@ -557,10 +557,10 @@ function hess_coord!(nls :: LLSMatrixModel, x :: AbstractVector, vals :: Abstrac
   increment!(nls, :neval_hess)
   AtA = tril(nls.A' * nls.A)
   if issparse(AtA)
-    vals .= AtA.nzval
+    vals .= obj_weight * AtA.nzval
   else
     n = size(nls.A, 2)
-    vals .= (AtA[i,j] for i = 1:n, j = 1:n if i ≥ j)
+    vals .= (obj_weight * AtA[i,j] for i = 1:n, j = 1:n if i ≥ j)
   end
   return vals
 end
