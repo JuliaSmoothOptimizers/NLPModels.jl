@@ -46,7 +46,7 @@ NLPModels instances.
 
 ## [API for NLSModels](@id nls-api)
 
-For the Nonlinear Least Squares models, ``f(x) = \Vert F(x)\Vert^2``,
+For the Nonlinear Least Squares models, ``f(x) = \tfrac{1}{2} \Vert F(x)\Vert^2``,
 and these models have additional function to access the residual value
 and its derivatives. Namely,
 
