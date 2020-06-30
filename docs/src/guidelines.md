@@ -80,6 +80,22 @@ The following is a non-exhaustive list of expected behaviour for methods.
 - Vector inputs should have the correct size. If necessary, the user should pass them using views or slices.
 - The triplet format does not assume order nor uniqueness.
 
+## [Show](@id show)
+
+To further specialize your model, you can also define `show_header` and possibly `show`.
+The default `show_header` simply prints the `typeof` the NLPModel, so it should be specialized with the specific information that you prefer. For instance, `SlackModel` defines
+```julia
+show_header(io :: IO, nlp :: SlackModel) = println(io, "SlackModel - Model with slack variables")
+```
+Furthermore, we define a general `show` that calls `show_header` and specific `show` functions for the `meta` and the `counters`. If your model does not have `counters` in the default location, you must define `show` as well. Alternatively, you may desire to change the behaviour of show. Here is an example, again from `SlackModel`:
+```julia
+function show(io :: IO, nlp :: SlackModel)
+  show_header(io, nlp)
+  show(io, nlp.meta)
+  show(io, nlp.model.counters)
+end
+```
+
 ## [Advanced counters](@id advanced-counters)
 
 If a model does not implement `counters`, then it needs to define
@@ -111,6 +127,8 @@ In the case of SlackModel, the equivalent call is
 ```julia
 @default_counters SlackModel model
 ```
+
+Furthermore, the `show` method has to be updated with the correct direction of `counter`. See [show](@ref show) for more information.
 
 ## [Advanced tests](@id advanced-tests)
 
