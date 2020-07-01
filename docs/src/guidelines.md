@@ -87,7 +87,7 @@ The default `show_header` simply prints the `typeof` the NLPModel, so it should 
 ```julia
 show_header(io :: IO, nlp :: SlackModel) = println(io, "SlackModel - Model with slack variables")
 ```
-Furthermore, we define a general `show` that calls `show_header` and specific `show` functions for the `meta` and the `counters`. If your model does not have `counters` in the default location, you must define `show` as well. Alternatively, you may desire to change the behaviour of show. Here is an example, again from `SlackModel`:
+Furthermore, we define a general `show` that calls `show_header` and specific `show` functions for the `meta` and the `counters`. If your model does not have `counters` in the default location, you must define `show` for them as well. Alternatively, you may desire to change the behaviour of show. Here is an example, again from `SlackModel`:
 ```julia
 function show(io :: IO, nlp :: SlackModel)
   show_header(io, nlp)
