@@ -3,10 +3,9 @@
 This package provides general guidelines to represent optimization problems in Julia and a standardized API to evaluate the functions and their derivatives.
 The main objective is to be able to rely on that API when designing optimization solvers in Julia.
 
-Cite as
+## How to Cite
 
-    Abel Soares Siqueira, & Dominique Orban. (2019, February 6). NLPModels.jl. Zenodo.
-    http://doi.org/10.5281/zenodo.2558627
+If you use NLPModels.jl in your work, please cite using the format given in [CITATION.bib](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/blob/master/CITATION.bib).
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2558627.svg)](https://doi.org/10.5281/zenodo.2558627)
 [![GitHub release](https://img.shields.io/github/release/JuliaSmoothOptimizers/NLPModels.jl.svg)](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/releases/latest)
