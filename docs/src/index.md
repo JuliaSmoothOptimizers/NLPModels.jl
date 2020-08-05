@@ -105,11 +105,8 @@ See the [Models](@ref), the [Tools](@ref tools-section), the [Tutorial](@ref), o
  - `CUTEstModel`: Defined in
    [`CUTEst.jl`](https://github.com/JuliaSmoothOptimizers/CUTEst.jl) for
    problems from [CUTEst](https://github.com/ralna/CUTEst/wiki).
- - [`MathProgNLPModel`](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl):
-   Uses a `MathProgModel`, derived from a
-   [`AbstractMathProgModel`](https://github.com/JuliaOpt/MathProgBase.jl) model.
-   For instance, [`JuMP.jl`](https://github.com/JuliaOpt/JuMP.jl) models can be
-   used.
+ - [`MathOptNLPModel`](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl) and [`MathOptNLSModel`](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl)
+   for problems modeled using [JuMP.jl](https://github.com/jump-dev/JuMP.jl) and [MathOptInterface.jl](https://github.com/jump-dev/MathOptInterface.jl).
 
 If you want your interface here, open a PR.
 

@@ -18,8 +18,8 @@ implemented in this package:
 There are other external models implemented. In particular,
 - [AmplModel](https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl)
 - [CUTEstModel](https://github.com/JuliaSmoothOptimizers/CUTEst.jl)
-- [MathProgNLPModel and MathProgNLSModel](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl)
-  using `JuMP/MPB`.
+- [MathOptNLPModel](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl) and [MathOptNLSModel](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl)
+  using `JuMP/MOI`.
 
 There are currently two models implemented in this package, besides the
 external ones.
