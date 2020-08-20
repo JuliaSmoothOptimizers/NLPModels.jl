@@ -59,3 +59,27 @@ for problem in ["hs10", "hs11", "hs14", "lincon", "linsv"]
   check_qn_model(qn_model)
   @printf("✓\n")
 end
+
+@testset "objgrad of a qnmodel" begin
+  struct OnlyObjgradModel <: AbstractNLPModel
+    meta :: NLPModelMeta
+    counters :: Counters
+  end
+
+  function OnlyObjgradModel()
+    meta = NLPModelMeta(2)
+    OnlyObjgradModel(meta, Counters())
+  end
+
+  function NLPModels.objgrad!(:: OnlyObjgradModel, x :: AbstractVector, g :: AbstractVector)
+    f = (x[1] - 1)^2 + 100 * (x[2] - x[1]^2)^2
+    g[1] = 2 * (x[1] - 1) - 400 * x[1] * (x[2] - x[1]^2)
+    g[2] = 200 * (x[2] - x[1]^2)
+    f, g
+  end
+
+  nlp = LBFGSModel(OnlyObjgradModel())
+
+  @test objgrad!(nlp, nlp.meta.x0, zeros(2)) == objgrad!(nlp.model, nlp.meta.x0, zeros(2))
+  @test objgrad(nlp, nlp.meta.x0) == objgrad(nlp.model, nlp.meta.x0)
+end

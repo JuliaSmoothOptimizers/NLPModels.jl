@@ -205,9 +205,8 @@ Evaluate ``f(x)`` and ``∇f(x)`` at `x`.
 """
 function objgrad(nlp, x)
   @lencheck nlp.meta.nvar x
-  f = obj(nlp, x)
-  g = grad(nlp, x)
-  return f, g
+  g = similar(x)
+  return objgrad!(nlp, x, g)
 end
 
 """

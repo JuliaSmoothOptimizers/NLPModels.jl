@@ -45,7 +45,7 @@ end
 for meth in (:obj, :grad, :cons, :jac_coord, :jac)
   @eval $meth(nlp :: QuasiNewtonModel, x :: AbstractVector) = $meth(nlp.model, x)
 end
-for meth in (:grad!, :cons!, :jprod, :jtprod)
+for meth in (:grad!, :cons!, :jprod, :jtprod, :objgrad, :objgrad!)
   @eval $meth(nlp :: QuasiNewtonModel, x :: AbstractVector, y :: AbstractVector) = $meth(nlp.model, x, y)
 end
 for meth in (:jprod!, :jtprod!)
