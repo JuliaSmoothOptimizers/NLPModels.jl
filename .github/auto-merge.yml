@@ -8,3 +8,6 @@ rules:
 reportStatus: true
 deleteBranchAfterMerge: true
 mergeMethod: rebase
+
+
+# Testing auto-merge - test 1
