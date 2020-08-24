@@ -8,3 +8,5 @@ rules:
 reportStatus: true
 deleteBranchAfterMerge: true
 mergeMethod: rebase
+
+# Test 2
