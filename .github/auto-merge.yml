@@ -1,5 +1,10 @@
-minApprovals:
-  OWNER: 2
+rules:
+- requiredAuthorRole: OWNER
+  minApprovals:
+    OWNER: 1
+- minApprovals:
+    OWNER: 2
+
 reportStatus: true
 deleteBranchAfterMerge: true
 mergeMethod: rebase
