@@ -2,28 +2,30 @@ export QuasiNewtonModel, LBFGSModel, LSR1Model
 
 abstract type QuasiNewtonModel <: AbstractNLPModel end
 
-mutable struct LBFGSModel <: QuasiNewtonModel
-  meta :: AbstractNLPModelMeta
-  model :: AbstractNLPModel
+mutable struct LBFGSModel{M <: AbstractNLPModelMeta, T <: AbstractNLPModel} <: QuasiNewtonModel
+  meta :: M
+  model :: T
   op :: LBFGSOperator
 end
 
-mutable struct LSR1Model <: QuasiNewtonModel
-  meta :: AbstractNLPModelMeta
-  model :: AbstractNLPModel
+mutable struct LSR1Model{M <: AbstractNLPModelMeta, T <: AbstractNLPModel} <: QuasiNewtonModel
+  meta :: M
+  model :: T
   op :: LSR1Operator
 end
 
 "Construct a `LBFGSModel` from another type of model."
-function LBFGSModel(nlp :: AbstractNLPModel; kwargs...)
+function LBFGSModel(nlp :: T; kwargs...) where T <: AbstractNLPModel
   op = LBFGSOperator(nlp.meta.nvar; kwargs...)
-  return LBFGSModel(nlp.meta, nlp, op)
+  M = typeof(nlp.meta)
+  return LBFGSModel{M,T}(nlp.meta, nlp, op)
 end
 
 "Construct a `LSR1Model` from another type of nlp."
-function LSR1Model(nlp :: AbstractNLPModel; kwargs...)
+function LSR1Model(nlp :: T; kwargs...) where T <: AbstractNLPModel
   op = LSR1Operator(nlp.meta.nvar; kwargs...)
-  return LSR1Model(nlp.meta, nlp, op)
+  M = typeof(nlp.meta)
+  return LSR1Model{M,T}(nlp.meta, nlp, op)
 end
 
 show_header(io :: IO, nlp :: QuasiNewtonModel) = println(io, "$(typeof(nlp)) - A QuasiNewtonModel")
