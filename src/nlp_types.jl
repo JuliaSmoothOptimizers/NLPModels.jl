@@ -198,7 +198,7 @@ function lines_of_hist(S, V)
   return lines
 end
 
-function lines_of_description(m :: NLPModelMeta)
+function lines_of_description(m :: AbstractNLPModelMeta)
   V = [length(m.ifree), length(m.ilow), length(m.iupp), length(m.irng), length(m.ifix), length(m.iinf)]
   V = [sum(V); V]
   S = ["All variables", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
@@ -218,7 +218,7 @@ function lines_of_description(m :: NLPModelMeta)
   return lines
 end
 
-function show(io :: IO, m :: NLPModelMeta)
+function show(io :: IO, m :: AbstractNLPModelMeta)
   println(io, "  Problem name: $(m.name)")
   lines = lines_of_description(m)
   println(io, join(lines, "\n") * "\n")
@@ -247,7 +247,7 @@ end
 
 Returns whether the problem has bounds on the variables.
 """
-has_bounds(meta::NLPModelMeta) = length(meta.ifree) < meta.nvar
+has_bounds(meta::AbstractNLPModelMeta) = length(meta.ifree) < meta.nvar
 
 """
     bound_constrained(nlp)
@@ -255,7 +255,7 @@ has_bounds(meta::NLPModelMeta) = length(meta.ifree) < meta.nvar
 
 Returns whether the problem has bounds on the variables and no other constraints.
 """
-bound_constrained(meta::NLPModelMeta) = meta.ncon == 0 && has_bounds(meta)
+bound_constrained(meta::AbstractNLPModelMeta) = meta.ncon == 0 && has_bounds(meta)
 
 """
     unconstrained(nlp)
@@ -263,7 +263,7 @@ bound_constrained(meta::NLPModelMeta) = meta.ncon == 0 && has_bounds(meta)
 
 Returns whether the problem in unconstrained.
 """
-unconstrained(meta::NLPModelMeta) = meta.ncon == 0 && !has_bounds(meta)
+unconstrained(meta::AbstractNLPModelMeta) = meta.ncon == 0 && !has_bounds(meta)
 
 """
     linearly_constrained(nlp)
@@ -271,7 +271,7 @@ unconstrained(meta::NLPModelMeta) = meta.ncon == 0 && !has_bounds(meta)
 
 Returns whether the problem's constraints are known to be all linear.
 """
-linearly_constrained(meta::NLPModelMeta) = meta.nlin == meta.ncon > 0
+linearly_constrained(meta::AbstractNLPModelMeta) = meta.nlin == meta.ncon > 0
 
 """
     equality_constrained(nlp)
@@ -280,7 +280,7 @@ linearly_constrained(meta::NLPModelMeta) = meta.nlin == meta.ncon > 0
 Returns whether the problem's constraints are all equalities.
 Unconstrained problems return false.
 """
-equality_constrained(meta::NLPModelMeta) = length(meta.jfix) == meta.ncon > 0
+equality_constrained(meta::AbstractNLPModelMeta) = length(meta.jfix) == meta.ncon > 0
 
 """
     inequality_constrained(nlp)
@@ -289,7 +289,7 @@ equality_constrained(meta::NLPModelMeta) = length(meta.jfix) == meta.ncon > 0
 Returns whether the problem's constraints are all inequalities.
 Unconstrained problems return true.
 """
-inequality_constrained(meta::NLPModelMeta) = meta.ncon > 0 && length(meta.jfix) == 0
+inequality_constrained(meta::AbstractNLPModelMeta) = meta.ncon > 0 && length(meta.jfix) == 0
 
 for meth in (:has_bounds, :bound_constrained, :unconstrained,
     :linearly_constrained, :equality_constrained, :inequality_constrained)
