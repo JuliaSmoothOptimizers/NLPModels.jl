@@ -1,5 +1,5 @@
 # .circleci/config.yml
-version: 2.1
+version: 2.0
 jobs:
   build-linux-julia-1.3:
     working_directory: ~/NLPModels.jl
@@ -11,7 +11,7 @@ jobs:
       - checkout
       - run: |
           wget https://julialang-s3.julialang.org/bin/linux/x64/${JULIAVERSION}/julia-${JULIAVERSION}.${JULIAMINOR}-linux-x86_64.tar.gz
-          tar zxf julia-${JULIAVERSION}-linux-x86_64.tar.gz
+          tar zxf julia-${JULIAVERSION}.${JULIAMINOR}-linux-x86_64.tar.gz
       - run: |
           ./julia-${JULIAVERSION}.${JULIAMINOR}/bin/julia -e 'using Pkg; Pkg.update(); Pkg.clone(pwd()); Pkg.build("NLPModels"); Pkg.test("NLPModels");'
 
@@ -25,9 +25,9 @@ jobs:
       - checkout
       - run: |
           wget https://julialang-s3.julialang.org/bin/linux/x64/${JULIAVERSION}/julia-${JULIAVERSION}.${JULIAMINOR}-linux-x86_64.tar.gz
-          tar zxf julia-${JULIAVERSION}-linux-x86_64.tar.gz
+          tar zxf julia-${JULIAVERSION}.${JULIAMINOR}-linux-x86_64.tar.gz
       - run: |
-          ./julia-${JULIAVERSION}.${JULIAMINOR}/bin/julia -e 'using Pkg; Pkg.update(); Pkg.clone(pwd()); Pkg.build("NLPModels"); Pkg.test("NLPModels");'
+          ./julia-${JULIAVERSION}.${JULIAMINOR}/bin/julia -e 'using Pkg; Pkg.update(); Pkg.activate(pwd()); Pkg.instantiate(); Pkg.build("NLPModels"); Pkg.test("NLPModels");'
 
 workflows:
   version: 2
