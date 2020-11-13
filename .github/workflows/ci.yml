@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         version: ['1.3', '1']  # Test against LTS and current minor release
-        os: [ubuntu-latest, macOS-latest, windows-latest]
+        os: [macOS-latest]
         arch: [x64]
     steps:
       - uses: actions/checkout@v2
