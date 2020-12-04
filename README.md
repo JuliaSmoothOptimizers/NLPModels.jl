@@ -14,8 +14,6 @@ If you use NLPModels.jl in your work, please cite using the format given in [CIT
 [![codecov](https://codecov.io/gh/JuliaSmoothOptimizers/NLPModels.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaSmoothOptimizers/NLPModels.jl)
 
 ![CI](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/workflows/CI/badge.svg?branch=master)
-[![CircleCI](https://circleci.com/gh/JuliaSmoothOptimizers/NLPModels.jl.svg?style=svg)](https://circleci.com/gh/JuliaSmoothOptimizers/NLPModels.jl)
-[![Master Build status](https://ci.appveyor.com/api/projects/status/l1rs9ajxkyc0cer9/branch/master?svg=true)](https://ci.appveyor.com/project/dpo/nlpmodels-jl/branch/master)
 [![Cirrus CI - Base Branch Build Status](https://img.shields.io/cirrus/github/JuliaSmoothOptimizers/NLPModels.jl?logo=Cirrus%20CI)](https://cirrus-ci.com/github/JuliaSmoothOptimizers/NLPModels.jl)
 
 ## Optimization Problems
