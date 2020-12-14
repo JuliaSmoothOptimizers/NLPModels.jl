@@ -419,13 +419,63 @@ function jac_op!(nlp :: AbstractNLPModel, x :: AbstractVector, rows :: AbstractV
   return jac_op!(nlp, rows, cols, vals, Jv, Jtv)
 end
 
+"""
+    Hv = jth_hprod(nlp, x, v, j)
+
+Evaluate the product of the j-th Hessian of the constraints with the vector `v`.
+"""
 function jth_hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, j::Integer)
   @lencheck nlp.meta.nvar x v
-  hv = Vector{eltype(x)}(undef, nlp.meta.nvar)
-  return jth_hprod!(nlp, x, v, j, hv)
+  @assert 0 ≤ j ≤ nlp.meta.ncon
+  Hv = Vector{eltype(x)}(undef, nlp.meta.nvar)
+  return jth_hprod!(nlp, x, v, j, Hv)
 end
 
+"""
+    Hv = jth_hprod!(nlp, x, v, j, Hv; obj_weight=1.0)
+
+Evaluate the product of the j-th Hessian of the constraints with the vector `v`
+in place.
+"""
 function jth_hprod! end
+
+"""
+    vals = jth_hess_coord(nlp, x, j; obj_weight=1.0)
+
+Evaluate the j-th Hessian at `x` scaled by `obj_weight` in sparse coordinate 
+format.
+Only the lower triangle is returned.
+"""
+function jth_hess_coord(nlp::AbstractNLPModel, x::AbstractVector, j::Integer; obj_weight = one(eltype(x)))
+ @lencheck nlp.meta.nvar x
+ @assert 0 ≤ j ≤ nlp.meta.ncon
+ vals = Vector{eltype(x)}(undef, nlp.meta.nnzh)
+ return jth_hess_coord!(nlp, x, j, vals; obj_weight=obj_weight)
+end
+
+"""
+    vals = jth_hess_coord!(nlp, x, j, vals; obj_weight=1.0)
+
+Evaluate the j-th Hessian at `x` scaled by `obj_weight` in sparse coordinate 
+format in place.
+Only the lower triangle is returned.
+"""
+function jth_hess_coord! end
+
+"""
+   Hx = jth_hess(nlp, x, j; obj_weight = 1.0)
+
+Evaluate the j-th Hessian at `x` scaled by `obj_weight` as a sparse matrix.
+Only the lower triangle is returned.
+"""
+function jth_hess(nlp::AbstractNLPModel, x::AbstractVector, j::Integer; obj_weight = one(eltype(x))) 
+ @lencheck nlp.meta.nvar x
+ @assert 0 ≤ j ≤ nlp.meta.ncon
+ @lencheck nlp.meta.nvar x
+ rows, cols = hess_structure(nlp)
+ vals = jth_hess_coord(nlp, x, j, obj_weight=obj_weight)
+ sparse(rows, cols, vals, nlp.meta.nvar, nlp.meta.nvar)
+end
 
 function ghjvprod(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector, v::AbstractVector)
   @lencheck nlp.meta.nvar x g v
