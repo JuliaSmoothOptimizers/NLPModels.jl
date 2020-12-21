@@ -461,7 +461,15 @@ Evaluate the j-th Hessian at `x` scaled by `obj_weight` in sparse coordinate
 format in place.
 Only the lower triangle is returned.
 """
-function jth_hess_coord! end
+function jth_hess_coord!(nlp::AbstractNLPModel, x::AbstractVector, j::Integer, vals::AbstractVector)
+    @lencheck nlp.meta.nnzh vals
+    @lencheck nlp.meta.nvar x
+    @assert 0 ≤ j ≤ nlp.meta.ncon
+    increment!(nlp, :neval_jhess)
+    yj = zeros(nlp.meta.ncon)
+    yj[j] = 1.
+    return hess_coord!(nlp, x, yj, vals, obj_weight = 0.0)
+end
 
 """
    Hx = jth_hess(nlp, x, j)

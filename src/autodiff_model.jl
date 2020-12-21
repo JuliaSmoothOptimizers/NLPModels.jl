@@ -260,7 +260,7 @@ function jth_hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, j :: Integer, v
 end
 
 function jth_hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, j :: Integer, Hv :: AbstractVector)
-  @lencheck nlp.meta.nvar x v
+  @lencheck nlp.meta.nvar x v Hv
   @assert 0 ≤ j ≤ nlp.meta.ncon
   increment!(nlp, :neval_jhprod)
   ℓ(x) = nlp.c(x)[j]
@@ -268,7 +268,7 @@ function jth_hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector,
   return Hv
 end
 
-function ghjvprod!(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector, v::AbstractVector,gHv :: AbstractVector) 
+function ghjvprod!(nlp :: AbstractNLPModel, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector) 
  @lencheck nlp.meta.nvar x g v
  @lencheck nlp.meta.ncon gHv
  increment!(nlp, :neval_hprod)
