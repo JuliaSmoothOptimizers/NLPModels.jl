@@ -28,8 +28,13 @@ function multiple_precision(nlp :: AbstractNLPModel;
       rows, cols = hess_structure(nlp)
       vals = hess_coord(nlp, x, y)
       @test eltype(vals) == T
+      @test eltype(jth_hess(nlp, x, y, nlp.meta.ncon)) == T
+      @test eltype(jth_hess_coord(nlp, x, y, nlp.meta.ncon)) == T
       Hv = zeros(T, nlp.meta.nvar)
       @test eltype(hess_op!(nlp, rows, cols, vals, Hv)) == T
+      @test eltype(jth_hprod!(nlp, x, y, nlp.meta.ncon, Hv)) == T
+      @test eltype(jth_hprod(nlp, x, y, nlp.meta.ncon)) == T
+      @test eltype(ghjvprod(nlp, x, x, x)) == T
     end
     @info "    $T ✓ "
   end

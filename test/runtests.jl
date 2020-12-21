@@ -43,10 +43,11 @@ end
 for meth in [:jprod!, :jtprod!]
   @eval @test_throws(MethodError, $meth(model, [0.0], [1.0], [2.0]))
 end
-@test_throws(MethodError, jth_hprod(model, [0.0], [1.0], 2))
+@test_throws(AssertionError, jth_hprod(model, [0.0], [1.0], 2))
 @test_throws(MethodError, jth_hprod!(model, [0.0], [1.0], 2, [3.0]))
+@test_throws(AssertionError, jth_hess(model, [0.0], 2))
 for meth in [:ghjvprod!]
-  @eval @test_throws(MethodError, $meth(model, [0.0], [1.0], [2.0], [3.0]))
+  @eval @test_throws(DimensionError, $meth(model, [0.0], [1.0], [2.0], [3.0]))
 end
 @assert isa(hess_op(model, [0.]), LinearOperator)
 @assert isa(jac_op(model, [0.]), LinearOperator)

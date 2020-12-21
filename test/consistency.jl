@@ -381,6 +381,65 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
         end
       end
     end
+    
+    if !(jth_hess_coord in exclude)
+      k = m
+      Ls = Vector{Any}(undef, N)
+      for i = 1:N
+        V = jth_hess_coord(nlps[i], x, y, k)
+        I, J = hess_structure(nlps[i])
+        Ls[i] = sparse(I, J, V, n, n)
+      end
+      Lmin = minimum(map(norm, Ls))
+      for i = 1:N
+        for j = i+1:N
+          @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
+        end
+      end
+    end
+
+    if !(jth_hess in exclude)
+      k = m
+      Ls = Any[jth_hess(nlp, x, y, k) for nlp in nlps]
+      Lmin = minimum(map(norm, Ls))
+      for i = 1:N
+        for j = i+1:N
+          @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
+        end
+      end
+    end
+
+    if intersect([jth_hess, jth_hess_coord], exclude) == [] for i = 1:N
+        k = m
+        nlp = nlps[i]
+        Hx = jth_hess(nlp, x, y, k)
+        V = jth_hess_coord(nlp, x, y, k)
+        I, J = hess_structure(nlp)
+        @test length(I) == length(J) == length(V) == nlp.meta.nnzh
+        @test sparse(I, J, V, n, n) == Hx
+      end
+    end
+
+    if !(jth_hprod in exclude)
+      k = m
+      for σ = [1.0; 0.5]
+        Lps = Any[jth_hprod(nlp, x, y, v, obj_weight=σ) for nlp in nlps]
+        Lpmin = minimum(map(norm, Lps))
+        for i = 1:N
+          for j = i+1:N
+            @test isapprox(Lps[i], Lps[j], atol=rtol * max(Lpmin, 1.0))
+          end
+
+          if !(jth_hess_coord in exclude)
+            rows, cols = hess_structure(nlps[i])
+            vals = jth_hess_coord(nlps[i], x, y, k)
+            jth_hprod!(nlps[i], rows, cols, vals, v, tmp_n)
+            @test isapprox(Lps[i], tmp_n, atol=rtol * max(Lpmin, 1.0))
+          end
+        end
+      end
+    end
+    
   end
 
 end

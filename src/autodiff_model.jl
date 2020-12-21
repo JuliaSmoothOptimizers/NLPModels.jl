@@ -246,7 +246,7 @@ function jth_hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, j :: Integer, v
   @lencheck nlp.meta.nnzh vals
   @lencheck nlp.meta.nvar x
   @assert 0 ≤ j ≤ nlp.meta.ncon
-  #increment!(nlp, :neval_hess)
+  increment!(nlp, :neval_jhess)
   ℓ(x) = obj_weight * nlp.c(x)[j]
   Hx = ForwardDiff.hessian(ℓ, x)
   k = 1
@@ -262,7 +262,7 @@ end
 function jth_hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, j :: Integer, Hv :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   @lencheck nlp.meta.nvar x v
   @assert 0 ≤ j ≤ nlp.meta.ncon
-  #increment!(nlp, :neval_hprod)
+  increment!(nlp, :neval_jhprod)
   ℓ(x) = obj_weight * nlp.c(x)[j]
   Hv .= ForwardDiff.derivative(t -> ForwardDiff.gradient(ℓ, x + t * v), 0)
   return Hv
@@ -271,7 +271,7 @@ end
 function ghjvprod!(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector, v::AbstractVector,gHv :: AbstractVector) 
  @lencheck nlp.meta.nvar x g v
  @lencheck nlp.meta.ncon gHv
- #increment!(nlp, :neval_hprod)
+ increment!(nlp, :neval_hprod)
  ℓ(x) = nlp.c(x)
  gHv .= ForwardDiff.derivative(t -> ForwardDiff.derivative(s -> ℓ(x + s * g + t * v), 0), 0)
  return gHv
