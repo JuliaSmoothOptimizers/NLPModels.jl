@@ -433,7 +433,7 @@ function jth_hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, 
 end
 
 """
-    Hv = jth_hprod!(nlp, x, v, j, Hv; obj_weight=1.0)
+    Hv = jth_hprod!(nlp, x, v, j, Hv)
 
 Evaluate the product of the j-th Hessian of the constraints with the vector `v`
 in place.
@@ -441,21 +441,21 @@ in place.
 function jth_hprod! end
 
 """
-    vals = jth_hess_coord(nlp, x, j; obj_weight=1.0)
+    vals = jth_hess_coord(nlp, x, j)
 
 Evaluate the j-th Hessian at `x` scaled by `obj_weight` in sparse coordinate 
 format.
 Only the lower triangle is returned.
 """
-function jth_hess_coord(nlp::AbstractNLPModel, x::AbstractVector, j::Integer; obj_weight = one(eltype(x)))
+function jth_hess_coord(nlp::AbstractNLPModel, x::AbstractVector, j::Integer)
  @lencheck nlp.meta.nvar x
  @assert 0 ≤ j ≤ nlp.meta.ncon
  vals = Vector{eltype(x)}(undef, nlp.meta.nnzh)
- return jth_hess_coord!(nlp, x, j, vals; obj_weight=obj_weight)
+ return jth_hess_coord!(nlp, x, j, vals)
 end
 
 """
-    vals = jth_hess_coord!(nlp, x, j, vals; obj_weight=1.0)
+    vals = jth_hess_coord!(nlp, x, j, vals)
 
 Evaluate the j-th Hessian at `x` scaled by `obj_weight` in sparse coordinate 
 format in place.
@@ -464,25 +464,25 @@ Only the lower triangle is returned.
 function jth_hess_coord! end
 
 """
-   Hx = jth_hess(nlp, x, j; obj_weight = 1.0)
+   Hx = jth_hess(nlp, x, j)
 
-Evaluate the j-th Hessian at `x` scaled by `obj_weight` as a sparse matrix.
+Evaluate the j-th Hessian at `x` scaled by `obj_weight` as a sparse matrix with
+the same sparsity pattern as the Lagrangian Hessian.
 Only the lower triangle is returned.
 """
-function jth_hess(nlp::AbstractNLPModel, x::AbstractVector, j::Integer; obj_weight = one(eltype(x))) 
+function jth_hess(nlp::AbstractNLPModel, x::AbstractVector, j::Integer) 
  @lencheck nlp.meta.nvar x
  @assert 0 ≤ j ≤ nlp.meta.ncon
  @lencheck nlp.meta.nvar x
  rows, cols = hess_structure(nlp)
- vals = jth_hess_coord(nlp, x, j, obj_weight=obj_weight)
+ vals = jth_hess_coord(nlp, x, j)
  sparse(rows, cols, vals, nlp.meta.nvar, nlp.meta.nvar)
 end
 
 """
    gHv = ghjvprod(nlp, x, g, v)
 
-Return the vector of vector-matrix-vector product to each hessian matrices of
-the constraint function, i.e. the vector whose j-th component is g' ∇²cᵢ(x) v.
+Return the vector whose j-th component is g' ∇²cᵢ(x) v.
 """
 function ghjvprod(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector, v::AbstractVector)
   @lencheck nlp.meta.nvar x g v
@@ -493,9 +493,7 @@ end
 """
    ghjvprod!(nlp, x, g, v, gHv)
 
-Return the vector of vector-matrix-vector product to each hessian matrices of
-the constraint function in place, i.e. the vector whose 
-j-th component is g' ∇²cᵢ(x) v.
+Return the vector whose j-th component is g' ∇²cᵢ(x) v in place.
 """
 function ghjvprod! end
 
