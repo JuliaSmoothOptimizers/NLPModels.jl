@@ -438,7 +438,14 @@ end
 Evaluate the product of the j-th Hessian of the constraints with the vector `v`
 in place.
 """
-function jth_hprod! end
+function jth_hprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, j::Integer, Hv::AbstractVector)
+  @lencheck nlp.meta.nvar x v Hv
+  @assert 0 ≤ j ≤ nlp.meta.ncon
+  increment!(nlp, :neval_jhprod)
+  yj = zeros(nlp.meta.ncon)
+  yj[j] = 1.
+  return hprod!(nlp, x, yj, v, Hv, obj_weight=0.0)
+end
 
 """
     vals = jth_hess_coord(nlp, x, j)
@@ -468,7 +475,7 @@ function jth_hess_coord!(nlp::AbstractNLPModel, x::AbstractVector, j::Integer, v
     increment!(nlp, :neval_jhess)
     yj = zeros(nlp.meta.ncon)
     yj[j] = 1.
-    return hess_coord!(nlp, x, yj, vals, obj_weight = 0.0)
+    return hess_coord!(nlp, x, yj, vals, obj_weight=0.0)
 end
 
 """
