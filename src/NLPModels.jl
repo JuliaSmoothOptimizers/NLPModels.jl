@@ -25,7 +25,8 @@ export reset_data!, reset!, sum_counters,
        cons, cons!, jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad,
        jac_structure!, jac_structure, jac_coord!, jac_coord,
        jac, jprod, jprod!, jtprod, jtprod!, jac_op, jac_op!,
-       jth_hprod, jth_hprod!, ghjvprod, ghjvprod!,
+       jth_hprod, jth_hprod!, jth_hess, ghjvprod, ghjvprod!,
+       jth_hess_coord, jth_hess_coord!, jth_hess_structure,
        hess_structure!, hess_structure, hess_coord!, hess_coord, hess, hprod, hprod!, hess_op, hess_op!,
        push!, varscale, lagscale, conscale
 
@@ -477,12 +478,25 @@ function jth_hess(nlp::AbstractNLPModel, x::AbstractVector, j::Integer; obj_weig
  sparse(rows, cols, vals, nlp.meta.nvar, nlp.meta.nvar)
 end
 
+"""
+   gHv = ghjvprod(nlp, x, g, v)
+
+Return the vector of vector-matrix-vector product to each hessian matrices of
+the constraint function, i.e. the vector whose j-th component is g' ∇²cᵢ(x) v.
+"""
 function ghjvprod(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector, v::AbstractVector)
   @lencheck nlp.meta.nvar x g v
   gHv = Vector{eltype(x)}(undef, nlp.meta.ncon)
   return ghjvprod!(nlp, x, g, v, gHv)
 end
 
+"""
+   ghjvprod!(nlp, x, g, v, gHv)
+
+Return the vector of vector-matrix-vector product to each hessian matrices of
+the constraint function in place, i.e. the vector whose 
+j-th component is g' ∇²cᵢ(x) v.
+"""
 function ghjvprod! end
 
 """
