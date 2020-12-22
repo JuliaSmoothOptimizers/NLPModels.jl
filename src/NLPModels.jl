@@ -438,14 +438,7 @@ end
 Evaluate the product of the j-th Hessian of the constraints with the vector `v`
 in place.
 """
-function jth_hprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, j::Integer, Hv::AbstractVector)
-  @lencheck nlp.meta.nvar x v Hv
-  @assert 0 ≤ j ≤ nlp.meta.ncon
-  increment!(nlp, :neval_jhprod)
-  yj = zeros(nlp.meta.ncon)
-  yj[j] = 1.
-  return hprod!(nlp, x, yj, v, Hv, obj_weight=0.0)
-end
+function jth_hprod! end
 
 """
     vals = jth_hess_coord(nlp, x, j)
@@ -465,18 +458,10 @@ end
     vals = jth_hess_coord!(nlp, x, j, vals)
 
 Evaluate the j-th Hessian at `x` scaled by `obj_weight` in sparse coordinate 
-format in place.
+format, with `vals` of length `nlp.meta.nnzh`, in place.
 Only the lower triangle is returned.
 """
-function jth_hess_coord!(nlp::AbstractNLPModel, x::AbstractVector, j::Integer, vals::AbstractVector)
-    @lencheck nlp.meta.nnzh vals
-    @lencheck nlp.meta.nvar x
-    @assert 0 ≤ j ≤ nlp.meta.ncon
-    increment!(nlp, :neval_jhess)
-    yj = zeros(nlp.meta.ncon)
-    yj[j] = 1.
-    return hess_coord!(nlp, x, yj, vals, obj_weight=0.0)
-end
+function jth_hess_coord! end
 
 """
    Hx = jth_hess(nlp, x, j)
