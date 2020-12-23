@@ -427,7 +427,7 @@ Evaluate the product of the j-th Hessian of the constraints with the vector `v`.
 """
 function jth_hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, j::Integer)
   @lencheck nlp.meta.nvar x v
-  @assert 0 ≤ j ≤ nlp.meta.ncon
+  @assert 1 ≤ j ≤ nlp.meta.ncon
   Hv = Vector{eltype(x)}(undef, nlp.meta.nvar)
   return jth_hprod!(nlp, x, v, j, Hv)
 end
@@ -443,13 +443,12 @@ function jth_hprod! end
 """
     vals = jth_hess_coord(nlp, x, j)
 
-Evaluate the j-th Hessian at `x` scaled by `obj_weight` in sparse coordinate 
-format.
+Evaluate the j-th Hessian at `x` in sparse coordinate format.
 Only the lower triangle is returned.
 """
 function jth_hess_coord(nlp::AbstractNLPModel, x::AbstractVector, j::Integer)
  @lencheck nlp.meta.nvar x
- @assert 0 ≤ j ≤ nlp.meta.ncon
+ @assert 1 ≤ j ≤ nlp.meta.ncon
  vals = Vector{eltype(x)}(undef, nlp.meta.nnzh)
  return jth_hess_coord!(nlp, x, j, vals)
 end
@@ -457,23 +456,21 @@ end
 """
     vals = jth_hess_coord!(nlp, x, j, vals)
 
-Evaluate the j-th Hessian at `x` scaled by `obj_weight` in sparse coordinate 
-format, with `vals` of length `nlp.meta.nnzh`, in place.
-Only the lower triangle is returned.
+Evaluate the j-th Hessian at `x` in sparse coordinate format, with `vals` of
+length `nlp.meta.nnzh`, in place. Only the lower triangle is returned.
 """
 function jth_hess_coord! end
 
 """
    Hx = jth_hess(nlp, x, j)
 
-Evaluate the j-th Hessian at `x` scaled by `obj_weight` as a sparse matrix with
+Evaluate the j-th Hessian at `x` as a sparse matrix with
 the same sparsity pattern as the Lagrangian Hessian.
 Only the lower triangle is returned.
 """
 function jth_hess(nlp::AbstractNLPModel, x::AbstractVector, j::Integer) 
  @lencheck nlp.meta.nvar x
- @assert 0 ≤ j ≤ nlp.meta.ncon
- @lencheck nlp.meta.nvar x
+ @assert 1 ≤ j ≤ nlp.meta.ncon
  rows, cols = hess_structure(nlp)
  vals = jth_hess_coord(nlp, x, j)
  sparse(rows, cols, vals, nlp.meta.nvar, nlp.meta.nvar)
@@ -493,7 +490,7 @@ end
 """
    ghjvprod!(nlp, x, g, v, gHv)
 
-Return the vector whose j-th component is g' ∇²cᵢ(x) v in place.
+Return the vector whose i-th component is g' ∇²cᵢ(x) v in place.
 """
 function ghjvprod! end
 

@@ -40,15 +40,11 @@ for meth in [:jth_con, :jth_congrad, :jth_sparse_congrad]
   @eval @test_throws(MethodError, $meth(model, [0.0], 1))
 end
 @test_throws(MethodError, jth_congrad!(model, [0.0], 1, [2.0]))
-for meth in [:jprod!, :jtprod!]
+for meth in [:jprod!, :jtprod!, :ghjvprod!]
   @eval @test_throws(MethodError, $meth(model, [0.0], [1.0], [2.0]))
 end
 @test_throws(AssertionError, jth_hprod(model, [0.0], [1.0], 2))
-@test_throws(MethodError, jth_hprod!(model, [0.0], [1.0], 2, [3.0]))
 @test_throws(AssertionError, jth_hess(model, [0.0], 2))
-for meth in [:ghjvprod!]
-  @eval @test_throws(DimensionError, $meth(model, [0.0], [1.0], [2.0], [3.0]))
-end
 @assert isa(hess_op(model, [0.]), LinearOperator)
 @assert isa(jac_op(model, [0.]), LinearOperator)
 
@@ -145,4 +141,4 @@ include("test_feasibility_form_nls.jl")
 include("test_view_subarray.jl")
 test_view_subarrays()
 include("test_memory_of_coord.jl")
-test_memory_of_coord() 
+test_memory_of_coord()

@@ -323,6 +323,30 @@ function hprod!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector, v 
   return hv
 end
 
+function jth_hess_coord!(nlp :: SlackModels, x :: AbstractVector, j :: Integer, vals :: AbstractVector)
+  @lencheck nlp.meta.nnzh vals
+  @lencheck nlp.meta.nvar x
+  @assert 1 ≤ j ≤ nlp.meta.ncon
+  n = nlp.model.meta.nvar
+  return jth_hess_coord!(nlp.model, view(x, 1:n), j, vals)
+end
+
+function jth_hprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector, j :: Integer, Hv :: AbstractVector{T}) where T
+  @lencheck nlp.meta.nvar x v Hv
+  @assert 1 ≤ j ≤ nlp.meta.ncon
+  n = nlp.model.meta.nvar
+  @views jth_hprod!(nlp.model, x[1:n], v[1:n], j, Hv[1:n])
+  Hv[n+1:nlp.meta.nvar] .= T(0)
+  return Hv
+end
+
+function ghjvprod!(nlp :: SlackModels, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector) 
+ @lencheck nlp.meta.nvar x g v
+ @lencheck nlp.meta.ncon gHv
+ n = nlp.model.meta.nvar
+ return ghjvprod!(nlp.model, view(x, 1:n), view(g, 1:n), view(v, 1:n), gHv)
+end
+
 function residual!(nls :: SlackNLSModel, x :: AbstractVector, Fx :: AbstractVector)
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nequ Fx
