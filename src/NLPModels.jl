@@ -479,7 +479,7 @@ end
 """
    gHv = ghjvprod(nlp, x, g, v)
 
-Return the vector whose j-th component is g' ∇²cᵢ(x) v.
+Return the vector whose i-th component is g' ∇²cᵢ(x) v.
 """
 function ghjvprod(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector, v::AbstractVector)
   @lencheck nlp.meta.nvar x g v
