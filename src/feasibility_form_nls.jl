@@ -338,7 +338,7 @@ function ghjvprod!(nlp :: FeasibilityFormNLS, x :: AbstractVector, g :: Abstract
  n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
  IF = 1:ne
  Ic = ne+1:ne+m
- gHv[IF] .= [dot(g, hprod_residual(nlp.internal, x[1:n], j, v[1:n])) for j in IF]  
+ gHv[IF] .= [dot(g[1:n], hprod_residual(nlp.internal, x[1:n], j, v[1:n])) for j in IF]  
  if m > 0
      @views ghjvprod!(nlp.internal, x[1:n], g[1:n], v[1:n], gHv[Ic])
  end

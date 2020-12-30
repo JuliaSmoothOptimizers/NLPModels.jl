@@ -117,7 +117,13 @@ for problem in nls_problems
     show(nls)
   end
 
-  consistent_nlss(nlss)
+  if true in (typeof.(nlss) .== LLSModel) #hessians not implemented for LLS
+    consistent_nlss(nlss, exclude=[hess, hess_coord, jth_hess, jth_hess_coord])
+  elseif true in (typeof.(nlss) .== FeasibilityResidual) #hessians not implemented for LLS
+    consistent_nlss(nlss, exclude=[hess_coord, jth_hess_coord])
+  else
+    consistent_nlss(nlss, exclude=[])
+  end
   @info "  Consistency checks ✓"
 
   for nls in nlss ∪ SlackNLSModel.(nlss) ∪ FeasibilityFormNLS.(nlss)

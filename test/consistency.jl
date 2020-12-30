@@ -438,6 +438,27 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
         end
       end
     end
+    
+    g = 0.707 * ones(n)
+    
+    if !(ghjvprod in exclude)
+        Ls = Any[ghjvprod(nlp, x, g, v) for nlp in nlps]
+        Lmin = minimum(map(norm, Ls))
+        for i = 1:N
+          for j = i+1:N
+            @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
+          end
+        end
+    end
+    
+    if intersect([ghjvprod, jth_hprod], exclude) == []  for i = 1:N
+      nlp = nlps[i]
+      gHjv = ghjvprod(nlp, x, g, v)
+      tmp_ghjv = eltype(x)[dot(g, jth_hprod(nlp, x, v, j)) for j=1:m]
+      @test isapprox(gHjv, tmp_ghjv, atol=rtol * max(norm(gHjv), 1.0))
+      end
+    end
+    
   end
 
 end

@@ -226,8 +226,8 @@ function NLPModels.ghjvprod!(nls :: NLSHS20, x :: AbstractVector{T}, g :: Abstra
  @lencheck nls.meta.nvar x g v
  @lencheck nls.meta.ncon gHv
  increment!(nls, :neval_hprod)
- gHv[1] .= g[2] * 2v[2]
- gHv[2] .= g[1] * 2v[1]
- gHv[3] .= g[1] * 2v[1] + g[2] * 2v[2]
+ gHv[1] = g[2] * 2v[2]
+ gHv[2] = g[1] * 2v[1]
+ gHv[3] = g[1] * 2v[1] + g[2] * 2v[2]
  return gHv
 end

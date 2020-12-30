@@ -224,30 +224,3 @@ function hprod!(nls :: LLSModel, x :: AbstractVector, y :: AbstractVector, v :: 
   @lencheck nls.meta.ncon y
   hprod!(nls, x, v, Hv, obj_weight=obj_weight)
 end
-
-function jth_hess_coord!(nls :: LLSModel, x :: AbstractVector{T}, j :: Integer, vals :: AbstractVector{T}) where T
-  @lencheck nls.meta.nvar x
-  @assert 1 ≤ j ≤ nls.meta.ncon
-  @lencheck nls.meta.nnzh vals
-  increment!(nls, :neval_jhess)
-  vals .= zeros(T, nls.meta.nnzh)
-  return vals
-end
-
-function jth_hprod!(nls :: LLSModel, x :: AbstractVector{T}, v :: AbstractVector{T}, j :: Integer, Hv :: AbstractVector{T}) where T
-  @lencheck nls.meta.nvar x v Hv
-  @assert 1 ≤ j ≤ nls.meta.ncon
-  increment!(nls, :neval_jhprod)
-  Hv .= zeros(T, nls.meta.nvar)
-  return Hv
-end
-
-function ghjvprod!(nls :: LLSModel, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
- @lencheck nls.meta.nvar x g v
- @lencheck nls.meta.ncon gHv
- increment!(nls, :neval_hprod)
- gHv .= zeros(T, nls.meta.ncon)
- return gHv
-end
-
-# not implemented: hess_structure, hess_coord, hess
