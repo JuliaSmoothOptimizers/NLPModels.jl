@@ -26,7 +26,7 @@ export reset_data!, reset!, sum_counters,
        jac_structure!, jac_structure, jac_coord!, jac_coord,
        jac, jprod, jprod!, jtprod, jtprod!, jac_op, jac_op!,
        jth_hprod, jth_hprod!, jth_hess, ghjvprod, ghjvprod!,
-       jth_hess_coord, jth_hess_coord!, jth_hess_structure,
+       jth_hess_coord, jth_hess_coord!,
        hess_structure!, hess_structure, hess_coord!, hess_coord, hess, hprod, hprod!, hess_op, hess_op!,
        push!, varscale, lagscale, conscale
 

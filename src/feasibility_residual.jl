@@ -15,7 +15,7 @@ The resulting problem is a bound-constrained nonlinear least-squares problem wit
 function ``F(x,s) = c(x) - s``:
 ```math
 \\begin{aligned}
-       \\min_x \\quad & \\tfrac{1}{2} \\|c(x) - s\\|^2 \\\\
+       \\min_{x,s} \\quad & \\tfrac{1}{2} \\|c(x) - s\\|^2 \\\\
 \\mathrm{s.t.} \\quad & \\ell ≤ x ≤ u \\\\
                       & c_L ≤ s ≤ c_U.
 \\end{aligned}
@@ -130,5 +130,8 @@ function hprod!(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVe
   Hiv = zeros(eltype(x), nls.meta.nvar)
   hprod!(nls.nlp, x, cx, v, Hiv, obj_weight=0.0)
   Hv .+= Hiv
-  return obj_weight * Hv
+  Hv .*= obj_weight
+  return Hv
 end
+
+# not implemented: hess_structure, hess_coord
