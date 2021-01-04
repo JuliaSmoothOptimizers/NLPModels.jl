@@ -134,4 +134,4 @@ function hprod!(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVe
   return Hv
 end
 
-# not implemented: hess_structure, hess_coord
+# not implemented: hess_structure, hess_coord, jth_hess_coord

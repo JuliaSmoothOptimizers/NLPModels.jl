@@ -119,7 +119,7 @@ for problem in nls_problems
 
   if true in (typeof.(nlss) .== LLSModel) #hessians not implemented for LLS
     consistent_nlss(nlss, exclude=[hess, hess_coord, jth_hess, jth_hess_coord, ghjvprod])
-  elseif true in (typeof.(nlss) .== FeasibilityResidual) #hessians not implemented for LLS
+  elseif true in (typeof.(nlss) .== FeasibilityResidual) #hessian structure and coord not implemented for FeasibilityResidual
     consistent_nlss(nlss, exclude=[hess_coord, jth_hess_coord])
   else
     consistent_nlss(nlss, exclude=[])
