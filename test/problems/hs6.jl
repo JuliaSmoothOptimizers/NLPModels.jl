@@ -105,23 +105,6 @@ function NLPModels.jtprod!(nlp :: HS6, x :: AbstractVector, v :: AbstractVector,
   return Jtv
 end
 
-function NLPModels.jth_hprod!(nlp :: HS6, x :: AbstractVector{T}, v :: AbstractVector{T}, j :: Integer, Hv :: AbstractVector{T}) where T
-  @lencheck nlp.meta.nvar x v Hv
-  @assert 1 ≤ j ≤ nlp.meta.ncon
-  increment!(nlp, :neval_jhprod)
-  Hv .= [-20v[1]; T(0)]
-  return Hv
-end
-
-function NLPModels.jth_hess_coord!(nlp :: HS6, x :: AbstractVector{T}, j :: Integer, vals :: AbstractVector{T}) where T
-  @lencheck nlp.meta.nnzh vals
-  @lencheck nlp.meta.nvar x
-  @assert 1 ≤ j ≤ nlp.meta.ncon
-  increment!(nlp, :neval_jhess)
-  vals[1] = T(-20)
-  return vals
-end
-
 function NLPModels.ghjvprod!(nlp :: HS6, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector) 
  @lencheck nlp.meta.nvar x g v
  @lencheck nlp.meta.ncon gHv

@@ -229,23 +229,6 @@ function NLPModels.hprod!(nls :: NLSLC, x :: AbstractVector{T}, y :: AbstractVec
   return hprod!(nls, x, v, Hv, obj_weight=obj_weight)
 end
 
-function NLPModels.jth_hprod!(nls :: NLSLC, x :: AbstractVector{T}, v :: AbstractVector{T}, j :: Integer, Hv :: AbstractVector{T}) where T
-  @lencheck nls.meta.nvar x v Hv
-  @assert 1 ≤ j ≤ nls.meta.ncon
-  increment!(nls, :neval_jhprod)
-  Hv .= zeros(T, nls.meta.nvar)
-  return Hv
-end
-
-function NLPModels.jth_hess_coord!(nls :: NLSLC, x :: AbstractVector{T}, j :: Integer, vals :: AbstractVector{T}) where T
-  @lencheck nls.meta.nnzh vals
-  @lencheck nls.meta.nvar x
-  @assert 1 ≤ j ≤ nls.meta.ncon
-  increment!(nls, :neval_jhess)
-  vals .= zeros(T, nls.meta.nnzh)
-  return vals
-end
-
 function NLPModels.ghjvprod!(nls :: NLSLC, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
  @lencheck nls.meta.nvar x g v
  @lencheck nls.meta.ncon gHv

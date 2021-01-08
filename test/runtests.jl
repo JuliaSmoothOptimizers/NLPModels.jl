@@ -43,8 +43,6 @@ end
 for meth in [:jprod!, :jtprod!, :ghjvprod!]
   @eval @test_throws(MethodError, $meth(model, [0.0], [1.0], [2.0]))
 end
-@test_throws(AssertionError, jth_hprod(model, [0.0], [1.0], 2))
-@test_throws(AssertionError, jth_hess(model, [0.0], 2))
 @assert isa(hess_op(model, [0.]), LinearOperator)
 @assert isa(jac_op(model, [0.]), LinearOperator)
 
@@ -118,9 +116,9 @@ for problem in nls_problems
   end
 
   if true in (typeof.(nlss) .== LLSModel) #hessians not implemented for LLS
-    consistent_nlss(nlss, exclude=[hess, hess_coord, jth_hess, jth_hess_coord, ghjvprod])
+    consistent_nlss(nlss, exclude=[hess, hess_coord, ghjvprod])
   elseif true in (typeof.(nlss) .== FeasibilityResidual) #hessian structure and coord not implemented for FeasibilityResidual
-    consistent_nlss(nlss, exclude=[hess_coord, jth_hess_coord])
+    consistent_nlss(nlss, exclude=[hess_coord])
   else
     consistent_nlss(nlss, exclude=[])
   end
