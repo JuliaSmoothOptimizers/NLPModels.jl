@@ -419,24 +419,12 @@ function jac_op!(nlp :: AbstractNLPModel, x :: AbstractVector, rows :: AbstractV
   return jac_op!(nlp, rows, cols, vals, Jv, Jtv)
 end
 
-"""
-    Hv = jth_hprod(nlp, x, v, j)
-
-Evaluate the product of the j-th Hessian of the constraints with the vector `v`.
-"""
 function jth_hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, j::Integer)
   @lencheck nlp.meta.nvar x v
-  @assert 1 ≤ j ≤ nlp.meta.ncon
-  Hv = Vector{eltype(x)}(undef, nlp.meta.nvar)
-  return jth_hprod!(nlp, x, v, j, Hv)
+  hv = Vector{eltype(x)}(undef, nlp.meta.nvar)
+  return jth_hprod!(nlp, x, v, j, hv)
 end
 
-"""
-    Hv = jth_hprod!(nlp, x, v, j, Hv)
-
-Evaluate the product of the j-th Hessian of the constraints with the vector `v`
-in place.
-"""
 function jth_hprod! end
 
 """

@@ -352,32 +352,31 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
       end
     end
 
-      if !(hprod in exclude)
-        for σ = [1.0; 0.5]
-          Lps = Any[hprod(nlp, x, y, v, obj_weight=σ) for nlp in nlps]
-          Hopvs = Any[hess_op(nlp, x, y, obj_weight=σ) * v for nlp in nlps]
-          Lpmin = minimum(map(norm, Lps))
-          for i = 1:N
-            for j = i+1:N
-              @test isapprox(Lps[i], Lps[j], atol=rtol * max(Lpmin, 1.0))
-              @test isapprox(Lps[i], Hopvs[j], atol=rtol * max(Lpmin, 1.0))
-            end
+    if !(hprod in exclude)
+      for σ = [1.0; 0.5]
+        Lps = Any[hprod(nlp, x, y, v, obj_weight=σ) for nlp in nlps]
+        Hopvs = Any[hess_op(nlp, x, y, obj_weight=σ) * v for nlp in nlps]
+        Lpmin = minimum(map(norm, Lps))
+        for i = 1:N
+          for j = i+1:N
+            @test isapprox(Lps[i], Lps[j], atol=rtol * max(Lpmin, 1.0))
+            @test isapprox(Lps[i], Hopvs[j], atol=rtol * max(Lpmin, 1.0))
+          end
 
-            if !(hess_coord in exclude)
-              rows, cols = hess_structure(nlps[i])
-              vals = hess_coord(nlps[i], x, y, obj_weight=σ)
-              hprod!(nlps[i], rows, cols, vals, v, tmp_n)
-              @test isapprox(Lps[i], tmp_n, atol=rtol * max(Lpmin, 1.0))
-              hprod!(nlps[i], x, y, rows, cols, v, tmp_n, obj_weight=σ)
-              @test isapprox(Lps[i], tmp_n, atol=rtol * max(Lpmin, 1.0))
+          if !(hess_coord in exclude)
+            rows, cols = hess_structure(nlps[i])
+            vals = hess_coord(nlps[i], x, y, obj_weight=σ)
+            hprod!(nlps[i], rows, cols, vals, v, tmp_n)
+            @test isapprox(Lps[i], tmp_n, atol=rtol * max(Lpmin, 1.0))
+            hprod!(nlps[i], x, y, rows, cols, v, tmp_n, obj_weight=σ)
+            @test isapprox(Lps[i], tmp_n, atol=rtol * max(Lpmin, 1.0))
 
-              H = hess_op!(nlps[i], x, y, rows, cols, tmp_n, obj_weight=σ)
-              res = H * v
-              @test isapprox(Lps[i], res, atol=rtol * max(Lpmin, 1.0))
-              H = hess_op!(nlps[i], x, y, tmp_n, obj_weight=σ)
-              res = H * v
-              @test isapprox(Lps[i], res, atol=rtol * max(Lpmin, 1.0))
-            end
+            H = hess_op!(nlps[i], x, y, rows, cols, tmp_n, obj_weight=σ)
+            res = H * v
+            @test isapprox(Lps[i], res, atol=rtol * max(Lpmin, 1.0))
+            H = hess_op!(nlps[i], x, y, tmp_n, obj_weight=σ)
+            res = H * v
+            @test isapprox(Lps[i], res, atol=rtol * max(Lpmin, 1.0))
           end
         end
       end
@@ -393,7 +392,6 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
           end
         end
     end
-    
   end
 
 end
