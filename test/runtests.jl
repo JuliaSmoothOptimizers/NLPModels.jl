@@ -40,11 +40,14 @@ for meth in [:jth_con, :jth_congrad, :jth_sparse_congrad]
   @eval @test_throws(MethodError, $meth(model, [0.0], 1))
 end
 @test_throws(MethodError, jth_congrad!(model, [0.0], 1, [2.0]))
-for meth in [:jprod!, :jtprod!, :ghjvprod!]
+for meth in [:jprod!, :jtprod!]
   @eval @test_throws(MethodError, $meth(model, [0.0], [1.0], [2.0]))
 end
-@test_throws(AssertionError, jth_hprod(model, [0.0], [1.0], 2))
-@test_throws(AssertionError, jth_hess(model, [0.0], 2))
+@test_throws(MethodError, jth_hprod(model, [0.0], [1.0], 2))
+@test_throws(MethodError, jth_hprod!(model, [0.0], [1.0], 2, [3.0]))
+for meth in [:ghjvprod!]
+  @eval @test_throws(MethodError, $meth(model, [0.0], [1.0], [2.0], [3.0]))
+end
 @assert isa(hess_op(model, [0.]), LinearOperator)
 @assert isa(jac_op(model, [0.]), LinearOperator)
 
@@ -117,13 +120,7 @@ for problem in nls_problems
     show(nls)
   end
 
-  if true in (typeof.(nlss) .== LLSModel) #hessians not implemented for LLS
-    consistent_nlss(nlss, exclude=[hess, hess_coord, jth_hess, jth_hess_coord, ghjvprod])
-  elseif true in (typeof.(nlss) .== FeasibilityResidual) #hessian structure and coord not implemented for FeasibilityResidual
-    consistent_nlss(nlss, exclude=[hess_coord, jth_hess_coord])
-  else
-    consistent_nlss(nlss, exclude=[])
-  end
+  consistent_nlss(nlss)
   @info "  Consistency checks ✓"
 
   for nls in nlss ∪ SlackNLSModel.(nlss) ∪ FeasibilityFormNLS.(nlss)

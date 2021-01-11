@@ -290,61 +290,6 @@ function hprod!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, y :: AbstractVe
   return hv
 end
 
-function jth_hess_coord!(nlp :: FeasibilityFormNLS, x :: AbstractVector{T}, j :: Integer, vals :: AbstractVector{T}) where T
-  @lencheck nlp.meta.nvar x
-  @assert 1 ≤ j ≤ nlp.meta.ncon
-  @lencheck nlp.meta.nnzh vals #nlp.meta.nnzh is of length nnzhF+nnzhc+ne
-  increment!(nlp, :neval_jhess)
-  n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
-  nnzhF = nlp.internal.nls_meta.nnzh
-  nnzhc = m > 0 ? nlp.internal.meta.nnzh : 0
-  IF = 1:nnzhF
-  Ic = nnzhF+1:nnzhF+nnzhc
-  if 1 ≤ j ≤ ne #hessian of F(x)
-      yj = zeros(ne)
-      yj[j] = T(1)
-      @views hess_coord_residual!(nlp.internal, x[1:n], yj, vals[IF])
-      vals[Ic] .= zeros(nnzhc)
-  else #ne+1 ≤ j ≤ ne+m
-      yj = zeros(m)
-      yj[j-ne] = T(1)
-      @views hess_coord!(nlp.internal, x[1:n], yj, vals[Ic], obj_weight=T(0))
-      vals[IF] .= zeros(T, nnzhF)
-  end
-  vals[nnzhF+nnzhc+1:nnzhF+nnzhc+ne] .= zeros(ne)
-  return vals
-end
-
-function jth_hprod!(nlp :: FeasibilityFormNLS, x :: AbstractVector{T}, v :: AbstractVector{T}, j :: Integer, Hv :: AbstractVector{T}) where T
-  @lencheck nlp.meta.nvar x v Hv
-  @assert 1 ≤ j ≤ nlp.meta.ncon
-  increment!(nlp, :neval_jhprod)
-  n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
-  if 1 ≤ j ≤ ne #hessian of F(x)
-      @views hprod_residual!(nlp.internal, x[1:n], j, v[1:n], Hv[1:n])
-  else #ne+1 ≤ j ≤ m
-      yj = zeros(m)
-      yj[j-ne] = T(1)
-      @views hprod!(nlp.internal, x[1:n], yj, v[1:n], Hv[1:n], obj_weight=T(0))
-  end
-  Hv[n+1:nlp.meta.nvar] .= zeros(nlp.meta.nvar-n)
-  return Hv
-end
-
-function ghjvprod!(nlp :: FeasibilityFormNLS, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector) 
- @lencheck nlp.meta.nvar x g v
- @lencheck nlp.meta.ncon gHv
- increment!(nlp, :neval_hprod)
- n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
- IF = 1:ne
- Ic = ne+1:ne+m
- gHv[IF] .= [dot(g[1:n], hprod_residual(nlp.internal, x[1:n], j, v[1:n])) for j in IF]  
- if m > 0
-     @views ghjvprod!(nlp.internal, x[1:n], g[1:n], v[1:n], gHv[Ic])
- end
- return gHv
-end
-
 function residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, Fx :: AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.nls_meta.nequ Fx

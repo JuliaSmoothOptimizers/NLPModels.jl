@@ -13,14 +13,12 @@ function test_nls_to_cons()
       adnlp = ADNLPModel(x->sum(x[n+1:end].^2) / 2, [x0; zeros(ne)],
                         x->[F(x[1:n]) - x[n+1:end]; c(x[1:n])],
                         zeros(ne+m), zeros(ne+m))
-      consistent_functions([nlpcon; adnlp], exclude=[jth_hess, jth_hess_coord, 
-                                                     jth_hprod, ghjvprod])
+      consistent_functions([nlpcon; adnlp])
 
       adnls = ADNLSModel(x->x[n+1:end], [x0; zeros(ne)], ne,
                         x->[F(x[1:n]) - x[n+1:end]; c(x[1:n])],
                         zeros(ne+m), zeros(ne+m))
-      consistent_functions([nlpcon; adnls], exclude=[jth_hess, jth_hess_coord, 
-                                                     jth_hprod, ghjvprod])
+      consistent_functions([nlpcon; adnls])
       consistent_nls_functions([nlpcon; adnls])
     end
   end
@@ -41,9 +39,7 @@ function test_nls_to_cons()
                         C=[A -Ine; C spzeros(m,ne)],
                         lcon=[b; zeros(m)], ucon=[b; zeros(m)])
 
-        consistent_functions([nlpcon; lls2], exclude=[hess, hess_coord, 
-                                                      jth_hess, jth_hess_coord, 
-                                                      jth_hprod, ghjvprod])
+        consistent_functions([nlpcon; lls2], exclude=[hess, hess_coord])
         consistent_nls_functions([nlpcon; lls2])
       end
     end
@@ -56,8 +52,7 @@ function test_nls_to_cons()
     ffnls = FeasibilityFormNLS(FeasibilityResidual(nlp))
     nlp2 = ADNLSModel(x->x[3:6], [x0; zeros(4)], 4,
                       x->c(x[1:2]) - x[3:6], zeros(4), zeros(4))
-    consistent_functions([ffnls; nlp2], exclude=[jth_hess, jth_hess_coord, 
-                                                 jth_hprod, ghjvprod])
+    consistent_functions([ffnls; nlp2])
     consistent_nls_functions([ffnls; nlp2])
 
     # The test belows verifies that the nnzj and nnzh information are not lost
@@ -69,9 +64,7 @@ function test_nls_to_cons()
     ffnls = FeasibilityFormNLS(FeasibilityResidual(nlp), name="feas-of-feas")
     nlp2 = LLSModel([spzeros(m, n)  I], zeros(m),
                     C=[A -I], lcon=b, ucon=b)
-    consistent_functions([ffnls; nlp2], exclude=[hess, hess_coord, jth_hess, 
-                                                 jth_hess_coord, jth_hprod, 
-                                                 ghjvprod])
+    consistent_functions([ffnls; nlp2], exclude=[hess, hess_coord])
     consistent_nls_functions([ffnls; nlp2])
   end
 

@@ -133,5 +133,3 @@ function hprod!(nls :: FeasibilityResidual, x :: AbstractVector, v :: AbstractVe
   Hv .*= obj_weight
   return Hv
 end
-
-# not implemented: hess_structure, hess_coord, jth_hess_coord

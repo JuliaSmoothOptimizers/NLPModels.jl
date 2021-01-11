@@ -69,4 +69,4 @@ function push!(nlp :: QuasiNewtonModel, args...)
 	return nlp
 end
 
-# not implemented: hess_structure, hess_coord, hess, jth_hess, jth_hess_coord, ghjvprod, jth_hprod
+# not implemented: hess_structure, hess_coord, hess

@@ -332,38 +332,3 @@ function hprod!(nls :: ADNLSModel, x :: AbstractVector, y :: AbstractVector, v :
   Hv .= ForwardDiff.derivative(t -> ForwardDiff.gradient(ℓ, x + t * v), 0)
   return Hv
 end
-
-function jth_hess_coord!(nls :: ADNLSModel, x :: AbstractVector, j :: Integer, vals :: AbstractVector)
-  @lencheck nls.meta.nvar x
-  @assert 1 ≤ j ≤ nls.meta.ncon
-  @lencheck nls.meta.nnzh vals
-  increment!(nls, :neval_jhess)
-  ℓ(x) = nls.c(x)[j]
-  Hx = ForwardDiff.hessian(ℓ, x)
-  k = 1
-  for j = 1 : nls.meta.nvar
-    for i = j : nls.meta.nvar
-      vals[k] = Hx[i, j]
-      k += 1
-    end
-  end
-  return vals
-end
-
-function jth_hprod!(nls :: ADNLSModel, x :: AbstractVector, v :: AbstractVector, j :: Integer, Hv :: AbstractVector)
-  @lencheck nls.meta.nvar x v Hv
-  @assert 1 ≤ j ≤ nls.meta.ncon
-  increment!(nls, :neval_jhprod)
-  ℓ(x) = nls.c(x)[j]
-  Hv .= ForwardDiff.derivative(t -> ForwardDiff.gradient(ℓ, x + t * v), 0)
-  return Hv
-end
-
-function ghjvprod!(nls :: ADNLSModel, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector) 
- @lencheck nls.meta.nvar x g v
- @lencheck nls.meta.ncon gHv
- increment!(nls, :neval_hprod)
- ℓ(x) = nls.c(x)
- gHv .= ForwardDiff.derivative(t -> ForwardDiff.derivative(s -> ℓ(x + s * g + t * v), 0), 0)
- return gHv
-end
