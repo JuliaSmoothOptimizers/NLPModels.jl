@@ -163,7 +163,7 @@ function consistent_nls_functions(nlss; rtol=1.0e-8, exclude=[])
   end
 end
 
-function consistent_nlss(nlss; exclude=[hess, hprod, hess_coord])
+function consistent_nlss(nlss; exclude=[hess, hess_coord])
   consistent_nls_counters(nlss)
   consistent_counters(nlss)
   consistent_nls_functions(nlss, exclude=exclude)

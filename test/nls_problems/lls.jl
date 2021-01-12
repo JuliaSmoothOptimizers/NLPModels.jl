@@ -127,3 +127,48 @@ function NLPModels.jtprod!(nls :: LLS, x :: AbstractVector, v :: AbstractVector,
   Jtv .= v
   return Jtv
 end
+
+function NLPModels.hess(nls :: LLS, x :: AbstractVector{T}; obj_weight=1.0) where T
+  @lencheck 2 x
+  increment!(nls, :neval_hess)
+  return obj_weight * [2. 0.;0. 3.]
+end
+
+function NLPModels.hess_structure!(nls :: LLS, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
+  @lencheck 3 rows cols
+  n = nls.meta.nvar
+  I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
+  rows .= getindex.(I, 1)
+  cols .= getindex.(I, 2)
+  return rows, cols
+end
+
+function NLPModels.hess_coord!(nls :: LLS, x :: AbstractVector, vals :: AbstractVector; obj_weight=1.0)
+  @lencheck 2 x
+  @lencheck 3 vals
+  Hx = hess(nls, x, obj_weight=obj_weight)
+  k = 1
+  for j = 1:2
+    for i = j:2
+      vals[k] = Hx[i,j]
+      k += 1
+    end
+  end
+  return vals
+end
+
+function NLPModels.hprod!(nls :: LLS, x :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=one(T)) where T
+  @lencheck 2 x v Hv
+  increment!(nls, :neval_hprod)
+  Hv[1] = 2*obj_weight*v[1]
+  Hv[2] = 3*obj_weight*v[2]
+  return Hv
+end
+
+function NLPModels.hprod!(nls :: LLS, x :: AbstractVector{T}, y :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=one(T)) where T
+  @lencheck 2 x v Hv
+  increment!(nls, :neval_hprod)
+  Hv[1] = 2*obj_weight*v[1]
+  Hv[2] = 3*obj_weight*v[2]
+  return Hv
+end

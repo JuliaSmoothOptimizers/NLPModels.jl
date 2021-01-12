@@ -163,3 +163,68 @@ function NLPModels.jtprod!(nls :: NLSLC, x :: AbstractVector, v :: AbstractVecto
   Jtv[15] = 15 * v[1]
   return Jtv
 end
+
+function NLPModels.hess(nls :: NLSLC, x :: AbstractVector{T}; obj_weight=1.0) where T
+  @lencheck 15 x
+  increment!(nls, :neval_hess)
+  return obj_weight * diagm(0 => [6*x[i]^2-2*i^2 for i=1:15])
+end
+
+function NLPModels.hess(nls :: NLSLC, x :: AbstractVector{T}, y :: AbstractVector{T}; obj_weight=1.0) where T
+  @lencheck 15 x
+  @lencheck 11 y
+  increment!(nls, :neval_hess)
+  return hess(nls, x, obj_weight=obj_weight)
+end
+
+function NLPModels.hess_structure!(nls :: NLSLC, rows :: AbstractVector{Int}, cols :: AbstractVector{Int})
+  @lencheck 120 rows cols
+  n = nls.meta.nvar
+  I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
+  rows .= getindex.(I, 1)
+  cols .= getindex.(I, 2)
+  return rows, cols
+end
+
+function NLPModels.hess_coord!(nls :: NLSLC, x :: AbstractVector, vals :: AbstractVector; obj_weight=1.0)
+  @lencheck 15 x
+  @lencheck 120 vals
+  Hx = hess(nls, x, obj_weight=obj_weight)
+  k = 1
+  for j = 1:15
+    for i = j:15
+      vals[k] = Hx[i,j]
+      k += 1
+    end
+  end
+  return vals
+end
+
+function NLPModels.hess_coord!(nls :: NLSLC, x :: AbstractVector, y :: AbstractVector, vals :: AbstractVector; obj_weight=1.0)
+  @lencheck 15 x
+  @lencheck 11 y
+  @lencheck 120 vals
+  Hx = hess(nls, x, y, obj_weight=obj_weight)
+  k = 1
+  for j = 1:15
+    for i = j:15
+      vals[k] = Hx[i,j]
+      k += 1
+    end
+  end
+  return vals
+end
+
+function NLPModels.hprod!(nls :: NLSLC, x :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=one(T)) where T
+  @lencheck 15 x v Hv
+  increment!(nls, :neval_hprod)
+  Hv .= obj_weight * [(6*x[i]^2-2*i^2)*v[i] for i=1:15]
+  return Hv
+end
+
+function NLPModels.hprod!(nls :: NLSLC, x :: AbstractVector{T}, y :: AbstractVector{T}, v :: AbstractVector{T}, Hv :: AbstractVector{T}; obj_weight=one(T)) where T
+  @lencheck 15 x v Hv
+  @lencheck 11 y
+  increment!(nls, :neval_hprod)
+  return hprod!(nls, x, v, Hv, obj_weight=obj_weight)
+end
