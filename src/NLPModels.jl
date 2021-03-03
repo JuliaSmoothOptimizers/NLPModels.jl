@@ -427,12 +427,22 @@ end
 
 function jth_hprod! end
 
+"""
+   gHv = ghjvprod(nlp, x, g, v)
+
+Return the vector whose i-th component is gᵀ ∇²cᵢ(x) v.
+"""
 function ghjvprod(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector, v::AbstractVector)
   @lencheck nlp.meta.nvar x g v
   gHv = Vector{eltype(x)}(undef, nlp.meta.ncon)
   return ghjvprod!(nlp, x, g, v, gHv)
 end
 
+"""
+   ghjvprod!(nlp, x, g, v, gHv)
+
+Return the vector whose i-th component is gᵀ ∇²cᵢ(x) v in place.
+"""
 function ghjvprod! end
 
 """

@@ -192,3 +192,13 @@ function NLPModels.hprod!(nls :: NLSHS20, x :: AbstractVector{T}, y :: AbstractV
   Hv .= [obj_weight*(T(1)-200*x[2]+600*x[1]^2)+2*y[2]+2*y[3] -obj_weight*200*x[1];-obj_weight*200*x[1] obj_weight*T(100)+2*y[1]+2*y[3]] * v
   return Hv
 end
+
+function NLPModels.ghjvprod!(nls :: NLSHS20, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
+  @lencheck nls.meta.nvar x g v
+  @lencheck nls.meta.ncon gHv
+  increment!(nls, :neval_hprod)
+  gHv[1] = g[2] * 2v[2]
+  gHv[2] = g[1] * 2v[1]
+  gHv[3] = g[1] * 2v[1] + g[2] * 2v[2]
+  return gHv
+end

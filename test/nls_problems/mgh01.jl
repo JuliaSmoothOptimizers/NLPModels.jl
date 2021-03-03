@@ -191,3 +191,11 @@ function NLPModels.hprod!(nls :: MGH01Feas, x :: AbstractVector, y :: AbstractVe
   Hv .= [-20y[2] * v[1]; 0]
   return Hv
 end
+
+function NLPModels.ghjvprod!(nls :: MGH01Feas, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
+  @lencheck nls.meta.nvar x g v
+  @lencheck nls.meta.ncon gHv
+  increment!(nls, :neval_hprod)
+  gHv .= [T(0); - g[1] * 20v[1]]
+  return gHv
+end

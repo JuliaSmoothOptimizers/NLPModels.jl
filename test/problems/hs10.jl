@@ -106,3 +106,11 @@ function NLPModels.jtprod!(nlp :: HS10, x :: AbstractVector, v :: AbstractVector
   Jtv .= [-6 * x[1] + 2 * x[2];  2 * x[1] - 2 * x[2]] * v[1]
   return Jtv
 end
+
+function NLPModels.ghjvprod!(nlp :: HS10, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector) 
+  @lencheck nlp.meta.nvar x g v
+  @lencheck nlp.meta.ncon gHv
+  increment!(nlp, :neval_hprod)
+  gHv .= [g[1] * (-6 * v[1] + 2 * v[2]) + g[2] * (2 * v[1] - 2 * v[2])]
+  return gHv
+end

@@ -42,7 +42,7 @@ NLPModels instances.
 | ``\nabla^2 f(x)``   | [`hess`](@ref), [`hess_op`](@ref), [`hess_op!`](@ref), [`hess_coord`](@ref), [`hess_coord`](@ref), [`hess_structure`](@ref), [`hess_structure!`](@ref), [`hprod`](@ref), [`hprod!`](@ref) |
 | ``c(x)``            | [`cons`](@ref), [`cons!`](@ref), [`objcons`](@ref), [`objcons!`](@ref) |
 | ``J(x)``            | [`jac`](@ref), [`jac_op`](@ref), [`jac_op!`](@ref), [`jac_coord`](@ref), [`jac_coord!`](@ref), [`jac_structure`](@ref), [`jprod`](@ref), [`jprod!`](@ref), [`jtprod`](@ref), [`jtprod!`](@ref) |
-| ``\nabla^2 L(x,y)`` | [`hess`](@ref), [`hess_op`](@ref), [`hess_coord`](@ref), [`hess_coord!`](@ref), [`hess_structure`](@ref), [`hess_structure!`](@ref), [`hprod`](@ref), [`hprod!`](@ref) |
+| ``\nabla^2 L(x,y)`` | [`hess`](@ref), [`hess_op`](@ref), [`hess_coord`](@ref), [`hess_coord!`](@ref), [`hess_structure`](@ref), [`hess_structure!`](@ref), [`hprod`](@ref), [`hprod!`](@ref), [`ghjvprod`](@ref), [`ghjvprod!`](@ref)  |
 
 ## [API for NLSModels](@id nls-api)
 
@@ -83,6 +83,8 @@ jprod
 jprod!
 jtprod
 jtprod!
+ghjvprod
+ghjvprod!
 hess_coord
 hess_coord!
 hess_structure
