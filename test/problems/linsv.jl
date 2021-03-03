@@ -104,3 +104,11 @@ function NLPModels.jtprod!(nlp :: LINSV, x :: AbstractVector, v :: AbstractVecto
   Jtv[2] = v[1] + v[2]
   return Jtv
 end
+
+function NLPModels.ghjvprod!(nlp :: LINSV, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
+  @lencheck nlp.meta.nvar x g v
+  @lencheck nlp.meta.ncon gHv
+  increment!(nlp, :neval_hprod)
+  gHv .= zeros(T, nlp.meta.ncon)
+  return gHv
+end

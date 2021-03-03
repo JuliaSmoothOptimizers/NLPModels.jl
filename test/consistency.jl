@@ -381,6 +381,18 @@ function consistent_functions(nlps; rtol=1.0e-8, exclude=[])
         end
       end
     end
+
+    g = 0.707 * ones(n)
+
+    if !(ghjvprod in exclude)
+        Ls = Any[ghjvprod(nlp, x, g, v) for nlp in nlps]
+        Lmin = minimum(map(norm, Ls))
+        for i = 1:N
+          for j = i+1:N
+            @test isapprox(Ls[i], Ls[j], atol=rtol * max(Lmin, 1.0))
+          end
+        end
+    end
   end
 
 end
@@ -404,7 +416,7 @@ function consistent_nlps(nlps; rtol=1.0e-8)
   # Test Quasi-Newton models
   qnmodels = [[LBFGSModel(nlp) for nlp in nlps];
               [LSR1Model(nlp) for nlp in nlps]]
-  consistent_functions([nlps; qnmodels], exclude=[hess, hess_coord, hprod])
+  consistent_functions([nlps; qnmodels], exclude=[hess, hess_coord, hprod, ghjvprod])
   consistent_counters([nlps; qnmodels])
 
   # If there are inequalities, test the SlackModels of each of these models

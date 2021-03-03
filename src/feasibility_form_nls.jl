@@ -290,6 +290,20 @@ function hprod!(nlp :: FeasibilityFormNLS, xr :: AbstractVector, y :: AbstractVe
   return hv
 end
 
+function ghjvprod!(nlp :: FeasibilityFormNLS, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector) 
+  @lencheck nlp.meta.nvar x g v
+  @lencheck nlp.meta.ncon gHv
+  increment!(nlp, :neval_hprod)
+  n, m, ne = nlp.internal.meta.nvar, nlp.internal.meta.ncon, nlp.internal.nls_meta.nequ
+  IF = 1:ne
+  Ic = ne+1:ne+m
+  gHv[IF] .= [dot(g[1:n], hprod_residual(nlp.internal, x[1:n], j, v[1:n])) for j in IF]  
+  if m > 0
+    @views ghjvprod!(nlp.internal, x[1:n], g[1:n], v[1:n], gHv[Ic])
+  end
+  return gHv
+end
+
 function residual!(nlp :: FeasibilityFormNLS, x :: AbstractVector, Fx :: AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.nls_meta.nequ Fx

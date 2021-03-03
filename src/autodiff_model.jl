@@ -241,3 +241,11 @@ function hprod!(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector, v :
   Hv .= ForwardDiff.derivative(t -> ForwardDiff.gradient(ℓ, x + t * v), 0)
   return Hv
 end
+
+function ghjvprod!(nlp :: ADNLPModel, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector) 
+  @lencheck nlp.meta.nvar x g v
+  @lencheck nlp.meta.ncon gHv
+  increment!(nlp, :neval_hprod)
+  gHv .= ForwardDiff.derivative(t -> ForwardDiff.derivative(s -> nlp.c(x + s * g + t * v), 0), 0)
+  return gHv
+end

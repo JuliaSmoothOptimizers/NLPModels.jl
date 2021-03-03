@@ -145,3 +145,11 @@ function NLPModels.jtprod!(nlp :: LINCON, x :: AbstractVector, v :: AbstractVect
   Jtv[15] = 15 * v[1]
   return Jtv
 end
+
+function NLPModels.ghjvprod!(nlp :: LINCON, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
+  @lencheck nlp.meta.nvar x g v
+  @lencheck nlp.meta.ncon gHv
+  increment!(nlp, :neval_hprod)
+  gHv .= zeros(T, nlp.meta.ncon)
+  return gHv
+end

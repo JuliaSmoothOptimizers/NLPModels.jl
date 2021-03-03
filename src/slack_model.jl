@@ -323,6 +323,13 @@ function hprod!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector, v 
   return hv
 end
 
+function ghjvprod!(nlp :: SlackModels, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector) 
+  @lencheck nlp.meta.nvar x g v
+  @lencheck nlp.meta.ncon gHv
+  n = nlp.model.meta.nvar
+  return ghjvprod!(nlp.model, view(x, 1:n), view(g, 1:n), view(v, 1:n), gHv)
+end
+
 function residual!(nls :: SlackNLSModel, x :: AbstractVector, Fx :: AbstractVector)
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nequ Fx

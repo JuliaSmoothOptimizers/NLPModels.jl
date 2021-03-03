@@ -172,3 +172,11 @@ function NLPModels.hprod!(nls :: LLS, x :: AbstractVector{T}, y :: AbstractVecto
   Hv[2] = 3*obj_weight*v[2]
   return Hv
 end
+
+function NLPModels.ghjvprod!(nls :: LLS, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
+  @lencheck nls.meta.nvar x g v
+  @lencheck nls.meta.ncon gHv
+  increment!(nls, :neval_hprod)
+  gHv .= zeros(T, nls.meta.ncon)
+  return gHv
+end
