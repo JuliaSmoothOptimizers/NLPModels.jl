@@ -146,6 +146,23 @@ function NLPModels.jtprod!(nlp :: LINCON, x :: AbstractVector, v :: AbstractVect
   return Jtv
 end
 
+function NLPModels.jth_hprod!(nlp :: LINCON, x :: AbstractVector{T}, v :: AbstractVector{T}, j :: Integer, Hv :: AbstractVector{T}) where T
+  @lencheck 15 x v Hv
+  @assert 1 ≤ j ≤ 11
+  increment!(nlp, :neval_jhprod)
+  Hv .= zeros(T, 15)
+  return Hv
+end
+
+function NLPModels.jth_hess_coord!(nlp :: LINCON, x :: AbstractVector{T}, j :: Integer, vals :: AbstractVector{T}) where T
+  @lencheck 15 vals
+  @lencheck 15 x
+  @assert 1 ≤ j ≤ 11
+  increment!(nlp, :neval_jhess)
+  vals .= zeros(T, 15)
+  return vals
+end
+
 function NLPModels.ghjvprod!(nlp :: LINCON, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
   @lencheck nlp.meta.nvar x g v
   @lencheck nlp.meta.ncon gHv

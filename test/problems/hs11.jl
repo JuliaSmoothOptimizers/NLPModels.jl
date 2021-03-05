@@ -105,6 +105,24 @@ function NLPModels.jtprod!(nlp :: HS11, x :: AbstractVector, v :: AbstractVector
   return Jtv
 end
 
+function NLPModels.jth_hprod!(nlp :: HS11, x :: AbstractVector{T}, v :: AbstractVector{T}, j :: Integer, Hv :: AbstractVector{T}) where T
+  @lencheck 2 x v Hv
+  @assert 1 ≤ j ≤ 1
+  increment!(nlp, :neval_jhprod)
+  Hv .= [-2v[1]; T(0)]
+  return Hv
+end
+
+function NLPModels.jth_hess_coord!(nlp :: HS11, x :: AbstractVector{T}, j :: Integer, vals :: AbstractVector{T}) where T
+  @lencheck 2 vals
+  @lencheck 2 x
+  @assert 1 ≤ j ≤ 1
+  increment!(nlp, :neval_jhess)
+  vals[1] = T(-2)
+  vals[2] = T(0)
+  return vals
+end
+
 function NLPModels.ghjvprod!(nlp :: HS11, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector) 
   @lencheck nlp.meta.nvar x g v
   @lencheck nlp.meta.ncon gHv

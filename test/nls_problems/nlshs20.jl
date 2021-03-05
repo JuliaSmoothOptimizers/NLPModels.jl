@@ -193,6 +193,35 @@ function NLPModels.hprod!(nls :: NLSHS20, x :: AbstractVector{T}, y :: AbstractV
   return Hv
 end
 
+function NLPModels.jth_hprod!(nls :: NLSHS20, x :: AbstractVector{T}, v :: AbstractVector{T}, j :: Integer, Hv :: AbstractVector{T}) where T
+  @lencheck 2 x v Hv
+  @assert 1 ≤ j ≤ 3
+  increment!(nls, :neval_jhprod)
+  if j == 1 
+      Hv .= [T(0) T(0);T(0) 2] * v
+  elseif j == 2
+      Hv .= [2 T(0);T(0) T(0)] * v
+  elseif j == 3
+      Hv .= [2 T(0);T(0) 2] * v
+  end
+  return Hv
+end
+
+function NLPModels.jth_hess_coord!(nls :: NLSHS20, x :: AbstractVector{T}, j :: Integer, vals :: AbstractVector{T}) where T
+  @lencheck 3 vals
+  @lencheck 2 x
+  @assert 1 ≤ j ≤ 3
+  increment!(nls, :neval_jhess)
+  if j == 1 
+      vals .= [T(0); T(0); T(2)]
+  elseif j == 2
+      vals .= [T(2); T(0); T(0)]
+  elseif j == 3
+      vals .= [T(2); T(0); T(2)]
+  end
+  return vals
+end
+
 function NLPModels.ghjvprod!(nls :: NLSHS20, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
   @lencheck nls.meta.nvar x g v
   @lencheck nls.meta.ncon gHv

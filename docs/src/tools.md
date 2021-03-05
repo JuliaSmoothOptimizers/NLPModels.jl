@@ -31,6 +31,7 @@ least squares models.
 | [`neval_jtprod`](@ref)          | Product of transposed Jacobian and vector |
 | [`neval_hess`](@ref)            | Hessian |
 | [`neval_hprod`](@ref)           | Product of Hessian and vector |
+| [`neval_jhess`](@ref)           | Individual Lagrangian Hessian evaluations |
 | [`neval_jhprod`](@ref)          | Product of Hessian of j-th function and vector |
 | [`neval_residual`](@ref)        | Residual function of nonlinear least squares model |
 | [`neval_jac_residual`](@ref)    | Jacobian of the residual |
@@ -79,6 +80,7 @@ neval_jprod
 neval_jtprod
 neval_hess
 neval_hprod
+neval_jhess
 neval_jhprod
 neval_residual
 neval_jac_residual
