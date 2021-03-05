@@ -30,10 +30,10 @@ function multiple_precision(nlp :: AbstractNLPModel;
       @test eltype(vals) == T
       Hv = zeros(T, nlp.meta.nvar)
       @test eltype(hess_op!(nlp, rows, cols, vals, Hv)) == T
-      @test eltype(jth_hprod!(nlp, x, x, nlp.meta.ncon, Hv)) == T
-      @test eltype(jth_hprod(nlp, x, x, nlp.meta.ncon)) == T
       @test eltype(jth_hess(nlp, x, nlp.meta.ncon)) == T
       @test eltype(jth_hess_coord(nlp, x, nlp.meta.ncon)) == T
+      @test eltype(jth_hprod!(nlp, x, x, nlp.meta.ncon, Hv)) == T
+      @test eltype(jth_hprod(nlp, x, x, nlp.meta.ncon)) == T
       @test eltype(ghjvprod(nlp, x, x, x)) == T
     end
     @info "    $T ✓ "

@@ -43,8 +43,9 @@ end
 for meth in [:jprod!, :jtprod!]
   @eval @test_throws(MethodError, $meth(model, [0.0], [1.0], [2.0]))
 end
-@test_throws(MethodError, jth_hprod(model, [0.0], [1.0], 2))
+@test_throws(AssertionError, jth_hprod(model, [0.0], [1.0], 2))
 @test_throws(MethodError, jth_hprod!(model, [0.0], [1.0], 2, [3.0]))
+@test_throws(AssertionError, jth_hess(model, [0.0], 2))
 for meth in [:ghjvprod!]
   @eval @test_throws(MethodError, $meth(model, [0.0], [1.0], [2.0], [3.0]))
 end
@@ -120,7 +121,13 @@ for problem in nls_problems
     show(nls)
   end
 
-  consistent_nlss(nlss)
+  if true in (typeof.(nlss) .== LLSModel) #hessians not implemented for LLS
+    consistent_nlss(nlss, exclude=[hess, hess_coord, jth_hess, jth_hess_coord, jth_hprod])
+  elseif true in (typeof.(nlss) .== FeasibilityResidual) #hessian structure and coord not implemented for FeasibilityResidual
+    consistent_nlss(nlss, exclude=[hess_coord, jth_hess_coord])
+  else
+    consistent_nlss(nlss, exclude=[])
+  end
   @info "  Consistency checks ✓"
 
   for nls in nlss ∪ SlackNLSModel.(nlss) ∪ FeasibilityFormNLS.(nlss)
