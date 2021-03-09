@@ -91,7 +91,7 @@ function LLSModel(Arows :: AbstractVector{<: Integer},
   return LLSModel(meta, nls_meta, NLSCounters(), Arows, Acols, Avals, b, Crows, Ccols, Cvals)
 end
 
-function residual!(nls :: LLSModel, x :: AbstractVector, Fx :: AbstractVector)
+function NLPModelsCore.residual!(nls :: LLSModel, x :: AbstractVector, Fx :: AbstractVector)
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nequ Fx
   increment!(nls, :neval_residual)
@@ -100,7 +100,7 @@ function residual!(nls :: LLSModel, x :: AbstractVector, Fx :: AbstractVector)
   return Fx
 end
 
-function jac_structure_residual!(nls :: LLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+function NLPModelsCore.jac_structure_residual!(nls :: LLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   @lencheck nls.nls_meta.nnzj rows
   @lencheck nls.nls_meta.nnzj cols
   rows .= nls.Arows
@@ -108,7 +108,7 @@ function jac_structure_residual!(nls :: LLSModel, rows :: AbstractVector{<: Inte
   return rows, cols
 end
 
-function jac_coord_residual!(nls :: LLSModel, x :: AbstractVector, vals :: AbstractVector)
+function NLPModelsCore.jac_coord_residual!(nls :: LLSModel, x :: AbstractVector, vals :: AbstractVector)
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nnzj vals
   increment!(nls, :neval_jac_residual)
@@ -116,7 +116,7 @@ function jac_coord_residual!(nls :: LLSModel, x :: AbstractVector, vals :: Abstr
   return vals
 end
 
-function jprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
+function NLPModelsCore.jprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   @lencheck nls.meta.nvar x
   @lencheck nls.meta.nvar v
   @lencheck nls.nls_meta.nequ Jv
@@ -125,7 +125,7 @@ function jprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVect
   return Jv
 end
 
-function jtprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
+function NLPModelsCore.jtprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nequ v
   @lencheck nls.meta.nvar Jtv
@@ -134,7 +134,7 @@ function jtprod_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVec
   return Jtv
 end
 
-function hess_residual(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector)
+function NLPModelsCore.hess_residual(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector)
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nequ v
   increment!(nls, :neval_hess_residual)
@@ -142,13 +142,13 @@ function hess_residual(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector
   return spzeros(n, n)
 end
 
-function hess_structure_residual!(nls :: LLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+function NLPModelsCore.hess_structure_residual!(nls :: LLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   @lencheck 0 rows
   @lencheck 0 cols
   return rows, cols
 end
 
-function hess_coord_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, vals :: AbstractVector)
+function NLPModelsCore.hess_coord_residual!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, vals :: AbstractVector)
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nequ v
   @lencheck 0 vals
@@ -156,21 +156,21 @@ function hess_coord_residual!(nls :: LLSModel, x :: AbstractVector, v :: Abstrac
   return vals
 end
 
-function jth_hess_residual(nls :: LLSModel, x :: AbstractVector, i :: Int)
+function NLPModelsCore.jth_hess_residual(nls :: LLSModel, x :: AbstractVector, i :: Int)
   @lencheck nls.meta.nvar x
   increment!(nls, :neval_jhess_residual)
   n = nls.meta.nvar
   return spzeros(n, n)
 end
 
-function hprod_residual!(nls :: LLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
+function NLPModelsCore.hprod_residual!(nls :: LLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hiv :: AbstractVector)
   @lencheck nls.meta.nvar x v Hiv
   increment!(nls, :neval_hprod_residual)
   fill!(Hiv, zero(eltype(x)))
   return Hiv
 end
 
-function cons!(nls :: LLSModel, x :: AbstractVector, c :: AbstractVector)
+function NLPModelsCore.cons!(nls :: LLSModel, x :: AbstractVector, c :: AbstractVector)
   @lencheck nls.meta.nvar x
   @lencheck nls.meta.ncon c
   increment!(nls, :neval_cons)
@@ -178,14 +178,14 @@ function cons!(nls :: LLSModel, x :: AbstractVector, c :: AbstractVector)
   return c
 end
 
-function jac_structure!(nls :: LLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+function NLPModelsCore.jac_structure!(nls :: LLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   @lencheck nls.meta.nnzj rows cols
   rows .= nls.Crows
   cols .= nls.Ccols
   return rows, cols
 end
 
-function jac_coord!(nls :: LLSModel, x :: AbstractVector, vals :: AbstractVector)
+function NLPModelsCore.jac_coord!(nls :: LLSModel, x :: AbstractVector, vals :: AbstractVector)
   @lencheck nls.meta.nvar x
   @lencheck nls.meta.nnzj vals
   increment!(nls, :neval_jac)
@@ -193,7 +193,7 @@ function jac_coord!(nls :: LLSModel, x :: AbstractVector, vals :: AbstractVector
   return vals
 end
 
-function jprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
+function NLPModelsCore.jprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   @lencheck nls.meta.nvar x v
   @lencheck nls.meta.ncon Jv
   increment!(nls, :neval_jprod)
@@ -201,7 +201,7 @@ function jprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jv ::
   return Jv
 end
 
-function jtprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
+function NLPModelsCore.jtprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   @lencheck nls.meta.nvar x Jtv
   @lencheck nls.meta.ncon v
   increment!(nls, :neval_jtprod)
@@ -209,7 +209,7 @@ function jtprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Jtv 
   return Jtv
 end
 
-function hprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight = 1.0)
+function NLPModelsCore.hprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight = 1.0)
   @lencheck nls.meta.nvar x v Hv
   increment!(nls, :neval_hprod)
   Av = zeros(nls.nls_meta.nequ)
@@ -219,7 +219,7 @@ function hprod!(nls :: LLSModel, x :: AbstractVector, v :: AbstractVector, Hv ::
   return Hv
 end
 
-function hprod!(nls :: LLSModel, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight = 1.0)
+function NLPModelsCore.hprod!(nls :: LLSModel, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight = 1.0)
   @lencheck nls.meta.nvar x v Hv
   @lencheck nls.meta.ncon y
   hprod!(nls, x, v, Hv, obj_weight=obj_weight)

@@ -1,21 +1,21 @@
 @testset "Slack model tests" begin
   # an unconstrained problem should be returned unchanged
   @printf("Checking slack formulation of genrose\t")
-  model = genrose_autodiff()
+  model = GENROSE_autodiff()
   smodel = SlackModel(model)
   @test smodel == model
   @printf("✓\n")
 
   # a bound-constrained problem should be returned unchanged
-  @printf("Checking slack formulation of hs5\t")
-  model = hs5_autodiff()
+  @printf("Checking slack formulation of HS5\t")
+  model = HS5_autodiff()
   smodel = SlackModel(model)
   @test smodel == model
   @printf("✓\n")
 
   # an equality-constrained problem should be returned unchanged
-  @printf("Checking slack formulation of hs6\t")
-  model = hs6_autodiff()
+  @printf("Checking slack formulation of HS6\t")
+  model = HS6_autodiff()
   smodel = SlackModel(model)
   @test smodel == model
   @printf("✓\n")
@@ -103,7 +103,7 @@
     reset!(smodel)
   end
 
-  for problem in ["hs10", "hs11", "hs14", "lincon", "linsv"]
+  for problem in ["HS10", "HS11", "HS14", "LINCON", "LINSV"]
     @printf("Checking slack formulation of %-8s\t", problem)
     problem_f = eval(Symbol(problem * "_autodiff"))
     nlp = problem_f()

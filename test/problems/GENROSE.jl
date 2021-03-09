@@ -37,7 +37,7 @@
 # D. Orban, Montreal, 08/2015.
 
 "Generalized Rosenbrock model in size `n`"
-function genrose_autodiff(n :: Int=500)
+function GENROSE_autodiff(n :: Int=500)
 
   n < 2 && error("genrose: number of variables must be ≥ 2")
 
@@ -50,5 +50,5 @@ function genrose_autodiff(n :: Int=500)
     return s
   end
 
-  return ADNLPModel(f, x0, name="genrose_autodiff")
+  return ADNLPModel(f, x0, name="GENROSE_autodiff")
 end

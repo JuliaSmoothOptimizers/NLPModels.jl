@@ -43,7 +43,7 @@ function check_qn_model(qnmodel)
   reset!(qnmodel)
 end
 
-for problem in ["hs10", "hs11", "hs14", "lincon", "linsv"]
+for problem in ["HS10", "HS11", "HS14", "LINCON", "LINSV"]
   problem_f = eval(Symbol(problem * "_autodiff"))
   nlp = problem_f()
   @printf("Checking LBFGS formulation of %-8s\t", problem)

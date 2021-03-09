@@ -64,7 +64,7 @@ end
 function ADNLPModel(f, x0::AbstractVector{T}, c, lcon::AbstractVector, ucon::AbstractVector;
                     y0::AbstractVector=fill!(similar(lcon), zero(T)),
                     name::String = "Generic", lin::AbstractVector{<: Integer}=Int[]) where T
-  
+
   nvar = length(x0)
   ncon = length(lcon)
   @lencheck nvar x0
@@ -103,20 +103,20 @@ function ADNLPModel(f, x0::AbstractVector{T}, lvar::AbstractVector, uvar::Abstra
   return ADNLPModel(meta, Counters(), f, c)
 end
 
-function obj(nlp :: ADNLPModel, x :: AbstractVector)
+function NLPModelsCore.obj(nlp :: ADNLPModel, x :: AbstractVector)
   @lencheck nlp.meta.nvar x
   increment!(nlp, :neval_obj)
   return nlp.f(x)
 end
 
-function grad!(nlp :: ADNLPModel, x :: AbstractVector, g :: AbstractVector)
+function NLPModelsCore.grad!(nlp :: ADNLPModel, x :: AbstractVector, g :: AbstractVector)
   @lencheck nlp.meta.nvar x g
   increment!(nlp, :neval_grad)
   ForwardDiff.gradient!(g, nlp.f, x)
   return g
 end
 
-function cons!(nlp :: ADNLPModel, x :: AbstractVector, c :: AbstractVector)
+function NLPModelsCore.cons!(nlp :: ADNLPModel, x :: AbstractVector, c :: AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon c
   increment!(nlp, :neval_cons)
@@ -124,13 +124,13 @@ function cons!(nlp :: ADNLPModel, x :: AbstractVector, c :: AbstractVector)
   return c
 end
 
-function jac(nlp :: ADNLPModel, x :: AbstractVector)
+function NLPModelsCore.jac(nlp :: ADNLPModel, x :: AbstractVector)
   @lencheck nlp.meta.nvar x
   increment!(nlp, :neval_jac)
   return ForwardDiff.jacobian(nlp.c, x)
 end
 
-function jac_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+function NLPModelsCore.jac_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   @lencheck nlp.meta.nnzj rows cols
   m, n = nlp.meta.ncon, nlp.meta.nvar
   I = ((i,j) for i = 1:m, j = 1:n)
@@ -139,7 +139,7 @@ function jac_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, c
   return rows, cols
 end
 
-function jac_coord!(nlp :: ADNLPModel, x :: AbstractVector, vals :: AbstractVector)
+function NLPModelsCore.jac_coord!(nlp :: ADNLPModel, x :: AbstractVector, vals :: AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nnzj vals
   increment!(nlp, :neval_jac)
@@ -148,7 +148,7 @@ function jac_coord!(nlp :: ADNLPModel, x :: AbstractVector, vals :: AbstractVect
   return vals
 end
 
-function jprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
+function NLPModelsCore.jprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   @lencheck nlp.meta.nvar x v
   @lencheck nlp.meta.ncon Jv
   increment!(nlp, :neval_jprod)
@@ -156,7 +156,7 @@ function jprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jv 
   return Jv
 end
 
-function jtprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
+function NLPModelsCore.jtprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   @lencheck nlp.meta.nvar x Jtv
   @lencheck nlp.meta.ncon v
   increment!(nlp, :neval_jtprod)
@@ -164,7 +164,7 @@ function jtprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Jt
   return Jtv
 end
 
-function hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)))
+function NLPModelsCore.hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   @lencheck nlp.meta.nvar x
   increment!(nlp, :neval_hess)
   ℓ(x) = obj_weight * nlp.f(x)
@@ -172,7 +172,7 @@ function hess(nlp :: ADNLPModel, x :: AbstractVector; obj_weight :: Real = one(e
   return tril(Hx)
 end
 
-function hess(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector; obj_weight :: Real = one(eltype(x)))
+function NLPModelsCore.hess(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
   increment!(nlp, :neval_hess)
@@ -181,7 +181,7 @@ function hess(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector; obj_w
   return tril(Hx)
 end
 
-function hess_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+function NLPModelsCore.hess_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   n = nlp.meta.nvar
   @lencheck nlp.meta.nnzh rows cols
   I = ((i,j) for i = 1:n, j = 1:n if i ≥ j)
@@ -190,7 +190,7 @@ function hess_structure!(nlp :: ADNLPModel, rows :: AbstractVector{<: Integer}, 
   return rows, cols
 end
 
-function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)))
+function NLPModelsCore.hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nnzh vals
   increment!(nlp, :neval_hess)
@@ -206,7 +206,7 @@ function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, vals :: AbstractVec
   return vals
 end
 
-function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)))
+function NLPModelsCore.hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector, vals :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
   @lencheck nlp.meta.nnzh vals
@@ -223,7 +223,7 @@ function hess_coord!(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector
   return vals
 end
 
-function hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight :: Real = one(eltype(x)))
+function NLPModelsCore.hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   n = nlp.meta.nvar
   @lencheck n x v Hv
   increment!(nlp, :neval_hprod)
@@ -232,7 +232,7 @@ function hprod!(nlp :: ADNLPModel, x :: AbstractVector, v :: AbstractVector, Hv 
   return Hv
 end
 
-function hprod!(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight :: Real = one(eltype(x)))
+function NLPModelsCore.hprod!(nlp :: ADNLPModel, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, Hv :: AbstractVector; obj_weight :: Real = one(eltype(x)))
   n = nlp.meta.nvar
   @lencheck n x v Hv
   @lencheck nlp.meta.ncon y

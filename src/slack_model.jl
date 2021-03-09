@@ -1,6 +1,5 @@
 export SlackModel, SlackNLSModel
 
-
 @doc raw"""A model whose only inequality constraints are bounds.
 
 Given a model, this type represents a second model in which slack variables are
@@ -50,9 +49,9 @@ mutable struct SlackModel <: AbstractNLPModel
   model :: AbstractNLPModel
 end
 
-show_header(io :: IO, nlp :: SlackModel) = println(io, "SlackModel - Model with slack variables")
+NLPModelsCore.show_header(io :: IO, nlp :: SlackModel) = println(io, "SlackModel - Model with slack variables")
 
-function show(io :: IO, nlp :: SlackModel)
+function Base.show(io :: IO, nlp :: SlackModel)
   show_header(io, nlp)
   show(io, nlp.meta)
   show(io, nlp.model.counters)
@@ -66,9 +65,9 @@ mutable struct SlackNLSModel <: AbstractNLSModel
   model :: AbstractNLPModel
 end
 
-show_header(io :: IO, nls :: SlackNLSModel) = println(io, "SlackNLSModel - Nonlinear least-squares model with slack variables")
+NLPModelsCore.show_header(io :: IO, nls :: SlackNLSModel) = println(io, "SlackNLSModel - Nonlinear least-squares model with slack variables")
 
-function show(io :: IO, nls :: SlackNLSModel)
+function Base.show(io :: IO, nls :: SlackNLSModel)
   show_header(io, nls)
   show(io, nls.meta, nls.nls_meta)
   show(io, nls.model.counters)
@@ -108,7 +107,7 @@ end
 
 "Construct a `SlackModel` from another type of model."
 function SlackModel(model :: AbstractNLPModel; name=model.meta.name * "-slack")
-  model.meta.ncon == length(model.meta.jfix) && return model
+  has_inequalities(model) || return model
 
   meta = slack_meta(model.meta, name=name)
 
@@ -144,15 +143,15 @@ const SlackModels = Union{SlackModel,SlackNLSModel}
 @default_counters SlackModels model
 @default_nlscounters SlackNLSModel model
 
-nls_meta(nlp :: SlackNLSModel) = nlp.nls_meta
+NLPModelsCore.nls_meta(nlp :: SlackNLSModel) = nlp.nls_meta
 
-function obj(nlp :: SlackModels, x :: AbstractVector)
+function NLPModelsCore.obj(nlp :: SlackModels, x :: AbstractVector)
   @lencheck nlp.meta.nvar x
   # f(X) = f(x)
   return obj(nlp.model, @view x[1:nlp.model.meta.nvar])
 end
 
-function grad!(nlp :: SlackModels, x :: AbstractVector, g :: AbstractVector)
+function NLPModelsCore.grad!(nlp :: SlackModels, x :: AbstractVector, g :: AbstractVector)
   @lencheck nlp.meta.nvar x g
   # ∇f(X) = [∇f(x) ; 0]
   n = nlp.model.meta.nvar
@@ -162,7 +161,7 @@ function grad!(nlp :: SlackModels, x :: AbstractVector, g :: AbstractVector)
   return g
 end
 
-function objgrad!(nlp :: SlackModels, x :: AbstractVector, g :: AbstractVector)
+function NLPModelsCore.objgrad!(nlp :: SlackModels, x :: AbstractVector, g :: AbstractVector)
   @lencheck nlp.meta.nvar x g
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
@@ -171,7 +170,7 @@ function objgrad!(nlp :: SlackModels, x :: AbstractVector, g :: AbstractVector)
   return f, g
 end
 
-function cons!(nlp :: SlackModels, x :: AbstractVector, c :: AbstractVector)
+function NLPModelsCore.cons!(nlp :: SlackModels, x :: AbstractVector, c :: AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon c
   n = nlp.model.meta.nvar
@@ -188,7 +187,7 @@ function cons!(nlp :: SlackModels, x :: AbstractVector, c :: AbstractVector)
   return c
 end
 
-function jac_structure!(nlp :: SlackModels, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+function NLPModelsCore.jac_structure!(nlp :: SlackModels, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   @lencheck nlp.meta.nnzj rows cols
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
@@ -207,7 +206,7 @@ function jac_structure!(nlp :: SlackModels, rows :: AbstractVector{<: Integer}, 
   return rows, cols
 end
 
-function jac_coord!(nlp :: SlackModels, x :: AbstractVector, vals :: AbstractVector)
+function NLPModelsCore.jac_coord!(nlp :: SlackModels, x :: AbstractVector, vals :: AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nnzj vals
   n = nlp.model.meta.nvar
@@ -217,7 +216,7 @@ function jac_coord!(nlp :: SlackModels, x :: AbstractVector, vals :: AbstractVec
   return vals
 end
 
-function jprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector, jv :: AbstractVector)
+function NLPModelsCore.jprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector, jv :: AbstractVector)
   # J(X) V = [J(x)  -I] [vₓ] = J(x) vₓ - vₛ
   #                     [vₛ]
   @lencheck nlp.meta.nvar x v
@@ -242,7 +241,7 @@ function jprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector, jv
   return jv
 end
 
-function jtprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector, jtv :: AbstractVector)
+function NLPModelsCore.jtprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector, jtv :: AbstractVector)
   # J(X)ᵀ v = [J(x)ᵀ] v = [J(x)ᵀ v]
   #           [ -I  ]     [  -v   ]
   @lencheck nlp.meta.nvar x jtv
@@ -260,12 +259,12 @@ function jtprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector, j
   return jtv
 end
 
-function hess_structure!(nlp :: SlackModels, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+function NLPModelsCore.hess_structure!(nlp :: SlackModels, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   @lencheck nlp.meta.nnzh rows cols
   return hess_structure!(nlp.model, rows, cols)
 end
 
-function hess_coord!(nlp :: SlackModels, x :: AbstractVector, vals :: AbstractVector;
+function NLPModelsCore.hess_coord!(nlp :: SlackModels, x :: AbstractVector, vals :: AbstractVector;
                      obj_weight :: Real=one(eltype(x)))
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nnzh vals
@@ -273,7 +272,7 @@ function hess_coord!(nlp :: SlackModels, x :: AbstractVector, vals :: AbstractVe
   return hess_coord!(nlp.model, view(x, 1:n), vals, obj_weight=obj_weight)
 end
 
-function hess_coord!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector, vals :: AbstractVector;
+function NLPModelsCore.hess_coord!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector, vals :: AbstractVector;
                      obj_weight :: Real=one(eltype(x)))
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
@@ -283,7 +282,7 @@ function hess_coord!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVecto
 end
 
 # Kept in case some model implements `hess` but not `hess_coord/structure`
-function hess(nlp :: SlackModels, x :: AbstractVector{T}; kwargs...) where T
+function NLPModelsCore.hess(nlp :: SlackModels, x :: AbstractVector{T}; kwargs...) where T
   @lencheck nlp.meta.nvar x
   n = nlp.model.meta.nvar
   ns = nlp.meta.nvar - n
@@ -291,7 +290,7 @@ function hess(nlp :: SlackModels, x :: AbstractVector{T}; kwargs...) where T
   return [Hx spzeros(T, n, ns); spzeros(T, ns, n + ns)]
 end
 
-function hess(nlp :: SlackModels, x :: AbstractVector{T}, y :: AbstractVector{T}; kwargs...) where T
+function NLPModelsCore.hess(nlp :: SlackModels, x :: AbstractVector{T}, y :: AbstractVector{T}; kwargs...) where T
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
   n = nlp.model.meta.nvar
@@ -300,7 +299,7 @@ function hess(nlp :: SlackModels, x :: AbstractVector{T}, y :: AbstractVector{T}
   return [Hx spzeros(T, n, ns); spzeros(T, ns, n + ns)]
 end
 
-function hprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector,
+function NLPModelsCore.hprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector,
     hv :: AbstractVector;
     obj_weight :: Real=one(eltype(x)))
   @lencheck nlp.meta.nvar x v hv
@@ -312,7 +311,7 @@ function hprod!(nlp :: SlackModels, x :: AbstractVector, v :: AbstractVector,
   return hv
 end
 
-function hprod!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, hv :: AbstractVector; obj_weight :: Real=one(eltype(x)))
+function NLPModelsCore.hprod!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector, v :: AbstractVector, hv :: AbstractVector; obj_weight :: Real=one(eltype(x)))
   @lencheck nlp.meta.nvar x v hv
   @lencheck nlp.meta.ncon y
   n = nlp.model.meta.nvar
@@ -330,13 +329,13 @@ function ghjvprod!(nlp :: SlackModels, x :: AbstractVector, g :: AbstractVector,
   return ghjvprod!(nlp.model, view(x, 1:n), view(g, 1:n), view(v, 1:n), gHv)
 end
 
-function residual!(nls :: SlackNLSModel, x :: AbstractVector, Fx :: AbstractVector)
+function NLPModelsCore.residual!(nls :: SlackNLSModel, x :: AbstractVector, Fx :: AbstractVector)
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nequ Fx
   return residual!(nls.model, view(x, 1:nls.model.meta.nvar), Fx)
 end
 
-function jac_residual(nls :: SlackNLSModel, x :: AbstractVector{T}) where T
+function NLPModelsCore.jac_residual(nls :: SlackNLSModel, x :: AbstractVector{T}) where T
   @lencheck nls.meta.nvar x
   n = nls.model.meta.nvar
   ns = nls.meta.nvar - n
@@ -349,26 +348,26 @@ function jac_residual(nls :: SlackNLSModel, x :: AbstractVector{T}) where T
   end
 end
 
-function jac_structure_residual!(nls :: SlackNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+function NLPModelsCore.jac_structure_residual!(nls :: SlackNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   @lencheck nls.nls_meta.nnzj rows
   @lencheck nls.nls_meta.nnzj cols
   return jac_structure_residual!(nls.model, rows, cols)
 end
 
-function jac_coord_residual!(nls :: SlackNLSModel, x :: AbstractVector, vals :: AbstractVector)
+function NLPModelsCore.jac_coord_residual!(nls :: SlackNLSModel, x :: AbstractVector, vals :: AbstractVector)
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nnzj vals
   return jac_coord_residual!(nls.model, view(x, 1:nls.model.meta.nvar), vals)
 end
 
-function jprod_residual!(nls :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
+function NLPModelsCore.jprod_residual!(nls :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector, Jv :: AbstractVector)
   @lencheck nls.meta.nvar x v
   @lencheck nls.nls_meta.nequ Jv
   return jprod_residual!(nls.model, view(x, 1:nls.model.meta.nvar),
                          v[1:nls.model.meta.nvar], Jv)
 end
 
-function jtprod_residual!(nls :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
+function NLPModelsCore.jtprod_residual!(nls :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector, Jtv :: AbstractVector)
   @lencheck nls.meta.nvar x Jtv
   @lencheck nls.nls_meta.nequ v
   n = nls.model.meta.nvar
@@ -378,7 +377,7 @@ function jtprod_residual!(nls :: SlackNLSModel, x :: AbstractVector, v :: Abstra
   return Jtv
 end
 
-function jac_op_residual!(nls :: SlackNLSModel, x :: AbstractVector,
+function NLPModelsCore.jac_op_residual!(nls :: SlackNLSModel, x :: AbstractVector,
                           Jv :: AbstractVector, Jtv :: AbstractVector)
   @lencheck nls.meta.nvar x Jtv
   @lencheck nls.nls_meta.nequ Jv
@@ -388,7 +387,7 @@ function jac_op_residual!(nls :: SlackNLSModel, x :: AbstractVector,
                                  false, false, prod, ctprod, ctprod)
 end
 
-function hess_residual(nls :: SlackNLSModel, x :: AbstractVector{T}, v :: AbstractVector{T}) where T
+function NLPModelsCore.hess_residual(nls :: SlackNLSModel, x :: AbstractVector{T}, v :: AbstractVector{T}) where T
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nequ v
   n = nls.model.meta.nvar
@@ -401,19 +400,19 @@ function hess_residual(nls :: SlackNLSModel, x :: AbstractVector{T}, v :: Abstra
   end
 end
 
-function hess_structure_residual!(nls :: SlackNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
+function NLPModelsCore.hess_structure_residual!(nls :: SlackNLSModel, rows :: AbstractVector{<: Integer}, cols :: AbstractVector{<: Integer})
   @lencheck nls.nls_meta.nnzh rows cols
   return hess_structure_residual!(nls.model, rows, cols)
 end
 
-function hess_coord_residual!(nls :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector, vals :: AbstractVector)
+function NLPModelsCore.hess_coord_residual!(nls :: SlackNLSModel, x :: AbstractVector, v :: AbstractVector, vals :: AbstractVector)
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nequ v
   @lencheck nls.nls_meta.nnzh vals
   return hess_coord_residual!(nls.model, view(x, 1:nls.model.meta.nvar), v, vals)
 end
 
-function jth_hess_residual(nls :: SlackNLSModel, x :: AbstractVector{T}, i :: Int) where T
+function NLPModelsCore.jth_hess_residual(nls :: SlackNLSModel, x :: AbstractVector{T}, i :: Int) where T
   @lencheck nls.meta.nvar x
   n = nls.model.meta.nvar
   ns = nls.meta.nvar - n
@@ -425,7 +424,7 @@ function jth_hess_residual(nls :: SlackNLSModel, x :: AbstractVector{T}, i :: In
   end
 end
 
-function hprod_residual!(nls :: SlackNLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hv :: AbstractVector)
+function NLPModelsCore.hprod_residual!(nls :: SlackNLSModel, x :: AbstractVector, i :: Int, v :: AbstractVector, Hv :: AbstractVector)
   @lencheck nls.meta.nvar x v Hv
   n = nls.model.meta.nvar
   ns = nls.meta.nvar - n
@@ -434,7 +433,7 @@ function hprod_residual!(nls :: SlackNLSModel, x :: AbstractVector, i :: Int, v 
   return Hv
 end
 
-function hess_op_residual!(nls :: SlackNLSModel, x :: AbstractVector, i :: Int, Hiv :: AbstractVector)
+function NLPModelsCore.hess_op_residual!(nls :: SlackNLSModel, x :: AbstractVector, i :: Int, Hiv :: AbstractVector)
   @lencheck nls.meta.nvar x Hiv
   prod = @closure v -> hprod_residual!(nls, x, i, v, Hiv)
   return LinearOperator{eltype(x)}(nls_meta(nls).nvar, nls_meta(nls).nvar,
