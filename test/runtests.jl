@@ -25,7 +25,7 @@ print(ADNLPModel(x->0, zeros(10), x->[0.0;0.0;0.0], [0.0;0.0;-Inf],
 mutable struct DummyModel <: AbstractNLPModel
   meta :: NLPModelMeta
 end
-model = DummyModel(NLPModelMeta(1))
+model = DummyModel(NLPModelMeta(1, ncon = 1))
 @test_throws(MethodError, lagscale(model, 1.0))
 for meth in [:obj, :varscale, :conscale]
   @eval @test_throws(MethodError, $meth(model, [0.0]))
@@ -36,15 +36,17 @@ end
 for meth in [:grad!, :cons!, :jac_coord!]
   @eval @test_throws(MethodError, $meth(model, [0.0], [1.0]))
 end
-for meth in [:jth_con, :jth_congrad, :jth_sparse_congrad]
+for meth in [:jth_con, :jth_congrad, :jth_sparse_congrad, :jth_hess_coord, :jth_hess]
   @eval @test_throws(MethodError, $meth(model, [0.0], 1))
 end
-@test_throws(MethodError, jth_congrad!(model, [0.0], 1, [2.0]))
+for meth in [:jth_congrad!, :jth_hess_coord!]
+  @eval @test_throws(MethodError, $meth(model, [0.0], 1, [2.0]))
+end
 for meth in [:jprod!, :jtprod!]
   @eval @test_throws(MethodError, $meth(model, [0.0], [1.0], [2.0]))
 end
-@test_throws(MethodError, jth_hprod(model, [0.0], [1.0], 2))
-@test_throws(MethodError, jth_hprod!(model, [0.0], [1.0], 2, [3.0]))
+@test_throws(MethodError, jth_hprod(model, [0.0], [1.0], 1))
+@test_throws(MethodError, jth_hprod!(model, [0.0], [1.0], 1, [3.0]))
 for meth in [:ghjvprod!]
   @eval @test_throws(MethodError, $meth(model, [0.0], [1.0], [2.0], [3.0]))
 end
