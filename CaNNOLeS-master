@@ -1,6 +1,5 @@
 {
   "tag": "master",
-  "pass": false,
-  "travis_link": "https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl/jobs/734396259",
-  "pr": "308"
+  "pass": true,
+  "pr": "refs/pull/324/merge"
 }
