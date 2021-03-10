@@ -1,6 +1,5 @@
 {
   "tag": "master",
   "pass": false,
-  "travis_link": "---",
   "pr": "refs/pull/324/merge"
 }
