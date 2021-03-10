@@ -89,7 +89,7 @@ for problem in problems
     show(nlp)
   end
 
-  consistent_nlps(nlps)
+  consistent_nlps(nlps, exclude=[])
   @info "  Consistency checks ✓"
 
   for nlp in nlps ∪ SlackModel.(nlps)
