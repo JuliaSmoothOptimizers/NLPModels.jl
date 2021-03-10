@@ -6,16 +6,18 @@ using Git, GitHub, JSON, Pkg
 Read files from breakage-info and publish to the PR
 """
 function test_breakage_deploy()
-  if lowercase(get(ENV, "TRAVIS", "false")) == "false"
-    error("Only run in travis")
+  if get(ENV, "CI", "false") == "false"
+    error("Only run on CI")
   end
   if get(ENV, "GITHUB_AUTH", nothing) === nothing
     error("GITHUB_AUTH not found")
   end
   key = ENV["GITHUB_AUTH"]
-  repo = ENV["TRAVIS_REPO_SLUG"]
+  repo = "JuliaSmoothOptimizers/NLPModels.jl"
   user = split(repo, "/")[1]
   upstream = "https://$user:$key@github.com/$repo"
+  Git.run(`config user.email "abel.s.siqueira@gmail.com"`)
+  Git.run(`config user.name "Abel Soares Siqueira"`)
   Git.run(`remote add upstream $upstream`)
   Git.run(`fetch upstream`)
   Git.run(`checkout -f breakage-info`)
@@ -35,8 +37,7 @@ function test_breakage_deploy()
     for version in ["master", "stable"]
       info = JSON.parse(open("$package-$version"))
       bdg = badge(info["pass"], info["tag"])
-      url = info["travis_link"]
-      output *= "[$bdg]($url) | "
+      output *= "$bdg | "
     end
     output *= "\n"
   end
@@ -44,11 +45,15 @@ function test_breakage_deploy()
   println(output)
 
   myauth = GitHub.authenticate(key)
-  myrepo = GitHub.repo(ENV["TRAVIS_PULL_REQUEST_SLUG"], auth=myauth) # "JuliaSmoothOptimizers/NLPModels.jl"
+  myrepo = GitHub.repo(repo, auth=myauth) # "JuliaSmoothOptimizers/NLPModels.jl"
   prs = pull_requests(myrepo, auth=myauth)
   pr = nothing
+  prnumber = ENV["GITHUB_REF"]
+  println("PR NUMBER: $prnumber")
+  prnumber = split(prnumber, "/")[3]
+
   for p in prs[1]
-    if p.number == Meta.parse(ENV["TRAVIS_PULL_REQUEST"])
+    if p.number == Meta.parse(prnumber)
       pr = p
     end
   end
