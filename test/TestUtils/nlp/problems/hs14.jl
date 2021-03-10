@@ -1,4 +1,5 @@
-#Problem 14 in the Hock-Schittkowski suite
+export HS14, hs14_autodiff
+
 function hs14_autodiff()
 
   x0 = [2.0; 2.0]
@@ -10,6 +11,21 @@ function hs14_autodiff()
   return ADNLPModel(f, x0, c, lcon, ucon, name="hs14_autodiff")
 end
 
+"""
+    nlp = HS14()
+
+## Problem 14 in the Hock-Schittkowski suite
+
+```math
+\\begin{aligned}
+\\min \\quad & (x_1 - 2)^2 + (x_2 - 1)^2 \\\\
+\\text{s. to} \\quad & x_1 - 2x_2 + 1 = 0 \\\\
+& -\\tfrac{1}{4} x_1^2 - x_2^2 + 1 \\geq 0
+\\end{aligned}
+```
+
+Starting point: `[2; 2]`.
+"""
 mutable struct HS14 <: AbstractNLPModel
   meta :: NLPModelMeta
   counters :: Counters
@@ -102,7 +118,7 @@ function NLPModels.jtprod!(nlp :: HS14, x :: AbstractVector, v :: AbstractVector
   return Jtv
 end
 
-function NLPModels.ghjvprod!(nlp :: HS14, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
+function NLPModels.ghjvprod!(nlp :: HS14, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T
   @lencheck nlp.meta.nvar x g v
   @lencheck nlp.meta.ncon gHv
   increment!(nlp, :neval_hprod)

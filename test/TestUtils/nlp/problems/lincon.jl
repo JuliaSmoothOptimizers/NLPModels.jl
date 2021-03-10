@@ -1,3 +1,5 @@
+export LINCON, lincon_autodiff
+
 function lincon_autodiff()
 
   A = [1 2; 3 4]
@@ -23,6 +25,30 @@ function lincon_autodiff()
   return ADNLPModel(f, x0, con, lcon, ucon, name="lincon_autodiff")
 end
 
+"""
+    nlp = LINCON()
+
+## Linearly constrained problem
+
+```math
+\\begin{aligned}
+\\min \\quad & (i + x_i^4) \\\\
+\\text{s. to} \\quad & x_{15} = 0 \\\\
+& x_{10} + 2x_{11} + 3x_{12} \\geq 1 \\\\
+& x_{13} - x_{14} \\leq 16 \\\\
+& -11 \\leq 5x_8 - 6x_9 \\leq 9 \\\\
+& -2x_7 = -1 \\\\
+& 4x_6 = 1 \\\\
+& x_1 + 2x_2 \\geq -5 \\\\
+& 3x_1 + 4x_2 \\geq -6 \\\\
+& 9x_3 \\leq 1 \\\\
+& 12x_4 \\leq 2 \\\\
+& 15x_5 \\leq 3
+\\end{aligned}
+```
+
+Starting point: `zeros(15)`.
+"""
 mutable struct LINCON <: AbstractNLPModel
   meta :: NLPModelMeta
   counters :: Counters
@@ -129,7 +155,7 @@ function NLPModels.jtprod!(nlp :: LINCON, x :: AbstractVector, v :: AbstractVect
   @lencheck 11 v
   increment!(nlp, :neval_jtprod)
   Jtv[1]  = 1 * v[7] + 3 * v[8]
-  Jtv[2]  = 2 * v[7] + 4 * v[8]  
+  Jtv[2]  = 2 * v[7] + 4 * v[8]
   Jtv[3]  = 9 * v[9]
   Jtv[4]  = 12 * v[10]
   Jtv[5]  = 15 * v[11]
@@ -146,7 +172,7 @@ function NLPModels.jtprod!(nlp :: LINCON, x :: AbstractVector, v :: AbstractVect
   return Jtv
 end
 
-function NLPModels.ghjvprod!(nlp :: LINCON, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
+function NLPModels.ghjvprod!(nlp :: LINCON, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T
   @lencheck nlp.meta.nvar x g v
   @lencheck nlp.meta.ncon gHv
   increment!(nlp, :neval_hprod)

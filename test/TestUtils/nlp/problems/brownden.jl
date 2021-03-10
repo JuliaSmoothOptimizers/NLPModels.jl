@@ -1,11 +1,5 @@
-# Brown and Dennis functions
-#
-#   Source: Problem 16 in
-#   J.J. Moré, B.S. Garbow and K.E. Hillstrom,
-#   "Testing Unconstrained Optimization Software",
-#   ACM Transactions on Mathematical Software, vol. 7(1), pp. 17-41, 1981
-#
-#   classification SUR2-AN-4-0
+export BROWNDEN, brownden_autodiff
+
 function brownden_autodiff()
 
   x0 = [25.0; 5.0; -5.0; -1.0]
@@ -21,6 +15,25 @@ function brownden_autodiff()
   return ADNLPModel(f, x0, name="brownden_autodiff")
 end
 
+"""
+    nlp = BROWNDEN()
+
+## Brown and Dennis function.
+
+    Source: Problem 16 in
+    J.J. Moré, B.S. Garbow and K.E. Hillstrom,
+    "Testing Unconstrained Optimization Software",
+    ACM Transactions on Mathematical Software, vol. 7(1), pp. 17-41, 1981
+
+    classification SUR2-AN-4-0
+
+```math
+\\min_x \\ \\sum_{i=1}^{20} \\left(\\left(x_1 + \\tfrac{i}{5} x_2 - e^{i / 5}\\right)^2
++ \\left(x_3 + \\sin(\\tfrac{i}{5}) x_4 - \\cos(\\tfrac{i}{5})\\right)^2\\right)^2
+```
+
+Starting point: `[25.0; 5.0; -5.0; -1.0]`
+"""
 mutable struct BROWNDEN <: AbstractNLPModel
   meta :: NLPModelMeta
   counters :: Counters

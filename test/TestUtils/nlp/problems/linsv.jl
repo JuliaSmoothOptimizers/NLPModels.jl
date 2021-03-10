@@ -1,3 +1,5 @@
+export LINSV, linsv_autodiff
+
 function linsv_autodiff()
 
   x0 = zeros(2)
@@ -9,6 +11,21 @@ function linsv_autodiff()
   return ADNLPModel(f, x0, con, lcon, ucon, name="linsv_autodiff")
 end
 
+"""
+    nlp = LINSV()
+
+## Linear problem
+
+```math
+\\begin{aligned}
+\\min \\quad & x_1 \\\\
+\\text{s. to} \\quad & x_1 + x_2 \\geq 3 \\\\
+& x_2 \\geq 1
+\\end{aligned}
+```
+
+Starting point: `[0; 0]`.
+"""
 mutable struct LINSV <: AbstractNLPModel
   meta :: NLPModelMeta
   counters :: Counters
@@ -105,7 +122,7 @@ function NLPModels.jtprod!(nlp :: LINSV, x :: AbstractVector, v :: AbstractVecto
   return Jtv
 end
 
-function NLPModels.ghjvprod!(nlp :: LINSV, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
+function NLPModels.ghjvprod!(nlp :: LINSV, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T
   @lencheck nlp.meta.nvar x g v
   @lencheck nlp.meta.ncon gHv
   increment!(nlp, :neval_hprod)

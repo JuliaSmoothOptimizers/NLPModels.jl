@@ -1,4 +1,4 @@
-using NLPModels: increment!
+export NLSLC, nlslc_autodiff
 
 function nlslc_autodiff()
 
@@ -25,6 +25,39 @@ function nlslc_autodiff()
   return ADNLSModel(F, x0, 15, con, lcon, ucon, name="nlslincon_autodiff")
 end
 
+"""
+    nls = NLSLC()
+
+## Linearly constrained nonlinear least squares problem
+
+```math
+\\begin{aligned}
+\\min \\quad & \\tfrac{1}{2}\\| F(x) \\|^2 \\\\
+\\text{s. to} \\quad & x_{15} = 0 \\\\
+& x_{10} + 2x_{11} + 3x_{12} \\geq 1 \\\\
+& x_{13} - x_{14} \\leq 16 \\\\
+& -11 \\leq 5x_8 - 6x_9 \\leq 9 \\\\
+& -2x_7 = -1 \\\\
+& 4x_6 = 1 \\\\
+& x_1 + 2x_2 \\geq -5 \\\\
+& 3x_1 + 4x_2 \\geq -6 \\\\
+& 9x_3 \\leq 1 \\\\
+& 12x_4 \\leq 2 \\\\
+& 15x_5 \\leq 3
+\\end{aligned}
+```
+where
+```math
+F(x) = \\begin{bmatrix}
+x_1^2 - 1 \\\\
+x_2^2 - 2^2 \\\\
+\\vdots \\\\
+x_{15}^2 - 15^2
+\\end{bmatrix}
+```
+
+Starting point: `zeros(15)`.
+"""
 mutable struct NLSLC <: AbstractNLSModel
   meta :: NLPModelMeta
   nls_meta :: NLSMeta
@@ -229,7 +262,7 @@ function NLPModels.hprod!(nls :: NLSLC, x :: AbstractVector{T}, y :: AbstractVec
   return hprod!(nls, x, v, Hv, obj_weight=obj_weight)
 end
 
-function NLPModels.ghjvprod!(nls :: NLSLC, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
+function NLPModels.ghjvprod!(nls :: NLSLC, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T
   @lencheck nls.meta.nvar x g v
   @lencheck nls.meta.ncon gHv
   increment!(nls, :neval_hprod)

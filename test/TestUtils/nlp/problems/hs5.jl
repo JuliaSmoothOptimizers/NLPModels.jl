@@ -1,6 +1,5 @@
-using NLPModels: increment!
+export HS5, hs5_autodiff
 
-#Problem 5 in the Hock-Schittkowski suite
 function hs5_autodiff()
 
   x0 = [0.0; 0.0]
@@ -11,6 +10,21 @@ function hs5_autodiff()
   return ADNLPModel(f, x0, l, u, name="hs5_autodiff")
 end
 
+"""
+    nlp = HS5()
+
+## Problem 5 in the Hock-Schittkowski suite
+
+```math
+\\begin{aligned}
+\\min \\quad & \\sin(x_1 + x_2) + (x_1 - x_2)^2 - \\tfrac{3}{2}x_1 + \\tfrac{5}{2}x_2 + 1 \\\\
+\\text{s. to} \\quad & -1.5 \\leq x_1 \\leq 4 \\\\
+& -3 \\leq x_2 \\leq 3
+\\end{aligned}
+```
+
+Starting point: `[0.0; 0.0]`.
+"""
 mutable struct HS5 <: AbstractNLPModel
   meta :: NLPModelMeta
   counters :: Counters

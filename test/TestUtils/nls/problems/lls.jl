@@ -1,4 +1,4 @@
-using NLPModels: increment!
+export LLS, lls_autodiff
 
 function lls_autodiff()
 
@@ -11,6 +11,28 @@ function lls_autodiff()
   return ADNLSModel(F, x0, 3, c, lcon, ucon, name="lls_autodiff")
 end
 
+"""
+    nls = LLS()
+
+## Linear least squares
+
+```math
+\\begin{aligned}
+\\min \\quad & \\tfrac{1}{2}\\| F(x) \\|^2 \\\\
+\\text{s. to} \\quad & x_1 + x_2 \\geq 0
+\\end{aligned}
+```
+where
+```math
+F(x) = \\begin{bmatrix}
+x_1 - x_2 \\\\
+x_1 + x_2 - 2 \\\\
+x_2 - 2
+\\end{bmatrix}.
+```
+
+Starting point: `[0; 0]`.
+"""
 function lls_special()
   return LLSModel([1.0 -1; 1 1; 0 1], [0.0; 2; 2], x0=zeros(2), C=[1.0 1], lcon=[0.0], ucon=[Inf], name="lls_LLSModel")
 end
@@ -173,7 +195,7 @@ function NLPModels.hprod!(nls :: LLS, x :: AbstractVector{T}, y :: AbstractVecto
   return Hv
 end
 
-function NLPModels.ghjvprod!(nls :: LLS, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
+function NLPModels.ghjvprod!(nls :: LLS, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T
   @lencheck nls.meta.nvar x g v
   @lencheck nls.meta.ncon gHv
   increment!(nls, :neval_hprod)
