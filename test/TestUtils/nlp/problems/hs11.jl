@@ -1,4 +1,5 @@
-#Problem 11 in the Hock-Schittkowski suite
+export HS11, hs11_autodiff
+
 function hs11_autodiff()
 
   x0 = [4.9; 0.1]
@@ -11,6 +12,20 @@ function hs11_autodiff()
 
 end
 
+"""
+    nlp = HS11()
+
+## Problem 11 in the Hock-Schittkowski suite
+
+```math
+\\begin{aligned}
+\\min \\quad & (x_1 - 5)^2 + x_2^2 - 25 \\\\
+\\text{s. to} \\quad & -x_1^2 + x_2 \\leq 0
+\\end{aligned}
+```
+
+Starting point: `[-4.9; 0.1]`.
+"""
 mutable struct HS11 <: AbstractNLPModel
   meta :: NLPModelMeta
   counters :: Counters
@@ -105,7 +120,7 @@ function NLPModels.jtprod!(nlp :: HS11, x :: AbstractVector, v :: AbstractVector
   return Jtv
 end
 
-function NLPModels.ghjvprod!(nlp :: HS11, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector) 
+function NLPModels.ghjvprod!(nlp :: HS11, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector)
   @lencheck nlp.meta.nvar x g v
   @lencheck nlp.meta.ncon gHv
   increment!(nlp, :neval_hprod)

@@ -1,15 +1,7 @@
+include("TestUtils/TestUtils.jl")
+using .TestUtils
+
 using Test, NLPModels, LinearAlgebra, LinearOperators, Printf, SparseArrays
-
-problems = ["BROWNDEN", "HS5", "HS6", "HS10", "HS11", "HS14", "LINCON", "LINSV"]
-nls_problems = ["LLS", "MGH01", "NLSHS20", "NLSLC"]
-
-# Including problems so that they won't be multiply loaded
-for problem in problems ∪ ["GENROSE"] # GENROSE does not have a manual version, so it's separate
-  include("problems/$(lowercase(problem)).jl")
-end
-for problem in nls_problems
-  include("nls_problems/$(lowercase(problem)).jl")
-end
 
 @info("Testing printing of nlp.meta")
 print(ADNLPModel(x->0, zeros(10), [-ones(5); -Inf*ones(5)],
@@ -79,7 +71,7 @@ include("test_qn_model.jl")
 include("multiple-precision.jl")
 include("check-dimensions.jl")
 include("consistency.jl")
-for problem in problems
+for problem in TestUtils.nlp_problems
   @info "Checking consistency of problem $problem"
   nlp_ad = eval(Meta.parse(lowercase(problem) * "_autodiff"))()
   nlp_man = eval(Meta.parse(problem))()
@@ -106,7 +98,7 @@ end
 include("test_autodiff_model.jl")
 include("test_nlsmodels.jl")
 include("nls_consistency.jl")
-for problem in nls_problems
+for problem in TestUtils.nls_problems
   @info "Checking consistency of NLS problem $problem"
   nls_ad = eval(Meta.parse(lowercase(problem) * "_autodiff"))()
   nls_man = eval(Meta.parse(problem))()

@@ -1,6 +1,5 @@
-using NLPModels: increment!
+export HS6, hs6_autodiff
 
-#Problem 6 in the Hock-Schittkowski suite
 function hs6_autodiff()
   x0 = [-1.2; 1.0]
   f(x) = (1 - x[1])^2
@@ -11,6 +10,20 @@ function hs6_autodiff()
   return ADNLPModel(f, x0, c, lcon, ucon, name="hs6_autodiff")
 end
 
+"""
+    nlp = HS6()
+
+## Problem 6 in the Hock-Schittkowski suite
+
+```math
+\\begin{aligned}
+\\min \\quad & (1 - x_1)^2 \\\\
+\\text{s. to} \\quad & 10 (x_2 - x_1^2) = 0
+\\end{aligned}
+```
+
+Starting point: `[-1.2; 1.0]`.
+"""
 mutable struct HS6 <: AbstractNLPModel
   meta :: NLPModelMeta
   counters :: Counters
@@ -105,7 +118,7 @@ function NLPModels.jtprod!(nlp :: HS6, x :: AbstractVector, v :: AbstractVector,
   return Jtv
 end
 
-function NLPModels.ghjvprod!(nlp :: HS6, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector) 
+function NLPModels.ghjvprod!(nlp :: HS6, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector)
   @lencheck nlp.meta.nvar x g v
   @lencheck nlp.meta.ncon gHv
   increment!(nlp, :neval_hprod)

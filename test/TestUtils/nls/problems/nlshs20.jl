@@ -1,4 +1,4 @@
-using NLPModels: increment!
+export NLSHS20, nlshs20_autodiff
 
 function nlshs20_autodiff()
 
@@ -13,6 +13,30 @@ function nlshs20_autodiff()
   return ADNLSModel(F, x0, 2, lvar, uvar, c, lcon, ucon, name="nlshs20_autodiff")
 end
 
+"""
+    nls = NLSH20()
+
+## Problem 20 in the Hock-Schittkowski suite in nonlinear least squares format
+
+```math
+\\begin{aligned}
+\\min \\quad & \\tfrac{1}{2}\\| F(x) \\|^2 \\\\
+\\text{s. to} \\quad & x_1 + x_2^2 \\geq 0 \\\\
+& x_1^2 + x_2 \\geq 0 \\\\
+& x_1^2 + x_2^2 -1 \\geq 0 \\\\
+& -0.5 \\leq x_1 \\leq 0.5
+\\end{aligned}
+```
+where
+```math
+F(x) = \\begin{bmatrix}
+1 - x_1 \\\\
+10 (x_2 - x_1^2)
+\\end{bmatrix}.
+```
+
+Starting point: `[-2; 1]`.
+"""
 mutable struct NLSHS20 <: AbstractNLSModel
   meta :: NLPModelMeta
   nls_meta :: NLSMeta
@@ -193,7 +217,7 @@ function NLPModels.hprod!(nls :: NLSHS20, x :: AbstractVector{T}, y :: AbstractV
   return Hv
 end
 
-function NLPModels.ghjvprod!(nls :: NLSHS20, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T 
+function NLPModels.ghjvprod!(nls :: NLSHS20, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T
   @lencheck nls.meta.nvar x g v
   @lencheck nls.meta.ncon gHv
   increment!(nls, :neval_hprod)

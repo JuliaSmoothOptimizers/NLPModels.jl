@@ -1,3 +1,5 @@
+export genrose_autodiff
+
 # Generalized Rosenbrock function.
 #
 #   Source:

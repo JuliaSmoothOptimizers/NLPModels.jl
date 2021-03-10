@@ -1,6 +1,5 @@
-using NLPModels: increment!
+export HS10, hs10_autodiff
 
-#Problem 10 in the Hock-Schittkowski suite
 function hs10_autodiff()
 
   x0 = [-10.0; 10.0]
@@ -12,6 +11,20 @@ function hs10_autodiff()
   return ADNLPModel(f, x0, c, lcon, ucon, name="hs10_autodiff")
 end
 
+"""
+    nlp = HS10()
+
+## Problem 10 in the Hock-Schittkowski suite
+
+```math
+\\begin{aligned}
+\\min \\quad & x_1 - x_2 \\\\
+\\text{s. to} \\quad & -3x_1^2 + 2x_1 x_2 - x_2^2 + 1 \\geq 0
+\\end{aligned}
+```
+
+Starting point: `[-10; 10]`.
+"""
 mutable struct HS10 <: AbstractNLPModel
   meta :: NLPModelMeta
   counters :: Counters
@@ -107,7 +120,7 @@ function NLPModels.jtprod!(nlp :: HS10, x :: AbstractVector, v :: AbstractVector
   return Jtv
 end
 
-function NLPModels.ghjvprod!(nlp :: HS10, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector) 
+function NLPModels.ghjvprod!(nlp :: HS10, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector)
   @lencheck nlp.meta.nvar x g v
   @lencheck nlp.meta.ncon gHv
   increment!(nlp, :neval_hprod)
