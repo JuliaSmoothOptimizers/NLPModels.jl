@@ -28,7 +28,7 @@ end
 
 show_header(io :: IO, nlp :: QuasiNewtonModel) = println(io, "$(typeof(nlp)) - A QuasiNewtonModel")
 
-function show(io :: IO, nlp :: QuasiNewtonModel)
+function Base.show(io :: IO, nlp :: QuasiNewtonModel)
   show_header(io, nlp)
   show(io, nlp.meta)
   show(io, nlp.model.counters)
@@ -64,7 +64,7 @@ function hprod!(nlp :: QuasiNewtonModel, x :: AbstractVector,
   return Hv
 end
 
-function push!(nlp :: QuasiNewtonModel, args...)
+function Base.push!(nlp :: QuasiNewtonModel, args...)
 	push!(nlp.op, args...)
 	return nlp
 end

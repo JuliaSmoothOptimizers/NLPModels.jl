@@ -52,7 +52,7 @@ end
 
 show_header(io :: IO, nlp :: SlackModel) = println(io, "SlackModel - Model with slack variables")
 
-function show(io :: IO, nlp :: SlackModel)
+function Base.show(io :: IO, nlp :: SlackModel)
   show_header(io, nlp)
   show(io, nlp.meta)
   show(io, nlp.model.counters)
@@ -68,7 +68,7 @@ end
 
 show_header(io :: IO, nls :: SlackNLSModel) = println(io, "SlackNLSModel - Nonlinear least-squares model with slack variables")
 
-function show(io :: IO, nls :: SlackNLSModel)
+function Base.show(io :: IO, nls :: SlackNLSModel)
   show_header(io, nls)
   show(io, nls.meta, nls.nls_meta)
   show(io, nls.model.counters)
@@ -323,7 +323,7 @@ function hprod!(nlp :: SlackModels, x :: AbstractVector, y :: AbstractVector, v 
   return hv
 end
 
-function ghjvprod!(nlp :: SlackModels, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector) 
+function ghjvprod!(nlp :: SlackModels, x :: AbstractVector, g :: AbstractVector, v :: AbstractVector, gHv :: AbstractVector)
   @lencheck nlp.meta.nvar x g v
   @lencheck nlp.meta.ncon gHv
   n = nlp.model.meta.nvar

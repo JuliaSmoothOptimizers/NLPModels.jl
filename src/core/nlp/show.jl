@@ -1,0 +1,72 @@
+export show_header
+
+show_header(io :: IO, nlp :: AbstractNLPModel) = println(io, typeof(nlp))
+
+function Base.show(io :: IO, nlp :: AbstractNLPModel)
+  show_header(io, nlp)
+  show(io, nlp.meta)
+  show(io, nlp.counters)
+end
+
+function histline(s, v, maxv)
+  @assert 0 ≤ v ≤ maxv
+  λ = maxv == 0 ? 0 : ceil(Int, 20 * v / maxv)
+  return @sprintf("%16s: %s %-6s", s, "█"^λ * "⋅"^(20 - λ), v)
+end
+
+function sparsityline(s, v, maxv)
+  if maxv == 0
+    @sprintf("%16s: (------%% sparsity)   %-6s", s, " ")
+  else
+    @sprintf("%16s: (%6.2f%% sparsity)   %-6s", s, 100 * (1 - v / maxv), v)
+  end
+end
+
+function lines_of_hist(S, V)
+  maxv = maximum(V)
+  lines = histline.(S, V, maxv)
+  return lines
+end
+
+function lines_of_description(m :: NLPModelMeta)
+  V = [length(m.ifree), length(m.ilow), length(m.iupp), length(m.irng), length(m.ifix), length(m.iinf)]
+  V = [sum(V); V]
+  S = ["All variables", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
+  varlines = lines_of_hist(S, V)
+  push!(varlines, sparsityline("nnzh", m.nnzh, m.nvar * (m.nvar + 1) / 2))
+
+  V = [length(m.jfree), length(m.jlow), length(m.jupp), length(m.jrng), length(m.jfix), length(m.jinf)]
+  V = [sum(V); V]
+  S = ["All constraints", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
+  conlines = lines_of_hist(S, V)
+  push!(conlines, histline("linear", m.nlin, m.ncon), histline("nonlinear", m.nnln, m.ncon))
+  push!(conlines, sparsityline("nnzj", m.nnzj, m.nvar * m.ncon))
+
+  append!(varlines, repeat([" "^length(varlines[1])], length(conlines) - length(varlines)))
+  lines = varlines .* conlines
+
+  return lines
+end
+
+function Base.show(io :: IO, m :: NLPModelMeta)
+  println(io, "  Problem name: $(m.name)")
+  lines = lines_of_description(m)
+  println(io, join(lines, "\n") * "\n")
+end
+
+function show_counters(io :: IO, c, F)
+  V = (getproperty(c, f) for f in F)
+  S = (string(f)[7:end] for f in F)
+  lines = lines_of_hist(S, V)
+  n = length(lines)
+  for i = 1:3:length(lines)
+    idx = i:min(n,i+2)
+    println(io, join(lines[idx], ""))
+  end
+end
+
+function Base.show(io :: IO, c :: Counters)
+  println(io, "  Counters:")
+  F = fieldnames(Counters)
+  show_counters(io, c, F)
+end

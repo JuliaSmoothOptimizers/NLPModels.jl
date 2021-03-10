@@ -1,26 +1,4 @@
-export has_bounds, bound_constrained, unconstrained, linearly_constrained,
-      equality_constrained, inequality_constrained
-
-# Base type for an optimization model.
-abstract type AbstractNLPModel end
-
-mutable struct Counters
-  neval_obj    :: Int  # Number of objective evaluations.
-  neval_grad   :: Int  # Number of objective gradient evaluations.
-  neval_cons   :: Int  # Number of constraint vector evaluations.
-  neval_jcon   :: Int  # Number of individual constraint evaluations.
-  neval_jgrad  :: Int  # Number of individual constraint gradient evaluations.
-  neval_jac    :: Int  # Number of constraint Jacobian evaluations.
-  neval_jprod  :: Int  # Number of Jacobian-vector products.
-  neval_jtprod :: Int  # Number of transposed Jacobian-vector products.
-  neval_hess   :: Int  # Number of Lagrangian/objective Hessian evaluations.
-  neval_hprod  :: Int  # Number of Lagrangian/objective Hessian-vector products.
-  neval_jhprod :: Int  # Number of individual constraint Hessian-vector products.
-
-  function Counters()
-    return new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-  end
-end
+export AbstractNLPModelMeta, NLPModelMeta, reset_data!
 
 # Base type for metadata related to an optimization model.
 abstract type AbstractNLPModelMeta end
@@ -169,129 +147,14 @@ struct NLPModelMeta <: AbstractNLPModelMeta
   end
 end
 
-import Base.show
-show_header(io :: IO, nlp :: AbstractNLPModel) = println(io, typeof(nlp))
-
-function show(io :: IO, nlp :: AbstractNLPModel)
-  show_header(io, nlp)
-  show(io, nlp.meta)
-  show(io, nlp.counters)
-end
-
-function histline(s, v, maxv)
-  @assert 0 ≤ v ≤ maxv
-  λ = maxv == 0 ? 0 : ceil(Int, 20 * v / maxv)
-  return @sprintf("%16s: %s %-6s", s, "█"^λ * "⋅"^(20 - λ), v)
-end
-
-function sparsityline(s, v, maxv)
-  if maxv == 0
-    @sprintf("%16s: (------%% sparsity)   %-6s", s, " ")
-  else
-    @sprintf("%16s: (%6.2f%% sparsity)   %-6s", s, 100 * (1 - v / maxv), v)
-  end
-end
-
-function lines_of_hist(S, V)
-  maxv = maximum(V)
-  lines = histline.(S, V, maxv)
-  return lines
-end
-
-function lines_of_description(m :: NLPModelMeta)
-  V = [length(m.ifree), length(m.ilow), length(m.iupp), length(m.irng), length(m.ifix), length(m.iinf)]
-  V = [sum(V); V]
-  S = ["All variables", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
-  varlines = lines_of_hist(S, V)
-  push!(varlines, sparsityline("nnzh", m.nnzh, m.nvar * (m.nvar + 1) / 2))
-
-  V = [length(m.jfree), length(m.jlow), length(m.jupp), length(m.jrng), length(m.jfix), length(m.jinf)]
-  V = [sum(V); V]
-  S = ["All constraints", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
-  conlines = lines_of_hist(S, V)
-  push!(conlines, histline("linear", m.nlin, m.ncon), histline("nonlinear", m.nnln, m.ncon))
-  push!(conlines, sparsityline("nnzj", m.nnzj, m.nvar * m.ncon))
-
-  append!(varlines, repeat([" "^length(varlines[1])], length(conlines) - length(varlines)))
-  lines = varlines .* conlines
-
-  return lines
-end
-
-function show(io :: IO, m :: NLPModelMeta)
-  println(io, "  Problem name: $(m.name)")
-  lines = lines_of_description(m)
-  println(io, join(lines, "\n") * "\n")
-end
-
-function show_counters(io :: IO, c, F)
-  V = (getproperty(c, f) for f in F)
-  S = (string(f)[7:end] for f in F)
-  lines = lines_of_hist(S, V)
-  n = length(lines)
-  for i = 1:3:length(lines)
-    idx = i:min(n,i+2)
-    println(io, join(lines[idx], ""))
-  end
-end
-
-function show(io :: IO, c :: Counters)
-  println(io, "  Counters:")
-  F = fieldnames(Counters)
-  show_counters(io, c, F)
-end
-
 """
-    has_bounds(nlp)
-    has_bounds(meta)
+    reset_data!(nlp)
 
-Returns whether the problem has bounds on the variables.
+Reset model data if appropriate.
+This method should be overloaded if a subtype of `AbstractNLPModel`
+contains data that should be reset, such as a quasi-Newton linear
+operator.
 """
-has_bounds(meta::NLPModelMeta) = length(meta.ifree) < meta.nvar
-
-"""
-    bound_constrained(nlp)
-    bound_constrained(meta)
-
-Returns whether the problem has bounds on the variables and no other constraints.
-"""
-bound_constrained(meta::NLPModelMeta) = meta.ncon == 0 && has_bounds(meta)
-
-"""
-    unconstrained(nlp)
-    unconstrained(meta)
-
-Returns whether the problem in unconstrained.
-"""
-unconstrained(meta::NLPModelMeta) = meta.ncon == 0 && !has_bounds(meta)
-
-"""
-    linearly_constrained(nlp)
-    linearly_constrained(meta)
-
-Returns whether the problem's constraints are known to be all linear.
-"""
-linearly_constrained(meta::NLPModelMeta) = meta.nlin == meta.ncon > 0
-
-"""
-    equality_constrained(nlp)
-    equality_constrained(meta)
-
-Returns whether the problem's constraints are all equalities.
-Unconstrained problems return false.
-"""
-equality_constrained(meta::NLPModelMeta) = length(meta.jfix) == meta.ncon > 0
-
-"""
-    inequality_constrained(nlp)
-    inequality_constrained(meta)
-
-Returns whether the problem's constraints are all inequalities.
-Unconstrained problems return true.
-"""
-inequality_constrained(meta::NLPModelMeta) = meta.ncon > 0 && length(meta.jfix) == 0
-
-for meth in (:has_bounds, :bound_constrained, :unconstrained,
-    :linearly_constrained, :equality_constrained, :inequality_constrained)
-  @eval $meth(nlp::AbstractNLPModel) = $meth(nlp.meta)
+function reset_data!(nlp :: AbstractNLPModel)
+  return nlp
 end
