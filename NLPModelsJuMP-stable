@@ -1,6 +1,5 @@
 {
-  "tag": "v0.7.0",
-  "pass": true,
-  "travis_link": "https://travis-ci.org/JuliaSmoothOptimizers/NLPModels.jl/jobs/734396264",
-  "pr": "308"
+  "tag": "v0.7.1",
+  "pass": false,
+  "pr": "refs/pull/324/merge"
 }
