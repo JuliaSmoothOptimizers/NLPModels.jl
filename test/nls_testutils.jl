@@ -16,6 +16,7 @@ for problem in nls_problems
       if typeof(nls) != LLSModel
         multiple_precision_nls(nls)
       end
+      view_subarray_nls(nls)
     end
 
     if has_inequalities(nls_ad)
@@ -25,6 +26,7 @@ for problem in nls_problems
         if typeof(nls) != LLSModel
           multiple_precision_nls(SlackNLSModel(nls))
         end
+        view_subarray_nls(SlackNLSModel(nls))
       end
     end
 
