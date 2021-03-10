@@ -142,6 +142,6 @@ coo_prod!
 coo_sym_prod!
 @default_counters
 @default_nlscounters
-NLPModels.increment!
-NLPModels.decrement!
+increment!
+decrement!
 ```
