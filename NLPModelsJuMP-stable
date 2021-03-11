@@ -1,7 +1,7 @@
 {
   "tag": "v0.7.1",
-  "joburl": "https://github.com/JuliaSmoothOptimizers/NLPModels.jl/actions/runs/644081592",
+  "joburl": "https://github.com/JuliaSmoothOptimizers/NLPModels.jl/actions/runs/644121947",
   "pass": false,
-  "datetime": "2021-03-11T20:43:10.647",
+  "datetime": "2021-03-11T21:04:05.717",
   "pr": "refs/pull/331/merge"
 }
