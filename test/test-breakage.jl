@@ -58,6 +58,7 @@ function test_breakage()
   # Enter branch breakage-info and commit file $package-$version
   info = Dict(:pass => passing,
               :pr => ENV["GITHUB_REF"],
+              :joburl => joinpath(ENV["GITHUB_SERVER_URL"], ENV["GITHUB_REPOSITORY"], "actions/runs", ENV["GITHUB_RUN_ID"]),
               :tag => tag,
               :datetime => Dates.now()
              )

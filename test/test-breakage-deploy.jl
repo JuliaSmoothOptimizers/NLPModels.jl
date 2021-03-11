@@ -37,7 +37,8 @@ function test_breakage_deploy()
     for version in ["master", "stable"]
       info = JSON.parse(open("$package-$version"))
       bdg = badge(info["pass"], info["tag"])
-      output *= "$bdg | "
+      joburl = info["joburl"]
+      output *= "[$bdg]($joburl) | "
     end
     output *= "\n"
   end
