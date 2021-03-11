@@ -1,4 +1,4 @@
-export MGH01, mgh01_autodiff
+export MGH01, MGH01_special, mgh01_autodiff
 
 function mgh01_autodiff()
 
@@ -8,7 +8,7 @@ function mgh01_autodiff()
   return ADNLSModel(F, x0, 2, name="mgh01_autodiff")
 end
 
-mgh01_special() = FeasibilityResidual(MGH01Feas())
+MGH01_special() = FeasibilityResidual(MGH01Feas())
 
 """
     nls = MGH01()

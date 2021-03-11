@@ -59,9 +59,11 @@ There are some variable for querying the problem type:
   and no other constraints.
 - [`equality_constrained`](@ref): True when problem is constrained only
   by equalities.
+- [`has_equalities`](@ref): True when problem has at least one equality constraint.
 - [`has_bounds`](@ref): True when not all variables are free.
 - [`inequality_constrained`](@ref): True when problem is constrained
   by inequalities.
+- [`has_inequalities`](@ref): True when problem has at least one inequality constraint that isn't a bound.
 - [`linearly_constrained`](@ref): True when problem is constrained by
   equalities or inequalities known to be linear.
 - [`unconstrained`](@ref): True when problem is not constrained.
@@ -90,8 +92,10 @@ neval_hprod_residual
 sum_counters
 bound_constrained
 equality_constrained
+has_equalities
 has_bounds
 inequality_constrained
+has_inequalities
 linearly_constrained
 unconstrained
 ```

@@ -13,13 +13,13 @@ function test_nls_to_cons()
       adnlp = ADNLPModel(x->sum(x[n+1:end].^2) / 2, [x0; zeros(ne)],
                         x->[F(x[1:n]) - x[n+1:end]; c(x[1:n])],
                         zeros(ne+m), zeros(ne+m))
-      consistent_functions([nlpcon; adnlp], exclude=[ghjvprod])
+      TestUtils.consistent_functions([nlpcon; adnlp], exclude=[ghjvprod])
 
       adnls = ADNLSModel(x->x[n+1:end], [x0; zeros(ne)], ne,
                         x->[F(x[1:n]) - x[n+1:end]; c(x[1:n])],
                         zeros(ne+m), zeros(ne+m))
-      consistent_functions([nlpcon; adnls], exclude=[ghjvprod])
-      consistent_nls_functions([nlpcon; adnls])
+      TestUtils.consistent_functions([nlpcon; adnls], exclude=[ghjvprod])
+      TestUtils.consistent_nls_functions([nlpcon; adnls])
     end
   end
 
@@ -39,8 +39,8 @@ function test_nls_to_cons()
                         C=[A -Ine; C spzeros(m,ne)],
                         lcon=[b; zeros(m)], ucon=[b; zeros(m)])
 
-        consistent_functions([nlpcon; lls2], exclude=[hess, hess_coord, ghjvprod])
-        consistent_nls_functions([nlpcon; lls2])
+        TestUtils.consistent_functions([nlpcon; lls2], exclude=[hess, hess_coord, ghjvprod])
+        TestUtils.consistent_nls_functions([nlpcon; lls2])
       end
     end
   end
@@ -52,8 +52,8 @@ function test_nls_to_cons()
     ffnls = FeasibilityFormNLS(FeasibilityResidual(nlp))
     nlp2 = ADNLSModel(x->x[3:6], [x0; zeros(4)], 4,
                       x->c(x[1:2]) - x[3:6], zeros(4), zeros(4))
-    consistent_functions([ffnls; nlp2])
-    consistent_nls_functions([ffnls; nlp2], exclude=[ghjvprod])
+    TestUtils.consistent_functions([ffnls; nlp2])
+    TestUtils.consistent_nls_functions([ffnls; nlp2], exclude=[ghjvprod])
 
     # The test belows verifies that the nnzj and nnzh information are not lost
     n = 10
@@ -64,8 +64,8 @@ function test_nls_to_cons()
     ffnls = FeasibilityFormNLS(FeasibilityResidual(nlp), name="feas-of-feas")
     nlp2 = LLSModel([spzeros(m, n)  I], zeros(m),
                     C=[A -I], lcon=b, ucon=b)
-    consistent_functions([ffnls; nlp2], exclude=[hess, hess_coord, ghjvprod])
-    consistent_nls_functions([ffnls; nlp2])
+    TestUtils.consistent_functions([ffnls; nlp2], exclude=[hess, hess_coord, ghjvprod])
+    TestUtils.consistent_nls_functions([ffnls; nlp2])
   end
 
   @testset "FeasibilityFormNLS of an LLSModel should handle hess related function" begin

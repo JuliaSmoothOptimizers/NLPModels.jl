@@ -1,4 +1,12 @@
-function test_memory_of_coord_of_nlp(nlp :: AbstractNLPModel)
+export coord_memory_nlp
+
+"""
+    coord_memory_nlp(nlp)
+
+Check that the allocated memory for in place coord methods is
+sufficiently smaller than their allocating counter parts.
+"""
+function coord_memory_nlp(nlp :: AbstractNLPModel)
   n = nlp.meta.nvar
   m = nlp.meta.ncon
 
@@ -26,17 +34,5 @@ function test_memory_of_coord_of_nlp(nlp :: AbstractNLPModel)
     jac_coord!(nlp, x, vals)
     al2 = @allocated jac_coord!(nlp, x, vals)
     @test al2 < al1 - 50
-  end
-end
-
-function test_memory_of_coord()
-  @testset "Memory of coordinate inplace functions" begin
-    for p in [:HS5, :HS6, :HS10, :HS11, :HS14]
-      @info("Testing $p")
-      nlp = eval(p)()
-      test_memory_of_coord_of_nlp(nlp)
-    end
-    nlp = ADNLPModel(x -> dot(x, x), rand(2), x->[x[1] * x[2]], zeros(1), zeros(1))
-    test_memory_of_coord_of_nlp(nlp)
   end
 end

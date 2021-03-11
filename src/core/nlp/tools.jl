@@ -1,5 +1,6 @@
 export has_bounds, bound_constrained, unconstrained
 export linearly_constrained, equality_constrained, inequality_constrained
+export has_equalities, has_inequalities
 
 """
     has_bounds(nlp)
@@ -51,7 +52,24 @@ Unconstrained problems return true.
 """
 inequality_constrained(meta::NLPModelMeta) = meta.ncon > 0 && length(meta.jfix) == 0
 
-for meth in (:has_bounds, :bound_constrained, :unconstrained,
-    :linearly_constrained, :equality_constrained, :inequality_constrained)
+"""
+    has_equalities(nlp)
+
+Returns whether the problem has constraints and at least one of them is an equality.
+Unconstrained problems return false.
+"""
+has_equalities(meta::NLPModelMeta) = meta.ncon ≥ length(meta.jfix) > 0
+
+"""
+    has_inequalities(nlp)
+
+Returns whether the problem has constraints and at least one of them is an inequality.
+Unconstrained problems return false.
+"""
+has_inequalities(meta::NLPModelMeta) = meta.ncon > 0 && meta.ncon > length(meta.jfix)
+
+for meth in [:has_bounds, :bound_constrained, :unconstrained, :linearly_constrained,
+    :equality_constrained, :inequality_constrained, :has_equalities, :has_inequalities
+]
   @eval $meth(nlp::AbstractNLPModel) = $meth(nlp.meta)
 end

@@ -1,15 +1,58 @@
 import LinearAlgebra: I
 
+export consistent_nlss
+
+"""
+    consistent_nlss(nlps; exclude=[hess, hprod, hess_coord])
+
+Check that the all `nls`s of the vector `nlss` are consistent, in the sense that
+- Their counters are the same.
+- Their `meta` information is the same.
+- The API functions return the same output given the same input.
+
+In other words, if you create two models of the same problem, they should be consistent.
+
+By default, the functions `hess`, `hprod` and `hess_coord` (and therefore associated functions) are excluded from this check, since some models don't implement them.
+"""
+function consistent_nlss(nlss; exclude=[hess, hess_coord, ghjvprod], test_slack=true, test_ff=true)
+  consistent_nls_counters(nlss)
+  consistent_counters(nlss)
+  consistent_nls_functions(nlss, exclude=exclude)
+  consistent_nls_counters(nlss)
+  consistent_counters(nlss)
+  for nls in nlss
+    reset!(nls)
+  end
+  consistent_functions(nlss, exclude=exclude)
+
+  if test_slack && has_inequalities(nlss[1])
+    reset!.(nlss)
+    slack_nlss = SlackNLSModel.(nlss)
+    consistent_nls_functions(slack_nlss, exclude=exclude)
+    consistent_nls_counters(slack_nlss)
+    consistent_counters(slack_nlss)
+    consistent_functions(slack_nlss, exclude=exclude)
+  end
+
+  if test_ff
+    reset!.(nlss)
+    ff_nlss = FeasibilityFormNLS.(nlss)
+    consistent_nls_functions(ff_nlss, exclude=exclude)
+    consistent_nls_counters(ff_nlss)
+    consistent_counters(ff_nlss)
+    consistent_functions(ff_nlss, exclude=exclude)
+  end
+end
+
 function consistent_nls_counters(nlss)
   N = length(nlss)
   V = zeros(Int, N)
   for field in fieldnames(NLSCounters)
     field == :counters && continue
-    V = [eval(field)(nls) for nls in nlss]
-    if !all(V .== V[1])
-      @warn("ERROR", field, V)
+    @testset "Field $field" begin
+      V = [eval(field)(nls) for nls in nlss]
+      @test all(V .== V[1])
     end
-    @test all(V .== V[1])
   end
   V = [sum_counters(nls) for nls in nlss]
   @test all(V .== V[1])
@@ -161,38 +204,4 @@ function consistent_nls_functions(nlss; rtol=1.0e-8, exclude=[])
       end
     end
   end
-end
-
-function consistent_nlss(nlss; exclude=[hess, hess_coord, ghjvprod])
-  consistent_nls_counters(nlss)
-  consistent_counters(nlss)
-  consistent_nls_functions(nlss, exclude=exclude)
-  consistent_nls_counters(nlss)
-  consistent_counters(nlss)
-  for nls in nlss
-    reset!(nls)
-  end
-  consistent_functions(nlss, exclude=exclude)
-
-  snlss = [SlackNLSModel(nls) for nls in nlss]
-  for nls in snlss
-    reset!(nls)
-  end
-  consistent_nls_counters(snlss)
-  consistent_counters(snlss)
-  consistent_nls_functions(snlss, exclude=exclude)
-  consistent_nls_counters(snlss)
-  consistent_counters(snlss)
-  consistent_functions(snlss, exclude=exclude)
-
-  fnlss = [FeasibilityFormNLS(nls) for nls in nlss]
-  for nls in fnlss
-    reset!(nls)
-  end
-  consistent_nls_counters(fnlss)
-  consistent_counters(fnlss)
-  consistent_nls_functions(fnlss, exclude=exclude)
-  consistent_nls_counters(fnlss)
-  consistent_counters(fnlss)
-  consistent_functions(fnlss, exclude=exclude)
 end

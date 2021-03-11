@@ -4,10 +4,10 @@ using .TestUtils
 using Test, NLPModels, LinearAlgebra, LinearOperators, Printf, SparseArrays
 
 @info("Testing printing of nlp.meta")
-print(ADNLPModel(x->0, zeros(10), [-ones(5); -Inf*ones(5)],
+print(IOBuffer(), ADNLPModel(x->0, zeros(10), [-ones(5); -Inf*ones(5)],
                  [ones(3); Inf*ones(4); collect(2:4)],
                  name="Unconstrained example").meta)
-print(ADNLPModel(x->0, zeros(10), x->[0.0;0.0;0.0], [0.0;0.0;-Inf],
+print(IOBuffer(), ADNLPModel(x->0, zeros(10), x->[0.0;0.0;0.0], [0.0;0.0;-Inf],
                  [Inf;0.0;0.0], name="Constrained example").meta)
 
 # A problem with zero variables doesn't make sense.
@@ -59,81 +59,12 @@ reset!(model)
 @assert neval_obj(model) == 0
 
 @test_throws(MethodError, jth_con(model, model.meta.x0, 1))
-
 include("test_tools.jl")
 
 include("test_slack_model.jl")
 include("test_qn_model.jl")
-
-@info("For tests to pass, all models must have been written identically.\n")
-@info("Constraints, if any, must have been declared in the same order.\n")
-
-include("multiple-precision.jl")
-include("check-dimensions.jl")
-include("consistency.jl")
-for problem in TestUtils.nlp_problems
-  @info "Checking consistency of problem $problem"
-  nlp_ad = eval(Meta.parse(lowercase(problem) * "_autodiff"))()
-  nlp_man = eval(Meta.parse(problem))()
-
-  nlps = [nlp_ad, nlp_man]
-  for nlp in nlps
-    show(nlp)
-  end
-
-  consistent_nlps(nlps, exclude=[])
-  @info "  Consistency checks ✓"
-
-  for nlp in nlps ∪ SlackModel.(nlps)
-    @info "  Checking that wrong input dimensions throw errors in $(nlp.meta.name)"
-    check_nlp_dimensions(nlp)
-  end
-
-  for nlp in nlps ∪ SlackModel.(nlps)
-    @info "  Checking multiple precision support by $(nlp.meta.name)"
-    multiple_precision(nlp)
-  end
-end
-
+include("nlp_testutils.jl")
+include("nls_testutils.jl")
 include("test_autodiff_model.jl")
 include("test_nlsmodels.jl")
-include("nls_consistency.jl")
-for problem in TestUtils.nls_problems
-  @info "Checking consistency of NLS problem $problem"
-  nls_ad = eval(Meta.parse(lowercase(problem) * "_autodiff"))()
-  nls_man = eval(Meta.parse(problem))()
-
-  nlss = [nls_ad, nls_man]
-  spc = lowercase(problem) * "_special"
-  if isdefined(Main, Symbol(spc))
-    push!(nlss, eval(Meta.parse(spc))())
-  end
-  for nls in nlss
-    show(nls)
-  end
-
-  consistent_nlss(nlss)
-  @info "  Consistency checks ✓"
-
-  for nls in nlss ∪ SlackNLSModel.(nlss) ∪ FeasibilityFormNLS.(nlss)
-    @info "  Checking that wrong input dimensions throw errors in $(nls.meta.name)"
-    check_nls_dimensions(nls)
-    check_nlp_dimensions(nls, exclude_hess=true)
-  end
-
-  # LLSModel returns the internal A for jac, hence it doesn't respect type input
-  idx = findall(typeof.(nlss) .== LLSModel)
-  if length(idx) > 0
-    deleteat!(nlss, idx)
-  end
-
-  for nls in nlss ∪ SlackNLSModel.(nlss) ∪ FeasibilityFormNLS.(nlss)
-    @info "  Checking multiple precision support by $(nls.meta.name)"
-    multiple_precision(nls)
-  end
-end
 include("test_feasibility_form_nls.jl")
-include("test_view_subarray.jl")
-test_view_subarrays()
-include("test_memory_of_coord.jl")
-test_memory_of_coord()
