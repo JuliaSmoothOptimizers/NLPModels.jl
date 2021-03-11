@@ -1,4 +1,4 @@
-export LLS, lls_autodiff
+export LLS, LLS_special, lls_autodiff
 
 function lls_autodiff()
 
@@ -9,6 +9,10 @@ function lls_autodiff()
   ucon = [Inf]
 
   return ADNLSModel(F, x0, 3, c, lcon, ucon, name="lls_autodiff")
+end
+
+function LLS_special()
+  return LLSModel([1.0 -1; 1 1; 0 1], [0.0; 2; 2], x0=zeros(2), C=[1.0 1], lcon=[0.0], ucon=[Inf], name="lls_LLSModel")
 end
 
 """
@@ -33,11 +37,6 @@ x_2 - 2
 
 Starting point: `[0; 0]`.
 """
-function lls_special()
-  return LLSModel([1.0 -1; 1 1; 0 1], [0.0; 2; 2], x0=zeros(2), C=[1.0 1], lcon=[0.0], ucon=[Inf], name="lls_LLSModel")
-end
-
-
 mutable struct LLS <: AbstractNLSModel
   meta :: NLPModelMeta
   nls_meta :: NLSMeta

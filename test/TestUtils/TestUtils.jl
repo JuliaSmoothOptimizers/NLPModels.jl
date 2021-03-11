@@ -1,6 +1,6 @@
 module TestUtils
 
-using LinearAlgebra
+using LinearAlgebra, SparseArrays, Test
 
 using NLPModels
 
@@ -15,5 +15,11 @@ end
 for problem in nls_problems
   include("nls/problems/$(lowercase(problem)).jl")
 end
+
+for f in ["check-dimensions", "consistency", "multiple-precision", "view-subarray"]
+  include("nlp/$f.jl")
+  include("nls/$f.jl")
+end
+include("nlp/coord-memory.jl")
 
 end
