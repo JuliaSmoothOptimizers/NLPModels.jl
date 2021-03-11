@@ -42,14 +42,14 @@ function test_breakage_deploy()
     output *= "\n"
   end
 
-  println(output)
+  @debug(output)
 
   myauth = GitHub.authenticate(key)
   myrepo = GitHub.repo(repo, auth=myauth) # "JuliaSmoothOptimizers/NLPModels.jl"
   prs = pull_requests(myrepo, auth=myauth)
   pr = nothing
   prnumber = ENV["GITHUB_REF"]
-  println("PR NUMBER: $prnumber")
+  @debug("PR NUMBER: $prnumber")
   prnumber = split(prnumber, "/")[3]
 
   for p in prs[1]

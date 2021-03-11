@@ -33,9 +33,9 @@ function test_breakage()
   thispath = pwd()
   mkpath("test-breakage")
   try
-    println("#"^100)
-    println("  Testing package $package")
-    println("#"^100)
+    @info "#"^100
+    @info "  Testing package $package"
+    @info "#"^100
 
     cd(joinpath(thispath, "test-breakage"))
     url = "https://github.com/JuliaSmoothOptimizers/$package.jl"
@@ -52,7 +52,7 @@ function test_breakage()
     pkg"test"
     passing = true
   catch e
-    println(e)
+    @error e
   end
 
   # Enter branch breakage-info and commit file $package-$version
@@ -90,7 +90,7 @@ function test_breakage()
       tries += 1
     end
   catch ex
-    println(ex)
+    @error ex
   end
 end
 
