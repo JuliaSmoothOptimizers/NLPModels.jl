@@ -132,43 +132,5 @@ Furthermore, the `show` method has to be updated with the correct direction of `
 
 ## [Advanced tests](@id advanced-tests)
 
-To test your model, in addition to writing specific test functions, it is also advised to write consistency checks.
-If your model can implement general problems, you can use the 6 problems in our `test/problems` folder implemented both as `ADNLPModel` and by explicitly defining these problem as models.
-These can be used to verify that the implementation of your model is correct through the `consistent_nlps` function.
-The simplest way to use these would be something like
-```julia
-for problem in ["BROWNDEN", "HS5", "HS6", "HS10", "HS11", "HS14"]
-  @printf("Checking problem %-20s", problem)
-  nlp_ad = eval(Meta.parse(lowercase(problem) * "_autodiff"))() # e.g. hs5_autodiff()
-  nlp_man = eval(Meta.parse(problem))() # e.g. HS5()
-  nlp_your = ...
-  nlps = [nlp_ad, nlp_man, nlp_your]
-  consistent_nlps(nlps)
-end
-```
-
-Models with specific purposes can make use of the consistency checks by defining equivalent problems with `ADNLPModel` and testing them.
-For instance, the following model is a regularization model defined by an existing model `inner`, a regularization parameter `ρ`, and a fixed point `z`:
-```julia
-mutable struct RegNLP <: AbstractNLPModel
-  meta :: NLPModelMeta
-  inner :: AbstractNLPModel
-  ρ
-  z
-end
-```
-Assuming that all unconstrained functions are defined, the following tests will make sure that `RegNLP` is consistent with a specific `ADNLPModel`.
-```julia
-include(joinpath(dirname(pathof(NLPModels)), "..", "test", "consistency.jl"))
-
-f(x) = (x[1] - 1)^2 + 100 * (x[2] - x[1]^2)^2
-nlp = ADNLPModel(f, [-1.2; 1.0])
-ρ = rand()
-z = rand(2)
-rnlp = RegNLP(nlp, ρ, z)
-manual = ADNLPModel(x -> f(x) + ρ * norm(x - z)^2 / 2, [-1.2; 1.0])
-
-consistent_nlps([rnlp, manual])
-```
-The complete example is available in the repository [RegularizationModel.jl](https://github.com/JuliaSmoothOptimizers/RegularizationModel.jl).
-
+We have created the package [NLPModelsTest.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsTest.jl) which defines test functions and problems.
+To make sure that your model is robust, we recommend using that package.

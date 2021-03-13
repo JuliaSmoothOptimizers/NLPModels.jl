@@ -1,117 +1,26 @@
 # Models
 
-The following general models are implemented in this package:
-- [ADNLPModel](@ref)
-- [Derived Models](@ref)
-  - [SlackModel](@ref)
-  - [LBFGSModel](@ref)
-  - [LSR1Model](@ref)
+The following is a list of packages implement the NLPModels API.
 
-In addition, the following nonlinear least squares models are
-implemented in this package:
-- [ADNLSModel](@ref)
-- [FeasibilityResidual](@ref)
-- [LLSModel](@ref)
-- [SlackNLSModel](@ref)
-- [FeasibilityFormNLS](@ref)
+If you want your package listed here, open a Pull Request.
 
-There are other external models implemented. In particular,
-- [AmplModel](https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl)
-- [CUTEstModel](https://github.com/JuliaSmoothOptimizers/CUTEst.jl)
-- [MathOptNLPModel](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl) and [MathOptNLSModel](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl)
-  using `JuMP/MOI`.
+If you want to create your own interface, check these [Guidelines](@ref).
+## Packages
 
-There are currently two models implemented in this package, besides the
-external ones.
-
-# NLPModels
-
-## ADNLPModel
-
-```@docs
-NLPModels.ADNLPModel
-```
-
-### Example
-
-```@example
-using NLPModels
-f(x) = sum(x.^4)
-x = [1.0; 0.5; 0.25; 0.125]
-nlp = ADNLPModel(f, x)
-grad(nlp, x)
-```
-
-## Derived Models
-
-The following models are created from any given model, making some
-modification to that model.
-
-### SlackModel
-
-```@docs
-NLPModels.SlackModel
-```
-
-### Example
-
-```@example
-using NLPModels
-f(x) = x[1]^2 + 4x[2]^2
-c(x) = [x[1]*x[2] - 1]
-x = [2.0; 2.0]
-nlp = ADNLPModel(f, x, c, [0.0], [0.0])
-nlp_slack = SlackModel(nlp)
-nlp_slack.meta.lvar
-```
-
-### LBFGSModel
-
-```@docs
-NLPModels.LBFGSModel
-```
-
-### LSR1Model
-
-```@docs
-NLPModels.LSR1Model
-```
-
-# NLSModels
-
-## ADNLSModel
-
-```@docs
-NLPModels.ADNLSModel
-```
-
-```@example
-using NLPModels
-F(x) = [x[1] - 1; 10*(x[2] - x[1]^2)]
-nlp = ADNLSModel(F, [-1.2; 1.0], 2)
-residual(nlp, nlp.meta.x0)
-```
-
-## FeasibilityResidual
-
-```@docs
-NLPModels.FeasibilityResidual
-```
-
-## LLSModel
-
-```@docs
-NLPModels.LLSModel
-```
-
-## SlackNLSModel
-
-```@docs
-NLPModels.SlackNLSModel
-```
-
-## FeasibilityFormNLS
-
-```@docs
-NLPModels.FeasibilityFormNLS
-```
+- [NLPModelsModifiers.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsModifiers.jl):
+  Models that modify existing models.
+  For instance, creating slack variables, or moving constraints into the objective functions, or using Quasi-Newton LBFSG approximations to the Hessian.
+- [ADNLPModels.jl](https://github.com/JuliaSmoothOptimizers/ADNLPModels.jl):
+  Models with automatic differentiation. It has a very simple interface, although it isn't very efficient for larger problems.
+- [CUTEst.jl](https://github.com/JuliaSmoothOptimizers/CUTEst.jl):
+  For problems from [CUTEst](https://github.com/ralna/CUTEst/wiki).
+- [AmplNLReader.jl](https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl):
+  For problems modeled using [AMPL](https://ampl.com)
+- [NLPModelsJuMP.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl):
+  For problems modeled using [JuMP.jl](https://github.com/jump-dev/JuMP.jl).
+- [QuadraticModels.jl](https://github.com/JuliaSmoothOptimizers/QuadraticModels.jl):
+  For problems with quadratic and linear structure.
+- [LLSModels.jl](https://github.com/JuliaSmoothOptimizers/LLSModels.jl):
+  Creates a linear least squares model.
+- [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl):
+  For PDE problems.

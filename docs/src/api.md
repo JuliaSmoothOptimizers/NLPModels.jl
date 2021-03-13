@@ -126,15 +126,6 @@ hess_op_residual
 hess_op_residual!
 ```
 
-## Derivative Checker
-
-```@docs
-gradient_check
-jacobian_check
-hessian_check
-hessian_check_from_grad
-```
-
 ## Internal
 
 ```@docs

@@ -11,10 +11,12 @@ makedocs(
            "Models" => "models.md",
            "Guidelines" => "guidelines.md",
            "Tools" => "tools.md",
-           "Tutorial" => "tutorial.md",
            "API" => "api.md",
            "Reference" => "reference.md"
           ]
 )
 
-deploydocs(repo = "github.com/JuliaSmoothOptimizers/NLPModels.jl.git")
+deploydocs(
+  repo = "github.com/JuliaSmoothOptimizers/NLPModels.jl.git",
+  push_preview = true
+)

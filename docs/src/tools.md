@@ -7,12 +7,13 @@ number of times that function was called is stored inside the
 `NLPModel`. For instance
 
 ```@example
-using NLPModels, LinearAlgebra
-nlp = ADNLPModel(x -> dot(x, x), zeros(2))
-for i = 1:100
-    obj(nlp, rand(2))
-end
-neval_obj(nlp)
+# TODO: Reenable this example
+# using NLPModels, ADNLPModels, LinearAlgebra
+# nlp = ADNLPModel(x -> dot(x, x), zeros(2))
+# for i = 1:100
+#     obj(nlp, rand(2))
+# end
+# neval_obj(nlp)
 ```
 
 Some counters are available for all models, some are specific. In
@@ -44,23 +45,24 @@ To get the sum of all counters called for a problem, use
 [`sum_counters`](@ref).
 
 ```@example
-using NLPModels, LinearAlgebra
-nlp = ADNLPModel(x -> dot(x, x), zeros(2))
-obj(nlp, rand(2))
-grad(nlp, rand(2))
-sum_counters(nlp)
+# TODO: Reenable this example
+# using NLPModels, LinearAlgebra
+# nlp = ADNLPModel(x -> dot(x, x), zeros(2))
+# obj(nlp, rand(2))
+# grad(nlp, rand(2))
+# sum_counters(nlp)
 ```
 
 ## Querying problem type
 
 There are some variable for querying the problem type:
 
+- [`has_bounds`](@ref): True when not all variables are free.
 - [`bound_constrained`](@ref): True for problems with bounded variables
   and no other constraints.
 - [`equality_constrained`](@ref): True when problem is constrained only
   by equalities.
 - [`has_equalities`](@ref): True when problem has at least one equality constraint.
-- [`has_bounds`](@ref): True when not all variables are free.
 - [`inequality_constrained`](@ref): True when problem is constrained
   by inequalities.
 - [`has_inequalities`](@ref): True when problem has at least one inequality constraint that isn't a bound.

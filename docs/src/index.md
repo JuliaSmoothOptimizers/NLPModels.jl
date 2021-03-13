@@ -66,51 +66,14 @@ Install NLPModels.jl with the following command.
 ```julia
 pkg> add NLPModels
 ```
-This will enable a simple model and a model with automatic differentiation using
-`ForwardDiff`. For models using JuMP see
-[NLPModelsJuMP.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl).
+
+This will enable the use of the API and the tools described here, and it allows the creation of a manually written model.
+Look into [Models](@ref) for more information on that subject, and on a list of packages implementing ready-to-use models.
 
 ## Usage
 
-See the [Models](@ref), the [Tools](@ref tools-section), the [Tutorial](@ref), or the [API](@ref).
+See the [Models](@ref), the [Tools](@ref tools-section), or the [API](@ref).
 
-## Internal Interfaces
-
- - [`ADNLPModel`](@ref): Uses
-   [`ForwardDiff`](https://github.com/JuliaDiff/ForwardDiff.jl) to compute the
-   derivatives. It has a very simple interface, though it isn't very efficient
-   for larger problems.
- - [`SlackModel`](@ref): Creates an equality constrained problem with bounds
-    on the variables using an existing NLPModel.
- - [`LBFGSModel`](@ref): Creates a model using a LBFGS approximation to
-   the Hessian using an existing NLPModel.
- - [`LSR1Model`](@ref): Creates a model using a LSR1 approximation to
-   the Hessian using an existing NLPModel.
- - [`ADNLSModel`](@ref): Similar to `ADNLPModel`, but for nonlinear
-   least squares.
- - [`FeasibilityResidual`](@ref): Creates a nonlinear least squares
-   model from an equality constrained problem in which the residual
-   function is the constraints function.
- - [`LLSModel`](@ref): Creates a linear least squares model.
- - [`SlackNLSModel`](@ref): Creates an equality constrained nonlinear least squares
-   problem with bounds on the variables using an existing NLSModel.
- - [`FeasibilityFormNLS`](@ref): Creates residual variables and constraints, so that the residual
-   is linear.
-
-## External Interfaces
-
- - `AmplModel`: Defined in
-   [`AmplNLReader.jl`](https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl)
-   for problems modeled using [AMPL](https://ampl.com)
- - `CUTEstModel`: Defined in
-   [`CUTEst.jl`](https://github.com/JuliaSmoothOptimizers/CUTEst.jl) for
-   problems from [CUTEst](https://github.com/ralna/CUTEst/wiki).
- - [`MathOptNLPModel`](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl) and [`MathOptNLSModel`](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl)
-   for problems modeled using [JuMP.jl](https://github.com/jump-dev/JuMP.jl) and [MathOptInterface.jl](https://github.com/jump-dev/MathOptInterface.jl).
-
-If you want your interface here, open a PR.
-
-If you want to create your own interface, check these [Guidelines](@ref).
 
 ## Attributes
 
