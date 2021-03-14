@@ -1,19 +1,36 @@
 module NLPModels
 
-using LinearAlgebra, LinearOperators, Printf, SparseArrays, FastClosures
+# stdlib
+using LinearAlgebra, Printf, SparseArrays
+# external
+using FastClosures
+# JSO
+using LinearOperators
 
-include("core/core.jl")
+export AbstractNLPModel, AbstractNLSModel
 
-include("autodiff_model.jl")
-include("autodiff_nlsmodel.jl")
-include("feasibility_form_nls.jl")
-include("feasibility_residual.jl")
-include("lls_model.jl")
-include("qn_model.jl")
-include("slack_model.jl")
+# For documentation purpose
+const OBJECTIVE_HESSIAN = raw"""
+```math
+σ ∇²f(x),
+```
+with `σ = obj_weight`
+"""
+const LAGRANGIAN_HESSIAN = raw"""
+```math
+∇²L(x,y) = σ ∇²f(x) + \sum_i yᵢ ∇²cᵢ(x),
+```
+with `σ = obj_weight`
+"""
 
-include("model-interaction.jl")
+# Base type for an optimization model.
+abstract type AbstractNLPModel end
 
-include("dercheck.jl")
+abstract type AbstractNLSModel <: AbstractNLPModel end
+
+for f in ["utils", "api", "counters", "meta", "show", "tools", ]
+  include("nlp/$f.jl")
+  include("nls/$f.jl")
+end
 
 end # module

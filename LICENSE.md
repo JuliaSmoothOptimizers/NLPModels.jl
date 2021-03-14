@@ -1,4 +1,4 @@
-Copyright (c) 2015-2019: Dominique Orban and Abel Soares Siqueira
+Copyright (c) 2015-2021: Dominique Orban and Abel Soares Siqueira
 
 NLPModels.jl is licensed under the [MPL version 2.0](https://www.mozilla.org/MPL/2.0/).
 

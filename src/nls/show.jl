@@ -21,7 +21,7 @@ function Base.show(io :: IO, nm :: NLSMeta)
 end
 
 function Base.show(io :: IO, m :: NLPModelMeta, nm :: NLSMeta)
-  println("  Problem name: $(m.name)")
+  println(io, "  Problem name: $(m.name)")
   nlplines = lines_of_description(m)
   nlslines = lines_of_description(nm)
   append!(nlslines, repeat([""], length(nlplines) - length(nlslines)))

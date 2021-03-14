@@ -2,7 +2,6 @@
 
 This package provides general guidelines to represent optimization problems in Julia and a standardized API to evaluate the functions and their derivatives.
 The main objective is to be able to rely on that API when designing optimization solvers in Julia.
-
 ## How to Cite
 
 If you use NLPModels.jl in your work, please cite using the format given in [CITATION.bib](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/blob/master/CITATION.bib).
@@ -10,7 +9,7 @@ If you use NLPModels.jl in your work, please cite using the format given in [CIT
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2558627.svg)](https://doi.org/10.5281/zenodo.2558627)
 [![GitHub release](https://img.shields.io/github/release/JuliaSmoothOptimizers/NLPModels.jl.svg)](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/releases/latest)
 [![](https://img.shields.io/badge/docs-stable-3f51b5.svg)](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/stable)
-[![](https://img.shields.io/badge/docs-latest-3f51b5.svg)](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/latest)
+[![](https://img.shields.io/badge/docs-latest-3f51b5.svg)](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/dev)
 [![codecov](https://codecov.io/gh/JuliaSmoothOptimizers/NLPModels.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaSmoothOptimizers/NLPModels.jl)
 
 ![CI](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/workflows/CI/badge.svg?branch=master)
@@ -24,8 +23,8 @@ Such instances are composed of
 * other data specific to the provenance of the problem.
 
 See the
-[documentation](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/latest) for
-details on the models, a tutorial and the API.
+[documentation](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/dev) for
+details on the models and the API.
 
 ## Installation
 
@@ -33,17 +32,11 @@ details on the models, a tutorial and the API.
 pkg> add NLPModels
 ```
 
-## External models
+## Models
 
-In addition to the models available in this package, there are some external models
-for specific needs:
+This package provides no models, although it allows the definition of manually written models.
 
-- [AmplNLReader.jl](https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl): Interface
-  for [AMPL](http://www.ampl.com/);
-- [CUTEst.jl](https://github.com/JuliaSmoothOptimizers/CUTEst.jl): Interface for CUTEst
-  problems;
-- [NLPModelsJuMP.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl):
-  Converts MathOptInterface/JuMP models to and from NLPModels.
+Check the list of packages that define models in [this page of the docs](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/dev/models)
 
 ## Main Methods
 
