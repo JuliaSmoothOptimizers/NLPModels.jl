@@ -26,7 +26,7 @@ function test_breakage_deploy()
   badge_fail(x) = "![](https://img.shields.io/badge/$x-Fail-red)"
   badge(tf, x) = tf ? badge_pass(x) : badge_fail(x)
 
-  packages = [NLPModelsModifiers, NLPModelsTest, AmplNLReader, CaNNOLeS, CUTEst, NLPModelsJuMP, QuadraticModels, SolverTools]
+  packages = ["NLPModelsModifiers", "NLPModelsTest", "AmplNLReader", "CaNNOLeS", "CUTEst", "NLPModelsJuMP", "QuadraticModels", "SolverTools"]
 
   output = ":robot: Testing breakage of this pull request\n\n"
   output *= "| Package Name | master | stable |\n"
