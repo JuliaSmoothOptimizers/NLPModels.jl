@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pkg: [NLPModelsModifiers, NLPModelsTest, AmplNLReader, CaNNOLeS, CUTEst, NLPModelsJuMP, QuadraticModels, SolverTools]
+        pkg: [NLPModelsModifiers, NLPModelsTest, ADNLPModels, AmplNLReader, CUTEst, LLSModels, NLPModelsJuMP, PDENLPModels, QuadraticModels, SolverTools, CaNNOLeS, JSOSolvers, NLPModelsIpopt, Percival, DCI]
         pkgversion: ["master", "stable"]
     steps:
       - uses: actions/checkout@v2
