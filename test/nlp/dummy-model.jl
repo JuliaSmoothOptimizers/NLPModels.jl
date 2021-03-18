@@ -20,7 +20,7 @@ end
   @test_throws(MethodError, jth_congrad!(model, [0.0], 1, [2.0]))
   @test_throws(MethodError, jprod!(model, [0.0], [1.0], [2.0]))
   @test_throws(MethodError, jtprod!(model, [0.0], [1.0], [2.0]))
-  @test_throws(MethodError, jth_hprod(model, [0.0], [1.0], 2))
+  @test_throws(MethodError, jth_hess_coord!(model, [0.0], 1))
   @test_throws(MethodError, jth_hprod!(model, [0.0], [1.0], 2, [3.0]))
   @test_throws(MethodError, ghjvprod!(model, [0.0], [1.0], [2.0], [3.0]))
   @assert isa(hess_op(model, [0.]), LinearOperator)
