@@ -57,6 +57,12 @@
   Jop = jac_op!(nlp, x, jac_structure(nlp)..., Jv, Jtw)
   @test Jop * v ≈ J(x) * v
   @test Jop' * w ≈ J(x)' * w
+  for j = 1:nlp.meta.ncon
+    eⱼ = [i == j ? 1.0 : 0.0 for i = 1:m]
+    @test jth_hess(nlp, x, j) == H(x,eⱼ) - H(x)
+    @test sparse(hess_structure(nlp)..., jth_hess_coord(nlp, x, j), n, n) == H(x,eⱼ) - H(x)
+    @test jth_hprod(nlp, x, v, j) == (H(x,eⱼ) - H(x)) * v
+  end
   ghjv = zeros(m)
   for j = 1:m
     eⱼ = [i == j ? 1.0 : 0.0 for i = 1:m]

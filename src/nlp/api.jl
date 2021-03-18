@@ -2,6 +2,7 @@ export obj, grad, grad!, objgrad, objgrad!, objcons, objcons!
 export cons, cons!, jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad
 export jac_structure!, jac_structure, jac_coord!, jac_coord
 export jac, jprod, jprod!, jtprod, jtprod!, jac_op, jac_op!
+export jth_hess_coord, jth_hess_coord!, jth_hess
 export jth_hprod, jth_hprod!, ghjvprod, ghjvprod!
 export hess_structure!, hess_structure, hess_coord!, hess_coord
 export hess, hprod, hprod!, hess_op, hess_op!
@@ -308,12 +309,60 @@ function jac_op!(nlp :: AbstractNLPModel, x :: AbstractVector, rows :: AbstractV
   return jac_op!(nlp, rows, cols, vals, Jv, Jtv)
 end
 
-function jth_hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, j::Integer)
-  @lencheck nlp.meta.nvar x v
-  hv = Vector{eltype(x)}(undef, nlp.meta.nvar)
-  return jth_hprod!(nlp, x, v, j, hv)
+"""
+    vals = jth_hess_coord(nlp, x, j)
+
+Evaluate the Hessian of j-th constraint at `x` in sparse coordinate format.
+Only the lower triangle is returned.
+"""
+function jth_hess_coord(nlp::AbstractNLPModel, x::AbstractVector, j::Integer)
+  @lencheck nlp.meta.nvar x
+  @rangecheck 1 nlp.meta.ncon j
+  vals = Vector{eltype(x)}(undef, nlp.meta.nnzh)
+  return jth_hess_coord!(nlp, x, j, vals)
 end
 
+"""
+    vals = jth_hess_coord!(nlp, x, j, vals)
+
+Evaluate the Hessian of j-th constraint at `x` in sparse coordinate format, with `vals` of
+length `nlp.meta.nnzh`, in place. Only the lower triangle is returned.
+"""
+function jth_hess_coord! end
+
+"""
+   Hx = jth_hess(nlp, x, j)
+
+Evaluate the Hessian of j-th constraint at `x` as a sparse matrix with
+the same sparsity pattern as the Lagrangian Hessian.
+Only the lower triangle is returned.
+"""
+function jth_hess(nlp::AbstractNLPModel, x::AbstractVector, j::Integer) 
+  @lencheck nlp.meta.nvar x
+  @rangecheck 1 nlp.meta.ncon j
+  rows, cols = hess_structure(nlp)
+  vals = jth_hess_coord(nlp, x, j)
+  return sparse(rows, cols, vals, nlp.meta.nvar, nlp.meta.nvar)
+end
+
+"""
+    Hv = jth_hprod(nlp, x, v, j)
+
+Evaluate the product of the Hessian of j-th constraint at `x` with the vector `v`.
+"""
+function jth_hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, j::Integer)
+  @lencheck nlp.meta.nvar x v
+  @rangecheck 1 nlp.meta.ncon j
+  Hv = Vector{eltype(x)}(undef, nlp.meta.nvar)
+  return jth_hprod!(nlp, x, v, j, Hv)
+end
+
+"""
+    Hv = jth_hprod!(nlp, x, v, j, Hv)
+
+Evaluate the product of the Hessian of j-th constraint at `x` with the vector `v`
+in place.
+"""
 function jth_hprod! end
 
 """

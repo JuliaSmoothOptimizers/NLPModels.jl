@@ -96,6 +96,30 @@ function NLPModels.jtprod!(nlp :: SimpleNLPModel, x :: AbstractVector, v :: Abst
   return Jtv
 end
 
+function NLPModels.jth_hess_coord!(nlp :: SimpleNLPModel, x :: AbstractVector{T}, j :: Integer, vals :: AbstractVector{T}) where T 
+  @lencheck 2 x vals
+  increment!(nlp, :neval_jhess)
+  if j == 1
+    vals .= 0
+  elseif j == 2
+    vals[1] = -1/2
+    vals[2] = -2
+  end
+  return vals
+end
+
+function NLPModels.jth_hprod!(nlp :: SimpleNLPModel, x :: AbstractVector{T}, v :: AbstractVector{T}, j :: Integer, Hv :: AbstractVector{T}) where T 
+  @lencheck 2 x v Hv
+  increment!(nlp, :neval_jhprod)
+  if j == 1
+    Hv .= 0
+  elseif j == 2
+    Hv[1] = -v[1] / 2
+    Hv[2] = -2v[2]
+  end
+  return Hv
+end
+
 function NLPModels.ghjvprod!(nlp :: SimpleNLPModel, x :: AbstractVector{T}, g :: AbstractVector{T}, v :: AbstractVector{T}, gHv :: AbstractVector{T}) where T
   @lencheck nlp.meta.nvar x g v
   @lencheck nlp.meta.ncon gHv
