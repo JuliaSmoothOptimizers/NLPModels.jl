@@ -30,7 +30,7 @@ jobs:
           "JuliaSmoothOptimizers/SolverBenchmark.jl",
           "JuliaSmoothOptimizers/SolverTools.jl"
         ]
-        pkgversion: [master, stable]
+        pkgversion: [latest, stable]
 
     steps:
       - uses: actions/checkout@v2
@@ -113,7 +113,7 @@ jobs:
       - run: ls
       - run: |
           cd pr
-          echo "| Package name | master | stable |" > MSG
+          echo "| Package name | latest | stable |" > MSG
           echo "|--|--|--|" >> MSG
           count=0
           for file in *
