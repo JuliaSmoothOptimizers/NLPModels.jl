@@ -13,8 +13,22 @@ jobs:
       fail-fast: false
       matrix:
         pkg: [
+          "JuliaSmoothOptimizers/ADNLPModels.jl",
+          "JuliaSmoothOptimizers/AmplNLReader.jl",
+          "JuliaSmoothOptimizers/CaNNOLeS.jl",
+          "JuliaSmoothOptimizers/CUTEst.jl",
+          "JuliaSmoothOptimizers/DCI.jl",
+          "JuliaSmoothOptimizers/JSOSolvers.jl",
+          "JuliaSmoothOptimizers/LLSModels.jl",
+          "JuliaSmoothOptimizers/NLPModelsIpopt.jl",
+          "JuliaSmoothOptimizers/NLPModelsJuMP.jl",
           "JuliaSmoothOptimizers/NLPModelsModifiers.jl",
-          "JuliaSmoothOptimizers/NLPModelsIpopt.jl"
+          "JuliaSmoothOptimizers/NLPModelsTest.jl",
+          # "JuliaSmoothOptimizers/PDENLPModels.jl",
+          "JuliaSmoothOptimizers/Percival.jl",
+          "JuliaSmoothOptimizers/QuadraticModels.jl",
+          "JuliaSmoothOptimizers/SolverBenchmark.jl",
+          "JuliaSmoothOptimizers/SolverTools.jl"
         ]
         pkgversion: [master, stable]
 
@@ -52,21 +66,31 @@ jobs:
           cd $PKG
           if [ $VERSION == "stable" ]; then
             TAG=$(git tag -l "v*" --sort=-creatordate | head -n1)
-            git checkout $TAG
+            if [ -z "$TAG" ]; then
+              TAG="no_tag"
+            else
+              git checkout $TAG
+            fi
+          else
+            TAG=$VERSION
           fi
+          export TAG
           julia -e 'using Pkg;
-            PKG, VERSION = ENV["PKG"], ENV["VERSION"]
+            PKG, TAG, VERSION = ENV["PKG"], ENV["TAG"], ENV["VERSION"]
+            joburl = joinpath(ENV["GITHUB_SERVER_URL"], ENV["GITHUB_REPOSITORY"], "actions/runs", ENV["GITHUB_RUN_ID"])
             open("../pr/$PKG-$VERSION", "w") do io
               try
+                TAG == "no_tag" && error("Not tag for $VERSION")
                 pkg"activate .";
                 pkg"instantiate";
                 pkg"dev ../";
                 pkg"build";
                 pkg"test";
-                print(io, "![](https://img.shields.io/badge/$PKG-Pass-green)");
+
+                print(io, "[![](https://img.shields.io/badge/$TAG-Pass-green)]($joburl)");
               catch e
                 @error e;
-                print(io, "![](https://img.shields.io/badge/$PKG-Fail-red)");
+                print(io, "[![](https://img.shields.io/badge/$TAG-Fail-red)]($joburl)");
               end;
             end'
 
