@@ -17,7 +17,7 @@ end
 """
     histline(s, v, maxv)
 
-Return a string in the form
+Return a string of the form
 
     ______NAME______: ████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 5
 
@@ -35,7 +35,7 @@ end
 """
     sparsityline(s, v, maxv)
 
-Return a string in the form
+Return a string of the form
 
     ______NAME______: ( 80.00% sparsity)   5
 

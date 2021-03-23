@@ -3,7 +3,7 @@ export Counters, sum_counters, increment!, decrement!, reset!
 """
     Counters
 
-Struct for storing the number of functions evaluations.
+Struct for storing the number of function evaluations.
 
 ---
 

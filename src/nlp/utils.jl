@@ -23,7 +23,7 @@ end
 """
     @lencheck n x y z …
 
-Check that arrays `x`, `y`, `z`, etc. have a prescribed size `n`.
+Check that arrays `x`, `y`, `z`, etc. have a prescribed length `n`.
 """
 macro lencheck(l, vars...)
   exprs = Expr[]
