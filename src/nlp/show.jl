@@ -1,5 +1,11 @@
 export show_header
 
+"""
+    show_header(io, nlp)
+
+Show a header for the specific `nlp` type.
+Should be imported and defined for every model implementing the NLPModels API.
+"""
 show_header(io :: IO, nlp :: AbstractNLPModel) = println(io, typeof(nlp))
 
 function Base.show(io :: IO, nlp :: AbstractNLPModel)
@@ -8,12 +14,36 @@ function Base.show(io :: IO, nlp :: AbstractNLPModel)
   show(io, nlp.counters)
 end
 
+"""
+    histline(s, v, maxv)
+
+Return a string in the form
+
+    ______NAME______: ████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 5
+
+where:
+- `______NAME______` is `s` with padding to the left and length 16.
+- And the symbols █ and ⋅ fill 20 characters in the proportion of `v / maxv` to █ and the rest to ⋅.
+- The number `5` is v.
+"""
 function histline(s, v, maxv)
   @assert 0 ≤ v ≤ maxv
   λ = maxv == 0 ? 0 : ceil(Int, 20 * v / maxv)
   return @sprintf("%16s: %s %-6s", s, "█"^λ * "⋅"^(20 - λ), v)
 end
 
+"""
+    sparsityline(s, v, maxv)
+
+Return a string in the form
+
+    ______NAME______: ( 80.00% sparsity)   5
+
+where:
+- `______NAME______` is `s` with padding to the left and length 16.
+- The sparsity value is given by `v / maxv`.
+- The number `5` is v.
+"""
 function sparsityline(s, v, maxv)
   if maxv == 0
     @sprintf("%16s: (------%% sparsity)   %-6s", s, " ")
@@ -22,12 +52,22 @@ function sparsityline(s, v, maxv)
   end
 end
 
+"""
+    lines_of_hist(S, V)
+
+Return a vector of `histline(s, v, maxv)`s using pairs of `s` in `S` and `v` in `V`. `maxv` is given by the maximum of `V`.
+"""
 function lines_of_hist(S, V)
   maxv = maximum(V)
   lines = histline.(S, V, maxv)
   return lines
 end
 
+"""
+    lines_of_description(meta)
+
+Describe `meta` for the `show` function.
+"""
 function lines_of_description(m :: NLPModelMeta)
   V = [length(m.ifree), length(m.ilow), length(m.iupp), length(m.irng), length(m.ifix), length(m.iinf)]
   V = [sum(V); V]
@@ -54,6 +94,11 @@ function Base.show(io :: IO, m :: NLPModelMeta)
   println(io, join(lines, "\n") * "\n")
 end
 
+"""
+    show_counters(io, counters, fields)
+
+Show the `fields` of the struct `counters`.
+"""
 function show_counters(io :: IO, c, F)
   V = (getproperty(c, f) for f in F)
   S = (string(f)[7:end] for f in F)

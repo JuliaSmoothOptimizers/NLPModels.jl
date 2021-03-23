@@ -4,6 +4,11 @@ function Base.show(io :: IO, nls :: AbstractNLSModel)
   show(io, nls.counters)
 end
 
+"""
+    lines_of_description(nls_meta)
+
+Describe `nls_meta` for the `show` function.
+"""
 function lines_of_description(nm :: NLSMeta)
   V = [nm.nequ, nm.nlin, nm.nnln]
   S = ["All residuals", "linear", "nonlinear"]

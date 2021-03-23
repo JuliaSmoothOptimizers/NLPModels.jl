@@ -23,9 +23,18 @@ const LAGRANGIAN_HESSIAN = raw"""
 with `σ = obj_weight`
 """
 
-# Base type for an optimization model.
+"""
+    AbstractNLPModel
+
+Base type for an optimization model.
+"""
 abstract type AbstractNLPModel end
 
+"""
+    AbstractNLSModel <: AbstractNLPModel
+
+Base type for nonlinear least-squares models.
+"""
 abstract type AbstractNLSModel <: AbstractNLPModel end
 
 for f in ["utils", "api", "counters", "meta", "show", "tools", ]

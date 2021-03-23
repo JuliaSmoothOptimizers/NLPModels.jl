@@ -1,5 +1,16 @@
 export Counters, sum_counters, increment!, decrement!, reset!
 
+"""
+    Counters
+
+Struct for storing the number of functions evaluations.
+
+---
+
+    Counters()
+
+Creates an empty Counters struct.
+"""
 mutable struct Counters
   neval_obj    :: Int  # Number of objective evaluations.
   neval_grad   :: Int  # Number of objective gradient evaluations.

@@ -24,3 +24,14 @@ If you want to create your own interface, check these [Guidelines](@ref).
   Creates a linear least squares model.
 - [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl):
   For PDE problems.
+
+## Model internals
+
+```@docs
+AbstractNLPModel
+AbstractNLSModel
+AbstractNLPModelMeta
+NLPModelMeta
+NLSMeta
+nls_meta
+```

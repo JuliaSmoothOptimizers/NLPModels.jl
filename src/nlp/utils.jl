@@ -2,6 +2,13 @@ export coo_prod!, coo_sym_prod!
 export @default_counters
 export DimensionError, @lencheck, @rangecheck
 
+"""
+    DimensionError <: Exception
+    DimensionError(name, dim_expected, dim_found)
+
+Error for unexpected dimension.
+Output: "DimensionError: Input `name` should have length `dim_expected` not `dim_found`"
+"""
 struct DimensionError <: Exception
   name :: Union{Symbol,String}
   dim_expected :: Int
@@ -12,8 +19,12 @@ function Base.showerror(io::IO, e::DimensionError)
   print(io, "DimensionError: Input $(e.name) should have length $(e.dim_expected) not $(e.dim_found)")
 end
 
-# Check that arrays have a prescribed size.
 # https://groups.google.com/forum/?fromgroups=#!topic/julia-users/b6RbQ2amKzg
+"""
+    @lencheck n x y z …
+
+Check that arrays `x`, `y`, `z`, etc. have a prescribed size `n`.
+"""
 macro lencheck(l, vars...)
   exprs = Expr[]
   for var in vars
@@ -26,6 +37,11 @@ macro lencheck(l, vars...)
   Expr(:block, exprs...)
 end
 
+"""
+    @rangecheck ℓ u i j k …
+
+Check that values `i`, `j`, `k`, etc. are in the range `[ℓ,u]`.
+"""
 macro rangecheck(lo, hi, vars...)
   exprs = Expr[]
   for var in vars

@@ -1,13 +1,22 @@
 export NLSMeta, nls_meta
 
-# The problem is
-#
-#    min    ¹/₂‖F(x)‖²
-#
-# where F:ℜⁿ→ℜᵐ. `n` = `nvar`, `m` = `nequ`.
-#
-# TODO: Extend
+"""
+    NLSMeta
 
+Base type for metadata related to a nonlinear least-squares model.
+
+---
+
+    NLSMeta(nequ, nvar; kwargs..)
+
+Create a `NLSMeta` with `nequ` equations and `nvar` variables.
+The following keyword arguments are accepted:
+- `x0`: initial guess
+- `nnzj`: number of elements needed to store the nonzeros of the Jacobian of the residual
+- `nnzh`: number of elements needed to store the nonzeros of the sum of Hessians of the residuals
+- `lin`: indices of linear constraints
+- `nln`: indices of nonlinear constraints
+"""
 struct NLSMeta
   nequ :: Int
   nvar :: Int
@@ -33,4 +42,10 @@ function NLSMeta(nequ :: Int, nvar :: Int;
   return NLSMeta(nequ, nvar, x0, nnzj, nnzh, nln, length(nln), lin, length(lin))
 end
 
+"""
+    nls_meta(nls)
+
+Returns the `nls_meta` structure of `nls`.
+Use this instead of `nls.nls_meta` to handle models that have internal models.
+"""
 nls_meta(nls :: AbstractNLSModel) = nls.nls_meta
