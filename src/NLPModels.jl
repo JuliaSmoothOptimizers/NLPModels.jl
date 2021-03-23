@@ -33,7 +33,7 @@ abstract type AbstractNLPModel end
 """
     AbstractNLSModel <: AbstractNLPModel
 
-Base type for nonlinear least-squares models.
+Base type for a nonlinear least-squares model.
 """
 abstract type AbstractNLSModel <: AbstractNLPModel end
 

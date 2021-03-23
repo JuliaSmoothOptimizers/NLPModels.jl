@@ -7,7 +7,7 @@ Base type for metadata related to a nonlinear least-squares model.
 
 ---
 
-    NLSMeta(nequ, nvar; kwargs..)
+    NLSMeta(nequ, nvar; kwargs...)
 
 Create a `NLSMeta` with `nequ` equations and `nvar` variables.
 The following keyword arguments are accepted:
@@ -47,5 +47,7 @@ end
 
 Returns the `nls_meta` structure of `nls`.
 Use this instead of `nls.nls_meta` to handle models that have internal models.
+
+For basic models `nls_meta(nls)` is defined as `nls.nls_meta`, but composite models might not keep `nls_meta` themselves, so they might specialize it to something like `nls.internal.nls_meta`.
 """
 nls_meta(nls :: AbstractNLSModel) = nls.nls_meta
