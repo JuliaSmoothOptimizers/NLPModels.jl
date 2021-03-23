@@ -1,5 +1,17 @@
 export NLSCounters
 
+"""
+    NLSCounters
+
+Struct for storing the number of functions evaluations for nonlinear least-squares models.
+NLSCounters also stores a `Counters` named `counters`.
+
+---
+
+    NLSCounters()
+
+Creates an empty NLSCounters struct.
+"""
 mutable struct NLSCounters
   counters :: Counters
   neval_residual        :: Int

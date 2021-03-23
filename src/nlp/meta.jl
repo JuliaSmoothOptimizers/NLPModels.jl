@@ -1,78 +1,121 @@
 export AbstractNLPModelMeta, NLPModelMeta, reset_data!
 
-# Base type for metadata related to an optimization model.
+"""
+    AbstractNLPModelMeta
+
+Base type for metadata related to an optimization model.
+"""
 abstract type AbstractNLPModelMeta end
 
+"""
+    NLPModelMeta <: AbstractNLPModelMeta
+
+A composite type that represents the main features of the optimization problem
+
+    optimize    obj(x)
+    subject to  lvar ≤    x    ≤ uvar
+                lcon ≤ cons(x) ≤ ucon
+
+where `x`        is an `nvar`-dimensional vector,
+      `obj`      is the real-valued objective function,
+      `cons`     is the vector-valued constraint function,
+      `optimize` is either "minimize" or "maximize".
+
+Here, `lvar`, `uvar`, `lcon` and `ucon` are vectors.
+Some of their components may be infinite to indicate that the corresponding bound or general constraint is not present.
+
+---
+
+    NLPModelMeta(nvar; kwargs...)
+
+Create an `NLPModelMeta` with `nvar` variables.
+The following keyword arguments are accepted:
+- `x0`: initial guess
+- `lvar`: vector of lower bounds
+- `uvar`: vector of upper bounds
+- `nbv`: number of linear binary variables
+- `niv`: number of linear non-binary integer variables
+- `nlvb`: number of nonlinear variables in both objectives and constraints
+- `nlvo`: number of nonlinear variables in objectives (includes nlvb)
+- `nlvc`: number of nonlinear variables in constraints (includes nlvb)
+- `nlvbi`: number of integer nonlinear variables in both objectives and constraints
+- `nlvci`: number of integer nonlinear variables in constraints only
+- `nlvoi`: number of integer nonlinear variables in objectives only
+- `nwv`: number of linear network (arc) variables
+- `ncon`: number of general constraints
+- `y0`: initial Lagrange multipliers
+- `lcon`: vector of constraint lower bounds
+- `ucon`: vector of constraint upper bounds
+- `nnzo`: number of nonzeros in all objectives gradients
+- `nnzj`: number of elements needed to store the nonzeros in the sparse Jacobian
+- `nnzh`: number of elements needed to store the nonzeros in the sparse Hessian
+- `nlin`: number of linear constraints
+- `nnln`: number of nonlinear general constraints
+- `nnnet`: number of nonlinear network constraints
+- `nlnet`: number of linear network constraints
+- `lin`: indices of linear constraints
+- `nln`: indices of nonlinear constraints
+- `nnet`: indices of nonlinear network constraints
+- `lnet`: indices of linear network constraints
+- `minimize`: true if optimize == minimize
+- `nlo`: number of nonlinear objectives
+- `islp`: true if the problem is a linear program
+- `name`: problem name
+"""
 struct NLPModelMeta <: AbstractNLPModelMeta
 
-  # A composite type that represents the main features of
-  # the optimization problem
-  #
-  #  optimize   obj(x)
-  #  subject to lvar ≤    x    ≤ uvar
-  #             lcon ≤ cons(x) ≤ ucon
-  #
-  # where x        is an nvar-dimensional vector,
-  #       obj      is the real-valued objective function,
-  #       cons     is the vector-valued constraint function,
-  #       optimize is either "minimize" or "maximize".
-  #
-  # Here, lvar, uvar, lcon and ucon are vectors. Some of their
-  # components may be infinite to indicate that the corresponding
-  # bound or general constraint is not present.
+  nvar :: Int
+  x0   :: Vector
+  lvar :: Vector
+  uvar :: Vector
 
-  nvar :: Int               # number of variables
-  x0   :: Vector    # initial guess
-  lvar :: Vector    # vector of lower bounds
-  uvar :: Vector    # vector of upper bounds
+  ifix  :: Vector{Int}
+  ilow  :: Vector{Int}
+  iupp  :: Vector{Int}
+  irng  :: Vector{Int}
+  ifree :: Vector{Int}
+  iinf  :: Vector{Int}
 
-  ifix  :: Vector{Int}     # indices of fixed variables
-  ilow  :: Vector{Int}     # indices of variables with lower bound only
-  iupp  :: Vector{Int}     # indices of variables with upper bound only
-  irng  :: Vector{Int}     # indices of variables with lower and upper bound (range)
-  ifree :: Vector{Int}     # indices of free variables
-  iinf  :: Vector{Int}     # indices of infeasible bounds
+  nbv   :: Int
+  niv   :: Int
+  nlvb  :: Int
+  nlvo  :: Int
+  nlvc  :: Int
+  nlvbi :: Int
+  nlvci :: Int
+  nlvoi :: Int
+  nwv   :: Int
 
-  nbv   :: Int              # number of linear binary variables
-  niv   :: Int              # number of linear non-binary integer variables
-  nlvb  :: Int              # number of nonlinear variables in both objectives and constraints
-  nlvo  :: Int              # number of nonlinear variables in objectives (includes nlvb)
-  nlvc  :: Int              # number of nonlinear variables in constraints (includes nlvb)
-  nlvbi :: Int              # number of integer nonlinear variables in both objectives and constraints
-  nlvci :: Int              # number of integer nonlinear variables in constraints only
-  nlvoi :: Int              # number of integer nonlinear variables in objectives only
-  nwv   :: Int              # number of linear network (arc) variables
+  ncon :: Int
+  y0   :: Vector
+  lcon :: Vector
+  ucon :: Vector
 
-  ncon :: Int               # number of general constraints
-  y0   :: Vector    # initial Lagrange multipliers
-  lcon :: Vector    # vector of constraint lower bounds
-  ucon :: Vector    # vector of constraint upper bounds
+  jfix  :: Vector{Int}
+  jlow  :: Vector{Int}
+  jupp  :: Vector{Int}
+  jrng  :: Vector{Int}
+  jfree :: Vector{Int}
+  jinf  :: Vector{Int}
 
-  jfix  :: Vector{Int}     # indices of equality constraints
-  jlow  :: Vector{Int}     # indices of constraints of the form c(x) ≥ cl
-  jupp  :: Vector{Int}     # indices of constraints of the form c(x) ≤ cu
-  jrng  :: Vector{Int}     # indices of constraints of the form cl ≤ c(x) ≤ cu
-  jfree :: Vector{Int}     # indices of "free" constraints (there shouldn't be any)
-  jinf  :: Vector{Int}     # indices of the visibly infeasible constraints
+  nnzo :: Int
+  nnzj :: Int
+  nnzh :: Int
 
-  nnzo :: Int               # number of nonzeros in all objectives gradients
-  nnzj :: Int               # number of elements needed to store the nonzeros in the sparse Jacobian
-  nnzh :: Int               # number of elements needed to store the nonzeros in the sparse Hessian
+  nlin  :: Int
+  nnln  :: Int
+  nnnet :: Int
+  nlnet :: Int
 
-  nlin  :: Int              # number of linear constraints
-  nnln  :: Int              # number of nonlinear general constraints
-  nnnet :: Int              # number of nonlinear network constraints
-  nlnet :: Int              # number of linear network constraints
+  lin   :: Vector{Int}
+  nln   :: Vector{Int}
+  nnet  :: Vector{Int}
+  lnet  :: Vector{Int}
 
-  lin   :: Vector{Int}     # indices of linear constraints
-  nln   :: Vector{Int}     # indices of nonlinear constraints
-  nnet  :: Vector{Int}     # indices of nonlinear network constraints
-  lnet  :: Vector{Int}     # indices of linear network constraints
-
-  minimize :: Bool          # true if optimize == minimize
-  nlo  :: Int               # number of nonlinear objectives
-  islp :: Bool              # true if the problem is a linear program
-  name :: String       # problem name
+  minimize :: Bool
+  nlo  :: Int
+  islp :: Bool
+  name :: String
 
   function NLPModelMeta(nvar;
                         x0=zeros(nvar,),

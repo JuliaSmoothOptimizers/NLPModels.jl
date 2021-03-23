@@ -106,6 +106,7 @@ reset_data!
 ## AbstractNLSModel
 
 ```@docs
+NLSCounters
 residual
 residual!
 jac_residual
@@ -129,15 +130,4 @@ hprod_residual
 hprod_residual!
 hess_op_residual
 hess_op_residual!
-```
-
-## Internal
-
-```@docs
-coo_prod!
-coo_sym_prod!
-@default_counters
-@default_nlscounters
-increment!
-decrement!
 ```

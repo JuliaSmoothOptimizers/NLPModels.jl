@@ -12,6 +12,7 @@ makedocs(
            "Guidelines" => "guidelines.md",
            "Tools" => "tools.md",
            "API" => "api.md",
+           "Internals" => "internals.md",
            "Reference" => "reference.md"
           ]
 )

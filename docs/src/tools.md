@@ -74,6 +74,7 @@ There are some variable for querying the problem type:
 ## Docs
 
 ```@docs
+Counters
 neval_obj
 neval_grad
 neval_cons
