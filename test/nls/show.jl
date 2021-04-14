@@ -27,7 +27,6 @@
 """
   @test strip.(split(chomp(showed), "\n")) == strip.(split(chomp(expected), "\n"))
 
-
   io = IOBuffer()
   show(io, NLSMeta(1, 1))
   showed = String(take!(io))
