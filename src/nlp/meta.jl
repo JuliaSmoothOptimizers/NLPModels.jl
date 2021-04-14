@@ -63,92 +63,93 @@ The following keyword arguments are accepted:
 - `name`: problem name
 """
 struct NLPModelMeta <: AbstractNLPModelMeta
+  nvar::Int
+  x0::Vector
+  lvar::Vector
+  uvar::Vector
 
-  nvar :: Int
-  x0   :: Vector
-  lvar :: Vector
-  uvar :: Vector
+  ifix::Vector{Int}
+  ilow::Vector{Int}
+  iupp::Vector{Int}
+  irng::Vector{Int}
+  ifree::Vector{Int}
+  iinf::Vector{Int}
 
-  ifix  :: Vector{Int}
-  ilow  :: Vector{Int}
-  iupp  :: Vector{Int}
-  irng  :: Vector{Int}
-  ifree :: Vector{Int}
-  iinf  :: Vector{Int}
+  nbv::Int
+  niv::Int
+  nlvb::Int
+  nlvo::Int
+  nlvc::Int
+  nlvbi::Int
+  nlvci::Int
+  nlvoi::Int
+  nwv::Int
 
-  nbv   :: Int
-  niv   :: Int
-  nlvb  :: Int
-  nlvo  :: Int
-  nlvc  :: Int
-  nlvbi :: Int
-  nlvci :: Int
-  nlvoi :: Int
-  nwv   :: Int
+  ncon::Int
+  y0::Vector
+  lcon::Vector
+  ucon::Vector
 
-  ncon :: Int
-  y0   :: Vector
-  lcon :: Vector
-  ucon :: Vector
+  jfix::Vector{Int}
+  jlow::Vector{Int}
+  jupp::Vector{Int}
+  jrng::Vector{Int}
+  jfree::Vector{Int}
+  jinf::Vector{Int}
 
-  jfix  :: Vector{Int}
-  jlow  :: Vector{Int}
-  jupp  :: Vector{Int}
-  jrng  :: Vector{Int}
-  jfree :: Vector{Int}
-  jinf  :: Vector{Int}
+  nnzo::Int
+  nnzj::Int
+  nnzh::Int
 
-  nnzo :: Int
-  nnzj :: Int
-  nnzh :: Int
+  nlin::Int
+  nnln::Int
+  nnnet::Int
+  nlnet::Int
 
-  nlin  :: Int
-  nnln  :: Int
-  nnnet :: Int
-  nlnet :: Int
+  lin::Vector{Int}
+  nln::Vector{Int}
+  nnet::Vector{Int}
+  lnet::Vector{Int}
 
-  lin   :: Vector{Int}
-  nln   :: Vector{Int}
-  nnet  :: Vector{Int}
-  lnet  :: Vector{Int}
+  minimize::Bool
+  nlo::Int
+  islp::Bool
+  name::String
 
-  minimize :: Bool
-  nlo  :: Int
-  islp :: Bool
-  name :: String
-
-  function NLPModelMeta(nvar;
-                        x0=zeros(nvar,),
-                        lvar=-Inf * ones(nvar,),
-                        uvar=Inf * ones(nvar,),
-                        nbv=0,
-                        niv=0,
-                        nlvb=nvar,
-                        nlvo=nvar,
-                        nlvc=nvar,
-                        nlvbi=0,
-                        nlvci=0,
-                        nlvoi=0,
-                        nwv=0,
-                        ncon=0,
-                        y0=zeros(ncon,),
-                        lcon=-Inf * ones(ncon,),
-                        ucon=Inf * ones(ncon,),
-                        nnzo=nvar,
-                        nnzj=nvar * ncon,
-                        nnzh=nvar * (nvar + 1) / 2,
-                        lin=Int[],
-                        nln=1:ncon,
-                        nnet=Int[],
-                        lnet=Int[],
-                        nlin=length(lin),
-                        nnln=length(nln),
-                        nnnet=length(nnet),
-                        nlnet=length(lnet),
-                        minimize=true,
-                        nlo=1,
-                        islp=false,
-                        name="Generic")
+  function NLPModelMeta(
+    nvar;
+    x0=zeros(nvar),
+    lvar=-Inf * ones(nvar),
+    uvar=Inf * ones(nvar),
+    nbv=0,
+    niv=0,
+    nlvb=nvar,
+    nlvo=nvar,
+    nlvc=nvar,
+    nlvbi=0,
+    nlvci=0,
+    nlvoi=0,
+    nwv=0,
+    ncon=0,
+    y0=zeros(ncon),
+    lcon=-Inf * ones(ncon),
+    ucon=Inf * ones(ncon),
+    nnzo=nvar,
+    nnzj=nvar * ncon,
+    nnzh=nvar * (nvar + 1) / 2,
+    lin=Int[],
+    nln=1:ncon,
+    nnet=Int[],
+    lnet=Int[],
+    nlin=length(lin),
+    nnln=length(nln),
+    nnnet=length(nnet),
+    nlnet=length(lnet),
+    minimize=true,
+    nlo=1,
+    islp=false,
+    name="Generic",
+  )
     if (nvar < 1) || (ncon < 0)
       error("Nonsensical dimensions")
     end
@@ -161,32 +162,69 @@ struct NLPModelMeta <: AbstractNLPModelMeta
     @lencheck nlnet lnet
     @rangecheck 1 ncon lin nln nnet lnet
 
-    ifix  = findall(lvar .== uvar)
-    ilow  = findall((lvar .> -Inf) .& (uvar .== Inf))
-    iupp  = findall((lvar .== -Inf) .& (uvar .< Inf))
-    irng  = findall((lvar .> -Inf) .& (uvar .< Inf) .& (lvar .< uvar))
+    ifix = findall(lvar .== uvar)
+    ilow = findall((lvar .> -Inf) .& (uvar .== Inf))
+    iupp = findall((lvar .== -Inf) .& (uvar .< Inf))
+    irng = findall((lvar .> -Inf) .& (uvar .< Inf) .& (lvar .< uvar))
     ifree = findall((lvar .== -Inf) .& (uvar .== Inf))
-    iinf  = findall(lvar .> uvar)
+    iinf = findall(lvar .> uvar)
 
-    jfix  = findall(lcon .== ucon)
-    jlow  = findall((lcon .> -Inf) .& (ucon .== Inf))
-    jupp  = findall((lcon .== -Inf) .& (ucon .< Inf))
-    jrng  = findall((lcon .> -Inf) .& (ucon .< Inf) .& (lcon .< ucon))
+    jfix = findall(lcon .== ucon)
+    jlow = findall((lcon .> -Inf) .& (ucon .== Inf))
+    jupp = findall((lcon .== -Inf) .& (ucon .< Inf))
+    jrng = findall((lcon .> -Inf) .& (ucon .< Inf) .& (lcon .< ucon))
     jfree = findall((lcon .== -Inf) .& (ucon .== Inf))
-    jinf  = findall(lcon .> ucon)
+    jinf = findall(lcon .> ucon)
 
     nnzj = max(0, nnzj)
     nnzh = max(0, nnzh)
 
-    new(nvar, x0, lvar, uvar,
-        ifix, ilow, iupp, irng, ifree, iinf,
-        nbv, niv, nlvb, nlvo, nlvc,
-        nlvbi, nlvci, nlvoi, nwv,
-        ncon, y0, lcon, ucon,
-        jfix, jlow, jupp, jrng, jfree, jinf,
-        nnzo, nnzj, nnzh,
-        nlin, nnln, nnnet, nlnet, lin, nln, nnet, lnet,
-        minimize, nlo, islp, name)
+    return new(
+      nvar,
+      x0,
+      lvar,
+      uvar,
+      ifix,
+      ilow,
+      iupp,
+      irng,
+      ifree,
+      iinf,
+      nbv,
+      niv,
+      nlvb,
+      nlvo,
+      nlvc,
+      nlvbi,
+      nlvci,
+      nlvoi,
+      nwv,
+      ncon,
+      y0,
+      lcon,
+      ucon,
+      jfix,
+      jlow,
+      jupp,
+      jrng,
+      jfree,
+      jinf,
+      nnzo,
+      nnzj,
+      nnzh,
+      nlin,
+      nnln,
+      nnnet,
+      nlnet,
+      lin,
+      nln,
+      nnet,
+      lnet,
+      minimize,
+      nlo,
+      islp,
+      name,
+    )
   end
 end
 
@@ -198,6 +236,6 @@ This method should be overloaded if a subtype of `AbstractNLPModel`
 contains data that should be reset, such as a quasi-Newton linear
 operator.
 """
-function reset_data!(nlp :: AbstractNLPModel)
+function reset_data!(nlp::AbstractNLPModel)
   return nlp
 end

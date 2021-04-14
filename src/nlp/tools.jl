@@ -68,8 +68,15 @@ Unconstrained problems return false.
 """
 has_inequalities(meta::NLPModelMeta) = meta.ncon > 0 && meta.ncon > length(meta.jfix)
 
-for meth in [:has_bounds, :bound_constrained, :unconstrained, :linearly_constrained,
-    :equality_constrained, :inequality_constrained, :has_equalities, :has_inequalities
+for meth in [
+  :has_bounds,
+  :bound_constrained,
+  :unconstrained,
+  :linearly_constrained,
+  :equality_constrained,
+  :inequality_constrained,
+  :has_equalities,
+  :has_inequalities,
 ]
   @eval $meth(nlp::AbstractNLPModel) = $meth(nlp.meta)
 end
