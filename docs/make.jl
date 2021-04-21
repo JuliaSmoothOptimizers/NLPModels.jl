@@ -4,7 +4,7 @@ makedocs(
   modules = [NLPModels],
   doctest = true,
   linkcheck = false,
-  strict = true,
+  strict = false,
   format = Documenter.HTML(
     assets = ["assets/style.css"],
     prettyurls = get(ENV, "CI", nothing) == "true",
