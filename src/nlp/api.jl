@@ -277,11 +277,11 @@ Return the Jacobian at `x` as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`.
 """
-function jac_op(nlp::AbstractNLPModel, x::AbstractVector)
+function jac_op(nlp::AbstractNLPModel, x::AbstractVector{T}) where T
   @lencheck nlp.meta.nvar x
-  prod = @closure v -> jprod(nlp, x, v)
-  ctprod = @closure v -> jtprod(nlp, x, v)
-  return LinearOperator{eltype(x)}(nlp.meta.ncon, nlp.meta.nvar, false, false, prod, ctprod, ctprod)
+  Jv = zeros(T, nlp.meta.ncon)
+  Jtv = zeros(T, nlp.meta.nvar)
+  return jac_op!(nlp, x, Jv, Jtv)
 end
 
 """
@@ -295,9 +295,25 @@ operations.
 function jac_op!(nlp::AbstractNLPModel, x::AbstractVector, Jv::AbstractVector, Jtv::AbstractVector)
   @lencheck nlp.meta.nvar x Jtv
   @lencheck nlp.meta.ncon Jv
-  prod = @closure v -> jprod!(nlp, x, v, Jv)
-  ctprod = @closure v -> jtprod!(nlp, x, v, Jtv)
-  return LinearOperator{eltype(x)}(nlp.meta.ncon, nlp.meta.nvar, false, false, prod, ctprod, ctprod)
+  prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
+    jprod!(nlp, x, v, Jv)
+    if β == 0
+      @. res = α * Jv
+    else
+      @. res = α * Jv + β * res
+    end
+    return res
+  end
+  ctprod! = @closure (res, v, α, β) -> begin
+    jtprod!(nlp, x, v, Jtv)
+    if β == 0
+      @. res = α * Jtv
+    else
+      @. res = α * Jtv + β * res
+    end
+    return res
+  end
+  return LinearOperator{eltype(x)}(nlp.meta.ncon, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!, Jv, Jtv, Jtv)
 end
 
 """
@@ -318,16 +334,35 @@ function jac_op!(
   @lencheck nlp.meta.nnzj rows cols vals
   @lencheck nlp.meta.ncon Jv
   @lencheck nlp.meta.nvar Jtv
-  prod = @closure v -> jprod!(nlp, rows, cols, vals, v, Jv)
-  ctprod = @closure v -> jtprod!(nlp, rows, cols, vals, v, Jtv)
+  prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
+    jprod!(nlp, rows, cols, vals, v, Jv)
+    if β == 0
+      @. res = α * Jv
+    else
+      @. res = α * Jv + β * res
+    end
+    return res
+  end
+  ctprod! = @closure (res, v, α, β) -> begin
+    jtprod!(nlp, rows, cols, vals, v, Jtv)
+    if β == 0
+      @. res = α * Jtv
+    else
+      @. res = α * Jtv + β * res
+    end
+    return res
+  end
   return LinearOperator{eltype(vals)}(
     nlp.meta.ncon,
     nlp.meta.nvar,
     false,
     false,
-    prod,
-    ctprod,
-    ctprod,
+    prod!,
+    ctprod!,
+    ctprod!,
+    Jv,
+    Jtv,
+    Jtv
   )
 end
 
@@ -680,10 +715,10 @@ Return the objective Hessian at `x` with objective function scaled by
 matrix, e.g., `H * v`. The linear operator H represents
 $(OBJECTIVE_HESSIAN).
 """
-function hess_op(nlp::AbstractNLPModel, x::AbstractVector; obj_weight::Real = one(eltype(x)))
+function hess_op(nlp::AbstractNLPModel, x::AbstractVector{T}; obj_weight::Real = one(T)) where T
   @lencheck nlp.meta.nvar x
-  prod = @closure v -> hprod(nlp, x, v; obj_weight = obj_weight)
-  return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod, prod, prod)
+  Hv = zeros(T, nlp.meta.nvar)
+  return hess_op!(nlp, x, Hv, obj_weight=obj_weight)
 end
 
 """
@@ -696,14 +731,14 @@ $(LAGRANGIAN_HESSIAN).
 """
 function hess_op(
   nlp::AbstractNLPModel,
-  x::AbstractVector,
+  x::AbstractVector{T},
   y::AbstractVector;
-  obj_weight::Real = one(eltype(x)),
-)
+  obj_weight::Real = one(T),
+) where T
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
-  prod = @closure v -> hprod(nlp, x, y, v; obj_weight = obj_weight)
-  return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod, prod, prod)
+  Hv = zeros(T, nlp.meta.nvar)
+  return hess_op!(nlp, x, y, Hv, obj_weight=obj_weight)
 end
 
 """
@@ -723,8 +758,16 @@ function hess_op!(
   obj_weight::Real = one(eltype(x)),
 )
   @lencheck nlp.meta.nvar x Hv
-  prod = @closure v -> hprod!(nlp, x, v, Hv; obj_weight = obj_weight)
-  return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod, prod, prod)
+  prod! = @closure (res, v, α, β) -> begin
+    hprod!(nlp, x, v, Hv; obj_weight = obj_weight)
+    if β == 0
+      @. res = α * Hv
+    else
+      @. res = α * Hv + β * res
+    end
+    return res
+  end
+  return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!, Hv, Hv, Hv)
 end
 
 """
@@ -746,8 +789,16 @@ function hess_op!(
 )
   @lencheck nlp.meta.nnzh rows cols vals
   @lencheck nlp.meta.nvar Hv
-  prod = @closure v -> hprod!(nlp, rows, cols, vals, v, Hv)
-  return LinearOperator{eltype(vals)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod, prod, prod)
+  prod! = @closure (res, v, α, β) -> begin
+    hprod!(nlp, rows, cols, vals, v, Hv)
+    if β == 0
+      @. res = α * Hv
+    else
+      @. res = α * Hv + β * res
+    end
+    return res
+  end
+  return LinearOperator{eltype(vals)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!, Hv, Hv, Hv)
 end
 
 """
@@ -794,8 +845,16 @@ function hess_op!(
 )
   @lencheck nlp.meta.nvar x Hv
   @lencheck nlp.meta.ncon y
-  prod = @closure v -> hprod!(nlp, x, y, v, Hv; obj_weight = obj_weight)
-  return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod, prod, prod)
+  prod! = @closure (res, v, α, β) -> begin
+    hprod!(nlp, x, y, v, Hv; obj_weight = obj_weight)
+    if β == 0
+      @. res = α * Hv
+    else
+      @. res = α * Hv + β * res
+    end
+    return res
+  end
+  return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!, Hv, Hv, Hv)
 end
 
 """
