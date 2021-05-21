@@ -204,19 +204,11 @@ end
 
 Computes ``J(x)``, the Jacobian of the residual at x, in linear operator form.
 """
-function jac_op_residual(nls::AbstractNLSModel, x::AbstractVector)
+function jac_op_residual(nls::AbstractNLSModel, x::AbstractVector{T}) where {T}
   @lencheck nls.meta.nvar x
-  prod = @closure v -> jprod_residual(nls, x, v)
-  ctprod = @closure v -> jtprod_residual(nls, x, v)
-  return LinearOperator{eltype(x)}(
-    nls_meta(nls).nequ,
-    nls_meta(nls).nvar,
-    false,
-    false,
-    prod,
-    ctprod,
-    ctprod,
-  )
+  Jv = zeros(T, nls_meta(nls).nequ)
+  Jtv = zeros(T, nls.meta.nvar)
+  return jac_op_residual!(nls, x, Jv, Jtv)
 end
 
 """
@@ -233,16 +225,35 @@ function jac_op_residual!(
 )
   @lencheck nls.meta.nvar x Jtv
   @lencheck nls.nls_meta.nequ Jv
-  prod = @closure v -> jprod_residual!(nls, x, v, Jv)
-  ctprod = @closure v -> jtprod_residual!(nls, x, v, Jtv)
+  prod! = @closure (res, v, α, β) -> begin
+    jprod_residual!(nls, x, v, Jv)
+    if β == 0
+      @. res = α * Jv
+    else
+      @. res = α * Jv + β * res
+    end
+    return res
+  end
+  ctprod! = @closure (res, v, α, β) -> begin
+    jtprod_residual!(nls, x, v, Jtv)
+    if β == 0
+      @. res = α * Jtv
+    else
+      @. res = α * Jtv + β * res
+    end
+    return res
+  end
   return LinearOperator{eltype(x)}(
     nls_meta(nls).nequ,
     nls_meta(nls).nvar,
     false,
     false,
-    prod,
-    ctprod,
-    ctprod,
+    prod!,
+    ctprod!,
+    ctprod!,
+    Jv,
+    Jtv,
+    Jtv,
   )
 end
 
@@ -263,16 +274,35 @@ function jac_op_residual!(
   @lencheck nls.nls_meta.nnzj rows cols vals
   @lencheck nls.nls_meta.nequ Jv
   @lencheck nls.meta.nvar Jtv
-  prod = @closure v -> jprod_residual!(nls, rows, cols, vals, v, Jv)
-  ctprod = @closure v -> jtprod_residual!(nls, rows, cols, vals, v, Jtv)
+  prod! = @closure (res, v, α, β) -> begin
+    jprod_residual!(nls, rows, cols, vals, v, Jv)
+    if β == 0
+      @. res = α * Jv
+    else
+      @. res = α * Jv + β * res
+    end
+    return res
+  end
+  ctprod! = @closure (res, v, α, β) -> begin
+    jtprod_residual!(nls, rows, cols, vals, v, Jtv)
+    if β == 0
+      @. res = α * Jtv
+    else
+      @. res = α * Jtv + β * res
+    end
+    return res
+  end
   return LinearOperator{eltype(vals)}(
     nls_meta(nls).nequ,
     nls_meta(nls).nvar,
     false,
     false,
-    prod,
-    ctprod,
-    ctprod,
+    prod!,
+    ctprod!,
+    ctprod!,
+    Jv,
+    Jtv,
+    Jtv,
   )
 end
 
@@ -394,18 +424,10 @@ function hprod_residual! end
 
 Computes the Hessian of the i-th residual at x, in linear operator form.
 """
-function hess_op_residual(nls::AbstractNLSModel, x::AbstractVector, i::Int)
+function hess_op_residual(nls::AbstractNLSModel, x::AbstractVector{T}, i::Int) where {T}
   @lencheck nls.meta.nvar x
-  prod = @closure v -> hprod_residual(nls, x, i, v)
-  return LinearOperator{eltype(x)}(
-    nls_meta(nls).nvar,
-    nls_meta(nls).nvar,
-    true,
-    true,
-    prod,
-    prod,
-    prod,
-  )
+  Hiv = zeros(T, nls.meta.nvar)
+  return hess_op_residual!(nls, x, i, Hiv)
 end
 
 """
@@ -415,15 +437,26 @@ Computes the Hessian of the i-th residual at x, in linear operator form. The vec
 """
 function hess_op_residual!(nls::AbstractNLSModel, x::AbstractVector, i::Int, Hiv::AbstractVector)
   @lencheck nls.meta.nvar x Hiv
-  prod = @closure v -> hprod_residual!(nls, x, i, v, Hiv)
+  prod! = @closure (res, v, α, β) -> begin
+    hprod_residual!(nls, x, i, v, Hiv)
+    if β == 0
+      @. res = α * Hiv
+    else
+      @. res = α * Hiv + β * res
+    end
+    return res
+  end
   return LinearOperator{eltype(x)}(
     nls_meta(nls).nvar,
     nls_meta(nls).nvar,
     true,
     true,
-    prod,
-    prod,
-    prod,
+    prod!,
+    prod!,
+    prod!,
+    Hiv,
+    Hiv,
+    Hiv,
   )
 end
 
