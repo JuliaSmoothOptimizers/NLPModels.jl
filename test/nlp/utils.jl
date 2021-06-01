@@ -1,4 +1,4 @@
-mutable struct SuperNLPModel <: AbstractNLPModel
+mutable struct SuperNLPModel{T,S} <: AbstractNLPModel{T,S}
   model
 end
 
@@ -19,7 +19,7 @@ end
 
 @testset "Increase coverage of default_NLPcounters" begin
   @default_counters SuperNLPModel model
-  nlp = SuperNLPModel(SimpleNLPModel())
+  nlp = SuperNLPModel{Float64, Vector{Float64}}(SimpleNLPModel())
   increment!(nlp, :neval_obj)
   @test neval_obj(nlp.model) == 1
 end

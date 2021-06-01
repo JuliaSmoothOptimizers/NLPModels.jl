@@ -3,7 +3,7 @@
   io = IOBuffer()
   show(io, nls)
   showed = String(take!(io))
-  expected = """  SimpleNLSModel
+  expected = """  SimpleNLSModel{Float64, Vector{Float64}}
   Problem name: Simple NLS Model
    All variables: ████████████████████ 2      All constraints: ████████████████████ 3        All residuals: ████████████████████ 2     
             free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     

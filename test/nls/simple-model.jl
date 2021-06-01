@@ -18,9 +18,9 @@ x₀ = ones(n).
 
 Modified SimpleNLSModel.
 """
-mutable struct SimpleNLSModel <: AbstractNLSModel
-  meta::NLPModelMeta
-  nls_meta::NLSMeta
+mutable struct SimpleNLSModel{T,S} <: AbstractNLSModel{T,S}
+  meta::NLPModelMeta{T,S}
+  nls_meta::NLSMeta{T,S}
   counters::NLSCounters
 end
 

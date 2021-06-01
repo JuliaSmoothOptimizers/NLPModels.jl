@@ -28,14 +28,14 @@ with `σ = obj_weight`
 
 Base type for an optimization model.
 """
-abstract type AbstractNLPModel end
+abstract type AbstractNLPModel{T,S} end
 
 """
     AbstractNLSModel <: AbstractNLPModel
 
 Base type for a nonlinear least-squares model.
 """
-abstract type AbstractNLSModel <: AbstractNLPModel end
+abstract type AbstractNLSModel{T,S} <: AbstractNLPModel{T,S} end
 
 for f in ["utils", "api", "counters", "meta", "show", "tools"]
   include("nlp/$f.jl")
