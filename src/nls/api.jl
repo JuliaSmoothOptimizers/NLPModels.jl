@@ -296,13 +296,14 @@ end
 
 Computes the linear combination of the Hessians of the residuals at `x` with coefficients
 `v`.
+A `Symmetric` object wrapping the lower triangle is returned.
 """
 function hess_residual(nls::AbstractNLSModel, x::AbstractVector, v::AbstractVector)
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nequ v
   rows, cols = hess_structure_residual(nls)
   vals = hess_coord_residual(nls, x, v)
-  sparse(rows, cols, vals, nls.meta.nvar, nls.meta.nvar)
+  Symmetric(sparse(rows, cols, vals, nls.meta.nvar, nls.meta.nvar), :L)
 end
 
 """
