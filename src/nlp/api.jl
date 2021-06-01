@@ -381,14 +381,14 @@ function jth_hess_coord! end
 
 Evaluate the Hessian of j-th constraint at `x` as a sparse matrix with
 the same sparsity pattern as the Lagrangian Hessian.
-Only the lower triangle is returned.
+A `Symmetric` object wrapping the lower triangle is returned.
 """
 function jth_hess(nlp::AbstractNLPModel, x::AbstractVector, j::Integer)
   @lencheck nlp.meta.nvar x
   @rangecheck 1 nlp.meta.ncon j
   rows, cols = hess_structure(nlp)
   vals = jth_hess_coord(nlp, x, j)
-  return sparse(rows, cols, vals, nlp.meta.nvar, nlp.meta.nvar)
+  return Symmetric(sparse(rows, cols, vals, nlp.meta.nvar, nlp.meta.nvar), :L)
 end
 
 """
@@ -519,13 +519,13 @@ Evaluate the objective Hessian at `x` as a sparse matrix,
 with objective function scaled by `obj_weight`, i.e.,
 
 $(OBJECTIVE_HESSIAN).
-Only the lower triangle is returned.
+A `Symmetric` object wrapping the lower triangle is returned.
 """
 function hess(nlp::AbstractNLPModel, x::AbstractVector; obj_weight::Real = one(eltype(x)))
   @lencheck nlp.meta.nvar x
   rows, cols = hess_structure(nlp)
   vals = hess_coord(nlp, x, obj_weight = obj_weight)
-  sparse(rows, cols, vals, nlp.meta.nvar, nlp.meta.nvar)
+  Symmetric(sparse(rows, cols, vals, nlp.meta.nvar, nlp.meta.nvar), :L)
 end
 
 """
@@ -535,7 +535,7 @@ Evaluate the Lagrangian Hessian at `(x,y)` as a sparse matrix,
 with objective function scaled by `obj_weight`, i.e.,
 
 $(LAGRANGIAN_HESSIAN).
-Only the lower triangle is returned.
+A `Symmetric` object wrapping the lower triangle is returned.
 """
 function hess(
   nlp::AbstractNLPModel,
@@ -547,7 +547,7 @@ function hess(
   @lencheck nlp.meta.ncon y
   rows, cols = hess_structure(nlp)
   vals = hess_coord(nlp, x, y, obj_weight = obj_weight)
-  sparse(rows, cols, vals, nlp.meta.nvar, nlp.meta.nvar)
+  Symmetric(sparse(rows, cols, vals, nlp.meta.nvar, nlp.meta.nvar), :L)
 end
 
 """
