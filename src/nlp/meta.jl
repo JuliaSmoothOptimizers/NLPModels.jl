@@ -5,7 +5,7 @@ export AbstractNLPModelMeta, NLPModelMeta, reset_data!
 
 Base type for metadata related to an optimization model.
 """
-abstract type AbstractNLPModelMeta end
+abstract type AbstractNLPModelMeta{T,S} end
 
 """
     NLPModelMeta <: AbstractNLPModelMeta
@@ -62,11 +62,11 @@ The following keyword arguments are accepted:
 - `islp`: true if the problem is a linear program
 - `name`: problem name
 """
-struct NLPModelMeta <: AbstractNLPModelMeta
+struct NLPModelMeta{T,S} <: AbstractNLPModelMeta{T,S}
   nvar::Int
-  x0::Vector
-  lvar::Vector
-  uvar::Vector
+  x0::S
+  lvar::S
+  uvar::S
 
   ifix::Vector{Int}
   ilow::Vector{Int}
@@ -86,9 +86,9 @@ struct NLPModelMeta <: AbstractNLPModelMeta
   nwv::Int
 
   ncon::Int
-  y0::Vector
-  lcon::Vector
-  ucon::Vector
+  y0::S
+  lcon::S
+  ucon::S
 
   jfix::Vector{Int}
   jlow::Vector{Int}
@@ -117,10 +117,10 @@ struct NLPModelMeta <: AbstractNLPModelMeta
   name::String
 
   function NLPModelMeta(
-    nvar;
-    x0 = zeros(nvar),
-    lvar = -Inf * ones(nvar),
-    uvar = Inf * ones(nvar),
+    nvar::Int;
+    x0::AbstractVector{T} = zeros(nvar),
+    lvar::AbstractVector{T} = -Inf * ones(nvar),
+    uvar::AbstractVector{T} = Inf * ones(nvar),
     nbv = 0,
     niv = 0,
     nlvb = nvar,
@@ -131,9 +131,9 @@ struct NLPModelMeta <: AbstractNLPModelMeta
     nlvoi = 0,
     nwv = 0,
     ncon = 0,
-    y0 = zeros(ncon),
-    lcon = -Inf * ones(ncon),
-    ucon = Inf * ones(ncon),
+    y0::AbstractVector{T} = zeros(ncon),
+    lcon::AbstractVector{T} = -Inf * ones(ncon),
+    ucon::AbstractVector{T} = Inf * ones(ncon),
     nnzo = nvar,
     nnzj = nvar * ncon,
     nnzh = nvar * (nvar + 1) / 2,
@@ -149,7 +149,8 @@ struct NLPModelMeta <: AbstractNLPModelMeta
     nlo = 1,
     islp = false,
     name = "Generic",
-  )
+  ) where T
+
     if (nvar < 1) || (ncon < 0)
       error("Nonsensical dimensions")
     end
@@ -161,25 +162,27 @@ struct NLPModelMeta <: AbstractNLPModelMeta
     @lencheck nnnet nnet
     @lencheck nlnet lnet
     @rangecheck 1 ncon lin nln nnet lnet
+    S = typeof(x0)
+    @assert S == typeof(lvar) == typeof(uvar) == typeof(y0) == typeof(lcon) == typeof(ucon)
 
     ifix = findall(lvar .== uvar)
-    ilow = findall((lvar .> -Inf) .& (uvar .== Inf))
-    iupp = findall((lvar .== -Inf) .& (uvar .< Inf))
-    irng = findall((lvar .> -Inf) .& (uvar .< Inf) .& (lvar .< uvar))
-    ifree = findall((lvar .== -Inf) .& (uvar .== Inf))
+    ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf)))
+    iupp = findall((lvar .== T(-Inf)) .& (uvar .< T(Inf)))
+    irng = findall((lvar .> T(-Inf)) .& (uvar .< T(Inf)) .& (lvar .< uvar))
+    ifree = findall((lvar .== T(-Inf)) .& (uvar .== T(Inf)))
     iinf = findall(lvar .> uvar)
 
     jfix = findall(lcon .== ucon)
-    jlow = findall((lcon .> -Inf) .& (ucon .== Inf))
-    jupp = findall((lcon .== -Inf) .& (ucon .< Inf))
-    jrng = findall((lcon .> -Inf) .& (ucon .< Inf) .& (lcon .< ucon))
-    jfree = findall((lcon .== -Inf) .& (ucon .== Inf))
+    jlow = findall((lcon .> T(-Inf)) .& (ucon .== T(Inf)))
+    jupp = findall((lcon .== T(-Inf)) .& (ucon .< T(Inf)))
+    jrng = findall((lcon .> T(-Inf)) .& (ucon .< T(Inf)) .& (lcon .< ucon))
+    jfree = findall((lcon .== T(-Inf)) .& (ucon .== T(Inf)))
     jinf = findall(lcon .> ucon)
 
     nnzj = max(0, nnzj)
     nnzh = max(0, nnzh)
 
-    new(
+    new{T,S}(
       nvar,
       x0,
       lvar,

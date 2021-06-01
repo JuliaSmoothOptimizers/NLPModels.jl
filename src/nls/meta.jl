@@ -17,10 +17,10 @@ The following keyword arguments are accepted:
 - `lin`: indices of linear constraints
 - `nln`: indices of nonlinear constraints
 """
-struct NLSMeta
+struct NLSMeta{T,S}
   nequ::Int
   nvar::Int
-  x0::Vector
+  x0::S
   nnzj::Int  # Number of elements needed to store the nonzeros of the Jacobian of the residual
   nnzh::Int  # Number of elements needed to store the nonzeros of the sum of Hessians of the residuals
 
@@ -33,15 +33,16 @@ end
 function NLSMeta(
   nequ::Int,
   nvar::Int;
-  x0::AbstractVector = zeros(nvar),
+  x0::AbstractVector{T} = zeros(nvar),
   nnzj = nequ * nvar,
   nnzh = div(nvar * (nvar + 1), 2),
   nln = 1:nequ,
   lin = Int[],
-)
+) where T
+  S = typeof(x0)
   nnzj = max(0, nnzj)
   nnzh = max(0, nnzh)
-  return NLSMeta(nequ, nvar, x0, nnzj, nnzh, nln, length(nln), lin, length(lin))
+  return NLSMeta{T,S}(nequ, nvar, x0, nnzj, nnzh, nln, length(nln), lin, length(lin))
 end
 
 """

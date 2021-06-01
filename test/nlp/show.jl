@@ -3,7 +3,7 @@
   io = IOBuffer()
   show(io, nlp)
   showed = String(take!(io))
-  expected = """  SimpleNLPModel
+  expected = """  SimpleNLPModel{Float64, Vector{Float64}}
   Problem name: Simple NLP Model
    All variables: ████████████████████ 2      All constraints: ████████████████████ 2
             free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
