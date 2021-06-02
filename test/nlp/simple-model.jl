@@ -32,6 +32,22 @@ function SimpleNLPModel()
   return SimpleNLPModel(meta, Counters())
 end
 
+function SimpleNLPModel32()
+  meta = NLPModelMeta(
+    2,
+    nnzh = 2,
+    ncon = 2,
+    lvar = zeros(Float32, 2),
+    uvar = ones(Float32, 2),
+    x0 = [Float32(2.0); Float32(2.0)],
+    lcon = [zero(Float32); zero(Float32)],
+    ucon = [zero(Float32); Float32(Inf)],
+    name = "Simple NLP Model",
+  )
+
+  return SimpleNLPModel(meta, Counters())
+end
+
 function NLPModels.obj(nlp::SimpleNLPModel, x::AbstractVector)
   @lencheck 2 x
   increment!(nlp, :neval_obj)
