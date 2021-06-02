@@ -3,8 +3,8 @@
   io = IOBuffer()
   show(io, nlp)
   showed = String(take!(io))
-  storage_type = VERSION < v"1.6" ? "Array{Float64,1}" : "Vector{Float64}"
-  expected = """  SimpleNLPModel{Float64,$storage_type}
+  storage_type = typeof(nlp)
+  expected = """  $storage_type
   Problem name: Simple NLP Model
    All variables: ████████████████████ 2      All constraints: ████████████████████ 2
             free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
