@@ -116,11 +116,11 @@ struct NLPModelMeta{T,S} <: AbstractNLPModelMeta{T,S}
   islp::Bool
   name::String
 
-  function NLPModelMeta(
+  function NLPModelMeta{T,S}(
     nvar::Int;
-    x0::AbstractVector{T} = zeros(nvar),
-    lvar::AbstractVector{T} = -Inf * ones(nvar),
-    uvar::AbstractVector{T} = Inf * ones(nvar),
+    x0::S = zeros(T, nvar),
+    lvar::S = T(-Inf) * ones(T, nvar),
+    uvar::S = T(Inf) * ones(T, nvar),
     nbv = 0,
     niv = 0,
     nlvb = nvar,
@@ -131,9 +131,9 @@ struct NLPModelMeta{T,S} <: AbstractNLPModelMeta{T,S}
     nlvoi = 0,
     nwv = 0,
     ncon = 0,
-    y0::AbstractVector{T} = zeros(ncon),
-    lcon::AbstractVector{T} = -Inf * ones(ncon),
-    ucon::AbstractVector{T} = Inf * ones(ncon),
+    y0::S = zeros(T, ncon),
+    lcon::S = T(-Inf) * ones(T, ncon),
+    ucon::S = T(Inf) * ones(T, ncon),
     nnzo = nvar,
     nnzj = nvar * ncon,
     nnzh = nvar * (nvar + 1) / 2,
@@ -149,7 +149,7 @@ struct NLPModelMeta{T,S} <: AbstractNLPModelMeta{T,S}
     nlo = 1,
     islp = false,
     name = "Generic",
-  ) where T
+  ) where {T,S}
 
     if (nvar < 1) || (ncon < 0)
       error("Nonsensical dimensions")
@@ -162,8 +162,7 @@ struct NLPModelMeta{T,S} <: AbstractNLPModelMeta{T,S}
     @lencheck nnnet nnet
     @lencheck nlnet lnet
     @rangecheck 1 ncon lin nln nnet lnet
-    S = typeof(x0)
-    @assert S == typeof(lvar) == typeof(uvar) == typeof(y0) == typeof(lcon) == typeof(ucon)
+    # T = eltype(x0)
 
     ifix = findall(lvar .== uvar)
     ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf)))
@@ -230,6 +229,8 @@ struct NLPModelMeta{T,S} <: AbstractNLPModelMeta{T,S}
     )
   end
 end
+
+NLPModelMeta(nvar; x0::S = zeros(nvar), kwargs...) where S = NLPModelMeta{eltype(S), S}(nvar, x0 = x0; kwargs...)
 
 """
     reset_data!(nlp)

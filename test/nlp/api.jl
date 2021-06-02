@@ -91,3 +91,9 @@
   Hop = hess_op!(nlp, x, y, hess_structure(nlp)..., Hv)
   @test Hop * v ≈ H(x, y) * v
 end
+
+@testset "test vector types Float32" begin
+  nlp = SimpleNLPModel32()
+  @test Float32 == eltype(nlp.meta.x0) == eltype(nlp.meta.lvar) == eltype(nlp.meta.uvar) == 
+    eltype(nlp.meta.y0) == eltype(nlp.meta.lcon) == eltype(nlp.meta.ucon)
+end

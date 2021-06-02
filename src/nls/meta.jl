@@ -28,22 +28,23 @@ struct NLSMeta{T,S}
   nnln::Int # = length(nln)
   lin::Vector{Int} # List of linear residuals
   nlin::Int # = length(lin)
+
+  function NLSMeta{T,S}(
+    nequ::Int,
+    nvar::Int;
+    x0::S = zeros(T, nvar),
+    nnzj = nequ * nvar,
+    nnzh = div(nvar * (nvar + 1), 2),
+    nln = 1:nequ,
+    lin = Int[],
+  ) where {T,S}
+    nnzj = max(0, nnzj)
+    nnzh = max(0, nnzh)
+    return new{T,S}(nequ, nvar, x0, nnzj, nnzh, nln, length(nln), lin, length(lin))
+  end
 end
 
-function NLSMeta(
-  nequ::Int,
-  nvar::Int;
-  x0::AbstractVector{T} = zeros(nvar),
-  nnzj = nequ * nvar,
-  nnzh = div(nvar * (nvar + 1), 2),
-  nln = 1:nequ,
-  lin = Int[],
-) where T
-  S = typeof(x0)
-  nnzj = max(0, nnzj)
-  nnzh = max(0, nnzh)
-  return NLSMeta{T,S}(nequ, nvar, x0, nnzj, nnzh, nln, length(nln), lin, length(lin))
-end
+NLSMeta(nequ::Int, nvar::Int; x0::S = zeros(nvar), kwargs...) where S = NLSMeta{eltype(S),S}(nequ, nvar; x0 = x0, kwargs...)
 
 """
     nls_meta(nls)

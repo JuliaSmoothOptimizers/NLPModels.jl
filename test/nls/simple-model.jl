@@ -41,6 +41,23 @@ function SimpleNLSModel()
   return SimpleNLSModel(meta, nls_meta, NLSCounters())
 end
 
+function SimpleNLSModel32()
+  meta = NLPModelMeta(
+    2,
+    x0 = ones(Float32, 2),
+    name = "Simple NLS Model",
+    lvar = zeros(Float32, 2),
+    uvar = ones(Float32, 2),
+    ncon = 3,
+    lcon = [zero(Float32); zero(Float32); one(Float32)],
+    ucon = [Float32(Inf); Float32(Inf); one(Float32)],
+    nnzj = 6,
+  )
+  nls_meta = NLSMeta{Float32, Vector{Float32}}(2, 2, nnzj = 3, nnzh = 1)
+
+  return SimpleNLSModel(meta, nls_meta, NLSCounters())
+end
+
 function NLPModels.residual!(nls::SimpleNLSModel, x::AbstractVector, Fx::AbstractVector)
   @lencheck 2 x Fx
   increment!(nls, :neval_residual)
