@@ -3,7 +3,8 @@
   io = IOBuffer()
   show(io, nls)
   showed = String(take!(io))
-  expected = """  SimpleNLSModel{Float64, Vector{Float64}}
+  storage_type = VERSION < v"1.6" ? "Array{Float64, 1}" : "Vector{Float64}"
+  expected = """  SimpleNLSModel{Float64, $storage_type}
   Problem name: Simple NLS Model
    All variables: ████████████████████ 2      All constraints: ████████████████████ 3        All residuals: ████████████████████ 2     
             free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     

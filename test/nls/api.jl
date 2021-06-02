@@ -142,7 +142,7 @@ end
 end
 
 @testset "test vector types Float32" begin
-  nls = SimpleNLSModel32()
+  nls = SimpleNLSModel(Float32)
   @test Float32 == eltype(nls.meta.x0) == eltype(nls.meta.lvar) == eltype(nls.meta.uvar) == 
     eltype(nls.meta.y0) == eltype(nls.meta.lcon) == eltype(nls.meta.ucon)
 end
