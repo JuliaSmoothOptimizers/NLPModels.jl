@@ -1,5 +1,5 @@
-mutable struct DummyModel{T,S} <: AbstractNLPModel{T,S}
-  meta::NLPModelMeta{T,S}
+mutable struct DummyModel{T, S} <: AbstractNLPModel{T, S}
+  meta::NLPModelMeta{T, S}
 end
 
 @testset "Default methods throw MethodError on DummyModel since they're not defined" begin

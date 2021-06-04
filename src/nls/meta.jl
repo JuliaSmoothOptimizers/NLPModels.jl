@@ -17,7 +17,7 @@ The following keyword arguments are accepted:
 - `lin`: indices of linear constraints
 - `nln`: indices of nonlinear constraints
 """
-struct NLSMeta{T,S}
+struct NLSMeta{T, S}
   nequ::Int
   nvar::Int
   x0::S
@@ -29,7 +29,7 @@ struct NLSMeta{T,S}
   lin::Vector{Int} # List of linear residuals
   nlin::Int # = length(lin)
 
-  function NLSMeta{T,S}(
+  function NLSMeta{T, S}(
     nequ::Int,
     nvar::Int;
     x0::S = zeros(T, nvar),
@@ -37,14 +37,15 @@ struct NLSMeta{T,S}
     nnzh = div(nvar * (nvar + 1), 2),
     nln = 1:nequ,
     lin = Int[],
-  ) where {T,S}
+  ) where {T, S}
     nnzj = max(0, nnzj)
     nnzh = max(0, nnzh)
-    return new{T,S}(nequ, nvar, x0, nnzj, nnzh, nln, length(nln), lin, length(lin))
+    return new{T, S}(nequ, nvar, x0, nnzj, nnzh, nln, length(nln), lin, length(lin))
   end
 end
 
-NLSMeta(nequ::Int, nvar::Int; x0::S = zeros(nvar), kwargs...) where S = NLSMeta{eltype(S),S}(nequ, nvar; x0 = x0, kwargs...)
+NLSMeta(nequ::Int, nvar::Int; x0::S = zeros(nvar), kwargs...) where {S} =
+  NLSMeta{eltype(S), S}(nequ, nvar; x0 = x0, kwargs...)
 
 """
     nls_meta(nls)

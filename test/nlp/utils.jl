@@ -1,4 +1,4 @@
-mutable struct SuperNLPModel{T,S} <: AbstractNLPModel{T,S}
+mutable struct SuperNLPModel{T, S} <: AbstractNLPModel{T, S}
   model
 end
 
