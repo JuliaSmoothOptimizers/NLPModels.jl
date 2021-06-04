@@ -11,12 +11,12 @@ Modified problem 14 in the Hock-Schittkowski suite
 
 x₀ = [2.0, 2.0].
 """
-mutable struct SimpleNLPModel{T,S} <: AbstractNLPModel{T,S}
-  meta::NLPModelMeta{T,S}
+mutable struct SimpleNLPModel{T, S} <: AbstractNLPModel{T, S}
+  meta::NLPModelMeta{T, S}
   counters::Counters
 end
 
-function SimpleNLPModel(::Type{T}) where T
+function SimpleNLPModel(::Type{T}) where {T}
   meta = NLPModelMeta(
     2,
     nnzh = 2,

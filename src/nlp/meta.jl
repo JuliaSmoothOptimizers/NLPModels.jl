@@ -5,7 +5,7 @@ export AbstractNLPModelMeta, NLPModelMeta, reset_data!
 
 Base type for metadata related to an optimization model.
 """
-abstract type AbstractNLPModelMeta{T,S} end
+abstract type AbstractNLPModelMeta{T, S} end
 
 """
     NLPModelMeta <: AbstractNLPModelMeta
@@ -62,7 +62,7 @@ The following keyword arguments are accepted:
 - `islp`: true if the problem is a linear program
 - `name`: problem name
 """
-struct NLPModelMeta{T,S} <: AbstractNLPModelMeta{T,S}
+struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
   nvar::Int
   x0::S
   lvar::S
@@ -116,7 +116,7 @@ struct NLPModelMeta{T,S} <: AbstractNLPModelMeta{T,S}
   islp::Bool
   name::String
 
-  function NLPModelMeta{T,S}(
+  function NLPModelMeta{T, S}(
     nvar::Int;
     x0::S = zeros(T, nvar),
     lvar::S = T(-Inf) * ones(T, nvar),
@@ -149,8 +149,7 @@ struct NLPModelMeta{T,S} <: AbstractNLPModelMeta{T,S}
     nlo = 1,
     islp = false,
     name = "Generic",
-  ) where {T,S}
-
+  ) where {T, S}
     if (nvar < 1) || (ncon < 0)
       error("Nonsensical dimensions")
     end
@@ -181,7 +180,7 @@ struct NLPModelMeta{T,S} <: AbstractNLPModelMeta{T,S}
     nnzj = max(0, nnzj)
     nnzh = max(0, nnzh)
 
-    new{T,S}(
+    new{T, S}(
       nvar,
       x0,
       lvar,
@@ -230,7 +229,8 @@ struct NLPModelMeta{T,S} <: AbstractNLPModelMeta{T,S}
   end
 end
 
-NLPModelMeta(nvar; x0::S = zeros(nvar), kwargs...) where S = NLPModelMeta{eltype(S), S}(nvar, x0 = x0; kwargs...)
+NLPModelMeta(nvar; x0::S = zeros(nvar), kwargs...) where {S} =
+  NLPModelMeta{eltype(S), S}(nvar, x0 = x0; kwargs...)
 
 """
     reset_data!(nlp)

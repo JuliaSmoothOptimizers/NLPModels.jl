@@ -18,13 +18,13 @@ x₀ = ones(n).
 
 Modified SimpleNLSModel.
 """
-mutable struct SimpleNLSModel{T,S} <: AbstractNLSModel{T,S}
-  meta::NLPModelMeta{T,S}
-  nls_meta::NLSMeta{T,S}
+mutable struct SimpleNLSModel{T, S} <: AbstractNLSModel{T, S}
+  meta::NLPModelMeta{T, S}
+  nls_meta::NLSMeta{T, S}
   counters::NLSCounters
 end
 
-function SimpleNLSModel(::Type{T}) where T
+function SimpleNLSModel(::Type{T}) where {T}
   meta = NLPModelMeta(
     2,
     x0 = ones(T, 2),
