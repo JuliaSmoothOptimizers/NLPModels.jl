@@ -17,17 +17,19 @@ jobs:
           "JuliaSmoothOptimizers/AmplNLReader.jl",
           "JuliaSmoothOptimizers/CaNNOLeS.jl",
           "JuliaSmoothOptimizers/CUTEst.jl",
-          "JuliaSmoothOptimizers/DCI.jl",
+          "JuliaSmoothOptimizers/DCISolver.jl",
           "JuliaSmoothOptimizers/JSOSolvers.jl",
           "JuliaSmoothOptimizers/LLSModels.jl",
           "JuliaSmoothOptimizers/NLPModelsIpopt.jl",
           "JuliaSmoothOptimizers/NLPModelsJuMP.jl",
           "JuliaSmoothOptimizers/NLPModelsModifiers.jl",
           "JuliaSmoothOptimizers/NLPModelsTest.jl",
-          # "JuliaSmoothOptimizers/PDENLPModels.jl",
+          "JuliaSmoothOptimizers/PDENLPModels.jl",
           "JuliaSmoothOptimizers/Percival.jl",
           "JuliaSmoothOptimizers/QuadraticModels.jl",
           "JuliaSmoothOptimizers/SolverBenchmark.jl",
+          "JuliaSmoothOptimizers/SolverCore.jl",
+          "JuliaSmoothOptimizers/SolverTest.jl",
           "JuliaSmoothOptimizers/SolverTools.jl"
         ]
         pkgversion: [latest, stable]
