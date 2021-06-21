@@ -313,7 +313,7 @@ function jac_op!(nlp::AbstractNLPModel, x::AbstractVector, Jv::AbstractVector, J
     end
     return res
   end
-  return LinearOperator{eltype(x)}(nlp.meta.ncon, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!, Jv, Jtv, Jtv)
+  return LinearOperator{eltype(x)}(nlp.meta.ncon, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
 
 """
@@ -359,10 +359,7 @@ function jac_op!(
     false,
     prod!,
     ctprod!,
-    ctprod!,
-    Jv,
-    Jtv,
-    Jtv
+    ctprod!
   )
 end
 
@@ -767,7 +764,7 @@ function hess_op!(
     end
     return res
   end
-  return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!, Hv, Hv, Hv)
+  return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
 end
 
 """
@@ -798,7 +795,7 @@ function hess_op!(
     end
     return res
   end
-  return LinearOperator{eltype(vals)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!, Hv, Hv, Hv)
+  return LinearOperator{eltype(vals)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
 end
 
 """
@@ -854,7 +851,7 @@ function hess_op!(
     end
     return res
   end
-  return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!, Hv, Hv, Hv)
+  return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
 end
 
 """
