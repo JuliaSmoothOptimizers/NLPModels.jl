@@ -118,9 +118,9 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
 
   function NLPModelMeta{T, S}(
     nvar::Int;
-    x0::S = zeros(T, nvar),
-    lvar::S = T(-Inf) * ones(T, nvar),
-    uvar::S = T(Inf) * ones(T, nvar),
+    x0::S = fill!(S(undef, nvar), zero(T)),
+    lvar::S = fill!(S(undef, nvar), T(-Inf)),
+    uvar::S = fill!(S(undef, nvar), T(Inf)),
     nbv = 0,
     niv = 0,
     nlvb = nvar,
@@ -131,9 +131,9 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
     nlvoi = 0,
     nwv = 0,
     ncon = 0,
-    y0::S = zeros(T, ncon),
-    lcon::S = T(-Inf) * ones(T, ncon),
-    ucon::S = T(Inf) * ones(T, ncon),
+    y0::S = fill!(S(undef, ncon), zero(T)),
+    lcon::S = fill!(S(undef, ncon), T(-Inf)),
+    ucon::S = fill!(S(undef, ncon), T(Inf)),
     nnzo = nvar,
     nnzj = nvar * ncon,
     nnzh = nvar * (nvar + 1) / 2,

@@ -32,7 +32,7 @@ struct NLSMeta{T, S}
   function NLSMeta{T, S}(
     nequ::Int,
     nvar::Int;
-    x0::S = zeros(T, nvar),
+    x0::S = fill!(S(undef, nvar), zero(T)),
     nnzj = nequ * nvar,
     nnzh = div(nvar * (nvar + 1), 2),
     nln = 1:nequ,
