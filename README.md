@@ -1,19 +1,30 @@
 # NLPModels
 
+| **Documentation** | **CI** | **Coverage** | **Release** | **DOI** |
+|:-----------------:|:------:|:------------:|:-----------:|:-------:|
+| [![docs-stable][docs-stable-img]][docs-stable-url] [![docs-dev][docs-dev-img]][docs-dev-url] | [![build-gh][build-gh-img]][build-gh-url] [![build-cirrus][build-cirrus-img]][build-cirrus-url] | [![codecov][codecov-img]][codecov-url] | [![release][release-img]][release-url] | [![doi][doi-img]][doi-url] |
+
+[docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
+[docs-stable-url]: https://JuliaSmoothOptimizers.github.io/NLPModels.jl/stable
+[docs-dev-img]: https://img.shields.io/badge/docs-dev-purple.svg
+[docs-dev-url]: https://JuliaSmoothOptimizers.github.io/NLPModels.jl/dev
+[build-gh-img]: https://github.com/JuliaSmoothOptimizers/LinearOperators.jl/workflows/CI/badge.svg?branch=master
+[build-gh-url]: https://github.com/JuliaSmoothOptimizers/LinearOperators.jl/actions
+[build-cirrus-img]: https://img.shields.io/cirrus/github/JuliaSmoothOptimizers/LinearOperators.jl?logo=Cirrus%20CI
+[build-cirrus-url]: https://cirrus-ci.com/github/JuliaSmoothOptimizers/LinearOperators.jl
+[codecov-img]: https://codecov.io/gh/JuliaSmoothOptimizers/NLPModels.jl/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/JuliaSmoothOptimizers/NLPModels.jl
+[release-img]: https://img.shields.io/github/v/release/JuliaSmoothOptimizers/NLPModels.jl.svg?style=flat-square
+[release-url]: https://github.com/JuliaSmoothOptimizers/NLPModels.jl/releases
+[doi-img]: https://zenodo.org/badge/DOI/10.5281/zenodo.2558627.svg
+[doi-url]: https://doi.org/10.5281/zenodo.2558627
+
 This package provides general guidelines to represent optimization problems in Julia and a standardized API to evaluate the functions and their derivatives.
 The main objective is to be able to rely on that API when designing optimization solvers in Julia.
+
 ## How to Cite
 
 If you use NLPModels.jl in your work, please cite using the format given in [CITATION.bib](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/blob/master/CITATION.bib).
-
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2558627.svg)](https://doi.org/10.5281/zenodo.2558627)
-[![GitHub release](https://img.shields.io/github/release/JuliaSmoothOptimizers/NLPModels.jl.svg)](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/releases/latest)
-[![](https://img.shields.io/badge/docs-stable-3f51b5.svg)](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/stable)
-[![](https://img.shields.io/badge/docs-latest-3f51b5.svg)](https://JuliaSmoothOptimizers.github.io/NLPModels.jl/dev)
-[![codecov](https://codecov.io/gh/JuliaSmoothOptimizers/NLPModels.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaSmoothOptimizers/NLPModels.jl)
-
-![CI](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/workflows/CI/badge.svg?branch=master)
-[![Cirrus CI - Base Branch Build Status](https://img.shields.io/cirrus/github/JuliaSmoothOptimizers/NLPModels.jl?logo=Cirrus%20CI)](https://cirrus-ci.com/github/JuliaSmoothOptimizers/NLPModels.jl)
 
 ## Optimization Problems
 
