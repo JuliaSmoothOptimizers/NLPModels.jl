@@ -456,14 +456,14 @@ $(OBJECTIVE_HESSIAN), rewriting `vals`.
 Only the lower triangle is returned.
 """
 function hess_coord!(
-  nlp::AbstractNLPModel,
-  x::AbstractVector,
+  nlp::AbstractNLPModel{T, S},
+  x::AbstractVector{T},
   vals::AbstractVector;
-  obj_weight::Real = one(eltype(x)),
-)
+  obj_weight::Real = one(T),
+) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nnzh vals
-  hess_coord!(nlp, x, zeros(nlp.meta.ncon), vals, obj_weight = obj_weight)
+  hess_coord!(nlp, x, zeros(T, nlp.meta.ncon), vals, obj_weight = obj_weight)
 end
 
 """
@@ -596,14 +596,14 @@ place, with objective function scaled by `obj_weight`, where the objective Hessi
 $(OBJECTIVE_HESSIAN).
 """
 function hprod!(
-  nlp::AbstractNLPModel,
-  x::AbstractVector,
+  nlp::AbstractNLPModel{T, S},
+  x::AbstractVector{T},
   v::AbstractVector,
   Hv::AbstractVector;
-  obj_weight::Real = one(eltype(x)),
-)
+  obj_weight::Real = one(T),
+) where {T, S}
   @lencheck nlp.meta.nvar x v Hv
-  hprod!(nlp, x, zeros(nlp.meta.ncon), v, Hv, obj_weight = obj_weight)
+  hprod!(nlp, x, zeros(T, nlp.meta.ncon), v, Hv, obj_weight = obj_weight)
 end
 
 """
