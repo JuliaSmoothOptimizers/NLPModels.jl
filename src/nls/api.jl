@@ -77,7 +77,11 @@ end
 
 Computes the product of the Jacobian of the residual at x and a vector, i.e.,  ``J(x)v``.
 """
-function jprod_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector{T}, v::AbstractVector) where {T, S}
+function jprod_residual(
+  nls::AbstractNLSModel{T, S},
+  x::AbstractVector{T},
+  v::AbstractVector,
+) where {T, S}
   @lencheck nls.meta.nvar x v
   Jv = S(undef, nls_meta(nls).nequ)
   jprod_residual!(nls, x, v, Jv)
@@ -136,7 +140,11 @@ end
 
 Computes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  ``J(x)^Tv``.
 """
-function jtprod_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector{T}, v::AbstractVector) where {T, S}
+function jtprod_residual(
+  nls::AbstractNLSModel{T, S},
+  x::AbstractVector{T},
+  v::AbstractVector,
+) where {T, S}
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nequ v
   Jtv = S(undef, nls_meta(nls).nvar)
@@ -363,7 +371,12 @@ end
 
 Computes the product of the Hessian of the i-th residual at x, times the vector v.
 """
-function hprod_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector{T}, i::Int, v::AbstractVector) where {T, S}
+function hprod_residual(
+  nls::AbstractNLSModel{T, S},
+  x::AbstractVector{T},
+  i::Int,
+  v::AbstractVector,
+) where {T, S}
   @lencheck nls.meta.nvar x
   Hv = S(undef, nls_meta(nls).nvar)
   hprod_residual!(nls, x, i, v, Hv)
