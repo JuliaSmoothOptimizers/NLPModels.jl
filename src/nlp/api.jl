@@ -292,7 +292,12 @@ The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`. The values `Jv` and `Jtv` are used as preallocated storage for the
 operations.
 """
-function jac_op!(nlp::AbstractNLPModel{T, S}, x::AbstractVector{T}, Jv::AbstractVector, Jtv::AbstractVector) where {T, S}
+function jac_op!(
+  nlp::AbstractNLPModel{T, S},
+  x::AbstractVector{T},
+  Jv::AbstractVector,
+  Jtv::AbstractVector,
+) where {T, S}
   @lencheck nlp.meta.nvar x Jtv
   @lencheck nlp.meta.ncon Jv
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
@@ -359,7 +364,7 @@ function jac_op!(
     false,
     prod!,
     ctprod!,
-    ctprod!
+    ctprod!,
   )
 end
 
@@ -712,10 +717,14 @@ Return the objective Hessian at `x` with objective function scaled by
 matrix, e.g., `H * v`. The linear operator H represents
 $(OBJECTIVE_HESSIAN).
 """
-function hess_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector{T}; obj_weight::Real = one(T)) where {T, S}
+function hess_op(
+  nlp::AbstractNLPModel{T, S},
+  x::AbstractVector{T};
+  obj_weight::Real = one(T),
+) where {T, S}
   @lencheck nlp.meta.nvar x
   Hv = S(undef, nlp.meta.nvar)
-  return hess_op!(nlp, x, Hv, obj_weight=obj_weight)
+  return hess_op!(nlp, x, Hv, obj_weight = obj_weight)
 end
 
 """
@@ -735,7 +744,7 @@ function hess_op(
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
   Hv = S(undef, nlp.meta.nvar)
-  return hess_op!(nlp, x, y, Hv, obj_weight=obj_weight)
+  return hess_op!(nlp, x, y, Hv, obj_weight = obj_weight)
 end
 
 """
