@@ -51,9 +51,17 @@
   Jop = jac_op!(nlp, x, Jv, Jtw)
   @test Jop * v ≈ J(x) * v
   @test Jop' * w ≈ J(x)' * w
+  res = J(x) * v - w
+  @test mul!(w, Jop, v, 1.0, -1.0) ≈ res
+  res = J(x)' * w - v
+  @test mul!(v, Jop', w, 1.0, -1.0) ≈ res
   Jop = jac_op!(nlp, jac_structure(nlp)..., jac_coord(nlp, x), Jv, Jtw)
   @test Jop * v ≈ J(x) * v
   @test Jop' * w ≈ J(x)' * w
+  res = J(x) * v - w
+  @test mul!(w, Jop, v, 1.0, -1.0) ≈ res
+  res = J(x)' * w - v
+  @test mul!(v, Jop', w, 1.0, -1.0) ≈ res
   Jop = jac_op!(nlp, x, jac_structure(nlp)..., Jv, Jtw)
   @test Jop * v ≈ J(x) * v
   @test Jop' * w ≈ J(x)' * w
@@ -78,14 +86,21 @@
   @test Hop * v ≈ H(x) * v
   Hop = hess_op!(nlp, x, Hv)
   @test Hop * v ≈ H(x) * v
+  z = ones(nlp.meta.nvar)
+  res = H(x) * v - z
+  @test mul!(z, Hop, v, 1.0, -1.0) ≈ res
   Hop = hess_op!(nlp, hess_structure(nlp)..., hess_coord(nlp, x), Hv)
   @test Hop * v ≈ H(x) * v
+  res = H(x) * v - z
+  @test mul!(z, Hop, v, 1.0, -1.0) ≈ res
   Hop = hess_op!(nlp, x, hess_structure(nlp)..., Hv)
   @test Hop * v ≈ H(x) * v
   Hop = hess_op(nlp, x, y)
   @test Hop * v ≈ H(x, y) * v
   Hop = hess_op!(nlp, x, y, Hv)
   @test Hop * v ≈ H(x, y) * v
+  res = H(x, y) * v - z
+  @test mul!(z, Hop, v, 1.0, -1.0) ≈ res
   Hop = hess_op!(nlp, hess_structure(nlp)..., hess_coord(nlp, x, y), Hv)
   @test Hop * v ≈ H(x, y) * v
   Hop = hess_op!(nlp, x, y, hess_structure(nlp)..., Hv)

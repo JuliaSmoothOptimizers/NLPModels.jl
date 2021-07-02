@@ -32,9 +32,17 @@
   Jop = jac_op_residual!(nls, x, Jv, Jtw)
   @test Jop * v ≈ JF(x) * v
   @test Jop' * w ≈ JF(x)' * w
+  res = JF(x) * v - w
+  @test mul!(w, Jop, v, 1.0, -1.0) ≈ res
+  res = JF(x)' * w - v
+  @test mul!(v, Jop', w, 1.0, -1.0) ≈ res
   Jop = jac_op_residual!(nls, jac_structure_residual(nls)..., jac_coord_residual(nls, x), Jv, Jtw)
   @test Jop * v ≈ JF(x) * v
   @test Jop' * w ≈ JF(x)' * w
+  res = JF(x) * v - w
+  @test mul!(w, Jop, v, 1.0, -1.0) ≈ res
+  res = JF(x)' * w - v
+  @test mul!(v, Jop', w, 1.0, -1.0) ≈ res
   Jop = jac_op_residual!(nls, x, jac_structure_residual(nls)..., Jv, Jtw)
   @test Jop * v ≈ JF(x) * v
   @test Jop' * w ≈ JF(x)' * w
@@ -49,6 +57,9 @@
     @test Hop * v ≈ HF(x, eⱼ) * v
     Hop = hess_op_residual!(nls, x, j, Hv)
     @test Hop * v ≈ HF(x, eⱼ) * v
+    z = ones(nls.meta.nvar)
+    res = HF(x, eⱼ) * v - z
+    @test mul!(z, Hop, v, 1.0, -1.0) ≈ res
   end
 end
 

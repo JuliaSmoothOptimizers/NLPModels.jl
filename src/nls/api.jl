@@ -204,10 +204,10 @@ end
 
 Computes ``J(x)``, the Jacobian of the residual at x, in linear operator form.
 """
-function jac_op_residual(nls::AbstractNLSModel, x::AbstractVector{T}) where {T}
+function jac_op_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector{T}) where {T, S}
   @lencheck nls.meta.nvar x
-  Jv = zeros(T, nls_meta(nls).nequ)
-  Jtv = zeros(T, nls.meta.nvar)
+  Jv = S(undef, nls_meta(nls).nequ)
+  Jtv = S(undef, nls.meta.nvar)
   return jac_op_residual!(nls, x, Jv, Jtv)
 end
 
@@ -418,9 +418,9 @@ function hprod_residual! end
 
 Computes the Hessian of the i-th residual at x, in linear operator form.
 """
-function hess_op_residual(nls::AbstractNLSModel, x::AbstractVector{T}, i::Int) where {T}
+function hess_op_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector{T}, i::Int) where {T, S}
   @lencheck nls.meta.nvar x
-  Hiv = zeros(T, nls.meta.nvar)
+  Hiv = S(undef, nls.meta.nvar)
   return hess_op_residual!(nls, x, i, Hiv)
 end
 
