@@ -250,7 +250,7 @@ function jac_op_residual!(
     false,
     prod!,
     ctprod!,
-    ctprod!
+    ctprod!,
   )
 end
 
@@ -296,7 +296,7 @@ function jac_op_residual!(
     false,
     prod!,
     ctprod!,
-    ctprod!
+    ctprod!,
   )
 end
 
@@ -447,7 +447,7 @@ function hess_op_residual!(nls::AbstractNLSModel, x::AbstractVector, i::Int, Hiv
     true,
     prod!,
     prod!,
-    prod!
+    prod!,
   )
 end
 
