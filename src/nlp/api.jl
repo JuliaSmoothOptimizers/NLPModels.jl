@@ -277,10 +277,10 @@ Return the Jacobian at `x` as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`.
 """
-function jac_op(nlp::AbstractNLPModel, x::AbstractVector{T}) where T
+function jac_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector{T}) where {T, S}
   @lencheck nlp.meta.nvar x
-  Jv = zeros(T, nlp.meta.ncon)
-  Jtv = zeros(T, nlp.meta.nvar)
+  Jv = S(undef, nlp.meta.ncon)
+  Jtv = S(undef, nlp.meta.nvar)
   return jac_op!(nlp, x, Jv, Jtv)
 end
 
@@ -292,7 +292,7 @@ The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`. The values `Jv` and `Jtv` are used as preallocated storage for the
 operations.
 """
-function jac_op!(nlp::AbstractNLPModel, x::AbstractVector, Jv::AbstractVector, Jtv::AbstractVector)
+function jac_op!(nlp::AbstractNLPModel{T, S}, x::AbstractVector{T}, Jv::AbstractVector, Jtv::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x Jtv
   @lencheck nlp.meta.ncon Jv
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
@@ -313,7 +313,7 @@ function jac_op!(nlp::AbstractNLPModel, x::AbstractVector, Jv::AbstractVector, J
     end
     return res
   end
-  return LinearOperator{eltype(x)}(nlp.meta.ncon, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
+  return LinearOperator{T}(nlp.meta.ncon, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
 
 """
@@ -712,9 +712,9 @@ Return the objective Hessian at `x` with objective function scaled by
 matrix, e.g., `H * v`. The linear operator H represents
 $(OBJECTIVE_HESSIAN).
 """
-function hess_op(nlp::AbstractNLPModel, x::AbstractVector{T}; obj_weight::Real = one(T)) where T
+function hess_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector{T}; obj_weight::Real = one(T)) where {T, S}
   @lencheck nlp.meta.nvar x
-  Hv = zeros(T, nlp.meta.nvar)
+  Hv = S(undef, nlp.meta.nvar)
   return hess_op!(nlp, x, Hv, obj_weight=obj_weight)
 end
 
@@ -727,14 +727,14 @@ matrix, e.g., `H * v`. The linear operator H represents
 $(LAGRANGIAN_HESSIAN).
 """
 function hess_op(
-  nlp::AbstractNLPModel,
+  nlp::AbstractNLPModel{T, S},
   x::AbstractVector{T},
   y::AbstractVector;
   obj_weight::Real = one(T),
-) where T
+) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
-  Hv = zeros(T, nlp.meta.nvar)
+  Hv = S(undef, nlp.meta.nvar)
   return hess_op!(nlp, x, y, Hv, obj_weight=obj_weight)
 end
 
