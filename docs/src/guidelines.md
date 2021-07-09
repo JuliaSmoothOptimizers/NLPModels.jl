@@ -29,7 +29,7 @@ function MyModel()
 end
 ```
 More information can be passed to `NLPModelMeta`.
-See the full list [here](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/blob/master/src/nlp_types.jl#L28).
+See the full list [here](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/blob/main/src/nlp_types.jl#L28).
 The essential fields are
 - `x0`: Starting point (defaults to `zeros`)
 - `lvar`, `uvar`: Bounds on the variables (default to `(-∞,∞)`)
