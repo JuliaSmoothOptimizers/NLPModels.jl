@@ -8,11 +8,11 @@
 [docs-stable-url]: https://JuliaSmoothOptimizers.github.io/NLPModels.jl/stable
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-purple.svg
 [docs-dev-url]: https://JuliaSmoothOptimizers.github.io/NLPModels.jl/dev
-[build-gh-img]: https://github.com/JuliaSmoothOptimizers/NLPModels.jl/workflows/CI/badge.svg?branch=master
+[build-gh-img]: https://github.com/JuliaSmoothOptimizers/NLPModels.jl/workflows/CI/badge.svg?branch=main
 [build-gh-url]: https://github.com/JuliaSmoothOptimizers/NLPModels.jl/actions
 [build-cirrus-img]: https://img.shields.io/cirrus/github/JuliaSmoothOptimizers/NLPModels.jl?logo=Cirrus%20CI
 [build-cirrus-url]: https://cirrus-ci.com/github/JuliaSmoothOptimizers/NLPModels.jl
-[codecov-img]: https://codecov.io/gh/JuliaSmoothOptimizers/NLPModels.jl/branch/master/graph/badge.svg
+[codecov-img]: https://codecov.io/gh/JuliaSmoothOptimizers/NLPModels.jl/branch/main/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/JuliaSmoothOptimizers/NLPModels.jl
 [release-img]: https://img.shields.io/github/v/release/JuliaSmoothOptimizers/NLPModels.jl.svg?style=flat-square
 [release-url]: https://github.com/JuliaSmoothOptimizers/NLPModels.jl/releases
@@ -24,7 +24,7 @@ The main objective is to be able to rely on that API when designing optimization
 
 ## How to Cite
 
-If you use NLPModels.jl in your work, please cite using the format given in [CITATION.bib](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/blob/master/CITATION.bib).
+If you use NLPModels.jl in your work, please cite using the format given in [CITATION.bib](https://github.com/JuliaSmoothOptimizers/NLPModels.jl/blob/main/CITATION.bib).
 
 ## Optimization Problems
 
