@@ -21,4 +21,8 @@ makedocs(
   ],
 )
 
-deploydocs(repo = "github.com/JuliaSmoothOptimizers/NLPModels.jl.git", push_preview = true, devbranch = "main")
+deploydocs(
+  repo = "github.com/JuliaSmoothOptimizers/NLPModels.jl.git",
+  push_preview = true,
+  devbranch = "main",
+)
