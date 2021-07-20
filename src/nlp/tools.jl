@@ -2,6 +2,20 @@ export has_bounds, bound_constrained, unconstrained
 export linearly_constrained, equality_constrained, inequality_constrained
 export has_equalities, has_inequalities
 
+for field in fieldnames(NLPModelMeta)
+  meth = Symbol("get_", field)
+  @eval begin 
+    @doc """
+        $($meth)(nlp)
+        $($meth)(meta)
+    Return the value $($(QuoteNode(field))) from meta or nlp.meta.
+    """ 
+    $meth(meta::NLPModelMeta) = getproperty(meta, $(QuoteNode(field)))
+  end
+  @eval $meth(nlp::AbstractNLPModel) = $meth(nlp.meta)
+  @eval export $meth
+end
+
 """
     has_bounds(nlp)
     has_bounds(meta)
