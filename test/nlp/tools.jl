@@ -67,5 +67,6 @@
   end
   for f in fieldnames(NLPModelMeta), (j, meta) in enumerate(meta_list)
     @test eval(Meta.parse("get_" * string(f)))(meta) == getproperty(meta, f)
+    @test eval(Meta.parse("get_" * string(f)))(DummyModel(meta)) == getproperty(meta, f)
   end
 end
