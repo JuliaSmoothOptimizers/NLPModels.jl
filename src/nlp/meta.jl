@@ -33,32 +33,21 @@ The following keyword arguments are accepted:
 - `x0`: initial guess
 - `lvar`: vector of lower bounds
 - `uvar`: vector of upper bounds
-- `nbv`: number of linear binary variables
-- `niv`: number of linear non-binary integer variables
 - `nlvb`: number of nonlinear variables in both objectives and constraints
 - `nlvo`: number of nonlinear variables in objectives (includes nlvb)
 - `nlvc`: number of nonlinear variables in constraints (includes nlvb)
-- `nlvbi`: number of integer nonlinear variables in both objectives and constraints
-- `nlvci`: number of integer nonlinear variables in constraints only
-- `nlvoi`: number of integer nonlinear variables in objectives only
-- `nwv`: number of linear network (arc) variables
 - `ncon`: number of general constraints
 - `y0`: initial Lagrange multipliers
 - `lcon`: vector of constraint lower bounds
 - `ucon`: vector of constraint upper bounds
-- `nnzo`: number of nonzeros in all objectives gradients
+- `nnzo`: number of nonzeros in the gradient
 - `nnzj`: number of elements needed to store the nonzeros in the sparse Jacobian
 - `nnzh`: number of elements needed to store the nonzeros in the sparse Hessian
 - `nlin`: number of linear constraints
 - `nnln`: number of nonlinear general constraints
-- `nnnet`: number of nonlinear network constraints
-- `nlnet`: number of linear network constraints
 - `lin`: indices of linear constraints
 - `nln`: indices of nonlinear constraints
-- `nnet`: indices of nonlinear network constraints
-- `lnet`: indices of linear network constraints
 - `minimize`: true if optimize == minimize
-- `nlo`: number of nonlinear objectives
 - `islp`: true if the problem is a linear program
 - `name`: problem name
 """
@@ -75,15 +64,9 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
   ifree::Vector{Int}
   iinf::Vector{Int}
 
-  nbv::Int
-  niv::Int
   nlvb::Int
   nlvo::Int
   nlvc::Int
-  nlvbi::Int
-  nlvci::Int
-  nlvoi::Int
-  nwv::Int
 
   ncon::Int
   y0::S
@@ -103,16 +86,11 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
 
   nlin::Int
   nnln::Int
-  nnnet::Int
-  nlnet::Int
 
   lin::Vector{Int}
   nln::Vector{Int}
-  nnet::Vector{Int}
-  lnet::Vector{Int}
 
   minimize::Bool
-  nlo::Int
   islp::Bool
   name::String
 
@@ -121,15 +99,9 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
     x0::S = fill!(S(undef, nvar), zero(T)),
     lvar::S = fill!(S(undef, nvar), T(-Inf)),
     uvar::S = fill!(S(undef, nvar), T(Inf)),
-    nbv = 0,
-    niv = 0,
     nlvb = nvar,
     nlvo = nvar,
     nlvc = nvar,
-    nlvbi = 0,
-    nlvci = 0,
-    nlvoi = 0,
-    nwv = 0,
     ncon = 0,
     y0::S = fill!(S(undef, ncon), zero(T)),
     lcon::S = fill!(S(undef, ncon), T(-Inf)),
@@ -139,14 +111,9 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
     nnzh = nvar * (nvar + 1) / 2,
     lin = Int[],
     nln = 1:ncon,
-    nnet = Int[],
-    lnet = Int[],
     nlin = length(lin),
     nnln = length(nln),
-    nnnet = length(nnet),
-    nlnet = length(lnet),
     minimize = true,
-    nlo = 1,
     islp = false,
     name = "Generic",
   ) where {T, S}
@@ -158,9 +125,7 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
     @lencheck ncon y0 lcon ucon
     @lencheck nlin lin
     @lencheck nnln nln
-    @lencheck nnnet nnet
-    @lencheck nlnet lnet
-    @rangecheck 1 ncon lin nln nnet lnet
+    @rangecheck 1 ncon lin nln
     # T = eltype(x0)
 
     ifix = findall(lvar .== uvar)
@@ -191,15 +156,9 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
       irng,
       ifree,
       iinf,
-      nbv,
-      niv,
       nlvb,
       nlvo,
       nlvc,
-      nlvbi,
-      nlvci,
-      nlvoi,
-      nwv,
       ncon,
       y0,
       lcon,
@@ -215,14 +174,9 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
       nnzh,
       nlin,
       nnln,
-      nnnet,
-      nlnet,
       lin,
       nln,
-      nnet,
-      lnet,
       minimize,
-      nlo,
       islp,
       name,
     )
