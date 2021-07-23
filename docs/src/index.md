@@ -94,19 +94,18 @@ Attribute   | Type               | Notes
 `ncon`      | `Int             ` | total number of general constraints
 `nlin `     | `Int             ` | number of linear constraints
 `nnln`      | `Int             ` | number of nonlinear general constraints
-`nnet`      | `Int             ` | number of nonlinear network constraints
 `y0  `      | `Array{Float64,1}` | initial Lagrange multipliers
 `lcon`      | `Array{Float64,1}` | vector of constraint lower bounds
 `ucon`      | `Array{Float64,1}` | vector of constraint upper bounds
 `lin `      | `Range1{Int64}   ` | indices of linear constraints
-`nln`       | `Range1{Int64}   ` | indices of nonlinear constraints (not network)
-`nnet`      | `Range1{Int64}   ` | indices of nonlinear network constraints
+`nln`       | `Range1{Int64}   ` | indices of nonlinear constraints
 `jfix`      | `Array{Int64,1}`   | indices of equality constraints
 `jlow`      | `Array{Int64,1}`   | indices of constraints of the form c(x) ≥ cl
 `jupp`      | `Array{Int64,1}`   | indices of constraints of the form c(x) ≤ cu
 `jrng`      | `Array{Int64,1}`   | indices of constraints of the form cl ≤ c(x) ≤ cu
 `jfree`     | `Array{Int64,1}`   | indices of "free" constraints (there shouldn't be any)
 `jinf`      | `Array{Int64,1}`   | indices of the visibly infeasible constraints
+`nnzo`      | `Int             ` | number of nonzeros in the gradient
 `nnzj`      | `Int             ` | number of nonzeros in the sparse Jacobian
 `nnzh`      | `Int             ` | number of nonzeros in the sparse Hessian
 `minimize`  | `Bool            ` | true if `optimize == minimize`

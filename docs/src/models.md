@@ -23,7 +23,7 @@ If you want to create your own interface, check these [Guidelines](@ref).
 - [LLSModels.jl](https://github.com/JuliaSmoothOptimizers/LLSModels.jl):
   Creates a linear least squares model.
 - [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl):
-  For PDE problems.
+  For PDE-constrained problems.
 
 ## Model internals
 
