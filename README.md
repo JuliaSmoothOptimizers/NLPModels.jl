@@ -80,14 +80,14 @@ The complete list of methods that an interface may implement can be found in the
 
 ## Attributes
 
-`NLPModelMeta` objects have the following attributes:
+`NLPModelMeta` objects have the following attributes (with `S <: AbstractVector`):
 
 Attribute   | Type               | Notes
 ------------|--------------------|------------------------------------
 `nvar`      | `Int             ` | number of variables
-`x0  `      | `Array{Float64,1}` | initial guess
-`lvar`      | `Array{Float64,1}` | vector of lower bounds
-`uvar`      | `Array{Float64,1}` | vector of upper bounds
+`x0  `      | `S`                | initial guess
+`lvar`      | `S`                | vector of lower bounds
+`uvar`      | `S`                | vector of upper bounds
 `ifix`      | `Array{Int64,1}`   | indices of fixed variables
 `ilow`      | `Array{Int64,1}`   | indices of variables with lower bound only
 `iupp`      | `Array{Int64,1}`   | indices of variables with upper bound only
@@ -97,9 +97,9 @@ Attribute   | Type               | Notes
 `ncon`      | `Int             ` | total number of general constraints
 `nlin `     | `Int             ` | number of linear constraints
 `nnln`      | `Int             ` | number of nonlinear general constraints
-`y0  `      | `Array{Float64,1}` | initial Lagrange multipliers
-`lcon`      | `Array{Float64,1}` | vector of constraint lower bounds
-`ucon`      | `Array{Float64,1}` | vector of constraint upper bounds
+`y0  `      | `S`                | initial Lagrange multipliers
+`lcon`      | `S`                | vector of constraint lower bounds
+`ucon`      | `S`                | vector of constraint upper bounds
 `lin `      | `Range1{Int64}   ` | indices of linear constraints
 `nln`       | `Range1{Int64}   ` | indices of nonlinear constraints
 `jfix`      | `Array{Int64,1}`   | indices of equality constraints
@@ -108,8 +108,9 @@ Attribute   | Type               | Notes
 `jrng`      | `Array{Int64,1}`   | indices of constraints of the form cl ≤ c(x) ≤ cu
 `jfree`     | `Array{Int64,1}`   | indices of "free" constraints (there shouldn't be any)
 `jinf`      | `Array{Int64,1}`   | indices of the visibly infeasible constraints
+`nnzo`      | `Int             ` | number of nonzeros in the gradient
 `nnzj`      | `Int             ` | number of nonzeros in the sparse Jacobian
 `nnzh`      | `Int             ` | number of nonzeros in the sparse Hessian
 `minimize`  | `Bool            ` | true if `optimize == minimize`
 `islp`      | `Bool            ` | true if the problem is a linear program
-`name`      | `ASCIIString     ` | problem name
+`name`      | `String`           | problem name

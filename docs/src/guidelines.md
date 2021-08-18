@@ -15,8 +15,8 @@ It is mandatory that it have a `meta :: NLPModelMeta` field, storing all the rel
 The model also needs to provide `Counters` information. The easiest way is to define `counters :: Counters`.
 For instance:
 ```julia
-mutable struct MyModel <: AbstractNLPModel
-  meta :: NLPModelMeta
+mutable struct MyModel{T, S} <: AbstractNLPModel{T, S}
+  meta :: NLPModelMeta{T, S}
   counters :: Counters
 end
 ```
