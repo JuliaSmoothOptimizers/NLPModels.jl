@@ -88,26 +88,26 @@ Attribute   | Type               | Notes
 `x0  `      | `S`                | initial guess
 `lvar`      | `S`                | vector of lower bounds
 `uvar`      | `S`                | vector of upper bounds
-`ifix`      | `Array{Int64,1}`   | indices of fixed variables
-`ilow`      | `Array{Int64,1}`   | indices of variables with lower bound only
-`iupp`      | `Array{Int64,1}`   | indices of variables with upper bound only
-`irng`      | `Array{Int64,1}`   | indices of variables with lower and upper bound (range)
-`ifree`     | `Array{Int64,1}`   | indices of free variables
-`iinf`      | `Array{Int64,1}`   | indices of visibly infeasible bounds
+`ifix`      | `Vector{Int}`      | indices of fixed variables
+`ilow`      | `Vector{Int}`      | indices of variables with lower bound only
+`iupp`      | `Vector{Int}`      | indices of variables with upper bound only
+`irng`      | `Vector{Int}`      | indices of variables with lower and upper bound (range)
+`ifree`     | `Vector{Int}`      | indices of free variables
+`iinf`      | `Vector{Int}`      | indices of visibly infeasible bounds
 `ncon`      | `Int             ` | total number of general constraints
 `nlin `     | `Int             ` | number of linear constraints
 `nnln`      | `Int             ` | number of nonlinear general constraints
 `y0  `      | `S`                | initial Lagrange multipliers
 `lcon`      | `S`                | vector of constraint lower bounds
 `ucon`      | `S`                | vector of constraint upper bounds
-`lin `      | `Range1{Int64}   ` | indices of linear constraints
-`nln`       | `Range1{Int64}   ` | indices of nonlinear constraints
-`jfix`      | `Array{Int64,1}`   | indices of equality constraints
-`jlow`      | `Array{Int64,1}`   | indices of constraints of the form c(x) ≥ cl
-`jupp`      | `Array{Int64,1}`   | indices of constraints of the form c(x) ≤ cu
-`jrng`      | `Array{Int64,1}`   | indices of constraints of the form cl ≤ c(x) ≤ cu
-`jfree`     | `Array{Int64,1}`   | indices of "free" constraints (there shouldn't be any)
-`jinf`      | `Array{Int64,1}`   | indices of the visibly infeasible constraints
+`lin `      | `Vector{Int}`      | indices of linear constraints
+`nln`       | `Vector{Int}`      | indices of nonlinear constraints
+`jfix`      | `Vector{Int}`      | indices of equality constraints
+`jlow`      | `Vector{Int}`      | indices of constraints of the form c(x) ≥ cl
+`jupp`      | `Vector{Int}`      | indices of constraints of the form c(x) ≤ cu
+`jrng`      | `Vector{Int}`      | indices of constraints of the form cl ≤ c(x) ≤ cu
+`jfree`     | `Vector{Int}`      | indices of "free" constraints (there shouldn't be any)
+`jinf`      | `Vector{Int}`      | indices of the visibly infeasible constraints
 `nnzo`      | `Int             ` | number of nonzeros in the gradient
 `nnzj`      | `Int             ` | number of nonzeros in the sparse Jacobian
 `nnzh`      | `Int             ` | number of nonzeros in the sparse Hessian
