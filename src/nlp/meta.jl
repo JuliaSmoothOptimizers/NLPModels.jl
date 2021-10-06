@@ -42,6 +42,8 @@ The following keyword arguments are accepted:
 - `ucon`: vector of constraint upper bounds
 - `nnzo`: number of nonzeros in the gradient
 - `nnzj`: number of elements needed to store the nonzeros in the sparse Jacobian
+- `lin_nnzj`: number of elements needed to store the nonzeros in the sparse Jacobian of linear constraints
+- `nln_nnzj`: number of elements needed to store the nonzeros in the sparse Jacobian of nonlinear constraints
 - `nnzh`: number of elements needed to store the nonzeros in the sparse Hessian
 - `nlin`: number of linear constraints
 - `nnln`: number of nonlinear general constraints
@@ -82,6 +84,8 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
 
   nnzo::Int
   nnzj::Int
+  lin_nnzj::Int
+  nln_nnzj::Int
   nnzh::Int
 
   nlin::Int
@@ -108,6 +112,8 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
     ucon::S = fill!(S(undef, ncon), T(Inf)),
     nnzo = nvar,
     nnzj = nvar * ncon,
+    lin_nnzj = 0,
+    nln_nnzj = nvar * ncon,
     nnzh = nvar * (nvar + 1) / 2,
     lin = Int[],
     nln = 1:ncon,
@@ -171,6 +177,8 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
       jinf,
       nnzo,
       nnzj,
+      lin_nnzj,
+      nln_nnzj,
       nnzh,
       nlin,
       nnln,
