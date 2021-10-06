@@ -135,7 +135,7 @@ function NLPModels.hprod_residual!(
   return Hiv
 end
 
-function NLPModels.cons!(nls::SimpleNLSModel, x::AbstractVector, cx::AbstractVector)
+function NLPModels.cons_nln!(nls::SimpleNLSModel, x::AbstractVector, cx::AbstractVector)
   @lencheck 2 x
   @lencheck 3 cx
   increment!(nls, :neval_cons)
@@ -143,7 +143,7 @@ function NLPModels.cons!(nls::SimpleNLSModel, x::AbstractVector, cx::AbstractVec
   return cx
 end
 
-function NLPModels.jac_structure!(
+function NLPModels.jac_nln_structure!(
   nls::SimpleNLSModel,
   rows::AbstractVector{<:Integer},
   cols::AbstractVector{<:Integer},
@@ -154,7 +154,7 @@ function NLPModels.jac_structure!(
   return rows, cols
 end
 
-function NLPModels.jac_coord!(nls::SimpleNLSModel, x::AbstractVector, vals::AbstractVector)
+function NLPModels.jac_nln_coord!(nls::SimpleNLSModel, x::AbstractVector, vals::AbstractVector)
   @lencheck 2 x
   @lencheck 6 vals
   increment!(nls, :neval_jac)
@@ -162,7 +162,7 @@ function NLPModels.jac_coord!(nls::SimpleNLSModel, x::AbstractVector, vals::Abst
   return vals
 end
 
-function NLPModels.jprod!(
+function NLPModels.jprod_nln!(
   nls::SimpleNLSModel,
   x::AbstractVector,
   v::AbstractVector,
@@ -175,7 +175,7 @@ function NLPModels.jprod!(
   return Jv
 end
 
-function NLPModels.jtprod!(
+function NLPModels.jtprod_nln!(
   nls::SimpleNLSModel,
   x::AbstractVector,
   v::AbstractVector,
