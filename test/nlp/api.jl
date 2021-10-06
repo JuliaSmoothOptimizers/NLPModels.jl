@@ -25,9 +25,17 @@
   @test hess(nlp, x) ≈ tril(H(x))
   @test hprod(nlp, x, v) ≈ H(x) * v
   @test cons(nlp, x) ≈ c(x)
+  @test cons_nln(nlp, x) ≈ c(x)[2:2]
+  @test cons_lin(nlp, x) == c(x)[1:1]
   @test jac(nlp, x) ≈ J(x)
+  @test jac_nln(nlp, x) ≈ J(x)[2:2, :]
+  @test jac_lin(nlp, x) ≈ J(x)[1:1, :]
   @test jprod(nlp, x, v) ≈ J(x) * v
+  @test jprod_nln(nlp, x, v) ≈ J(x)[2:2, :] * v
+  @test jprod_lin(nlp, x, v) ≈ J(x)[1:1, :] * v
   @test jtprod(nlp, x, w) ≈ J(x)' * w
+  @test jtprod_nln(nlp, x, w[2:2]) ≈ J(x)[2:2, :]' * w[2:2]
+  @test jtprod_lin(nlp, x, w[1:1]) ≈ J(x)[1:1, :]' * w[1:1]
   @test hess(nlp, x, y) ≈ tril(H(x, y))
   @test hprod(nlp, x, y, v) ≈ H(x, y) * v
 
@@ -45,7 +53,15 @@
   @test fx ≈ f(x)
   @test gx ≈ ∇f(x)
   @test jprod!(nlp, jac_structure(nlp)..., jac_coord(nlp, x), v, Jv) ≈ J(x) * v
+  @test jprod_nln!(nlp, jac_nln_structure(nlp)..., jac_nln_coord(nlp, x), v, Jv[2:2]) ≈
+        J(x)[2:2, :] * v
+  @test jprod_lin!(nlp, jac_lin_structure(nlp)..., jac_lin_coord(nlp, x), v, Jv[1:1]) ≈
+        J(x)[1:1, :] * v
   @test jtprod!(nlp, jac_structure(nlp)..., jac_coord(nlp, x), w, Jtw) ≈ J(x)' * w
+  @test jtprod_nln!(nlp, jac_nln_structure(nlp)..., jac_nln_coord(nlp, x), w[2:2], Jtw) ≈
+        J(x)[2:2, :]' * w[2:2]
+  @test jtprod_lin!(nlp, jac_lin_structure(nlp)..., jac_lin_coord(nlp, x), w[1:1], Jtw) ≈
+        J(x)[1:1, :]' * w[1:1]
   Jop = jac_op!(nlp, x, Jv, Jtw)
   @test Jop * v ≈ J(x) * v
   @test Jop' * w ≈ J(x)' * w
@@ -60,6 +76,34 @@
   @test mul!(w, Jop, v, 1.0, -1.0) ≈ res
   res = J(x)' * w - v
   @test mul!(v, Jop', w, 1.0, -1.0) ≈ res
+  Jop = jac_nln_op!(nlp, x, Jv[2:2], Jtw)
+  @test Jop * v ≈ J(x)[2:2, :] * v
+  @test Jop' * w[2:2] ≈ J(x)[2:2, :]' * w[2:2]
+  res = J(x)[2:2, :] * v - w[2:2]
+  @test mul!(w[2:2], Jop, v, 1.0, -1.0) ≈ res
+  res = J(x)[2:2, :]' * w[2:2] - v
+  @test mul!(v, Jop', w[2:2], 1.0, -1.0) ≈ res
+  Jop = jac_nln_op!(nlp, jac_nln_structure(nlp)..., jac_nln_coord(nlp, x), Jv[2:2], Jtw)
+  @test Jop * v ≈ J(x)[2:2, :] * v
+  @test Jop' * w[2:2] ≈ J(x)[2:2, :]' * w[2:2]
+  res = J(x)[2:2, :] * v - w[2:2]
+  @test mul!(w[2:2], Jop, v, 1.0, -1.0) ≈ res
+  res = J(x)[2:2, :]' * w[2:2] - v
+  @test mul!(v, Jop', w[2:2], 1.0, -1.0) ≈ res
+  Jop = jac_lin_op!(nlp, x, Jv[1:1], Jtw)
+  @test Jop * v ≈ J(x)[1:1, :] * v
+  @test Jop' * w[1:1] ≈ Jtw
+  res = J(x)[1:1, :] * v - w[1:1]
+  @test mul!(w[1:1], Jop, v, 1.0, -1.0) ≈ res
+  res = J(x)[1:1, :]' * w[1:1] - v
+  @test mul!(v, Jop', w[1:1], 1.0, -1.0) ≈ res
+  Jop = jac_lin_op!(nlp, jac_lin_structure(nlp)..., jac_lin_coord(nlp, x), Jv[1:1], Jtw)
+  @test Jop * v ≈ J(x)[1:1, :] * v
+  @test Jop' * w[1:1] ≈ Jtw
+  res = J(x)[1:1, :] * v - w[1:1]
+  @test mul!(w[1:1], Jop, v, 1.0, -1.0) ≈ res
+  res = J(x)[1:1, :]' * w[1:1] - v
+  @test mul!(v, Jop', w[1:1], 1.0, -1.0) ≈ res
   for j = 1:(nlp.meta.ncon)
     eⱼ = [i == j ? 1.0 : 0.0 for i = 1:m]
     @test jth_hess(nlp, x, j) == H(x, eⱼ) - H(x)
