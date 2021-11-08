@@ -28,9 +28,6 @@ function SimpleNLPModel(::Type{T}) where {T}
     ucon = [zero(T); T(Inf)],
     name = "Simple NLP Model",
     lin = [1],
-    nln = [2],
-    nlin = 1,
-    nnln = 1,
     lin_nnzj = 2,
     nln_nnzj = 2,
   )

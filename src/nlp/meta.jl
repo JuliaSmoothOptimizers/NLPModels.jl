@@ -116,9 +116,6 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
     nln_nnzj = nvar * ncon,
     nnzh = nvar * (nvar + 1) / 2,
     lin = Int[],
-    nln = 1:ncon,
-    nlin = length(lin),
-    nnln = length(nln),
     minimize = true,
     islp = false,
     name = "Generic",
@@ -129,9 +126,7 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
 
     @lencheck nvar x0 lvar uvar
     @lencheck ncon y0 lcon ucon
-    @lencheck nlin lin
-    @lencheck nnln nln
-    @rangecheck 1 ncon lin nln
+    @rangecheck 1 ncon lin
     # T = eltype(x0)
 
     ifix = findall(lvar .== uvar)
@@ -150,6 +145,10 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
 
     nnzj = max(0, nnzj)
     nnzh = max(0, nnzh)
+
+    nln = setdiff(1:ncon, lin)
+    nlin = length(lin)
+    nnln = length(nln)
 
     new{T, S}(
       nvar,
