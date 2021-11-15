@@ -45,9 +45,7 @@
   @test fx ≈ f(x)
   @test gx ≈ ∇f(x)
   @test jprod!(nlp, jac_structure(nlp)..., jac_coord(nlp, x), v, Jv) ≈ J(x) * v
-  @test jprod!(nlp, x, jac_structure(nlp)..., v, Jv) ≈ J(x) * v
   @test jtprod!(nlp, jac_structure(nlp)..., jac_coord(nlp, x), w, Jtw) ≈ J(x)' * w
-  @test jtprod!(nlp, x, jac_structure(nlp)..., w, Jtw) ≈ J(x)' * w
   Jop = jac_op!(nlp, x, Jv, Jtw)
   @test Jop * v ≈ J(x) * v
   @test Jop' * w ≈ J(x)' * w
@@ -80,8 +78,6 @@
   @test ghjvprod(nlp, x, gx, v) ≈ ghjv
   @test hess_coord!(nlp, x, Hvals) == hess_coord!(nlp, x, y * 0, Hvals)
   @test hprod!(nlp, hess_structure(nlp)..., hess_coord(nlp, x), v, Hv) ≈ H(x) * v
-  @test hprod!(nlp, x, hess_structure(nlp)..., v, Hv) ≈ H(x) * v
-  @test hprod!(nlp, x, y, hess_structure(nlp)..., v, Hv) ≈ H(x, y) * v
   Hop = hess_op(nlp, x)
   @test Hop * v ≈ H(x) * v
   Hop = hess_op!(nlp, x, Hv)
