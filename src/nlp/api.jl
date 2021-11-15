@@ -201,21 +201,6 @@ function jprod!(
 end
 
 """
-    Jv = jprod!(nlp, x, rows, cols, v, Jv)
-
-Evaluate ``J(x)v``, the Jacobian-vector product at `x` in place.
-`(rows, cols)` should be the Jacobian structure in triplet format.
-"""
-jprod!(
-  nlp::AbstractNLPModel,
-  x::AbstractVector,
-  ::AbstractVector{<:Integer},
-  ::AbstractVector{<:Integer},
-  v::AbstractVector,
-  Jv::AbstractVector,
-) = jprod!(nlp, x, v, Jv)
-
-"""
     Jtv = jtprod(nlp, x, v, Jtv)
 
 Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product at `x`.
@@ -254,21 +239,6 @@ function jtprod!(
   increment!(nlp, :neval_jtprod)
   coo_prod!(cols, rows, vals, v, Jtv)
 end
-
-"""
-    Jtv = jtprod!(nlp, x, rows, cols, v, Jtv)
-
-Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product at `x` in place.
-`(rows, cols)` should be the Jacobian structure in triplet format.
-"""
-jtprod!(
-  nlp::AbstractNLPModel,
-  x::AbstractVector,
-  ::AbstractVector{<:Integer},
-  ::AbstractVector{<:Integer},
-  v::AbstractVector,
-  Jtv::AbstractVector,
-) = jtprod!(nlp, x, v, Jtv)
 
 """
     J = jac_op(nlp, x)
@@ -664,24 +634,6 @@ function hprod!(
 end
 
 """
-    Hv = hprod!(nlp, x, rows, cols, v, Hv; obj_weight=1.0)
-
-Evaluate the product of the objective Hessian at `x` with the vector `v` in
-place, where the objective Hessian is
-$(OBJECTIVE_HESSIAN).
-`(rows, cols)` should be the Hessian structure in triplet format.
-"""
-hprod!(
-  nlp::AbstractNLPModel,
-  x::AbstractVector,
-  ::AbstractVector{<:Integer},
-  ::AbstractVector{<:Integer},
-  v::AbstractVector,
-  Hv::AbstractVector;
-  obj_weight::Real = 1.0,
-) = hprod!(nlp, x, v, Hv, obj_weight = obj_weight)
-
-"""
     Hv = hprod!(nlp, x, y, v, Hv; obj_weight=1.0)
 
 Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in
@@ -689,25 +641,6 @@ place, with objective function scaled by `obj_weight`, where the Lagrangian Hess
 $(LAGRANGIAN_HESSIAN).
 """
 function hprod! end
-
-"""
-    Hv = hprod!(nlp, x, y, rows, cols, v, Hv; obj_weight=1.0)
-
-Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in
-place, where the Lagrangian Hessian is
-$(LAGRANGIAN_HESSIAN).
-`(rows, cols)` should be the Hessian structure in triplet format.
-"""
-hprod!(
-  nlp::AbstractNLPModel,
-  x::AbstractVector,
-  y::AbstractVector,
-  ::AbstractVector{<:Integer},
-  ::AbstractVector{<:Integer},
-  v::AbstractVector,
-  Hv::AbstractVector;
-  obj_weight::Real = one(eltype(x)),
-) = hprod!(nlp, x, y, v, Hv, obj_weight = obj_weight)
 
 """
     H = hess_op(nlp, x; obj_weight=1.0)

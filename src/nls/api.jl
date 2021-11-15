@@ -116,26 +116,6 @@ function jprod_residual!(
 end
 
 """
-    Jv = jprod_residual!(nls, x, rows, cols, v, Jv)
-
-Computes the product of the Jacobian of the residual at x and a vector, i.e.,  ``J(x)v``, storing it in `Jv`.
-The structure of the Jacobian is given by `(rows, cols)`.
-"""
-function jprod_residual!(
-  nls::AbstractNLSModel,
-  x::AbstractVector,
-  rows::AbstractVector{<:Integer},
-  cols::AbstractVector{<:Integer},
-  v::AbstractVector,
-  Jv::AbstractVector,
-)
-  @lencheck nls.meta.nvar x v
-  @lencheck nls.nls_meta.nnzj rows cols
-  @lencheck nls.nls_meta.nequ Jv
-  jprod_residual!(nls, x, v, Jv)
-end
-
-"""
     Jtv = jtprod_residual(nls, x, v)
 
 Computes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  ``J(x)^Tv``.
@@ -177,26 +157,6 @@ function jtprod_residual!(
   @lencheck nls.meta.nvar Jtv
   increment!(nls, :neval_jtprod_residual)
   coo_prod!(cols, rows, vals, v, Jtv)
-end
-
-"""
-    Jtv = jtprod_residual!(nls, x, rows, cols, v, Jtv)
-
-Computes the product of the transpose Jacobian of the residual at x and a vector, i.e.,  ``J(x)^Tv``, storing it in `Jv`.
-The structure of the Jacobian is given by `(rows, cols)`.
-"""
-function jtprod_residual!(
-  nls::AbstractNLSModel,
-  x::AbstractVector,
-  rows::AbstractVector{<:Integer},
-  cols::AbstractVector{<:Integer},
-  v::AbstractVector,
-  Jtv::AbstractVector,
-)
-  @lencheck nls.meta.nvar x Jtv
-  @lencheck nls.nls_meta.nnzj rows cols
-  @lencheck nls.nls_meta.nequ v
-  jtprod_residual!(nls, x, v, Jtv)
 end
 
 """
