@@ -261,29 +261,6 @@ function jac_op_residual!(
 end
 
 """
-    Jx = jac_op_residual!(nls, x, rows, cols, Jv, Jtv)
-
-Computes ``J(x)``, the Jacobian of the residual at x, in linear operator form. The
-vectors `Jv` and `Jtv` are used as preallocated storage for the operations.
-The structure of the Jacobian should be given by `(rows, cols)`.
-"""
-function jac_op_residual!(
-  nls::AbstractNLSModel,
-  x::AbstractVector,
-  rows::AbstractVector{<:Integer},
-  cols::AbstractVector{<:Integer},
-  Jv::AbstractVector,
-  Jtv::AbstractVector,
-)
-  @lencheck nls.meta.nvar x Jtv
-  @lencheck nls.nls_meta.nnzj rows cols
-  @lencheck nls.nls_meta.nequ Jv
-  vals = jac_coord_residual(nls, x)
-  decrement!(nls, :neval_jac_residual)
-  return jac_op_residual!(nls, rows, cols, vals, Jv, Jtv)
-end
-
-"""
     H = hess_residual(nls, x, v)
 
 Computes the linear combination of the Hessians of the residuals at `x` with coefficients

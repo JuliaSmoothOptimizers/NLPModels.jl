@@ -339,30 +339,6 @@ function jac_op!(
 end
 
 """
-    J = jac_op!(nlp, x, rows, cols, Jv, Jtv)
-
-Return the Jacobian at `x` as a linear operator.
-The resulting object may be used as if it were a matrix, e.g., `J * v` or
-`J' * v`. `(rows, cols)` should be the sparsity structure of the Jacobian.
-The values `Jv` and `Jtv` are used as preallocated storage for the operations.
-"""
-function jac_op!(
-  nlp::AbstractNLPModel,
-  x::AbstractVector,
-  rows::AbstractVector{<:Integer},
-  cols::AbstractVector{<:Integer},
-  Jv::AbstractVector,
-  Jtv::AbstractVector,
-)
-  @lencheck nlp.meta.nvar x Jtv
-  @lencheck nlp.meta.nnzj rows cols
-  @lencheck nlp.meta.ncon Jv
-  vals = jac_coord(nlp, x)
-  decrement!(nlp, :neval_jac)
-  return jac_op!(nlp, rows, cols, vals, Jv, Jtv)
-end
-
-"""
     vals = jth_hess_coord(nlp, x, j)
 
 Evaluate the Hessian of j-th constraint at `x` in sparse coordinate format.
@@ -741,31 +717,6 @@ function hess_op!(
 end
 
 """
-    H = hess_op!(nlp, x, rows, cols, Hv; obj_weight=1.0)
-
-Return the objective Hessian at `x` with objective function scaled by
-`obj_weight` as a linear operator, and storing the result on `Hv`. The resulting
-object may be used as if it were a matrix, e.g., `w = H * v`.
-`(rows, cols)` should be the sparsity structure of the Hessian.
-The vector `Hv` is used as preallocated storage for the operation.  The linear operator H
-represents
-$(OBJECTIVE_HESSIAN).
-"""
-function hess_op!(
-  nlp::AbstractNLPModel,
-  x::AbstractVector,
-  rows::AbstractVector{<:Integer},
-  cols::AbstractVector{<:Integer},
-  Hv::AbstractVector;
-  obj_weight::Real = one(eltype(x)),
-)
-  @lencheck nlp.meta.nvar x Hv
-  @lencheck nlp.meta.nnzh rows cols
-  vals = hess_coord(nlp, x, obj_weight = obj_weight)
-  return hess_op!(nlp, rows, cols, vals, Hv)
-end
-
-"""
     H = hess_op!(nlp, x, y, Hv; obj_weight=1.0)
 
 Return the Lagrangian Hessian at `(x,y)` with objective function scaled by
@@ -794,34 +745,6 @@ function hess_op!(
     return res
   end
   return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
-end
-
-"""
-    H = hess_op!(nlp, x, y, rows, cols, Hv; obj_weight=1.0)
-
-Return the Lagrangian Hessian at `(x,y)` with objective function scaled by
-`obj_weight` as a linear operator, and storing the result on `Hv`. The resulting
-object may be used as if it were a matrix, e.g., `w = H * v`.
-`(rows, cols)` should be the sparsity structure of the Hessian.
-The vector `Hv` is used as preallocated storage for the operation.  The linear operator H
-represents
-$(OBJECTIVE_HESSIAN).
-"""
-function hess_op!(
-  nlp::AbstractNLPModel,
-  x::AbstractVector,
-  y::AbstractVector,
-  rows::AbstractVector{<:Integer},
-  cols::AbstractVector{<:Integer},
-  Hv::AbstractVector;
-  obj_weight::Real = one(eltype(x)),
-)
-  @lencheck nlp.meta.nvar x Hv
-  @lencheck nlp.meta.ncon y
-  @lencheck nlp.meta.nnzh rows cols
-  vals = hess_coord(nlp, x, y, obj_weight = obj_weight)
-  decrement!(nlp, :neval_hess)
-  return hess_op!(nlp, rows, cols, vals, Hv)
 end
 
 function varscale end
