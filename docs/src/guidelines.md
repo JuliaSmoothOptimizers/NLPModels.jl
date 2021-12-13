@@ -64,13 +64,22 @@ The following functions should be defined:
   - `hess_coord!(nlp, x, hvals; obj_weight=1)`
   - `hprod!(nlp, x, v, Hv; obj_weight=1)` (actually defaults to calling the constrained case)
 - Constraints (constrained models need to worry about these and the ones above)
-  - `cons!(nlp, x, c)`
-  - `jac_structure!(nlp, jrows, jcols)`
-  - `jac_coord!(nlp, x, jvals)`
-  - `jprod!(nlp, x, v, Jv)`
-  - `jtprod!(nlp, x, v, Jtv)`
+  - `cons_lin!(nlp, x, c)`
+  - `cons_nln!(nlp, x, c)`
+  - `jac_lin_structure!(nlp, jrows, jcols)`
+  - `jac_nln_structure!(nlp, jrows, jcols)`
+  - `jac_lin_coord!(nlp, x, jvals)`
+  - `jac_nln_coord!(nlp, x, jvals)`
+  - `jprod_lin!(nlp, x, v, Jv)`
+  - `jprod_nln!(nlp, x, v, Jv)`
+  - `jtprod_lin!(nlp, x, v, Jtv)`
+  - `jtprod_nln!(nlp, x, v, Jtv)`
   - `hess_coord!(nlp, x, y, hvals; obj_weight=1)`
   - `hprod!(nlp, x, y, v, Hv; obj_weight=1)`
+
+The linear and nonlinear constraints are specified respectively using `nlp.meta.lin` and `nlp.meta.nln`.
+If your model uses only linear (resp. nonlinear) constraints, then it suffices to implement the `*_lin` (resp. `*_nln`) functions.
+Alternatively, one could implement only the functions without the suffixes `_nln!` (e.g., only `cons!`), but this might run into errors with tools differentiating linear and nonlinear constraints.
 
 ## [Expected behaviour](@id expected-behaviour)
 

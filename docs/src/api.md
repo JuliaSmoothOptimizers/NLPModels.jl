@@ -30,7 +30,8 @@ If not, click on the link and go to the description.
 - `!` means inplace;
 - `_coord` means coordinate format;
 - `prod` means matrix-vector product;
-- `_op` means operator (as in [LinearOperators.jl](https://github.com/JuliaSmoothOptimizers/LinearOperators.jl)).
+- `_op` means operator (as in [LinearOperators.jl](https://github.com/JuliaSmoothOptimizers/LinearOperators.jl));
+- `_lin` and `_nln` respectively refer to linear and nonlinear constraints.
 
 Feel free to open an issue to suggest other methods that should apply to all
 NLPModels instances.
@@ -40,8 +41,8 @@ NLPModels instances.
 | ``f(x)``            | [`obj`](@ref), [`objgrad`](@ref), [`objgrad!`](@ref), [`objcons`](@ref), [`objcons!`](@ref) |
 | ``\nabla f(x)``     | [`grad`](@ref), [`grad!`](@ref), [`objgrad`](@ref), [`objgrad!`](@ref) |
 | ``\nabla^2 f(x)``   | [`hess`](@ref), [`hess_op`](@ref), [`hess_op!`](@ref), [`hess_coord`](@ref), [`hess_coord`](@ref), [`hess_structure`](@ref), [`hess_structure!`](@ref), [`hprod`](@ref), [`hprod!`](@ref) |
-| ``c(x)``            | [`cons`](@ref), [`cons!`](@ref), [`objcons`](@ref), [`objcons!`](@ref) |
-| ``J(x)``            | [`jac`](@ref), [`jac_op`](@ref), [`jac_op!`](@ref), [`jac_coord`](@ref), [`jac_coord!`](@ref), [`jac_structure`](@ref), [`jprod`](@ref), [`jprod!`](@ref), [`jtprod`](@ref), [`jtprod!`](@ref) |
+| ``c(x)``            | [`cons_lin`](@ref), [`cons_lin!`](@ref), [`cons_nln`](@ref), [`cons_nln!`](@ref), [`cons`](@ref), [`cons!`](@ref), [`objcons`](@ref), [`objcons!`](@ref) |
+| ``J(x)``            | [`jac_lin`](@ref), [`jac_nln`](@ref), [`jac`](@ref), [`jac_lin_op`](@ref), [`jac_lin_op!`](@ref), [`jac_nln_op`](@ref), [`jac_nln_op!`](@ref),[`jac_op`](@ref), [`jac_op!`](@ref), [`jac_lin_coord`](@ref), [`jac_lin_coord!`](@ref), [`jac_nln_coord`](@ref), [`jac_nln_coord!`](@ref), [`jac_coord`](@ref), [`jac_coord!`](@ref), [`jac_lin_structure`](@ref), [`jac_lin_structure!`](@ref), [`jac_nln_structure`](@ref), [`jac_nln_structure!`](@ref), [`jac_structure`](@ref), [`jprod_lin`](@ref), [`jprod_lin!`](@ref), [`jprod_nln`](@ref), [`jprod_nln!`](@ref), [`jprod`](@ref), [`jprod!`](@ref), [`jtprod_lin`](@ref), [`jtprod_lin!`](@ref), [`jtprod_nln`](@ref), [`jtprod_nln!`](@ref), [`jtprod`](@ref), [`jtprod!`](@ref) |
 | ``\nabla^2 L(x,y)`` | [`hess`](@ref), [`hess_op`](@ref), [`hess_coord`](@ref), [`hess_coord!`](@ref), [`hess_structure`](@ref), [`hess_structure!`](@ref), [`hprod`](@ref), [`hprod!`](@ref), [`jth_hprod`](@ref), [`jth_hprod!`](@ref), [`jth_hess`](@ref), [`jth_hess_coord`](@ref), [`jth_hess_coord!`](@ref), [`ghjvprod`](@ref), [`ghjvprod!`](@ref)  |
 
 ## [API for NLSModels](@id nls-api)
@@ -70,19 +71,45 @@ objgrad
 objgrad!
 cons
 cons!
+cons_lin
+cons_lin!
+cons_nln
+cons_nln!
 objcons
 objcons!
 jac_coord
 jac_coord!
+jac_lin_coord
+jac_lin_coord!
+jac_nln_coord
+jac_nln_coord!
 jac_structure
 jac_structure!
+jac_lin_structure
+jac_lin_structure!
+jac_nln_structure
+jac_nln_structure!
 jac
+jac_lin
+jac_nln
 jac_op
 jac_op!
+jac_lin_op
+jac_lin_op!
+jac_nln_op
+jac_nln_op!
 jprod
 jprod!
+jprod_lin
+jprod_lin!
+jprod_nln
+jprod_nln!
 jtprod
 jtprod!
+jtprod_lin
+jtprod_lin!
+jtprod_nln
+jtprod_nln!
 jth_hprod
 jth_hprod!
 jth_hess
