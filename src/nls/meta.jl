@@ -35,12 +35,16 @@ struct NLSMeta{T, S}
     x0::S = fill!(S(undef, nvar), zero(T)),
     nnzj = nequ * nvar,
     nnzh = div(nvar * (nvar + 1), 2),
-    nln = 1:nequ,
     lin = Int[],
   ) where {T, S}
     nnzj = max(0, nnzj)
     nnzh = max(0, nnzh)
-    return new{T, S}(nequ, nvar, x0, nnzj, nnzh, nln, length(nln), lin, length(lin))
+
+    nln = setdiff(1:nequ, lin)
+    nlin = length(lin)
+    nnln = length(nln)
+
+    return new{T, S}(nequ, nvar, x0, nnzj, nnzh, nln, nnln, lin, nlin)
   end
 end
 
