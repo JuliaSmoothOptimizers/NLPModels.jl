@@ -8,7 +8,7 @@ end
     NLSMeta(2, 2),
     NLSMeta(2, 2, x0 = zeros(2)),
     NLSMeta(2, 3, lin = [1; 3]),
-    NLSMeta(2, 3, nln = [1; 3]),
+    NLSMeta(2, 3, lin = [2]),
     NLSMeta(1, 4, nnzh = 3, nnzj = 2),
   ]
   for f in fieldnames(NLSMeta), (j, meta) in enumerate(meta_list)
