@@ -77,7 +77,8 @@ The following functions should be defined:
   - `hess_coord!(nlp, x, y, hvals; obj_weight=1)`
   - `hprod!(nlp, x, y, v, Hv; obj_weight=1)`
 
-The linear and nonlinear constraints are specified respectively using `nlp.meta.lin` and `nlp.meta.nln`.
+The linear constraints are specified at the initialization of the `NLPModelMeta` using the keyword arguement `lin`.
+The indices of linear and nonlinear constraints are respectively available in `nlp.meta.lin` and `nlp.meta.nln`.
 If your model uses only linear (resp. nonlinear) constraints, then it suffices to implement the `*_lin` (resp. `*_nln`) functions.
 Alternatively, one could implement only the functions without the suffixes `_nln!` (e.g., only `cons!`), but this might run into errors with tools differentiating linear and nonlinear constraints.
 
