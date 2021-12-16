@@ -15,7 +15,6 @@ The following keyword arguments are accepted:
 - `nnzj`: number of elements needed to store the nonzeros of the Jacobian of the residual
 - `nnzh`: number of elements needed to store the nonzeros of the sum of Hessians of the residuals
 - `lin`: indices of linear constraints
-- `nln`: indices of nonlinear constraints
 """
 struct NLSMeta{T, S}
   nequ::Int
