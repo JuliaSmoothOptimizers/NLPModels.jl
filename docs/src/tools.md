@@ -24,11 +24,19 @@ least squares models.
 | [`neval_obj`](@ref)             | Objective |
 | [`neval_grad`](@ref)            | Gradient |
 | [`neval_cons`](@ref)            | Constraints |
+| [`neval_cons_lin`](@ref)        | Linear constraints |
+| [`neval_cons_nln`](@ref)        | Nonlinear constraints |
 | [`neval_jcon`](@ref)            | One constraint - unused |
 | [`neval_jgrad`](@ref)           | Gradient of one constraints - unused |
 | [`neval_jac`](@ref)             | Jacobian |
+| [`neval_jac_lin`](@ref)         | Linear constraints Jacobian |
+| [`neval_jac_nln`](@ref)         | Nonlinear constraints Jacobian |
 | [`neval_jprod`](@ref)           | Product of Jacobian and vector |
+| [`neval_jprod_lin`](@ref)       | Product of linear constraints Jacobian and vector |
+| [`neval_jprod_nln`](@ref)       | Product of nonlinear constraints Jacobian and vector |
 | [`neval_jtprod`](@ref)          | Product of transposed Jacobian and vector |
+| [`neval_jtprod_lin`](@ref)      | Product of transposed linear constraints Jacobian and vector |
+| [`neval_jtprod_nln`](@ref)      | Product of transposed nonlinear constraints Jacobian and vector |
 | [`neval_hess`](@ref)            | Hessian |
 | [`neval_hprod`](@ref)           | Product of Hessian and vector |
 | [`neval_jhess`](@ref)           | Individual Lagrangian Hessian evaluations |
@@ -76,11 +84,19 @@ Counters
 neval_obj
 neval_grad
 neval_cons
+neval_cons_lin
+neval_cons_nln
 neval_jcon
 neval_jgrad
 neval_jac
+neval_jac_lin
+neval_jac_nln
 neval_jprod
+neval_jprod_lin
+neval_jprod_nln
 neval_jtprod
+neval_jtprod_lin
+neval_jtprod_nln
 neval_hess
 neval_hprod
 neval_jhess
