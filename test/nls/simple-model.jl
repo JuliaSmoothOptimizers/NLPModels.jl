@@ -138,7 +138,7 @@ end
 function NLPModels.cons_nln!(nls::SimpleNLSModel, x::AbstractVector, cx::AbstractVector)
   @lencheck 2 x
   @lencheck 3 cx
-  increment!(nls, :neval_cons)
+  increment!(nls, :neval_cons_nln)
   cx .= [x[1] + x[2]^2; x[1]^2 + x[2]; x[1]^2 + x[2]^2 - 1]
   return cx
 end
@@ -157,7 +157,7 @@ end
 function NLPModels.jac_nln_coord!(nls::SimpleNLSModel, x::AbstractVector, vals::AbstractVector)
   @lencheck 2 x
   @lencheck 6 vals
-  increment!(nls, :neval_jac)
+  increment!(nls, :neval_jac_nln)
   vals .= [1, 2x[2], 2x[1], 1, 2x[1], 2x[2]]
   return vals
 end
@@ -170,7 +170,7 @@ function NLPModels.jprod_nln!(
 )
   @lencheck 2 x v
   @lencheck 3 Jv
-  increment!(nls, :neval_jprod)
+  increment!(nls, :neval_jprod_nln)
   Jv .= [v[1] + 2x[2] * v[2]; 2x[1] * v[1] + v[2]; 2x[1] * v[1] + 2x[2] * v[2]]
   return Jv
 end
@@ -183,7 +183,7 @@ function NLPModels.jtprod_nln!(
 )
   @lencheck 2 x Jtv
   @lencheck 3 v
-  increment!(nls, :neval_jtprod)
+  increment!(nls, :neval_jtprod_nln)
   Jtv .= [v[1] + 2x[1] * (v[2] + v[3]); v[2] + 2x[2] * (v[1] + v[3])]
   return Jtv
 end
