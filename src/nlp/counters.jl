@@ -48,7 +48,7 @@ end
 
 Increment counter `s` of problem `nlp`.
 """
-function increment!(nlp::AbstractNLPModel, s::Symbol)
+@inline function increment!(nlp::AbstractNLPModel, s::Symbol)
   setproperty!(nlp.counters, s, getproperty(nlp.counters, s) + 1)
 end
 
