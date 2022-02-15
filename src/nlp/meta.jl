@@ -133,12 +133,21 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
     ifree = findall((lvar .== T(-Inf)) .& (uvar .== T(Inf)))
     iinf = findall(lvar .> uvar)
 
-    jfix = findall(lcon .== ucon)
-    jlow = findall((lcon .> T(-Inf)) .& (ucon .== T(Inf)))
-    jupp = findall((lcon .== T(-Inf)) .& (ucon .< T(Inf)))
-    jrng = findall((lcon .> T(-Inf)) .& (ucon .< T(Inf)) .& (lcon .< ucon))
-    jfree = findall((lcon .== T(-Inf)) .& (ucon .== T(Inf)))
-    jinf = findall(lcon .> ucon)
+    if ncon > 0
+      jfix = findall(lcon .== ucon)
+      jlow = findall((lcon .> T(-Inf)) .& (ucon .== T(Inf)))
+      jupp = findall((lcon .== T(-Inf)) .& (ucon .< T(Inf)))
+      jrng = findall((lcon .> T(-Inf)) .& (ucon .< T(Inf)) .& (lcon .< ucon))
+      jfree = findall((lcon .== T(-Inf)) .& (ucon .== T(Inf)))
+      jinf = findall(lcon .> ucon)
+    else
+      jfix = Int[]
+      jlow = Int[]
+      jupp = Int[]
+      jrng = Int[]
+      jfree = Int[]
+      jinf = Int[]
+    end
 
     nnzj = max(0, nnzj)
     nnzh = max(0, nnzh)
