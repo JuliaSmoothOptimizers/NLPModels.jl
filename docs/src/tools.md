@@ -49,7 +49,7 @@ least squares models.
 | [`neval_jhess_residual`](@ref)  | Hessian of a residual component |
 | [`neval_hprod_residual`](@ref)  | Product of Hessian of a residual component and vector |
 
-To get the sum of all counters called for a problem, use
+To get the sum of all counters except `cons`, `jac`, `jprod` and `jtprod` called for a problem, use
 [`sum_counters`](@ref).
 
 ```@example
