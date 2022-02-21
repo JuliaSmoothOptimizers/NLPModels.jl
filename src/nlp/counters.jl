@@ -72,14 +72,16 @@ end
 """
     sum_counters(counters)
 
-Sum all counters of `counters`.
+Sum all counters of `counters` except `cons`, `jac`, `jprod` and `jtprod`.
 """
-sum_counters(c::Counters) = sum(getproperty(c, x) for x in fieldnames(Counters))
-
+function sum_counters(c::Counters)
+  fields = setdiff(fieldnames(Counters), [:neval_cons, :neval_jac, :neval_jprod, :neval_jtprod])
+  sum(getproperty(c, x) for x in fields)
+end
 """
     sum_counters(nlp)
 
-Sum all counters of problem `nlp`.
+Sum all counters of problem `nlp` except `cons`, `jac`, `jprod` and `jtprod`.
 """
 sum_counters(nlp::AbstractNLPModel) = sum_counters(nlp.counters)
 
