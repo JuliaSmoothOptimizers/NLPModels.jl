@@ -68,7 +68,7 @@ end
 
 Describe `meta` for the `show` function.
 """
-function lines_of_description(m::NLPModelMeta)
+function lines_of_description(m::AbstractNLPModelMeta)
   V = [
     length(m.ifree),
     length(m.ilow),
@@ -102,7 +102,7 @@ function lines_of_description(m::NLPModelMeta)
   return lines
 end
 
-function Base.show(io::IO, m::NLPModelMeta)
+function Base.show(io::IO, m::AbstractNLPModelMeta)
   println(io, "  Problem name: $(m.name)")
   lines = lines_of_description(m)
   println(io, join(lines, "\n") * "\n")
