@@ -27,7 +27,7 @@ function Base.show(io::IO, nm::NLSMeta)
   println(io, join(lines, "\n") * "\n")
 end
 
-function Base.show(io::IO, m::NLPModelMeta, nm::NLSMeta)
+function Base.show(io::IO, m::AbstractNLPModelMeta, nm::NLSMeta)
   println(io, "  Problem name: $(m.name)")
   nlplines = lines_of_description(m)
   nlslines = lines_of_description(nm)
