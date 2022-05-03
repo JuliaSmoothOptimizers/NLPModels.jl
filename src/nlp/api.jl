@@ -187,7 +187,9 @@ function jac_structure!(
   if nlp.meta.nnln > 0
     nln_ind = (nlp.meta.lin_nnzj + 1):(nlp.meta.lin_nnzj + nlp.meta.nln_nnzj)
     jac_nln_structure!(nlp, view(rows, nln_ind), view(cols, nln_ind))
-    view(rows, nln_ind) .+= nlp.meta.nlin
+    for i in nln_ind, j in nlp.meta.lin
+      rows[i] += (j <= i)
+    end
   end
   return rows, cols
 end
