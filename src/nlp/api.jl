@@ -411,7 +411,7 @@ function jprod_lin!(
   @lencheck nlp.meta.lin_nnzj rows cols vals
   @lencheck nlp.meta.nvar v
   @lencheck nlp.meta.nlin Jv
-  increment!(nlp, :neval_jprod)
+  increment!(nlp, :neval_jprod_lin)
   coo_prod!(rows, cols, vals, v, Jv)
 end
 
@@ -450,7 +450,7 @@ function jprod_nln!(
   @lencheck nlp.meta.nln_nnzj rows cols vals
   @lencheck nlp.meta.nvar v
   @lencheck nlp.meta.nnln Jv
-  increment!(nlp, :neval_jprod)
+  increment!(nlp, :neval_jprod_nln)
   coo_prod!(rows, cols, vals, v, Jv)
 end
 
@@ -547,7 +547,7 @@ function jtprod_lin!(
   @lencheck nlp.meta.lin_nnzj rows cols vals
   @lencheck nlp.meta.nlin v
   @lencheck nlp.meta.nvar Jtv
-  increment!(nlp, :neval_jtprod)
+  increment!(nlp, :neval_jtprod_lin)
   coo_prod!(cols, rows, vals, v, Jtv)
 end
 
@@ -587,7 +587,7 @@ function jtprod_nln!(
   @lencheck nlp.meta.nln_nnzj rows cols vals
   @lencheck nlp.meta.nnln v
   @lencheck nlp.meta.nvar Jtv
-  increment!(nlp, :neval_jtprod)
+  increment!(nlp, :neval_jtprod_nln)
   coo_prod!(cols, rows, vals, v, Jtv)
 end
 
