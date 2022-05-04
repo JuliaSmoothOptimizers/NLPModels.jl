@@ -49,6 +49,24 @@ The following keyword arguments are accepted:
 - `minimize`: true if optimize == minimize
 - `islp`: true if the problem is a linear program
 - `name`: problem name
+
+`NLPModelMeta` also contains the following attributes:
+- `nvar`: number of variables
+- `ifix`: indices of fixed variables
+- `ilow`: indices of variables with lower bound only
+- `iupp`: indices of variables with upper bound only
+- `irng`: indices of variables with lower and upper bound (range)
+- `ifree`: indices of free variables
+- `iinf`: indices of visibly infeasible bounds
+- `jfix`: indices of equality constraints
+- `jlow`: indices of constraints of the form c(x) ≥ cl
+- `jupp`: indices of constraints of the form c(x) ≤ cu
+- `jrng`: indices of constraints of the form cl ≤ c(x) ≤ cu
+- `jfree`: indices of "free" constraints (there shouldn't be any)
+- `jinf`: indices of the visibly infeasible constraints
+- `nlin`: number of linear constraints
+- `nnln`: number of nonlinear general constraints
+- `nln`: indices of nonlinear constraints
 """
 struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
   nvar::Int
