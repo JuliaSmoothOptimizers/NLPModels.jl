@@ -14,7 +14,14 @@ The following keyword arguments are accepted:
 - `x0`: initial guess
 - `nnzj`: number of elements needed to store the nonzeros of the Jacobian of the residual
 - `nnzh`: number of elements needed to store the nonzeros of the sum of Hessians of the residuals
-- `lin`: indices of linear constraints
+- `lin`: indices of linear residuals
+
+`NLSMeta` also contains the following attributes:
+- `nequ`: size of the residual
+- `nvar`: number of variables
+- `nln`: indices of nonlinear residuals
+- `nnln`: number of nonlinear general residuals
+- `nlin`: number of linear residuals
 """
 struct NLSMeta{T, S}
   nequ::Int
