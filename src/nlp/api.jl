@@ -185,13 +185,13 @@ function jac_structure!(
   lin_ind = 1:(nlp.meta.lin_nnzj)
   nlp.meta.nlin > 0 && jac_lin_structure!(nlp, view(rows, lin_ind), view(cols, lin_ind))
   for i in lin_ind
-    rows[i] += count(<(nlp.meta.lin[rows[i]]), nlp.meta.nln)
+    rows[i] += count(x < nlp.meta.lin[rows[i]] for x in nlp.meta.nln)
   end
   if nlp.meta.nnln > 0
     nln_ind = (nlp.meta.lin_nnzj + 1):(nlp.meta.lin_nnzj + nlp.meta.nln_nnzj)
     jac_nln_structure!(nlp, view(rows, nln_ind), view(cols, nln_ind))
     for i in nln_ind
-      rows[i] += count(<(nlp.meta.nln[rows[i]]), nlp.meta.lin)
+      rows[i] += count(x < nlp.meta.nln[rows[i]] for x in nlp.meta.lin)
     end
   end
   return rows, cols
