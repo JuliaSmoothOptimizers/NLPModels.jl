@@ -51,6 +51,20 @@ for counter in fieldnames(Counters)
   end
 end
 
+# simple default API for incrementing counters
+for counter in fieldnames(Counters)
+  increment_counter = Symbol("increment_$(counter)!")
+  @eval begin
+    """
+        $($increment_counter)(nlp)
+
+    Increment the number of `$(split("$($counter)", "_")[2])` evaluations.
+    """
+    $increment_counter(nlp::AbstractNLPModel) = nlp.counters.$counter += 1
+    export $increment_counter
+  end
+end
+
 """
     increment!(nlp, s)
 
