@@ -73,6 +73,34 @@ for counter in fieldnames(Counters)
   end
 end
 
+# simple default API for incrementing counters
+for counter in fieldnames(NLSCounters)
+  counter == :counters && continue
+  increment_counter = Symbol("increment_$(counter)!")
+  @eval begin
+    """
+        $($increment_counter)(nls)
+
+    Increment the number of `$(split("$($counter)", "_")[2])` evaluations.
+    """
+    $increment_counter(nls::AbstractNLSModel) = nls.counters.$counter += 1
+    export $increment_counter
+  end
+end
+
+for counter in fieldnames(Counters)
+  increment_counter = Symbol("increment_$(counter)!")
+  @eval begin
+    """
+        $($increment_counter)(nls)
+
+    Increment the number of `$(split("$($counter)", "_")[2])` evaluations.
+    """
+    $increment_counter(nls::AbstractNLSModel) = nls.counters.counters.$counter += 1
+    export $increment_counter
+  end
+end
+
 function LinearOperators.reset!(nls::AbstractNLSModel)
   reset!(nls.counters)
   return nls
