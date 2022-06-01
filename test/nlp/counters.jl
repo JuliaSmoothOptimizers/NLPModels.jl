@@ -19,13 +19,3 @@
   reset!(nlp)
   @test sum_counters(nlp) == 0
 end
-
-@testset "Basic Increment check" begin
-  nlp = SimpleNLPModel()
-
-  increment_neval_obj!(nlp)
-  increment_neval_grad!(nlp)
-  @test sum_counters(nlp) == 2
-  reset!(nlp)
-  @test sum_counters(nlp) == 0
-end

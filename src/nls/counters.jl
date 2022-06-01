@@ -73,40 +73,12 @@ for counter in fieldnames(Counters)
   end
 end
 
-# simple default API for incrementing counters
-for counter in fieldnames(NLSCounters)
-  counter == :counters && continue
-  increment_counter = Symbol("increment_$(counter)!")
-  @eval begin
-    """
-        $($increment_counter)(nls)
-
-    Increment the number of `$(split("$($counter)", "_")[2])` evaluations.
-    """
-    $increment_counter(nls::AbstractNLSModel) = nls.counters.$counter += 1
-    export $increment_counter
-  end
-end
-
-for counter in fieldnames(Counters)
-  increment_counter = Symbol("increment_$(counter)!")
-  @eval begin
-    """
-        $($increment_counter)(nls)
-
-    Increment the number of `$(split("$($counter)", "_")[2])` evaluations.
-    """
-    $increment_counter(nls::AbstractNLSModel) = nls.counters.counters.$counter += 1
-    export $increment_counter
-  end
-end
-
 """
     increment!(nls, s)
 
 Increment counter `s` of problem `nls`.
 """
-function increment!(nls::AbstractNLSModel, s::Symbol)
+@inline function increment!(nls::AbstractNLSModel, s::Symbol)
   NLPModels.increment!(nls, Val(s))
 end
 
@@ -114,7 +86,6 @@ for fun in fieldnames(NLSCounters)
   fun == :counters && continue
   @eval $NLPModels.increment!(nls::AbstractNLSModel, ::Val{$(Meta.quot(fun))}) = nls.counters.$fun += 1
 end
-
 
 for fun in fieldnames(Counters)
   @eval $NLPModels.increment!(nls::AbstractNLSModel, ::Val{$(Meta.quot(fun))}) = nls.counters.counters.$fun += 1
