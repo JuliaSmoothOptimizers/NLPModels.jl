@@ -141,7 +141,7 @@ end
 
 function NLPModels.jac_lin_coord!(nlp::SimpleNLPModel, x::AbstractVector, vals::AbstractVector)
   @lencheck 2 x vals
-  increment!(nlp, :neval_cons_lin)
+  increment!(nlp, :neval_jac_lin)
   vals .= [1, -2]
   return vals
 end
