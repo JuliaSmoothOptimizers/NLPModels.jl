@@ -101,6 +101,25 @@ for counter in fieldnames(Counters)
   end
 end
 
+"""
+    increment!(nls, s)
+
+Increment counter `s` of problem `nls`.
+"""
+function increment!(nls::AbstractNLSModel, s::Symbol)
+  NLPModels.increment!(nls, Val(s))
+end
+
+for fun in fieldnames(NLSCounters)
+  fun == :counters && continue
+  @eval $NLPModels.increment!(nls::AbstractNLSModel, ::Val{$(Meta.quot(fun))}) = nls.counters.$fun += 1
+end
+
+
+for fun in fieldnames(Counters)
+  @eval $NLPModels.increment!(nls::AbstractNLSModel, ::Val{$(Meta.quot(fun))}) = nls.counters.counters.$fun += 1
+end
+
 function LinearOperators.reset!(nls::AbstractNLSModel)
   reset!(nls.counters)
   return nls

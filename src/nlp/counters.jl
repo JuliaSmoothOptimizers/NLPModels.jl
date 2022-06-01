@@ -70,8 +70,12 @@ end
 
 Increment counter `s` of problem `nlp`.
 """
-@inline function increment!(nlp::AbstractNLPModel, s::Symbol)
-  setproperty!(nlp.counters, s, getproperty(nlp.counters, s) + 1)
+function increment!(nlp::AbstractNLPModel, s::Symbol)
+  NLPModels.increment!(nlp, Val(s))
+end
+
+for fun in fieldnames(Counters)
+  @eval $NLPModels.increment!(nlp::AbstractNLPModel, ::Val{$(Meta.quot(fun))}) = nlp.counters.$fun += 1
 end
 
 """
