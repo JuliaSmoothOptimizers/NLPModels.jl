@@ -88,7 +88,8 @@ for fun in fieldnames(NLSCounters)
 end
 
 for fun in fieldnames(Counters)
-  @eval $NLPModels.increment!(nls::AbstractNLSModel, ::Val{$(Meta.quot(fun))}) = nls.counters.counters.$fun += 1
+  @eval $NLPModels.increment!(nls::AbstractNLSModel, ::Val{$(Meta.quot(fun))}) =
+    nls.counters.counters.$fun += 1
 end
 
 function LinearOperators.reset!(nls::AbstractNLSModel)

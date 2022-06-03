@@ -1,5 +1,4 @@
 @testset "Increase coverage of NLSCounters" begin
-
   nls = SimpleNLSModel()
 
   obj(nls, nls.meta.x0)
@@ -35,7 +34,7 @@ if VERSION ≥ VersionNumber(1, 7, 3)
     increment!(nls, :neval_obj)
     alloc_mem = @allocated increment!(nls, :neval_obj)
     @test alloc_mem == 0
-    
+
     increment!(nls, :neval_residual)
     alloc_mem2 = @allocated increment!(nls, :neval_residual)
     @test alloc_mem2 == 0
