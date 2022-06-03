@@ -1,4 +1,4 @@
-using LinearAlgebra, LinearOperators, NLPModels, SparseArrays, Test, BenchmarkTools
+using LinearAlgebra, LinearOperators, NLPModels, SparseArrays, Test
 
 include("nlp/simple-model.jl")
 include("nlp/dummy-model.jl")
