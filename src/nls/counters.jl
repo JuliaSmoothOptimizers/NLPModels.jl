@@ -79,12 +79,12 @@ end
 Increment counter `s` of problem `nls`.
 """
 @inline function increment!(nls::AbstractNLSModel, s::Symbol)
-  NLPModels.increment!(nls, Val(s))
+  increment!(nls, Val(s))
 end
 
 for fun in fieldnames(NLSCounters)
   fun == :counters && continue
-  @eval $NLPModels.increment!(nls::AbstractNLSModel, ::Val{$(Meta.quot(fun))}) = nls.counters.$fun += 1
+  @eval increment!(nls::AbstractNLSModel, ::Val{$(Meta.quot(fun))}) = nls.counters.$fun += 1
 end
 
 for fun in fieldnames(Counters)
