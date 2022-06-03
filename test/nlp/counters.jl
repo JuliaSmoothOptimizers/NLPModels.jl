@@ -24,7 +24,7 @@ if VERSION ≥ VersionNumber(1, 7, 3)
   @testset "Allocations for NLP counters" begin
     nlp = SimpleNLPModel()
     
-    bench = @benchmark increment!($nlp, :neval_obj)
-    @test allocs(bench) == 0
+    alloc_mem = @allocated increment!(nlp, :neval_obj)
+    @test alloc_mem == 0
   end
 end

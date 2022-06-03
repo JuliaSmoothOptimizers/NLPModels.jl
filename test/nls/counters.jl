@@ -32,10 +32,10 @@ if VERSION ≥ VersionNumber(1, 7, 3)
   @testset "Allocations for NLS counters" begin
     nls = SimpleNLSModel()
 
-    bench = @benchmark increment!($nls, :neval_obj)
-    @test allocs(bench) == 0
+    alloc_mem = @allocated increment!(nls, :neval_obj)
+    @test alloc_mem == 0
     
-    bench2 = @benchmark increment!($nls, :neval_residual)
-    @test allocs(bench2) == 0
+    alloc_mem2 = @allocated increment!(nls, :neval_residual)
+    @test alloc_mem2 == 0
   end
 end
