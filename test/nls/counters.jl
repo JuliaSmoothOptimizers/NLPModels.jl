@@ -27,3 +27,15 @@
   reset!(nls)
   @test sum_counters(nls) == 0
 end
+
+if VERSION ≥ VersionNumber(1, 7, 3)
+  @testset "Allocations for NLS counters" begin
+    nls = SimpleNLSModel()
+
+    bench = @benchmark increment!($nls, :neval_obj)
+    @test allocs(bench) == 0
+    
+    bench2 = @benchmark increment!($nls, :neval_residual)
+    @test allocs(bench2) == 0
+  end
+end
