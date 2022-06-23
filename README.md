@@ -19,8 +19,6 @@
 [doi-img]: https://zenodo.org/badge/DOI/10.5281/zenodo.2558627.svg
 [doi-url]: https://doi.org/10.5281/zenodo.2558627
 
-https://www.analyticssteps.com/blogs/best-nlp-models
-
 This package provides general guidelines to represent non-linear programming (NLP)
 optimization problems in Julia and a standardized API to evaluate the functions and
 their derivatives. The main objective is to be able to rely on that API when
