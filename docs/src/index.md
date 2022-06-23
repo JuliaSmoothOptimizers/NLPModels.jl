@@ -1,9 +1,9 @@
 # [NLPModels.jl documentation](@id Home)
 
-This package provides general guidelines to represent optimization problems in
-Julia and a standardized API to evaluate the functions and their derivatives.
-The main objective is to be able to rely on that [API](@ref) when designing
-optimization solvers in Julia.
+This package provides general guidelines to represent non-linear programming (NLP)
+optimization problems in Julia and a standardized API to evaluate the functions and
+their derivatives. The main objective is to be able to rely on that [API](@ref) when
+designing optimization solvers in Julia.
 
 ## Introduction
 
