@@ -5,6 +5,6 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 NLPModels = "a4795742-8479-5a88-8948-cc11e1c8c1a6"
 
 [compat]
-ADNLPModels = "~0.3"
-Documenter = "~0.26"
+ADNLPModels = "~0.4"
+Documenter = "~0.27"
 NLPModels = "~0.19"
