@@ -27,11 +27,9 @@ If you want to create your own interface, check these [Guidelines](@ref).
 
 ## Model internals
 
-```@docs
-AbstractNLPModel
-AbstractNLSModel
-AbstractNLPModelMeta
-NLPModelMeta
-NLSMeta
-nls_meta
-```
+- [`AbstractNLPModel`](@ref)
+- [`AbstractNLSModel`](@ref)
+- [`AbstractNLPModelMeta`](@ref)
+- [`NLPModelMeta`](@ref)
+- [`NLSMeta`](@ref)
+- [`nls_meta`](@ref)
