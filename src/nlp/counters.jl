@@ -79,8 +79,13 @@ end
 Sum all counters of `counters` except `cons`, `jac`, `jprod` and `jtprod`.
 """
 function sum_counters(c::Counters)
-  fields = setdiff(fieldnames(Counters), [:neval_cons, :neval_jac, :neval_jprod, :neval_jtprod])
-  sum(getproperty(c, x) for x in fields)
+  sum = 0
+  for x in fieldnames(Counters)
+    if !(x in (:neval_cons, :neval_jac, :neval_jprod, :neval_jtprod))
+      sum += getproperty(c, x)
+    end
+  end
+  return sum
 end
 """
     sum_counters(nlp)
