@@ -388,25 +388,46 @@ function hess_op_residual!(nls::AbstractNLSModel, x::AbstractVector, i::Int, Hiv
   )
 end
 
-function obj(nls::AbstractNLSModel, x::AbstractVector)
+function obj(nls::AbstractNLSModel, x::AbstractVector, Fx::AbstractVector)
   @lencheck nls.meta.nvar x
   increment!(nls, :neval_obj)
-  Fx = residual(nls, x)
+  residual!(nls, x, Fx)
   return dot(Fx, Fx) / 2
 end
 
-function grad!(nls::AbstractNLSModel, x::AbstractVector, g::AbstractVector)
+function obj(nls::AbstractNLSModel{T, S}, x::AbstractVector) where {T, S}
+  @lencheck nls.meta.nvar x
+  Fx = S(undef, nls.nls_meta.nequ)
+  return obj(nls, x, Fx)
+end
+
+function grad!(nls::AbstractNLSModel, x::AbstractVector, g::AbstractVector, Fx::AbstractVector)
   @lencheck nls.meta.nvar x g
   increment!(nls, :neval_grad)
-  Fx = residual(nls, x)
+  residual!(nls, x, Fx)
   return jtprod_residual!(nls, x, Fx, g)
 end
 
-function objgrad!(nls::AbstractNLSModel, x::AbstractVector, g::AbstractVector)
+function grad!(nls::AbstractNLSModel{T, S}, x::AbstractVector, g::AbstractVector) where {T, S}
+  @lencheck nls.meta.nvar x g
+  increment!(nls, :neval_grad)
+  Fx = S(undef, nls.nls_meta.nequ)
+  return grad!(nls, x, g, Fx)
+end
+
+function objgrad!(nls::AbstractNLSModel, x::AbstractVector, g::AbstractVector, Fx::AbstractVector)
   @lencheck nls.meta.nvar x g
   increment!(nls, :neval_obj)
   increment!(nls, :neval_grad)
-  Fx = residual(nls, x)
+  residual!(nls, x, Fx)
   jtprod_residual!(nls, x, Fx, g)
   return dot(Fx, Fx) / 2, g
+end
+
+function objgrad!(nls::AbstractNLSModel{T, S}, x::AbstractVector, g::AbstractVector) where {T, S}
+  @lencheck nls.meta.nvar x g
+  increment!(nls, :neval_obj)
+  increment!(nls, :neval_grad)
+  Fx = S(undef, nls.nls_meta.nequ)
+  return objgrad!(nls, x, g, Fx)
 end
