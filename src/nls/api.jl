@@ -388,6 +388,11 @@ function hess_op_residual!(nls::AbstractNLSModel, x::AbstractVector, i::Int, Hiv
   )
 end
 
+"""
+    f = obj(nls::AbstractNLSModel, x::AbstractVector, Fx::AbstractVector)
+
+Evaluate `f(x)`, the objective function of `nls::AbstractNLSModel`. `Fx` is overwritten with the value of the residual `F(x)`.
+"""
 function obj(nls::AbstractNLSModel, x::AbstractVector, Fx::AbstractVector)
   @lencheck nls.meta.nvar x
   increment!(nls, :neval_obj)
@@ -401,6 +406,11 @@ function obj(nls::AbstractNLSModel{T, S}, x::AbstractVector) where {T, S}
   return obj(nls, x, Fx)
 end
 
+"""
+    g = grad!(nls, x, g, Fx)
+
+Evaluate `∇f(x)`, the gradient of the objective function of `nls::AbstractNLSModel` at `x` in place. `Fx` is overwritten with the value of the residual `F(x)`.
+"""
 function grad!(nls::AbstractNLSModel, x::AbstractVector, g::AbstractVector, Fx::AbstractVector)
   @lencheck nls.meta.nvar x g
   increment!(nls, :neval_grad)
@@ -415,6 +425,11 @@ function grad!(nls::AbstractNLSModel{T, S}, x::AbstractVector, g::AbstractVector
   return grad!(nls, x, g, Fx)
 end
 
+"""
+    f, g = grad!(nls, x, g, Fx)
+
+Evaluate f(x) and ∇f(x) of `nls::AbstractNLSModel` at `x`. `Fx` is overwritten with the value of the residual `F(x)`.
+"""
 function objgrad!(nls::AbstractNLSModel, x::AbstractVector, g::AbstractVector, Fx::AbstractVector)
   @lencheck nls.meta.nvar x g
   increment!(nls, :neval_obj)
