@@ -18,6 +18,7 @@ jobs:
           "JuliaSmoothOptimizers/CaNNOLeS.jl",
           "JuliaSmoothOptimizers/CUTEst.jl",
           "JuliaSmoothOptimizers/DCISolver.jl",
+          "JuliaSmoothOptimizers/FletcherPenaltySolver.jl",
           "JuliaSmoothOptimizers/JSOSolvers.jl",
           "JuliaSmoothOptimizers/LLSModels.jl",
           "JuliaSmoothOptimizers/NLPModelsIpopt.jl",
