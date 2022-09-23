@@ -1225,16 +1225,7 @@ function hess_op!(
   obj_weight::Real = one(eltype(x)),
 )
   @lencheck nlp.meta.nvar x Hv
-  prod! = @closure (res, v, α, β) -> begin
-    hprod!(nlp, x, v, Hv; obj_weight = obj_weight)
-    if β == 0
-      @. res = α * Hv
-    else
-      @. res = α * Hv + β * res
-    end
-    return res
-  end
-  return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
+  return HprodOperator!(nlp, copy(x), Hv, obj_weight=obj_weight)
 end
 
 """

@@ -37,6 +37,7 @@ Base type for a nonlinear least-squares model.
 """
 abstract type AbstractNLSModel{T, S} <: AbstractNLPModel{T, S} end
 
+include("nlp/operator.jl")
 for f in ["utils", "api", "counters", "meta", "show", "tools"]
   include("nlp/$f.jl")
   include("nls/$f.jl")
