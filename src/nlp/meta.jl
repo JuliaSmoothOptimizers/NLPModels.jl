@@ -112,106 +112,106 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
   minimize::Bool
   islp::Bool
   name::String
+end
 
-  function NLPModelMeta{T, S}(
-    nvar::Int;
-    x0::S = fill!(S(undef, nvar), zero(T)),
-    lvar::S = fill!(S(undef, nvar), T(-Inf)),
-    uvar::S = fill!(S(undef, nvar), T(Inf)),
-    nlvb = nvar,
-    nlvo = nvar,
-    nlvc = nvar,
-    ncon = 0,
-    y0::S = fill!(S(undef, ncon), zero(T)),
-    lcon::S = fill!(S(undef, ncon), T(-Inf)),
-    ucon::S = fill!(S(undef, ncon), T(Inf)),
-    nnzo = nvar,
-    nnzj = nvar * ncon,
-    lin_nnzj = 0,
-    nln_nnzj = nvar * ncon,
-    nnzh = nvar * (nvar + 1) / 2,
-    lin = Int[],
-    minimize = true,
-    islp = false,
-    name = "Generic",
-  ) where {T, S}
-    if (nvar < 1) || (ncon < 0)
-      error("Nonsensical dimensions")
-    end
-
-    @lencheck nvar x0 lvar uvar
-    @lencheck ncon y0 lcon ucon
-    @rangecheck 1 ncon lin
-    # T = eltype(x0)
-
-    ifix = findall(lvar .== uvar)
-    ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf)))
-    iupp = findall((lvar .== T(-Inf)) .& (uvar .< T(Inf)))
-    irng = findall((lvar .> T(-Inf)) .& (uvar .< T(Inf)) .& (lvar .< uvar))
-    ifree = findall((lvar .== T(-Inf)) .& (uvar .== T(Inf)))
-    iinf = findall(lvar .> uvar)
-
-    if ncon > 0
-      jfix = findall(lcon .== ucon)
-      jlow = findall((lcon .> T(-Inf)) .& (ucon .== T(Inf)))
-      jupp = findall((lcon .== T(-Inf)) .& (ucon .< T(Inf)))
-      jrng = findall((lcon .> T(-Inf)) .& (ucon .< T(Inf)) .& (lcon .< ucon))
-      jfree = findall((lcon .== T(-Inf)) .& (ucon .== T(Inf)))
-      jinf = findall(lcon .> ucon)
-    else
-      jfix = Int[]
-      jlow = Int[]
-      jupp = Int[]
-      jrng = Int[]
-      jfree = Int[]
-      jinf = Int[]
-    end
-
-    nnzj = max(0, nnzj)
-    nnzh = max(0, nnzh)
-
-    nln = setdiff(1:ncon, lin)
-    nlin = length(lin)
-    nnln = length(nln)
-
-    new{T, S}(
-      nvar,
-      x0,
-      lvar,
-      uvar,
-      ifix,
-      ilow,
-      iupp,
-      irng,
-      ifree,
-      iinf,
-      nlvb,
-      nlvo,
-      nlvc,
-      ncon,
-      y0,
-      lcon,
-      ucon,
-      jfix,
-      jlow,
-      jupp,
-      jrng,
-      jfree,
-      jinf,
-      nnzo,
-      nnzj,
-      lin_nnzj,
-      nln_nnzj,
-      nnzh,
-      nlin,
-      nnln,
-      lin,
-      nln,
-      minimize,
-      islp,
-      name,
-    )
+function NLPModelMeta{T, S}(
+  nvar::Int;
+  x0::S = fill!(S(undef, nvar), zero(T)),
+  lvar::S = fill!(S(undef, nvar), T(-Inf)),
+  uvar::S = fill!(S(undef, nvar), T(Inf)),
+  nlvb = nvar,
+  nlvo = nvar,
+  nlvc = nvar,
+  ncon = 0,
+  y0::S = fill!(S(undef, ncon), zero(T)),
+  lcon::S = fill!(S(undef, ncon), T(-Inf)),
+  ucon::S = fill!(S(undef, ncon), T(Inf)),
+  nnzo = nvar,
+  nnzj = nvar * ncon,
+  lin_nnzj = 0,
+  nln_nnzj = nvar * ncon,
+  nnzh = nvar * (nvar + 1) / 2,
+  lin = Int[],
+  minimize = true,
+  islp = false,
+  name = "Generic",
+) where {T, S}
+  if (nvar < 1) || (ncon < 0)
+    error("Nonsensical dimensions")
   end
+
+  @lencheck nvar x0 lvar uvar
+  @lencheck ncon y0 lcon ucon
+  @rangecheck 1 ncon lin
+  # T = eltype(x0)
+
+  ifix = findall(lvar .== uvar)
+  ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf)))
+  iupp = findall((lvar .== T(-Inf)) .& (uvar .< T(Inf)))
+  irng = findall((lvar .> T(-Inf)) .& (uvar .< T(Inf)) .& (lvar .< uvar))
+  ifree = findall((lvar .== T(-Inf)) .& (uvar .== T(Inf)))
+  iinf = findall(lvar .> uvar)
+
+  if ncon > 0
+    jfix = findall(lcon .== ucon)
+    jlow = findall((lcon .> T(-Inf)) .& (ucon .== T(Inf)))
+    jupp = findall((lcon .== T(-Inf)) .& (ucon .< T(Inf)))
+    jrng = findall((lcon .> T(-Inf)) .& (ucon .< T(Inf)) .& (lcon .< ucon))
+    jfree = findall((lcon .== T(-Inf)) .& (ucon .== T(Inf)))
+    jinf = findall(lcon .> ucon)
+  else
+    jfix = Int[]
+    jlow = Int[]
+    jupp = Int[]
+    jrng = Int[]
+    jfree = Int[]
+    jinf = Int[]
+  end
+
+  nnzj = max(0, nnzj)
+  nnzh = max(0, nnzh)
+
+  nln = setdiff(1:ncon, lin)
+  nlin = length(lin)
+  nnln = length(nln)
+
+  NLPModelMeta{T, S}(
+    nvar,
+    x0,
+    lvar,
+    uvar,
+    ifix,
+    ilow,
+    iupp,
+    irng,
+    ifree,
+    iinf,
+    nlvb,
+    nlvo,
+    nlvc,
+    ncon,
+    y0,
+    lcon,
+    ucon,
+    jfix,
+    jlow,
+    jupp,
+    jrng,
+    jfree,
+    jinf,
+    nnzo,
+    nnzj,
+    lin_nnzj,
+    nln_nnzj,
+    nnzh,
+    nlin,
+    nnln,
+    lin,
+    nln,
+    minimize,
+    islp,
+    name,
+  )
 end
 
 NLPModelMeta(nvar; x0::S = zeros(nvar), kwargs...) where {S} =
