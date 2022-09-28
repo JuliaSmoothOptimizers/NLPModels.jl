@@ -143,7 +143,6 @@ function NLPModelMeta{T, S}(
   @lencheck nvar x0 lvar uvar
   @lencheck ncon y0 lcon ucon
   @rangecheck 1 ncon lin
-  # T = eltype(x0)
 
   ifix = findall(lvar .== uvar)
   ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf)))
