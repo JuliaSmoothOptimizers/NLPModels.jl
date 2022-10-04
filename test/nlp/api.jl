@@ -121,6 +121,8 @@
   @test hprod!(nlp, hess_structure(nlp)..., hess_coord(nlp, x), v, Hv) ≈ H(x) * v
   Hop = hess_op(nlp, x)
   @test Hop * v ≈ H(x) * v
+  update!(Hop, -x)
+  @test Hop * v ≈ H(-x) * v
   Hop = hess_op!(nlp, x, Hv)
   @test Hop * v ≈ H(x) * v
   z = ones(nlp.meta.nvar)

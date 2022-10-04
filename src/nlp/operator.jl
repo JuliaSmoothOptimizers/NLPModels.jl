@@ -1,3 +1,5 @@
+export ModelOperator, update!
+
 using FastClosures, LinearOperators
 import LinearOperators.AbstractLinearOperator
 
@@ -75,6 +77,10 @@ ModelOperator(
   ctprod!,
 ) where {T, I <: Integer, S, M <: AbstractNLPModel{T, S}} =
   ModelOperator(x, nlp, nrow, ncol, symmetric, hermitian, prod!, tprod!, ctprod!, 0, 0, 0)
+
+function update!(op::ModelOperator, x)
+  op.x .= x
+end
 
 function HprodOperator!(
   nlp::M,

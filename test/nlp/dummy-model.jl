@@ -26,7 +26,7 @@ end
   @test_throws(MethodError, jth_hess_coord!(model, [0.0], 1))
   @test_throws(MethodError, jth_hprod!(model, [0.0], [1.0], 2, [3.0]))
   @test_throws(MethodError, ghjvprod!(model, [0.0], [1.0], [2.0], [3.0]))
-  @assert isa(hess_op(model, [0.0]), LinearOperator)
+  @assert isa(hess_op(model, [0.0]), ModelOperator)
   @assert isa(jac_op(model, [0.0]), LinearOperator)
   @assert isa(jac_lin_op(model, [0.0]), LinearOperator)
   @assert isa(jac_nln_op(model, [0.0]), LinearOperator)
