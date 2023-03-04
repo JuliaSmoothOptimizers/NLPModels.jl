@@ -84,7 +84,9 @@ end
 
   fx, gx = objgrad!(nls, x, v)
   @test obj(nls, x) ≈ norm(F(x))^2 / 2 ≈ fx ≈ f(x)
+  @test obj(nls, x, F(x), recompute = false) ≈ norm(F(x))^2 / 2 ≈ fx ≈ f(x)
   @test grad(nls, x) ≈ JF(x)' * F(x) ≈ gx ≈ ∇f(x)
+  @test grad!(nls, x, gx, F(x), recompute = false) ≈ JF(x)' * F(x) ≈ gx ≈ ∇f(x)
   @test hess(nls, x) ≈ tril(H(x))
   @test hprod(nls, x, v) ≈ H(x) * v
   @test cons(nls, x) ≈ c(x)
@@ -103,6 +105,9 @@ end
   @test fx ≈ f(x)
   @test gx ≈ ∇f(x)
   fx, _ = objgrad!(nls, x, gx)
+  @test fx ≈ f(x)
+  @test gx ≈ ∇f(x)
+  fx, _ = objgrad!(nls, x, gx, F(x), recompute = false)
   @test fx ≈ f(x)
   @test gx ≈ ∇f(x)
   @test jprod!(nls, jac_structure(nls)..., jac_coord(nls, x), v, Jv) ≈ J(x) * v
