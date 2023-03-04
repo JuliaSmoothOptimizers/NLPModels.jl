@@ -3,20 +3,18 @@
 These functions may or may not be exported.
 They are used internally.
 
-```@docs
-@default_counters
-@default_nlscounters
-@lencheck
-@rangecheck
-coo_prod!
-coo_sym_prod!
-decrement!
-DimensionError
-NLPModels.histline
-increment!
-NLPModels.lines_of_description
-NLPModels.lines_of_hist
-NLPModels.show_counters
-show_header
-NLPModels.sparsityline
-```
+- [`@default_counters`](@ref)
+- [`@default_nlscounters`](@ref)
+- [`@lencheck`](@ref)
+- [`@rangecheck`](@ref)
+- [`coo_prod!`](@ref)
+- [`coo_sym_prod!`](@ref)
+- [`decrement!`](@ref)
+- [`DimensionError`](@ref)
+- [`NLPModels.histline`](@ref)
+- [`increment!`](@ref)
+- [`NLPModels.lines_of_description`](@ref)
+- [`NLPModels.lines_of_hist`](@ref)
+- [`NLPModels.show_counters`](@ref)
+- [`show_header`](@ref)
+- [`NLPModels.sparsityline`](@ref)
