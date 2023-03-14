@@ -7,4 +7,4 @@ NLPModels = "a4795742-8479-5a88-8948-cc11e1c8c1a6"
 [compat]
 ADNLPModels = "~0.4"
 Documenter = "~0.27"
-NLPModels = "~0.19"
+NLPModels = "~0.20"
