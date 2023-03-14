@@ -395,7 +395,7 @@ end
 Evaluate `f(x)`, the objective function of `nls::AbstractNLSModel`. `Fx` is overwritten with the value of the residual `F(x)`.
 If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
 """
-function obj(nls::AbstractNLSModel, x::AbstractVector, Fx::AbstractVector; recompute::Bool=true)
+function obj(nls::AbstractNLSModel, x::AbstractVector, Fx::AbstractVector; recompute::Bool = true)
   @lencheck nls.meta.nvar x
   increment!(nls, :neval_obj)
   recompute && residual!(nls, x, Fx)
@@ -415,7 +415,13 @@ end
 Evaluate `∇f(x)`, the gradient of the objective function of `nls::AbstractNLSModel` at `x` in place. `Fx` is overwritten with the value of the residual `F(x)`.
 If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
 """
-function grad!(nls::AbstractNLSModel, x::AbstractVector, g::AbstractVector, Fx::AbstractVector; recompute::Bool=true)
+function grad!(
+  nls::AbstractNLSModel,
+  x::AbstractVector,
+  g::AbstractVector,
+  Fx::AbstractVector;
+  recompute::Bool = true,
+)
   @lencheck nls.meta.nvar x g
   increment!(nls, :neval_grad)
   recompute && residual!(nls, x, Fx)
@@ -436,7 +442,13 @@ end
 Evaluate f(x) and ∇f(x) of `nls::AbstractNLSModel` at `x`. `Fx` is overwritten with the value of the residual `F(x)`.
 If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
 """
-function objgrad!(nls::AbstractNLSModel, x::AbstractVector, g::AbstractVector, Fx::AbstractVector; recompute::Bool=true)
+function objgrad!(
+  nls::AbstractNLSModel,
+  x::AbstractVector,
+  g::AbstractVector,
+  Fx::AbstractVector;
+  recompute::Bool = true,
+)
   @lencheck nls.meta.nvar x g
   increment!(nls, :neval_obj)
   increment!(nls, :neval_grad)
