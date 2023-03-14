@@ -390,14 +390,15 @@ end
 
 """
     f = obj(nls, x)
-    f = obj(nls, x, Fx)
+    f = obj(nls, x, Fx; recompute::Bool=true)
 
 Evaluate `f(x)`, the objective function of `nls::AbstractNLSModel`. `Fx` is overwritten with the value of the residual `F(x)`.
+If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
 """
-function obj(nls::AbstractNLSModel, x::AbstractVector, Fx::AbstractVector)
+function obj(nls::AbstractNLSModel, x::AbstractVector, Fx::AbstractVector; recompute::Bool=true)
   @lencheck nls.meta.nvar x
   increment!(nls, :neval_obj)
-  residual!(nls, x, Fx)
+  recompute && residual!(nls, x, Fx)
   return dot(Fx, Fx) / 2
 end
 
@@ -409,14 +410,15 @@ end
 
 """
     g = grad!(nls, x, g)
-    g = grad!(nls, x, g, Fx)
+    g = grad!(nls, x, g, Fx; recompute::Bool=true)
 
 Evaluate `∇f(x)`, the gradient of the objective function of `nls::AbstractNLSModel` at `x` in place. `Fx` is overwritten with the value of the residual `F(x)`.
+If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
 """
-function grad!(nls::AbstractNLSModel, x::AbstractVector, g::AbstractVector, Fx::AbstractVector)
+function grad!(nls::AbstractNLSModel, x::AbstractVector, g::AbstractVector, Fx::AbstractVector; recompute::Bool=true)
   @lencheck nls.meta.nvar x g
   increment!(nls, :neval_grad)
-  residual!(nls, x, Fx)
+  recompute && residual!(nls, x, Fx)
   return jtprod_residual!(nls, x, Fx, g)
 end
 
@@ -429,15 +431,16 @@ end
 
 """
     f, g = objgrad!(nls, x, g)
-    f, g = objgrad!(nls, x, g, Fx)
+    f, g = objgrad!(nls, x, g, Fx; recompute::Bool=true)
 
 Evaluate f(x) and ∇f(x) of `nls::AbstractNLSModel` at `x`. `Fx` is overwritten with the value of the residual `F(x)`.
+If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
 """
-function objgrad!(nls::AbstractNLSModel, x::AbstractVector, g::AbstractVector, Fx::AbstractVector)
+function objgrad!(nls::AbstractNLSModel, x::AbstractVector, g::AbstractVector, Fx::AbstractVector; recompute::Bool=true)
   @lencheck nls.meta.nvar x g
   increment!(nls, :neval_obj)
   increment!(nls, :neval_grad)
-  residual!(nls, x, Fx)
+  recompute && residual!(nls, x, Fx)
   jtprod_residual!(nls, x, Fx, g)
   return dot(Fx, Fx) / 2, g
 end
