@@ -460,7 +460,7 @@ function jprod_nln!(
 end
 
 """
-    Jtv = jtprod(nlp, x, v, Jtv)
+    Jtv = jtprod(nlp, x, v)
 
 Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product at `x`.
 """
