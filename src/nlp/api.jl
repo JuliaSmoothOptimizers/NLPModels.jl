@@ -124,7 +124,7 @@ function objcons(nlp, x)
 end
 
 """
-    f = objcons!(nlp, x, c)
+    f, c = objcons!(nlp, x, c)
 
 Evaluate ``f(x)`` and ``c(x)`` at `x`. `c` is overwritten with the value of ``c(x)``.
 """
