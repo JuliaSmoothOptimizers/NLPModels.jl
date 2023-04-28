@@ -109,7 +109,7 @@ end
 """
     reset!(nlp)
 
-Reset evaluation count in `nlp`
+Reset evaluation count and model data (if appropriate) in `nlp`.
 """
 function LinearOperators.reset!(nlp::AbstractNLPModel)
   reset!(nlp.counters)
