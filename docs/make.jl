@@ -3,7 +3,7 @@ using Documenter, NLPModels
 makedocs(
   modules = [NLPModels],
   doctest = true,
-  linkcheck = false,
+  linkcheck = true,
   strict = true,
   format = Documenter.HTML(
     assets = ["assets/style.css"],
