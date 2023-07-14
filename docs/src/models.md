@@ -24,6 +24,7 @@ If you want to create your own interface, check these [Guidelines](@ref).
   Creates a linear least squares model.
 - [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl):
   For PDE-constrained problems.
+- [BlockNLPModels.jl](https://github.com/exanauts/BlockNLPModels.jl): For modeling block structured nonlinear optimization problems.
 
 ## Model internals
 
