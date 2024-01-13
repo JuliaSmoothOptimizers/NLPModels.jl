@@ -11,7 +11,7 @@ If you want to create your own interface, check these [Guidelines](@ref).
   Models that modify existing models.
   For instance, creating slack variables, or moving constraints into the objective functions, or using Quasi-Newton LBFSG approximations to the Hessian.
 - [ADNLPModels.jl](https://github.com/JuliaSmoothOptimizers/ADNLPModels.jl):
-  Models with automatic differentiation. It has a very simple interface, although it isn't very efficient for larger problems.
+  Models with automatic differentiation.
 - [CUTEst.jl](https://github.com/JuliaSmoothOptimizers/CUTEst.jl):
   For problems from [CUTEst](https://github.com/ralna/CUTEst/wiki).
 - [AmplNLReader.jl](https://github.com/JuliaSmoothOptimizers/AmplNLReader.jl):
