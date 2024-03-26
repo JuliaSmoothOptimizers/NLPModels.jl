@@ -66,9 +66,9 @@ function jac_coord_residual! end
 
 Computes the Jacobian of the residual at `x` in sparse coordinate format.
 """
-function jac_coord_residual(nls::AbstractNLSModel, x::AbstractVector)
+function jac_coord_residual(nls::AbstractNLSModel, x::S) where {S}
   @lencheck nls.meta.nvar x
-  vals = Vector{eltype(x)}(undef, nls.nls_meta.nnzj)
+  vals = S(undef, nls.nls_meta.nnzj)
   jac_coord_residual!(nls, x, vals)
 end
 
@@ -307,10 +307,10 @@ function hess_coord_residual! end
 Computes the linear combination of the Hessians of the residuals at `x` with coefficients
 `v` in sparse coordinate format.
 """
-function hess_coord_residual(nls::AbstractNLSModel, x::AbstractVector, v::AbstractVector)
+function hess_coord_residual(nls::AbstractNLSModel, x::S, v::AbstractVector) where {S}
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nequ v
-  vals = Vector{eltype(x)}(undef, nls.nls_meta.nnzh)
+  vals = S(undef, nls.nls_meta.nnzh)
   hess_coord_residual!(nls, x, v, vals)
 end
 

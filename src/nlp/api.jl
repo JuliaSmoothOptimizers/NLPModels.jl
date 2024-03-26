@@ -101,9 +101,9 @@ function cons_nln! end
 
 function jth_con end
 
-function jth_congrad(nlp::AbstractNLPModel, x::AbstractVector, j::Integer)
+function jth_congrad(nlp::AbstractNLPModel, x::S, j::Integer) where {S}
   @lencheck nlp.meta.nvar x
-  g = Vector{eltype(x)}(undef, nlp.meta.nvar)
+  g = S(undef, nlp.meta.nvar)
   return jth_congrad!(nlp, x, j, g)
 end
 
@@ -255,9 +255,9 @@ end
 
 Evaluate ``J(x)``, the constraints Jacobian at `x` in sparse coordinate format.
 """
-function jac_coord(nlp::AbstractNLPModel, x::AbstractVector)
+function jac_coord(nlp::AbstractNLPModel, x::S) where {S}
   @lencheck nlp.meta.nvar x
-  vals = Vector{eltype(x)}(undef, nlp.meta.nnzj)
+  vals = S(undef, nlp.meta.nnzj)
   return jac_coord!(nlp, x, vals)
 end
 
@@ -286,9 +286,9 @@ function jac_lin_coord! end
 
 Evaluate ``J(x)``, the linear constraints Jacobian at `x` in sparse coordinate format.
 """
-function jac_lin_coord(nlp::AbstractNLPModel, x::AbstractVector)
+function jac_lin_coord(nlp::AbstractNLPModel, x::S) where {S}
   @lencheck nlp.meta.nvar x
-  vals = Vector{eltype(x)}(undef, nlp.meta.lin_nnzj)
+  vals = S(undef, nlp.meta.lin_nnzj)
   return jac_lin_coord!(nlp, x, vals)
 end
 
@@ -317,9 +317,9 @@ function jac_nln_coord! end
 
 Evaluate ``J(x)``, the nonlinear constraints Jacobian at `x` in sparse coordinate format.
 """
-function jac_nln_coord(nlp::AbstractNLPModel, x::AbstractVector)
+function jac_nln_coord(nlp::AbstractNLPModel, x::S) where {S}
   @lencheck nlp.meta.nvar x
-  vals = Vector{eltype(x)}(undef, nlp.meta.nln_nnzj)
+  vals = S(undef, nlp.meta.nln_nnzj)
   return jac_nln_coord!(nlp, x, vals)
 end
 
@@ -900,10 +900,10 @@ end
 Evaluate the Hessian of j-th constraint at `x` in sparse coordinate format.
 Only the lower triangle is returned.
 """
-function jth_hess_coord(nlp::AbstractNLPModel, x::AbstractVector, j::Integer)
+function jth_hess_coord(nlp::AbstractNLPModel, x::S, j::Integer) where {S}
   @lencheck nlp.meta.nvar x
   @rangecheck 1 nlp.meta.ncon j
-  vals = Vector{eltype(x)}(undef, nlp.meta.nnzh)
+  vals = S(undef, nlp.meta.nnzh)
   return jth_hess_coord!(nlp, x, j, vals)
 end
 
@@ -935,10 +935,10 @@ end
 
 Evaluate the product of the Hessian of j-th constraint at `x` with the vector `v`.
 """
-function jth_hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, j::Integer)
+function jth_hprod(nlp::AbstractNLPModel, x::S, v::AbstractVector, j::Integer) where {S}
   @lencheck nlp.meta.nvar x v
   @rangecheck 1 nlp.meta.ncon j
-  Hv = Vector{eltype(x)}(undef, nlp.meta.nvar)
+  Hv = S(undef, nlp.meta.nvar)
   return jth_hprod!(nlp, x, v, j, Hv)
 end
 
@@ -955,9 +955,9 @@ function jth_hprod! end
 
 Return the vector whose i-th component is gᵀ ∇²cᵢ(x) v.
 """
-function ghjvprod(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector, v::AbstractVector)
+function ghjvprod(nlp::AbstractNLPModel, x::S, g::AbstractVector, v::AbstractVector) where {S}
   @lencheck nlp.meta.nvar x g v
-  gHv = Vector{eltype(x)}(undef, nlp.meta.ncon)
+  gHv = S(undef, nlp.meta.ncon)
   return ghjvprod!(nlp, x, g, v, gHv)
 end
 
@@ -1002,7 +1002,8 @@ function hess_coord!(
 ) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nnzh vals
-  hess_coord!(nlp, x, zeros(T, nlp.meta.ncon), vals, obj_weight = obj_weight)
+  y = fill!(S(undef, nlp.meta.ncon), 0)
+  hess_coord!(nlp, x, y, vals, obj_weight = obj_weight)
 end
 
 """
@@ -1024,9 +1025,9 @@ with objective function scaled by `obj_weight`, i.e.,
 $(OBJECTIVE_HESSIAN).
 Only the lower triangle is returned.
 """
-function hess_coord(nlp::AbstractNLPModel, x::AbstractVector; obj_weight::Real = one(eltype(x)))
+function hess_coord(nlp::AbstractNLPModel, x::S; obj_weight::Real = one(eltype(x))) where {S}
   @lencheck nlp.meta.nvar x
-  vals = Vector{eltype(x)}(undef, nlp.meta.nnzh)
+  vals = S(undef, nlp.meta.nnzh)
   return hess_coord!(nlp, x, vals; obj_weight = obj_weight)
 end
 
@@ -1041,13 +1042,13 @@ Only the lower triangle is returned.
 """
 function hess_coord(
   nlp::AbstractNLPModel,
-  x::AbstractVector,
+  x::S,
   y::AbstractVector;
   obj_weight::Real = one(eltype(x)),
-)
+) where {S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
-  vals = Vector{eltype(x)}(undef, nlp.meta.nnzh)
+  vals = S(undef, nlp.meta.nnzh)
   return hess_coord!(nlp, x, y, vals; obj_weight = obj_weight)
 end
 
@@ -1142,7 +1143,8 @@ function hprod!(
   obj_weight::Real = one(T),
 ) where {T, S}
   @lencheck nlp.meta.nvar x v Hv
-  hprod!(nlp, x, zeros(T, nlp.meta.ncon), v, Hv, obj_weight = obj_weight)
+  y = fill!(S(undef, nlp.meta.ncon), 0)
+  hprod!(nlp, x, y, v, Hv, obj_weight = obj_weight)
 end
 
 """
