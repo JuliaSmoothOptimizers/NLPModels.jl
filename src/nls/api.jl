@@ -10,7 +10,7 @@ export hprod_residual, hprod_residual!, hess_op_residual, hess_op_residual!
 
 Computes ``F(x)``, the residual at x.
 """
-function residual(nls::AbstractNLSModel{T, S}, x::AbstractVector{T}) where {T, S}
+function residual(nls::AbstractNLSModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nls.meta.nvar x
   Fx = S(undef, nls_meta(nls).nequ)
   residual!(nls, x, Fx)
@@ -66,7 +66,7 @@ function jac_coord_residual! end
 
 Computes the Jacobian of the residual at `x` in sparse coordinate format.
 """
-function jac_coord_residual(nls::AbstractNLSModel, x::S) where {S}
+function jac_coord_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nls.meta.nvar x
   vals = S(undef, nls.nls_meta.nnzj)
   jac_coord_residual!(nls, x, vals)
@@ -79,7 +79,7 @@ Computes the product of the Jacobian of the residual at x and a vector, i.e.,  `
 """
 function jprod_residual(
   nls::AbstractNLSModel{T, S},
-  x::AbstractVector{T},
+  x::AbstractVector,
   v::AbstractVector,
 ) where {T, S}
   @lencheck nls.meta.nvar x v
@@ -122,7 +122,7 @@ Computes the product of the transpose of the Jacobian of the residual at x and a
 """
 function jtprod_residual(
   nls::AbstractNLSModel{T, S},
-  x::AbstractVector{T},
+  x::AbstractVector,
   v::AbstractVector,
 ) where {T, S}
   @lencheck nls.meta.nvar x
@@ -164,7 +164,7 @@ end
 
 Computes ``J(x)``, the Jacobian of the residual at x, in linear operator form.
 """
-function jac_op_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector{T}) where {T, S}
+function jac_op_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nls.meta.nvar x
   Jv = S(undef, nls_meta(nls).nequ)
   Jtv = S(undef, nls.meta.nvar)
@@ -178,11 +178,11 @@ Computes ``J(x)``, the Jacobian of the residual at x, in linear operator form. T
 vectors `Jv` and `Jtv` are used as preallocated storage for the operations.
 """
 function jac_op_residual!(
-  nls::AbstractNLSModel,
+  nls::AbstractNLSModel{T, S},
   x::AbstractVector,
   Jv::AbstractVector,
   Jtv::AbstractVector,
-)
+) where {T, S}
   @lencheck nls.meta.nvar x Jtv
   @lencheck nls.nls_meta.nequ Jv
   prod! = @closure (res, v, α, β) -> begin
@@ -203,7 +203,7 @@ function jac_op_residual!(
     end
     return res
   end
-  return LinearOperator{eltype(x)}(
+  return LinearOperator{T}(
     nls_meta(nls).nequ,
     nls_meta(nls).nvar,
     false,
@@ -221,13 +221,13 @@ Computes ``J(x)``, the Jacobian of the residual given by `(rows, cols, vals)`, i
 vectors `Jv` and `Jtv` are used as preallocated storage for the operations.
 """
 function jac_op_residual!(
-  nls::AbstractNLSModel,
+  nls::AbstractNLSModel{T, S},
   rows::AbstractVector{<:Integer},
   cols::AbstractVector{<:Integer},
   vals::AbstractVector,
   Jv::AbstractVector,
   Jtv::AbstractVector,
-)
+) where {T, S}
   @lencheck nls.nls_meta.nnzj rows cols vals
   @lencheck nls.nls_meta.nequ Jv
   @lencheck nls.meta.nvar Jtv
@@ -249,7 +249,7 @@ function jac_op_residual!(
     end
     return res
   end
-  return LinearOperator{eltype(vals)}(
+  return LinearOperator{T}(
     nls_meta(nls).nequ,
     nls_meta(nls).nvar,
     false,
@@ -307,7 +307,7 @@ function hess_coord_residual! end
 Computes the linear combination of the Hessians of the residuals at `x` with coefficients
 `v` in sparse coordinate format.
 """
-function hess_coord_residual(nls::AbstractNLSModel, x::S, v::AbstractVector) where {S}
+function hess_coord_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nequ v
   vals = S(undef, nls.nls_meta.nnzh)
@@ -319,11 +319,11 @@ end
 
 Computes the Hessian of the j-th residual at x.
 """
-function jth_hess_residual(nls::AbstractNLSModel, x::AbstractVector, j::Int)
+function jth_hess_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector, j::Int) where {T, S}
   @lencheck nls.meta.nvar x
   increment!(nls, :neval_jhess_residual)
   decrement!(nls, :neval_hess_residual)
-  v = [i == j ? one(eltype(x)) : zero(eltype(x)) for i = 1:(nls.nls_meta.nequ)]
+  v = [i == j ? one(T) : zero(T) for i = 1:(nls.nls_meta.nequ)]
   return hess_residual(nls, x, v)
 end
 
@@ -334,7 +334,7 @@ Computes the product of the Hessian of the i-th residual at x, times the vector 
 """
 function hprod_residual(
   nls::AbstractNLSModel{T, S},
-  x::AbstractVector{T},
+  x::AbstractVector,
   i::Int,
   v::AbstractVector,
 ) where {T, S}
@@ -355,7 +355,7 @@ function hprod_residual! end
 
 Computes the Hessian of the i-th residual at x, in linear operator form.
 """
-function hess_op_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector{T}, i::Int) where {T, S}
+function hess_op_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector, i::Int) where {T, S}
   @lencheck nls.meta.nvar x
   Hiv = S(undef, nls.meta.nvar)
   return hess_op_residual!(nls, x, i, Hiv)
@@ -366,7 +366,7 @@ end
 
 Computes the Hessian of the i-th residual at x, in linear operator form. The vector `Hiv` is used as preallocated storage for the operation.
 """
-function hess_op_residual!(nls::AbstractNLSModel, x::AbstractVector, i::Int, Hiv::AbstractVector)
+function hess_op_residual!(nls::AbstractNLSModel{T, S}, x::AbstractVector, i::Int, Hiv::AbstractVector) where {T, S}
   @lencheck nls.meta.nvar x Hiv
   prod! = @closure (res, v, α, β) -> begin
     hprod_residual!(nls, x, i, v, Hiv)
@@ -377,7 +377,7 @@ function hess_op_residual!(nls::AbstractNLSModel, x::AbstractVector, i::Int, Hiv
     end
     return res
   end
-  return LinearOperator{eltype(x)}(
+  return LinearOperator{T}(
     nls_meta(nls).nvar,
     nls_meta(nls).nvar,
     true,
