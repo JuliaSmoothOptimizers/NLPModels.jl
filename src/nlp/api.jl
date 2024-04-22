@@ -119,7 +119,7 @@ Evaluate ``f(x)`` and ``c(x)`` at `x`.
 function objcons(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
   f = obj(nlp, x)
-  c = nlp.meta.ncon > 0 ? cons(nlp, x) : S(undef, 0)
+  c = cons(nlp, x)
   return f, c
 end
 
