@@ -687,15 +687,7 @@ function jac_op!(
     end
     return res
   end
-  return LinearOperator{T}(
-    nlp.meta.ncon,
-    nlp.meta.nvar,
-    false,
-    false,
-    prod!,
-    ctprod!,
-    ctprod!,
-  )
+  return LinearOperator{T}(nlp.meta.ncon, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
 
 """
@@ -785,15 +777,7 @@ function jac_lin_op!(
     end
     return res
   end
-  return LinearOperator{T}(
-    nlp.meta.nlin,
-    nlp.meta.nvar,
-    false,
-    false,
-    prod!,
-    ctprod!,
-    ctprod!,
-  )
+  return LinearOperator{T}(nlp.meta.nlin, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
 
 """
@@ -883,15 +867,7 @@ function jac_nln_op!(
     end
     return res
   end
-  return LinearOperator{T}(
-    nlp.meta.nnln,
-    nlp.meta.nvar,
-    false,
-    false,
-    prod!,
-    ctprod!,
-    ctprod!,
-  )
+  return LinearOperator{T}(nlp.meta.nnln, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
 
 """
@@ -935,7 +911,12 @@ end
 
 Evaluate the product of the Hessian of j-th constraint at `x` with the vector `v`.
 """
-function jth_hprod(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector, j::Integer) where {T, S}
+function jth_hprod(
+  nlp::AbstractNLPModel{T, S},
+  x::AbstractVector,
+  v::AbstractVector,
+  j::Integer,
+) where {T, S}
   @lencheck nlp.meta.nvar x v
   @rangecheck 1 nlp.meta.ncon j
   Hv = S(undef, nlp.meta.nvar)
@@ -955,7 +936,12 @@ function jth_hprod! end
 
 Return the vector whose i-th component is gᵀ ∇²cᵢ(x) v.
 """
-function ghjvprod(nlp::AbstractNLPModel{T, S}, x::AbstractVector, g::AbstractVector, v::AbstractVector) where {T, S}
+function ghjvprod(
+  nlp::AbstractNLPModel{T, S},
+  x::AbstractVector,
+  g::AbstractVector,
+  v::AbstractVector,
+) where {T, S}
   @lencheck nlp.meta.nvar x g v
   gHv = S(undef, nlp.meta.ncon)
   return ghjvprod!(nlp, x, g, v, gHv)
@@ -1025,7 +1011,11 @@ with objective function scaled by `obj_weight`, i.e.,
 $(OBJECTIVE_HESSIAN).
 Only the lower triangle is returned.
 """
-function hess_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector; obj_weight::Real = one(T)) where {T, S}
+function hess_coord(
+  nlp::AbstractNLPModel{T, S},
+  x::AbstractVector;
+  obj_weight::Real = one(T),
+) where {T, S}
   @lencheck nlp.meta.nvar x
   vals = S(undef, nlp.meta.nnzh)
   return hess_coord!(nlp, x, vals; obj_weight = obj_weight)
@@ -1061,7 +1051,11 @@ with objective function scaled by `obj_weight`, i.e.,
 $(OBJECTIVE_HESSIAN).
 A `Symmetric` object wrapping the lower triangle is returned.
 """
-function hess(nlp::AbstractNLPModel{T, S}, x::AbstractVector; obj_weight::Real = one(T)) where {T, S}
+function hess(
+  nlp::AbstractNLPModel{T, S},
+  x::AbstractVector;
+  obj_weight::Real = one(T),
+) where {T, S}
   @lencheck nlp.meta.nvar x
   rows, cols = hess_structure(nlp)
   vals = hess_coord(nlp, x, obj_weight = obj_weight)

@@ -307,7 +307,11 @@ function hess_coord_residual! end
 Computes the linear combination of the Hessians of the residuals at `x` with coefficients
 `v` in sparse coordinate format.
 """
-function hess_coord_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
+function hess_coord_residual(
+  nls::AbstractNLSModel{T, S},
+  x::AbstractVector,
+  v::AbstractVector,
+) where {T, S}
   @lencheck nls.meta.nvar x
   @lencheck nls.nls_meta.nequ v
   vals = S(undef, nls.nls_meta.nnzh)
@@ -366,7 +370,12 @@ end
 
 Computes the Hessian of the i-th residual at x, in linear operator form. The vector `Hiv` is used as preallocated storage for the operation.
 """
-function hess_op_residual!(nls::AbstractNLSModel{T, S}, x::AbstractVector, i::Int, Hiv::AbstractVector) where {T, S}
+function hess_op_residual!(
+  nls::AbstractNLSModel{T, S},
+  x::AbstractVector,
+  i::Int,
+  Hiv::AbstractVector,
+) where {T, S}
   @lencheck nls.meta.nvar x Hiv
   prod! = @closure (res, v, α, β) -> begin
     hprod_residual!(nls, x, i, v, Hiv)
@@ -377,15 +386,7 @@ function hess_op_residual!(nls::AbstractNLSModel{T, S}, x::AbstractVector, i::In
     end
     return res
   end
-  return LinearOperator{T}(
-    nls_meta(nls).nvar,
-    nls_meta(nls).nvar,
-    true,
-    true,
-    prod!,
-    prod!,
-    prod!,
-  )
+  return LinearOperator{T}(nls_meta(nls).nvar, nls_meta(nls).nvar, true, true, prod!, prod!, prod!)
 end
 
 """
