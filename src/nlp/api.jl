@@ -25,9 +25,9 @@ function obj end
 
 Evaluate ``∇f(x)``, the gradient of the objective function at `x`.
 """
-function grad(nlp::AbstractNLPModel, x::AbstractVector)
+function grad(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
-  g = similar(x)
+  g = S(undef, nlp.meta.nvar)
   return grad!(nlp, x, g)
 end
 
@@ -43,9 +43,9 @@ function grad! end
 
 Evaluate ``c(x)``, the constraints at `x`.
 """
-function cons(nlp::AbstractNLPModel, x::AbstractVector)
+function cons(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
-  c = similar(x, nlp.meta.ncon)
+  c = S(undef, nlp.meta.ncon)
   return cons!(nlp, x, c)
 end
 
@@ -68,9 +68,9 @@ end
 
 Evaluate the linear constraints at `x`.
 """
-function cons_lin(nlp::AbstractNLPModel, x::AbstractVector)
+function cons_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
-  c = similar(x, nlp.meta.nlin)
+  c = S(undef, nlp.meta.nlin)
   return cons_lin!(nlp, x, c)
 end
 
@@ -86,9 +86,9 @@ function cons_lin! end
 
 Evaluate the nonlinear constraints at `x`.
 """
-function cons_nln(nlp::AbstractNLPModel, x::AbstractVector)
+function cons_nln(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
-  c = similar(x, nlp.meta.nnln)
+  c = S(undef, nlp.meta.nnln)
   return cons_nln!(nlp, x, c)
 end
 
@@ -101,9 +101,9 @@ function cons_nln! end
 
 function jth_con end
 
-function jth_congrad(nlp::AbstractNLPModel, x::AbstractVector, j::Integer)
+function jth_congrad(nlp::AbstractNLPModel{T, S}, x::AbstractVector, j::Integer) where {T, S}
   @lencheck nlp.meta.nvar x
-  g = Vector{eltype(x)}(undef, nlp.meta.nvar)
+  g = S(undef, nlp.meta.nvar)
   return jth_congrad!(nlp, x, j, g)
 end
 
@@ -116,10 +116,10 @@ function jth_sparse_congrad end
 
 Evaluate ``f(x)`` and ``c(x)`` at `x`.
 """
-function objcons(nlp, x)
+function objcons(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
   f = obj(nlp, x)
-  c = nlp.meta.ncon > 0 ? cons(nlp, x) : eltype(x)[]
+  c = cons(nlp, x)
   return f, c
 end
 
@@ -128,7 +128,7 @@ end
 
 Evaluate ``f(x)`` and ``c(x)`` at `x`. `c` is overwritten with the value of ``c(x)``.
 """
-function objcons!(nlp, x, c)
+function objcons!(nlp::AbstractNLPModel, x::AbstractVector, c::AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon c
   f = obj(nlp, x)
@@ -141,9 +141,9 @@ end
 
 Evaluate ``f(x)`` and ``∇f(x)`` at `x`.
 """
-function objgrad(nlp, x)
+function objgrad(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
-  g = similar(x)
+  g = S(undef, nlp.meta.nvar)
   return objgrad!(nlp, x, g)
 end
 
@@ -153,7 +153,7 @@ end
 Evaluate ``f(x)`` and ``∇f(x)`` at `x`. `g` is overwritten with the
 value of ``∇f(x)``.
 """
-function objgrad!(nlp, x, g)
+function objgrad!(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector)
   @lencheck nlp.meta.nvar x g
   f = obj(nlp, x)
   grad!(nlp, x, g)
@@ -255,9 +255,9 @@ end
 
 Evaluate ``J(x)``, the constraints Jacobian at `x` in sparse coordinate format.
 """
-function jac_coord(nlp::AbstractNLPModel, x::AbstractVector)
+function jac_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
-  vals = Vector{eltype(x)}(undef, nlp.meta.nnzj)
+  vals = S(undef, nlp.meta.nnzj)
   return jac_coord!(nlp, x, vals)
 end
 
@@ -286,9 +286,9 @@ function jac_lin_coord! end
 
 Evaluate ``J(x)``, the linear constraints Jacobian at `x` in sparse coordinate format.
 """
-function jac_lin_coord(nlp::AbstractNLPModel, x::AbstractVector)
+function jac_lin_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
-  vals = Vector{eltype(x)}(undef, nlp.meta.lin_nnzj)
+  vals = S(undef, nlp.meta.lin_nnzj)
   return jac_lin_coord!(nlp, x, vals)
 end
 
@@ -317,9 +317,9 @@ function jac_nln_coord! end
 
 Evaluate ``J(x)``, the nonlinear constraints Jacobian at `x` in sparse coordinate format.
 """
-function jac_nln_coord(nlp::AbstractNLPModel, x::AbstractVector)
+function jac_nln_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
-  vals = Vector{eltype(x)}(undef, nlp.meta.nln_nnzj)
+  vals = S(undef, nlp.meta.nln_nnzj)
   return jac_nln_coord!(nlp, x, vals)
 end
 
@@ -340,9 +340,9 @@ end
 
 Evaluate ``J(x)v``, the Jacobian-vector product at `x`.
 """
-function jprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector)
+function jprod(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x v
-  Jv = similar(v, nlp.meta.ncon)
+  Jv = S(undef, nlp.meta.ncon)
   return jprod!(nlp, x, v, Jv)
 end
 
@@ -386,9 +386,9 @@ end
 
 Evaluate ``J(x)v``, the linear Jacobian-vector product at `x`.
 """
-function jprod_lin(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector)
+function jprod_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x v
-  Jv = similar(v, nlp.meta.nlin)
+  Jv = S(undef, nlp.meta.nlin)
   return jprod_lin!(nlp, x, v, Jv)
 end
 
@@ -425,9 +425,9 @@ end
 
 Evaluate ``J(x)v``, the nonlinear Jacobian-vector product at `x`.
 """
-function jprod_nln(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector)
+function jprod_nln(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x v
-  Jv = similar(v, nlp.meta.nnln)
+  Jv = S(undef, nlp.meta.nnln)
   return jprod_nln!(nlp, x, v, Jv)
 end
 
@@ -464,10 +464,10 @@ end
 
 Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product at `x`.
 """
-function jtprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector)
+function jtprod(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon v
-  Jtv = similar(x)
+  Jtv = S(undef, nlp.meta.nvar)
   return jtprod!(nlp, x, v, Jtv)
 end
 
@@ -525,10 +525,10 @@ end
 
 Evaluate ``J(x)^Tv``, the linear transposed-Jacobian-vector product at `x`.
 """
-function jtprod_lin(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector)
+function jtprod_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nlin v
-  Jtv = similar(x)
+  Jtv = S(undef, nlp.meta.nvar)
   return jtprod_lin!(nlp, x, v, Jtv)
 end
 
@@ -565,10 +565,10 @@ end
 
 Evaluate ``J(x)^Tv``, the nonlinear transposed-Jacobian-vector product at `x`.
 """
-function jtprod_nln(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector)
+function jtprod_nln(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nnln v
-  Jtv = similar(x)
+  Jtv = S(undef, nlp.meta.nvar)
   return jtprod_nln!(nlp, x, v, Jtv)
 end
 
@@ -607,7 +607,7 @@ Return the Jacobian at `x` as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`.
 """
-function jac_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector{T}) where {T, S}
+function jac_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
   Jv = S(undef, nlp.meta.ncon)
   Jtv = S(undef, nlp.meta.nvar)
@@ -659,13 +659,13 @@ The resulting object may be used as if it were a matrix, e.g., `J * v` or `J' * 
 The values `Jv` and `Jtv` are used as preallocated storage for the operations.
 """
 function jac_op!(
-  nlp::AbstractNLPModel,
+  nlp::AbstractNLPModel{T, S},
   rows::AbstractVector{<:Integer},
   cols::AbstractVector{<:Integer},
-  vals::AbstractVector,
+  vals::AbstractVector{T},
   Jv::AbstractVector,
   Jtv::AbstractVector,
-)
+) where {T, S}
   @lencheck nlp.meta.nnzj rows cols vals
   @lencheck nlp.meta.ncon Jv
   @lencheck nlp.meta.nvar Jtv
@@ -687,7 +687,7 @@ function jac_op!(
     end
     return res
   end
-  return LinearOperator{eltype(vals)}(
+  return LinearOperator{T}(
     nlp.meta.ncon,
     nlp.meta.nvar,
     false,
@@ -705,7 +705,7 @@ Return the linear Jacobian at `x` as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`.
 """
-function jac_lin_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector{T}) where {T, S}
+function jac_lin_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
   Jv = S(undef, nlp.meta.nlin)
   Jtv = S(undef, nlp.meta.nvar)
@@ -757,13 +757,13 @@ The resulting object may be used as if it were a matrix, e.g., `J * v` or `J' * 
 The values `Jv` and `Jtv` are used as preallocated storage for the operations.
 """
 function jac_lin_op!(
-  nlp::AbstractNLPModel,
+  nlp::AbstractNLPModel{T, S},
   rows::AbstractVector{<:Integer},
   cols::AbstractVector{<:Integer},
-  vals::AbstractVector,
+  vals::AbstractVector{T},
   Jv::AbstractVector,
   Jtv::AbstractVector,
-)
+) where {T, S}
   @lencheck nlp.meta.lin_nnzj rows cols vals
   @lencheck nlp.meta.nlin Jv
   @lencheck nlp.meta.nvar Jtv
@@ -785,7 +785,7 @@ function jac_lin_op!(
     end
     return res
   end
-  return LinearOperator{eltype(vals)}(
+  return LinearOperator{T}(
     nlp.meta.nlin,
     nlp.meta.nvar,
     false,
@@ -803,7 +803,7 @@ Return the nonlinear Jacobian at `x` as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`.
 """
-function jac_nln_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector{T}) where {T, S}
+function jac_nln_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
   Jv = S(undef, nlp.meta.nnln)
   Jtv = S(undef, nlp.meta.nvar)
@@ -855,13 +855,13 @@ The resulting object may be used as if it were a matrix, e.g., `J * v` or `J' * 
 The values `Jv` and `Jtv` are used as preallocated storage for the operations.
 """
 function jac_nln_op!(
-  nlp::AbstractNLPModel,
+  nlp::AbstractNLPModel{T, S},
   rows::AbstractVector{<:Integer},
   cols::AbstractVector{<:Integer},
-  vals::AbstractVector,
+  vals::AbstractVector{T},
   Jv::AbstractVector,
   Jtv::AbstractVector,
-)
+) where {T, S}
   @lencheck nlp.meta.nln_nnzj rows cols vals
   @lencheck nlp.meta.nnln Jv
   @lencheck nlp.meta.nvar Jtv
@@ -883,7 +883,7 @@ function jac_nln_op!(
     end
     return res
   end
-  return LinearOperator{eltype(vals)}(
+  return LinearOperator{T}(
     nlp.meta.nnln,
     nlp.meta.nvar,
     false,
@@ -900,10 +900,10 @@ end
 Evaluate the Hessian of j-th constraint at `x` in sparse coordinate format.
 Only the lower triangle is returned.
 """
-function jth_hess_coord(nlp::AbstractNLPModel, x::AbstractVector, j::Integer)
+function jth_hess_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector, j::Integer) where {T, S}
   @lencheck nlp.meta.nvar x
   @rangecheck 1 nlp.meta.ncon j
-  vals = Vector{eltype(x)}(undef, nlp.meta.nnzh)
+  vals = S(undef, nlp.meta.nnzh)
   return jth_hess_coord!(nlp, x, j, vals)
 end
 
@@ -935,10 +935,10 @@ end
 
 Evaluate the product of the Hessian of j-th constraint at `x` with the vector `v`.
 """
-function jth_hprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, j::Integer)
+function jth_hprod(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector, j::Integer) where {T, S}
   @lencheck nlp.meta.nvar x v
   @rangecheck 1 nlp.meta.ncon j
-  Hv = Vector{eltype(x)}(undef, nlp.meta.nvar)
+  Hv = S(undef, nlp.meta.nvar)
   return jth_hprod!(nlp, x, v, j, Hv)
 end
 
@@ -955,9 +955,9 @@ function jth_hprod! end
 
 Return the vector whose i-th component is gᵀ ∇²cᵢ(x) v.
 """
-function ghjvprod(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector, v::AbstractVector)
+function ghjvprod(nlp::AbstractNLPModel{T, S}, x::AbstractVector, g::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x g v
-  gHv = Vector{eltype(x)}(undef, nlp.meta.ncon)
+  gHv = S(undef, nlp.meta.ncon)
   return ghjvprod!(nlp, x, g, v, gHv)
 end
 
@@ -1002,7 +1002,8 @@ function hess_coord!(
 ) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nnzh vals
-  hess_coord!(nlp, x, zeros(T, nlp.meta.ncon), vals, obj_weight = obj_weight)
+  y = fill!(S(undef, nlp.meta.ncon), 0)
+  hess_coord!(nlp, x, y, vals, obj_weight = obj_weight)
 end
 
 """
@@ -1024,9 +1025,9 @@ with objective function scaled by `obj_weight`, i.e.,
 $(OBJECTIVE_HESSIAN).
 Only the lower triangle is returned.
 """
-function hess_coord(nlp::AbstractNLPModel, x::AbstractVector; obj_weight::Real = one(eltype(x)))
+function hess_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector; obj_weight::Real = one(T)) where {T, S}
   @lencheck nlp.meta.nvar x
-  vals = Vector{eltype(x)}(undef, nlp.meta.nnzh)
+  vals = S(undef, nlp.meta.nnzh)
   return hess_coord!(nlp, x, vals; obj_weight = obj_weight)
 end
 
@@ -1040,14 +1041,14 @@ $(LAGRANGIAN_HESSIAN).
 Only the lower triangle is returned.
 """
 function hess_coord(
-  nlp::AbstractNLPModel,
+  nlp::AbstractNLPModel{T, S},
   x::AbstractVector,
   y::AbstractVector;
-  obj_weight::Real = one(eltype(x)),
-)
+  obj_weight::Real = one(T),
+) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
-  vals = Vector{eltype(x)}(undef, nlp.meta.nnzh)
+  vals = S(undef, nlp.meta.nnzh)
   return hess_coord!(nlp, x, y, vals; obj_weight = obj_weight)
 end
 
@@ -1060,7 +1061,7 @@ with objective function scaled by `obj_weight`, i.e.,
 $(OBJECTIVE_HESSIAN).
 A `Symmetric` object wrapping the lower triangle is returned.
 """
-function hess(nlp::AbstractNLPModel, x::AbstractVector; obj_weight::Real = one(eltype(x)))
+function hess(nlp::AbstractNLPModel{T, S}, x::AbstractVector; obj_weight::Real = one(T)) where {T, S}
   @lencheck nlp.meta.nvar x
   rows, cols = hess_structure(nlp)
   vals = hess_coord(nlp, x, obj_weight = obj_weight)
@@ -1077,11 +1078,11 @@ $(LAGRANGIAN_HESSIAN).
 A `Symmetric` object wrapping the lower triangle is returned.
 """
 function hess(
-  nlp::AbstractNLPModel,
+  nlp::AbstractNLPModel{T, S},
   x::AbstractVector,
   y::AbstractVector;
-  obj_weight::Real = one(eltype(x)),
-)
+  obj_weight::Real = one(T),
+) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
   rows, cols = hess_structure(nlp)
@@ -1097,13 +1098,13 @@ with objective function scaled by `obj_weight`, where the objective Hessian is
 $(OBJECTIVE_HESSIAN).
 """
 function hprod(
-  nlp::AbstractNLPModel,
+  nlp::AbstractNLPModel{T, S},
   x::AbstractVector,
   v::AbstractVector;
-  obj_weight::Real = one(eltype(x)),
-)
+  obj_weight::Real = one(T),
+) where {T, S}
   @lencheck nlp.meta.nvar x v
-  Hv = similar(x)
+  Hv = S(undef, nlp.meta.nvar)
   return hprod!(nlp, x, v, Hv; obj_weight = obj_weight)
 end
 
@@ -1115,15 +1116,15 @@ with objective function scaled by `obj_weight`, where the Lagrangian Hessian is
 $(LAGRANGIAN_HESSIAN).
 """
 function hprod(
-  nlp::AbstractNLPModel,
+  nlp::AbstractNLPModel{T, S},
   x::AbstractVector,
   y::AbstractVector,
   v::AbstractVector;
-  obj_weight::Real = one(eltype(x)),
-)
+  obj_weight::Real = one(T),
+) where {T, S}
   @lencheck nlp.meta.nvar x v
   @lencheck nlp.meta.ncon y
-  Hv = similar(x)
+  Hv = S(undef, nlp.meta.nvar)
   return hprod!(nlp, x, y, v, Hv; obj_weight = obj_weight)
 end
 
@@ -1136,13 +1137,14 @@ $(OBJECTIVE_HESSIAN).
 """
 function hprod!(
   nlp::AbstractNLPModel{T, S},
-  x::AbstractVector{T},
+  x::AbstractVector,
   v::AbstractVector,
   Hv::AbstractVector;
   obj_weight::Real = one(T),
 ) where {T, S}
   @lencheck nlp.meta.nvar x v Hv
-  hprod!(nlp, x, zeros(T, nlp.meta.ncon), v, Hv, obj_weight = obj_weight)
+  y = fill!(S(undef, nlp.meta.ncon), 0)
+  hprod!(nlp, x, y, v, Hv, obj_weight = obj_weight)
 end
 
 """
@@ -1184,7 +1186,7 @@ $(OBJECTIVE_HESSIAN).
 """
 function hess_op(
   nlp::AbstractNLPModel{T, S},
-  x::AbstractVector{T};
+  x::AbstractVector;
   obj_weight::Real = one(T),
 ) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -1202,7 +1204,7 @@ $(LAGRANGIAN_HESSIAN).
 """
 function hess_op(
   nlp::AbstractNLPModel{T, S},
-  x::AbstractVector{T},
+  x::AbstractVector,
   y::AbstractVector;
   obj_weight::Real = one(T),
 ) where {T, S}
@@ -1223,11 +1225,11 @@ represents
 $(OBJECTIVE_HESSIAN).
 """
 function hess_op!(
-  nlp::AbstractNLPModel,
+  nlp::AbstractNLPModel{T, S},
   x::AbstractVector,
   Hv::AbstractVector;
-  obj_weight::Real = one(eltype(x)),
-)
+  obj_weight::Real = one(T),
+) where {T, S}
   @lencheck nlp.meta.nvar x Hv
   prod! = @closure (res, v, α, β) -> begin
     hprod!(nlp, x, v, Hv; obj_weight = obj_weight)
@@ -1238,7 +1240,7 @@ function hess_op!(
     end
     return res
   end
-  return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
+  return LinearOperator{T}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
 end
 
 """
@@ -1252,12 +1254,12 @@ represents
 $(OBJECTIVE_HESSIAN).
 """
 function hess_op!(
-  nlp::AbstractNLPModel,
+  nlp::AbstractNLPModel{T, S},
   rows::AbstractVector{<:Integer},
   cols::AbstractVector{<:Integer},
   vals::AbstractVector,
   Hv::AbstractVector,
-)
+) where {T, S}
   @lencheck nlp.meta.nnzh rows cols vals
   @lencheck nlp.meta.nvar Hv
   prod! = @closure (res, v, α, β) -> begin
@@ -1269,7 +1271,7 @@ function hess_op!(
     end
     return res
   end
-  return LinearOperator{eltype(vals)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
+  return LinearOperator{T}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
 end
 
 """
@@ -1283,12 +1285,12 @@ represents
 $(LAGRANGIAN_HESSIAN).
 """
 function hess_op!(
-  nlp::AbstractNLPModel,
+  nlp::AbstractNLPModel{T, S},
   x::AbstractVector,
   y::AbstractVector,
   Hv::AbstractVector;
-  obj_weight::Real = one(eltype(x)),
-)
+  obj_weight::Real = one(T),
+) where {T, S}
   @lencheck nlp.meta.nvar x Hv
   @lencheck nlp.meta.ncon y
   prod! = @closure (res, v, α, β) -> begin
@@ -1300,7 +1302,7 @@ function hess_op!(
     end
     return res
   end
-  return LinearOperator{eltype(x)}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
+  return LinearOperator{T}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
 end
 
 function varscale end
