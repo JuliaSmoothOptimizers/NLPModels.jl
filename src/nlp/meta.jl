@@ -50,7 +50,7 @@ The following keyword arguments are accepted:
 - `islp`: true if the problem is a linear program
 - `name`: problem name
 
-`NLPModelMeta` also contains the following attributes:
+`NLPModelMeta` also contains the following attributes, which are computed from the variables above:
 - `nvar`: number of variables
 - `ifix`: indices of fixed variables
 - `ilow`: indices of variables with lower bound only
