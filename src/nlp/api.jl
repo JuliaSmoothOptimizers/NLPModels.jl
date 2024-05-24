@@ -132,7 +132,7 @@ function objcons!(nlp::AbstractNLPModel, x::AbstractVector, c::AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon c
   f = obj(nlp, x)
-  nlp.meta.ncon > 0 && cons!(nlp, x, c)
+  cons!(nlp, x, c)
   return f, c
 end
 
