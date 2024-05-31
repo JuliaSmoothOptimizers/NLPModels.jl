@@ -42,7 +42,7 @@ There are about 30 functions in the NLPModels API, and a few with more than one 
 Luckily, many have a default implementation.
 We collect here the list of functions that should be implemented for a complete API.
 
-Here, the following notation apply:
+Here, the following notation applies:
 - `nlp` is your instance of `MyModel <: AbstractNLPModel`
 - `x` is the point where the function is evaluated
 - `y` is the vector of Lagrange multipliers (for constrained problems only)
@@ -143,4 +143,4 @@ Furthermore, the `show` method has to be updated with the correct direction of `
 ## [Advanced tests](@id advanced-tests)
 
 We have created the package [NLPModelsTest.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsTest.jl) which defines test functions and problems.
-To make sure that your model is robust, we recommend using that package.
+To make sure that your model is robust, we recommend using it in the test suite of your package.
