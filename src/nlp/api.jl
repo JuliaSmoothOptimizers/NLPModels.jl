@@ -45,6 +45,7 @@ Evaluate ``c(x)``, the constraints at `x`.
 """
 function cons(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_unconstrained(nlp)
   c = S(undef, nlp.meta.ncon)
   return cons!(nlp, x, c)
 end
@@ -70,6 +71,7 @@ Evaluate the linear constraints at `x`.
 """
 function cons_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_linear_constraints(nlp)
   c = S(undef, nlp.meta.nlin)
   return cons_lin!(nlp, x, c)
 end
@@ -88,6 +90,7 @@ Evaluate the nonlinear constraints at `x`.
 """
 function cons_nln(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_nonlinear_constraints(nlp)
   c = S(undef, nlp.meta.nnln)
   return cons_nln!(nlp, x, c)
 end
@@ -118,6 +121,7 @@ Evaluate ``f(x)`` and ``c(x)`` at `x`.
 """
 function objcons(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_unconstrained(nlp)
   f = obj(nlp, x)
   c = cons(nlp, x)
   return f, c
@@ -131,6 +135,7 @@ Evaluate ``f(x)`` and ``c(x)`` at `x`. `c` is overwritten with the value of ``c(
 function objcons!(nlp::AbstractNLPModel, x::AbstractVector, c::AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon c
+  check_unconstrained(nlp)
   f = obj(nlp, x)
   cons!(nlp, x, c)
   return f, c
@@ -166,6 +171,7 @@ end
 Return the structure of the constraints Jacobian in sparse coordinate format.
 """
 function jac_structure(nlp::AbstractNLPModel)
+  check_unconstrained(nlp)
   rows = Vector{Int}(undef, nlp.meta.nnzj)
   cols = Vector{Int}(undef, nlp.meta.nnzj)
   jac_structure!(nlp, rows, cols)
@@ -181,6 +187,7 @@ function jac_structure!(
   rows::AbstractVector{T},
   cols::AbstractVector{T},
 ) where {T}
+  check_unconstrained(nlp)
   @lencheck nlp.meta.nnzj rows cols
   lin_ind = 1:(nlp.meta.lin_nnzj)
   nlp.meta.nlin > 0 && jac_lin_structure!(nlp, view(rows, lin_ind), view(cols, lin_ind))
@@ -203,6 +210,7 @@ end
 Return the structure of the linear constraints Jacobian in sparse coordinate format.
 """
 function jac_lin_structure(nlp::AbstractNLPModel)
+  check_linear_constraints(nlp)
   rows = Vector{Int}(undef, nlp.meta.lin_nnzj)
   cols = Vector{Int}(undef, nlp.meta.lin_nnzj)
   jac_lin_structure!(nlp, rows, cols)
@@ -221,6 +229,7 @@ function jac_lin_structure! end
 Return the structure of the nonlinear constraints Jacobian in sparse coordinate format.
 """
 function jac_nln_structure(nlp::AbstractNLPModel)
+  check_nonlinear_constraints(nlp)
   rows = Vector{Int}(undef, nlp.meta.nln_nnzj)
   cols = Vector{Int}(undef, nlp.meta.nln_nnzj)
   jac_nln_structure!(nlp, rows, cols)
@@ -242,6 +251,7 @@ rewriting `vals`.
 function jac_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nnzj vals
+  check_unconstrained(nlp)
   increment!(nlp, :neval_jac)
   lin_ind = 1:(nlp.meta.lin_nnzj)
   nlp.meta.nlin > 0 && jac_lin_coord!(nlp, x, view(vals, lin_ind))
@@ -257,6 +267,7 @@ Evaluate ``J(x)``, the constraints Jacobian at `x` in sparse coordinate format.
 """
 function jac_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_unconstrained(nlp)
   vals = S(undef, nlp.meta.nnzj)
   return jac_coord!(nlp, x, vals)
 end
@@ -268,6 +279,7 @@ Evaluate ``J(x)``, the constraints Jacobian at `x` as a sparse matrix.
 """
 function jac(nlp::AbstractNLPModel, x::AbstractVector)
   @lencheck nlp.meta.nvar x
+  check_unconstrained(nlp)
   rows, cols = jac_structure(nlp)
   vals = jac_coord(nlp, x)
   sparse(rows, cols, vals, nlp.meta.ncon, nlp.meta.nvar)
@@ -288,6 +300,7 @@ Evaluate ``J(x)``, the linear constraints Jacobian at `x` in sparse coordinate f
 """
 function jac_lin_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_linear_constraints(nlp)
   vals = S(undef, nlp.meta.lin_nnzj)
   return jac_lin_coord!(nlp, x, vals)
 end
@@ -299,6 +312,7 @@ Evaluate ``J(x)``, the linear constraints Jacobian at `x` as a sparse matrix.
 """
 function jac_lin(nlp::AbstractNLPModel, x::AbstractVector)
   @lencheck nlp.meta.nvar x
+  check_linear_constraints(nlp)
   rows, cols = jac_lin_structure(nlp)
   vals = jac_lin_coord(nlp, x)
   sparse(rows, cols, vals, nlp.meta.nlin, nlp.meta.nvar)
@@ -319,6 +333,7 @@ Evaluate ``J(x)``, the nonlinear constraints Jacobian at `x` in sparse coordinat
 """
 function jac_nln_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_nonlinear_constraints(nlp)
   vals = S(undef, nlp.meta.nln_nnzj)
   return jac_nln_coord!(nlp, x, vals)
 end
@@ -330,6 +345,7 @@ Evaluate ``J(x)``, the nonlinear constraints Jacobian at `x` as a sparse matrix.
 """
 function jac_nln(nlp::AbstractNLPModel, x::AbstractVector)
   @lencheck nlp.meta.nvar x
+  check_nonlinear_constraints(nlp)
   rows, cols = jac_nln_structure(nlp)
   vals = jac_nln_coord(nlp, x)
   sparse(rows, cols, vals, nlp.meta.nnln, nlp.meta.nvar)
@@ -342,6 +358,7 @@ Evaluate ``J(x)v``, the Jacobian-vector product at `x`.
 """
 function jprod(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x v
+  check_unconstrained(nlp)
   Jv = S(undef, nlp.meta.ncon)
   return jprod!(nlp, x, v, Jv)
 end
@@ -354,6 +371,7 @@ Evaluate ``J(x)v``, the Jacobian-vector product at `x` in place.
 function jprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv::AbstractVector)
   @lencheck nlp.meta.nvar x v
   @lencheck nlp.meta.ncon Jv
+  check_unconstrained(nlp)
   increment!(nlp, :neval_jprod)
   nlp.meta.nlin > 0 && jprod_lin!(nlp, x, v, view(Jv, nlp.meta.lin))
   nlp.meta.nnln > 0 && jprod_nln!(nlp, x, v, view(Jv, nlp.meta.nln))
@@ -377,6 +395,7 @@ function jprod!(
   @lencheck nlp.meta.nnzj rows cols vals
   @lencheck nlp.meta.nvar v
   @lencheck nlp.meta.ncon Jv
+  check_unconstrained(nlp)
   increment!(nlp, :neval_jprod)
   coo_prod!(rows, cols, vals, v, Jv)
 end
@@ -388,6 +407,7 @@ Evaluate ``J(x)v``, the linear Jacobian-vector product at `x`.
 """
 function jprod_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x v
+  check_linear_constraints(nlp)
   Jv = S(undef, nlp.meta.nlin)
   return jprod_lin!(nlp, x, v, Jv)
 end
@@ -416,6 +436,7 @@ function jprod_lin!(
   @lencheck nlp.meta.lin_nnzj rows cols vals
   @lencheck nlp.meta.nvar v
   @lencheck nlp.meta.nlin Jv
+  check_linear_constraints(nlp)
   increment!(nlp, :neval_jprod_lin)
   coo_prod!(rows, cols, vals, v, Jv)
 end
@@ -427,6 +448,7 @@ Evaluate ``J(x)v``, the nonlinear Jacobian-vector product at `x`.
 """
 function jprod_nln(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x v
+  check_nonlinear_constraints(nlp)
   Jv = S(undef, nlp.meta.nnln)
   return jprod_nln!(nlp, x, v, Jv)
 end
@@ -455,6 +477,7 @@ function jprod_nln!(
   @lencheck nlp.meta.nln_nnzj rows cols vals
   @lencheck nlp.meta.nvar v
   @lencheck nlp.meta.nnln Jv
+  check_nonlinear_constraints(nlp)
   increment!(nlp, :neval_jprod_nln)
   coo_prod!(rows, cols, vals, v, Jv)
 end
