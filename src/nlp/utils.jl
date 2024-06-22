@@ -67,25 +67,25 @@ macro rangecheck(lo, hi, vars...)
   Expr(:block, exprs...)
 end
 
-const UnconstrainedErrorMessage = "Try to evaluate constraints, but the problem is unconstrained."
+const UnconstrainedErrorMessage = "Trying to evaluate constraints, but the problem is unconstrained."
 
-function check_unconstrained(nlp)
+function check_constrained(nlp)
   if unconstrained(nlp)
     throw(error(UnconstrainedErrorMessage))
   end
 end
 
-const NonlinearUnconstrainedErrorMessage = "Try to evaluate nonlinear constraints, but the problem has none."
+const NonlinearUnconstrainedErrorMessage = "Trying to evaluate nonlinear constraints, but the problem has none."
 
-function check_nonlinear_constraints(nlp)
+function check_nonlinearly_constrained(nlp)
   if nlp.meta.nnln == 0
     throw(error(NonlinearUnconstrainedErrorMessage))
   end
 end
 
-const LinearUnconstrainedErrorMessage = "Try to evaluate linear constraints, but the problem has none."
+const LinearUnconstrainedErrorMessage = "Trying to evaluate linear constraints, but the problem has none."
 
-function check_linear_constraints(nlp)
+function check_linearly_constrained(nlp)
   if nlp.meta.nlin == 0
     throw(error(LinearUnconstrainedErrorMessage))
   end
