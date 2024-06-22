@@ -27,7 +27,7 @@ end
   @test_throws(MethodError, jth_hprod!(model, [0.0], [1.0], 2, [3.0]))
   @test_throws(MethodError, ghjvprod!(model, [0.0], [1.0], [2.0], [3.0]))
   @assert isa(hess_op(model, [0.0]), LinearOperator)
-  @test_throws "Trying to evaluate constraints, but the problem is unconstrained." jac_op(model, [0.0])
-  @test_throws "Trying to evaluate linear constraints, but the problem has none." jac_lin_op(model, [0.0])
-  @test_throws "Trying to evaluate nonlinear constraints, but the problem has none." jac_nln_op(model, [0.0])
+  @test_throws ErrorException("Trying to evaluate constraints, but the problem is unconstrained.") jac_op(model, [0.0])
+  @test_throws ErrorException("Trying to evaluate linear constraints, but the problem has none.") jac_lin_op(model, [0.0])
+  @test_throws ErrorException("Trying to evaluate nonlinear constraints, but the problem has none.") jac_nln_op(model, [0.0])
 end
