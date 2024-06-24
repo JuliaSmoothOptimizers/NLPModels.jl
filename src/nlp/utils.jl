@@ -75,7 +75,7 @@ function check_constrained(nlp)
   end
 end
 
-const NonlinearUnconstrainedErrorMessage = "Trying to evaluate nonlinear constraints, but the problem has none."
+const NonlinearUnconstrainedErrorMessage = "Trying to evaluate nonlinear constraints, but the problem does not have any."
 
 function check_nonlinearly_constrained(nlp)
   if nlp.meta.nnln == 0
@@ -83,7 +83,7 @@ function check_nonlinearly_constrained(nlp)
   end
 end
 
-const LinearUnconstrainedErrorMessage = "Trying to evaluate linear constraints, but the problem has none."
+const LinearUnconstrainedErrorMessage = "Trying to evaluate linear constraints, but the problem does not have any."
 
 function check_linearly_constrained(nlp)
   if nlp.meta.nlin == 0
