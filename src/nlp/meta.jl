@@ -143,6 +143,7 @@ function NLPModelMeta{T, S}(
   @lencheck nvar x0 lvar uvar
   @lencheck ncon y0 lcon ucon
   @rangecheck 1 ncon lin
+  @assert nnzj == lin_nnzj + nln_nnzj
 
   ifix = findall(lvar .== uvar)
   ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf)))
