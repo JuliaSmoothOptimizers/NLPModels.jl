@@ -1,6 +1,6 @@
 # Models
 
-The following is a list of packages implement the NLPModels API.
+The following is a list of packages implementing the NLPModels API.
 
 If you want your package listed here, open a Pull Request.
 
@@ -19,7 +19,7 @@ If you want to create your own interface, check these [Guidelines](@ref).
 - [NLPModelsJuMP.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsJuMP.jl):
   For problems modeled using [JuMP.jl](https://github.com/jump-dev/JuMP.jl).
 - [QuadraticModels.jl](https://github.com/JuliaSmoothOptimizers/QuadraticModels.jl):
-  For problems with quadratic and linear structure.
+  For problems with linear constraints and a quadratic objective (LCQP).
 - [LLSModels.jl](https://github.com/JuliaSmoothOptimizers/LLSModels.jl):
   Creates a linear least squares model.
 - [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl):
