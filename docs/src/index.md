@@ -11,16 +11,16 @@ The general form of the optimization problem is
 ```math
 \begin{aligned}
 \min \quad & f(x) \\
-& c_i(x) = c_{V_i}, \quad i \in E, \\
-& c_{L_i} \leq c_i(x) \leq c_{U_i}, \quad i \in I, \\
+& c_i(x) = c_{E_i}, \quad i \in {\cal E}, \\
+& c_{L_i} \leq c_i(x) \leq c_{U_i}, \quad i \in {\cal I}, \\
 & \ell \leq x \leq u,
 \end{aligned}
 ```
 where ``f:\mathbb{R}^n\rightarrow\mathbb{R}``,
 ``c:\mathbb{R}^n\rightarrow\mathbb{R}^m``,
-``E\cup I = \{1,2,\dots,m\}``, ``E\cap I = \emptyset``,
+``{\cal E}\cup {\cal I} = \{1,2,\dots,m\}``, ``{\cal E}\cap {\cal I} = \emptyset``,
 and
-``c_{V_i}, c_{L_i}, c_{U_i}, \ell_j, u_j \in \mathbb{R}\cup\{\pm\infty\}``
+``c_{E_i}, c_{L_i}, c_{U_i}, \ell_j, u_j \in \mathbb{R}\cup\{\pm\infty\}``
 for ``i = 1,\dots,m`` and ``j = 1,\dots,n``.
 
 For computational reasons, we write
@@ -31,7 +31,7 @@ For computational reasons, we write
 & \ell \leq x \leq u,
 \end{aligned}
 ```
-defining ``c_{L_i} = c_{U_i} = c_{V_i}`` for all ``i \in E``.
+defining ``c_{L_i} = c_{U_i} = c_{E_i}`` for all ``i \in {\cal E}``.
 The Lagrangian of this problem is defined as
 ```math
 L(x,y,z^L,z^U;\sigma) = \sigma f(x) + c(x)^T y  + \sum_{i=1}^n z_{L_i}(x_i-l_i) + \sum_{i=1}^n z_{U_i}(u_i-x_i),
