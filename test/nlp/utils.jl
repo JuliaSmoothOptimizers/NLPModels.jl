@@ -22,4 +22,5 @@ end
   nlp = SuperNLPModel{Float64, Vector{Float64}}(SimpleNLPModel())
   increment!(nlp, :neval_obj)
   @test neval_obj(nlp.model) == 1
+  @test nlp.counters == nlp.model.counters
 end
