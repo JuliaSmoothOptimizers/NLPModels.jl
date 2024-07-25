@@ -214,8 +214,55 @@ function NLPModelMeta{T, S}(
   )
 end
 
-NLPModelMeta(nvar; x0::S = zeros(nvar), kwargs...) where {S} =
+NLPModelMeta(nvar::Int; x0::S = zeros(nvar), kwargs...) where {S} =
   NLPModelMeta{eltype(S), S}(nvar, x0 = x0; kwargs...)
+
+function NLPModelMeta(
+  meta::NLPModelMeta{T, S};
+  nvar::Int = meta.nvar,
+  x0::S = meta.x0,
+  lvar::S = meta.lvar,
+  uvar::S = meta.uvar,
+  nlvb = meta.nlvb,
+  nlvo = meta.nlvo,
+  nlvc = meta.nlvc,
+  ncon = meta.ncon,
+  y0::S = meta.y0,
+  lcon::S = meta.lcon,
+  ucon::S = meta.ucon,
+  nnzo = meta.nnzo,
+  nnzj = meta.nnzj,
+  lin_nnzj = meta.lin_nnzj,
+  nln_nnzj = meta.nln_nnzj,
+  nnzh = meta.nnzh,
+  lin = meta.lin,
+  minimize = meta.minimize,
+  islp = meta.islp,
+  name = meta.name,
+) where {T, S}
+  NLPModelMeta{T, S}(
+    nvar,
+    x0 = x0,
+    lvar = lvar,
+    uvar = uvar,
+    nlvb = nlvb,
+    nlvo = nlvo,
+    nlvc = nlvc,
+    ncon = ncon,
+    y0 = y0,
+    lcon = lcon,
+    ucon = ucon,
+    nnzo = nnzo,
+    nnzj = nnzj,
+    lin_nnzj = lin_nnzj,
+    nln_nnzj = nln_nnzj,
+    nnzh = nnzh,
+    lin = lin,
+    minimize = minimize,
+    islp = islp,
+    name = name 
+  )
+end
 
 """
     reset_data!(nlp)
