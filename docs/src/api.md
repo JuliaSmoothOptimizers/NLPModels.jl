@@ -16,8 +16,8 @@ Namely,
 - ``\nabla f(x)``, the gradient of ``f`` at the point ``x``;
 - ``\nabla^2 f(x)``, the Hessian of ``f`` at the point ``x``;
 - ``J(x) = \nabla c(x)^T``, the Jacobian of ``c`` at the point ``x``;
-- ``\nabla^2 f(x) + \sum_{i=1}^m \lambda_i \nabla^2 c_i(x)``,
-  the Hessian of the Lagrangian function at the point ``(x,\lambda)``.
+- ``\nabla^2 f(x) + \sum_{i=1}^m y_i \nabla^2 c_i(x)``,
+  the Hessian of the Lagrangian function at the point ``(x,y)``.
 
 There are many ways to access some of these values, so here is a little
 reference guide.
