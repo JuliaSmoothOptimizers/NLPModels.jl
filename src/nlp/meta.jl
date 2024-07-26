@@ -26,9 +26,11 @@ Some of their components may be infinite to indicate that the corresponding boun
 
 ---
 
-    NLPModelMeta(nvar; kwargs...)
+    NLPModelMeta(nvar::Integer; kwargs...)
+    NLPModelMeta(meta::AbstractNLPModelMeta; kwargs...)
 
 Create an `NLPModelMeta` with `nvar` variables.
+Alternatively, create an `NLPModelMeta` copy from another `AbstractNLPModelMeta` with the ability to change the fields defined in the keyword arguments.
 The following keyword arguments are accepted:
 - `x0`: initial guess
 - `lvar`: vector of lower bounds
