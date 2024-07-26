@@ -218,7 +218,7 @@ NLPModelMeta(nvar::Int; x0::S = zeros(nvar), kwargs...) where {S} =
   NLPModelMeta{eltype(S), S}(nvar, x0 = x0; kwargs...)
 
 function NLPModelMeta(
-  meta::NLPModelMeta{T, S};
+  meta::AbstractNLPModelMeta{T, S};
   nvar::Int = meta.nvar,
   x0::S = meta.x0,
   lvar::S = meta.lvar,
@@ -260,7 +260,7 @@ function NLPModelMeta(
     lin = lin,
     minimize = minimize,
     islp = islp,
-    name = name 
+    name = name,
   )
 end
 
