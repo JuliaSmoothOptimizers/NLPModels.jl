@@ -131,5 +131,13 @@ macro default_counters(Model, inner)
   end))
   push!(ex.args, :(NLPModels.increment!(nlp::$(esc(Model)), s::Symbol) = increment!(nlp.$inner, s)))
   push!(ex.args, :(NLPModels.decrement!(nlp::$(esc(Model)), s::Symbol) = decrement!(nlp.$inner, s)))
+
+  push!(
+    ex.args,
+    :(
+      Base.getproperty(nlp::$(esc(Model)), s::Symbol) =
+        (s == :counters ? nlp.$inner.counters : getfield(nlp, s))
+    ),
+  )
   ex
 end
