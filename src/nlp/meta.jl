@@ -131,7 +131,7 @@ function NLPModelMeta{T, S}(
   nnzo = nvar,
   nnzj = nvar * ncon,
   lin_nnzj = 0,
-  nln_nnzj = nvar * ncon,
+  nln_nnzj = nnzj - lin_nnzj,
   nnzh = nvar * (nvar + 1) / 2,
   lin = Int[],
   minimize = true,
