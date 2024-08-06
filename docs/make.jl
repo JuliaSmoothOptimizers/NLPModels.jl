@@ -7,6 +7,7 @@ makedocs(
   format = Documenter.HTML(
     assets = ["assets/style.css"],
     prettyurls = get(ENV, "CI", nothing) == "true",
+    size_threshold_ignore = ["reference.md"],
   ),
   sitename = "NLPModels.jl",
   pages = [
