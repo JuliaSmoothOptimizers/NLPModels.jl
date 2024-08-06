@@ -31,7 +31,9 @@ jobs:
           "JuliaSmoothOptimizers/SolverBenchmark.jl",
           "JuliaSmoothOptimizers/SolverCore.jl",
           "JuliaSmoothOptimizers/SolverTest.jl",
-          "JuliaSmoothOptimizers/SolverTools.jl"
+          "JuliaSmoothOptimizers/SolverTools.jl",
+          "MadNLP/MadNLP.jl",
+          "exanauts/ExaModels.jl"
         ]
         pkgversion: [latest, stable]
 
@@ -39,7 +41,7 @@ jobs:
       - uses: actions/checkout@v2
 
       # Install Julia
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: 1
           arch: x64
