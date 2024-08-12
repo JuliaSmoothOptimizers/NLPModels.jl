@@ -17,7 +17,7 @@ neval_obj(nlp)
 
 Some counters are available for all models, some are specific. In
 particular, there are additional specific counters for the nonlinear
-least squares models.
+least squares models (the ones with `residual` below).
 
 | Counter | Description |
 |---|---|
@@ -62,7 +62,7 @@ sum_counters(nlp)
 
 ## Querying problem type
 
-There are some variable for querying the problem type:
+There are some utility functions for querying the problem type:
 
 - [`has_bounds`](@ref): True when not all variables are free.
 - [`bound_constrained`](@ref): True for problems with bounded variables

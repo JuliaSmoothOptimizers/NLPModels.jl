@@ -11,16 +11,16 @@ The general form of the optimization problem is
 ```math
 \begin{aligned}
 \min \quad & f(x) \\
-& c_i(x) = 0, \quad i \in E, \\
-& c_{L_i} \leq c_i(x) \leq c_{U_i}, \quad i \in I, \\
+& c_i(x) = c_{E_i}, \quad i \in {\cal E}, \\
+& c_{L_i} \leq c_i(x) \leq c_{U_i}, \quad i \in {\cal I}, \\
 & \ell \leq x \leq u,
 \end{aligned}
 ```
 where ``f:\mathbb{R}^n\rightarrow\mathbb{R}``,
 ``c:\mathbb{R}^n\rightarrow\mathbb{R}^m``,
-``E\cup I = \{1,2,\dots,m\}``, ``E\cap I = \emptyset``,
+``{\cal E}\cup {\cal I} = \{1,2,\dots,m\}``, ``{\cal E}\cap {\cal I} = \emptyset``,
 and
-``c_{L_i}, c_{U_i}, \ell_j, u_j \in \mathbb{R}\cup\{\pm\infty\}``
+``c_{E_i}, c_{L_i}, c_{U_i}, \ell_j, u_j \in \mathbb{R}\cup\{\pm\infty\}``
 for ``i = 1,\dots,m`` and ``j = 1,\dots,n``.
 
 For computational reasons, we write
@@ -31,13 +31,13 @@ For computational reasons, we write
 & \ell \leq x \leq u,
 \end{aligned}
 ```
-defining ``c_{L_i} = c_{U_i}`` for all ``i \in E``.
+defining ``c_{L_i} = c_{U_i} = c_{E_i}`` for all ``i \in {\cal E}``.
 The Lagrangian of this problem is defined as
 ```math
-L(x,\lambda,z^L,z^U;\sigma) = \sigma f(x) + c(x)^T\lambda  + \sum_{i=1}^n z_i^L(x_i-l_i) + \sum_{i=1}^nz_i^U(u_i-x_i),
+L(x,y,z^L,z^U;\sigma) = \sigma f(x) + c(x)^T y  + \sum_{i=1}^n z_{L_i}(x_i-l_i) + \sum_{i=1}^n z_{U_i}(u_i-x_i),
 ```
 where ``\sigma`` is a scaling parameter included for computational reasons.
-Notice that, for the Hessian, the variables ``z^L`` and ``z^U`` are not used.
+Since the final two sums are linear in ``x``, the variables ``z_L`` and ``z_U`` do not appear in the Hessian ``\nabla^2 L(x,y)``.
 
 Optimization problems are represented by an instance/subtype of `AbstractNLPModel`.
 Such instances are composed of
@@ -48,7 +48,7 @@ Such instances are composed of
 
 ## Nonlinear Least Squares
 
-A special type of `NLPModels` are the `NLSModels`, i.e., Nonlinear Least
+A special subtype of `AbstractNLPModel` is `AbstractNLSModel`, i.e., Nonlinear Least
 Squares models. In these problems, the function ``f(x)`` is given by
 ``\tfrac{1}{2}\Vert F(x)\Vert^2``, where ``F`` is referred as the residual function.
 The individual value of ``F``, as well as of its derivatives, is also

@@ -123,9 +123,8 @@ Evaluate ``f(x)`` and ``c(x)`` at `x`.
 function objcons(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
   check_constrained(nlp)
-  f = obj(nlp, x)
-  c = cons(nlp, x)
-  return f, c
+  c = S(undef, nlp.meta.ncon)
+  return objcons!(nlp, x, c)
 end
 
 """

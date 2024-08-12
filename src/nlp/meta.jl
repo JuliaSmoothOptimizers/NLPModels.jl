@@ -26,9 +26,11 @@ Some of their components may be infinite to indicate that the corresponding boun
 
 ---
 
-    NLPModelMeta(nvar; kwargs...)
+    NLPModelMeta(nvar::Integer; kwargs...)
+    NLPModelMeta(meta::AbstractNLPModelMeta; kwargs...)
 
 Create an `NLPModelMeta` with `nvar` variables.
+Alternatively, create an `NLPModelMeta` copy from another `AbstractNLPModelMeta`.
 The following keyword arguments are accepted:
 - `x0`: initial guess
 - `lvar`: vector of lower bounds
@@ -50,7 +52,7 @@ The following keyword arguments are accepted:
 - `islp`: true if the problem is a linear program
 - `name`: problem name
 
-`NLPModelMeta` also contains the following attributes:
+`NLPModelMeta` also contains the following attributes, which are computed from the variables above:
 - `nvar`: number of variables
 - `ifix`: indices of fixed variables
 - `ilow`: indices of variables with lower bound only
@@ -129,7 +131,7 @@ function NLPModelMeta{T, S}(
   nnzo = nvar,
   nnzj = nvar * ncon,
   lin_nnzj = 0,
-  nln_nnzj = nvar * ncon,
+  nln_nnzj = nnzj - lin_nnzj,
   nnzh = nvar * (nvar + 1) / 2,
   lin = Int[],
   minimize = true,
@@ -143,6 +145,7 @@ function NLPModelMeta{T, S}(
   @lencheck nvar x0 lvar uvar
   @lencheck ncon y0 lcon ucon
   @rangecheck 1 ncon lin
+  @assert nnzj == lin_nnzj + nln_nnzj
 
   ifix = findall(lvar .== uvar)
   ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf)))
@@ -213,8 +216,55 @@ function NLPModelMeta{T, S}(
   )
 end
 
-NLPModelMeta(nvar; x0::S = zeros(nvar), kwargs...) where {S} =
+NLPModelMeta(nvar::Int; x0::S = zeros(nvar), kwargs...) where {S} =
   NLPModelMeta{eltype(S), S}(nvar, x0 = x0; kwargs...)
+
+function NLPModelMeta(
+  meta::AbstractNLPModelMeta{T, S};
+  nvar::Int = meta.nvar,
+  x0::S = meta.x0,
+  lvar::S = meta.lvar,
+  uvar::S = meta.uvar,
+  nlvb = meta.nlvb,
+  nlvo = meta.nlvo,
+  nlvc = meta.nlvc,
+  ncon = meta.ncon,
+  y0::S = meta.y0,
+  lcon::S = meta.lcon,
+  ucon::S = meta.ucon,
+  nnzo = meta.nnzo,
+  nnzj = meta.nnzj,
+  lin_nnzj = meta.lin_nnzj,
+  nln_nnzj = meta.nln_nnzj,
+  nnzh = meta.nnzh,
+  lin = meta.lin,
+  minimize = meta.minimize,
+  islp = meta.islp,
+  name = meta.name,
+) where {T, S}
+  NLPModelMeta{T, S}(
+    nvar,
+    x0 = x0,
+    lvar = lvar,
+    uvar = uvar,
+    nlvb = nlvb,
+    nlvo = nlvo,
+    nlvc = nlvc,
+    ncon = ncon,
+    y0 = y0,
+    lcon = lcon,
+    ucon = ucon,
+    nnzo = nnzo,
+    nnzj = nnzj,
+    lin_nnzj = lin_nnzj,
+    nln_nnzj = nln_nnzj,
+    nnzh = nnzh,
+    lin = lin,
+    minimize = minimize,
+    islp = islp,
+    name = name,
+  )
+end
 
 """
     reset_data!(nlp)
