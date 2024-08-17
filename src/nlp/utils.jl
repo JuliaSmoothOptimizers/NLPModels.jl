@@ -141,3 +141,10 @@ macro default_counters(Model, inner)
   )
   ex
 end
+
+"""
+    eltype(nlp::AbstractNLPModel{T, S})
+
+Element type of `nlp.meta.x0`.
+"""
+Base.eltype(nlp::AbstractNLPModel{T, S}) where {T, S} = eltype(nlp.meta.x0)

@@ -7,6 +7,7 @@
   H(x, y) = H(x) + y[2] * [-0.5 0; 0 -2.0]
 
   nlp = SimpleNLPModel()
+  @test eltype(nlp) == Float64
   n = nlp.meta.nvar
   m = nlp.meta.ncon
 

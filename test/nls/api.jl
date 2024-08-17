@@ -4,6 +4,7 @@
   HF(x, w) = w[2] * [-20.0 0; 0 0]
 
   nls = SimpleNLSModel()
+  @test eltype(nls) == Float64
   n = nls.meta.nvar
   m = nls.meta.ncon
   ne = nls_meta(nls).nequ
