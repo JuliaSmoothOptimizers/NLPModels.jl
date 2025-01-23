@@ -1300,37 +1300,31 @@ function hess_op!(
 end
 
 """
-    P = tensor_projection(nlp, n, x, directions, args...)
+    p = tensor_projection(nlp, n, x, dimension, directions...)
+    p = tensor_projection(nlp, n, x, y, dimension, directions...)
 
-Returns the projection of the n-th derivative of the objective of `nlp` at `x` along the specified directions.
+Returns a vector `p` after `n-1` projections of the n-th derivative of the objective of `nlp` at `x` if only `x` is provided.
+Otherwise when `x` and `y` are provided, we do `n-1` projections of the n-th derivative of the Lagrangian of `nlp` at `(x,y)`.
 
 #### Input arguments
 
-- `nlp`: An NLP model;
+- `nlp`: An [`AbstractNLPModel`](@ref);
 - `n`: The order of the derivative to compute;
-- `x`: The point at which the derivative is evaluated;
-- `directions`: A tuple of indices specifying the directions (e.g., `(1, 2)` for a tensor projection along the first and second axes);
-- `args...`: A list of vectors, one for each direction specified in `directions`.
+- `x`: The point at which the n-th derivative is evaluated;
+- `dimension`: An integer that speficies the axis of the output subspace;
+- `directions`: A collection of `n-1` directions for the projection.
+
+#### Output argument
+
+- `p`: vector storing the result of the tensor projection in the subspace represented by the axis `dimension`.
 """
-function tensor_projection(
-    nlp::AbstractNLPModel{T, S},
-    n::Int,
-    x::AbstractVector,
-    directions::Tuple{Int, Vararg{Int}},
-    args...
-) where {T, S}
-    @lencheck nlp.meta.nvar x
-    m = n - length(directions)
-    @assert m ≥ 1
-    dim = NTuple{m, Int}(nlp.meta.nvar for i = 1:m)
-    P = similar(x, dim)
-    return tensor_projection!(nlp, n, x, directions, P, args...)
-end
+function tensor_projection end
 
 """
-    tensor_projection!(nlp, n, x, directions, P, args...)
+    tensor_projection!(nlp, n, x, dimension, p, args...)
+    tensor_projection!(nlp, n, x, y, dimension, p, args...)
 
-In-place version of the function [`tensor_projection`](@ref) where the result is stored in `P`.
+In-place version of the function [`tensor_projection`](@ref) where the result is stored in `p`.
 """
 function tensor_projection! end
 
