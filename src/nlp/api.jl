@@ -1300,23 +1300,28 @@ function hess_op!(
 end
 
 """
-    p = tensor_projection(nlp, n, x, dimension, directions...)
-    p = tensor_projection(nlp, n, x, y, dimension, directions...)
+   p = tensor_projection(nlp, n, x, dimension, directions...)
+   p = tensor_projection(nlp, n, x, y, dimension, directions...)
 
-Returns a vector `p` after `n-1` projections of the n-th derivative of the objective of `nlp` at `x` if only `x` is provided.
-Otherwise when `x` and `y` are provided, we do `n-1` projections of the n-th derivative of the Lagrangian of `nlp` at `(x,y)`.
+The `tensor_projection` function computes a projected vector `p` by applying `n-1` projections to the n-th derivative of either the objective or the Lagrangian of the given NLP model.
+If only `x` is provided, the function computes the `n-1` projections of the **n-th derivative of the objective** of `nlp` at `x`.
+If both `x` and `y` are provided, it computes the `n-1` projections of the **n-th derivative of the Lagrangian** of `nlp` at `(x, y)`.
 
 #### Input arguments
 
-- `nlp`: An [`AbstractNLPModel`](@ref);
-- `n`: The order of the derivative to compute;
-- `x`: The point at which the n-th derivative is evaluated;
-- `dimension`: An integer that speficies the axis of the output subspace;
-- `directions`: A collection of `n-1` directions for the projection.
+- `nlp`: An [`AbstractNLPModel`](@ref), representing the nonlinear programming model;
+- `n`: An integer specifying the order of the derivative to compute;
+- `x`: A vector representing the point where the n-th derivative is evaluated;
+- `dimension`: An integer specifying the axis of the output subspace;
+- `directions`: A collection of `n-1` directions used for the projection.
+
+#### Optional argument
+
+- `y`: A vector of Lagrange multipliers.
 
 #### Output argument
 
-- `p`: vector storing the result of the tensor projection in the subspace represented by the axis `dimension`.
+- `p`: A vector containing the result of the tensor projection into the subspace represented by the axis `dimension`.
 """
 function tensor_projection end
 
