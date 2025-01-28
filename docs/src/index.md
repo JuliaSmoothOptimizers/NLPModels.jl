@@ -109,7 +109,7 @@ Attribute   | Type               | Notes
 `nnzj`      | `Int             ` | number of nonzeros in the sparse Jacobian
 `lin_nnzj`  | `Int             ` | number of nonzeros in the sparse linear constraints Jacobian
 `nln_nnzj`  | `Int             ` | number of nonzeros in the sparse nonlinear constraints Jacobian
-`nnzh`      | `Int             ` | number of nonzeros in the sparse Hessian of the Lagrangian
+`nnzh`      | `Int             ` | number of nonzeros in the lower triangular part of the sparse Hessian of the Lagrangian
 `minimize`  | `Bool            ` | true if `optimize == minimize`
 `islp`      | `Bool            ` | true if the problem is a linear program
 `name`      | `String`           | problem name
