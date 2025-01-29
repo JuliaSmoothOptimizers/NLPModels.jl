@@ -11,6 +11,7 @@ export jth_hess_coord, jth_hess_coord!, jth_hess
 export jth_hprod, jth_hprod!, ghjvprod, ghjvprod!
 export hess_structure!, hess_structure, hess_coord!, hess_coord
 export hess, hprod, hprod!, hess_op, hess_op!
+export tensor_projection, tensor_projection!
 export varscale, lagscale, conscale
 
 """
@@ -1297,6 +1298,55 @@ function hess_op!(
   end
   return LinearOperator{T}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
 end
+
+"""
+   p = tensor_projection(nlp, n, x, dimension, directions...)
+   p = tensor_projection(nlp, n, x, y, dimension, directions...)
+
+The `tensor_projection` function computes a projected vector `p` by applying `n-1` projections to the n-th derivative of either the objective or the Lagrangian of the given NLP model.
+If only `x` is provided, the function computes the `n-1` projections of the **n-th derivative of the objective** of `nlp` at `x`.
+If both `x` and `y` are provided, it computes the `n-1` projections of the **n-th derivative of the Lagrangian** of `nlp` at `(x, y)`.
+
+#### Input arguments
+
+- `nlp`: An [`AbstractNLPModel`](@ref), representing the nonlinear programming model;
+- `n`: An integer specifying the order of the derivative to compute;
+- `x`: A vector representing the point where the n-th derivative is evaluated;
+- `dimension`: An integer specifying the axis of the output subspace;
+- `directions`: A collection of `n-1` directions used for the projection.
+
+#### Optional argument
+
+- `y`: A vector of Lagrange multipliers.
+
+#### Output argument
+
+- `p`: A vector containing the result of the tensor projection into the subspace represented by the axis `dimension`.
+"""
+function tensor_projection end
+
+function tensor_projection(nlp::AbstractNLPModel{T, S}, n::Int, x::AbstractVector,
+                           dimension::Int, directions...) where {T, S}
+    @lencheck nlp.meta.nvar x
+    p = S(undef, nlp.meta.nvar)
+    return tensor_projection!(nlp, n, x, dimension, p, directions...)
+end
+
+function tensor_projection(nlp::AbstractNLPModel{T, S}, n::Int, x::AbstractVector,
+                           y::AbstractVector, dimension::Int, directions...) where {T, S}
+    @lencheck nlp.meta.nvar x
+    @lencheck nlp.meta.ncon y
+    p = S(undef, nlp.meta.nvar)
+    return tensor_projection!(nlp, n, x, y, dimension, p, directions...)
+end
+
+"""
+    tensor_projection!(nlp, n, x, dimension, p, args...)
+    tensor_projection!(nlp, n, x, y, dimension, p, args...)
+
+In-place version of the function [`tensor_projection`](@ref) where the result is stored in `p`.
+"""
+function tensor_projection! end
 
 function varscale end
 function lagscale end
