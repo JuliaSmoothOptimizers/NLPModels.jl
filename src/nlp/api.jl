@@ -1325,6 +1325,21 @@ If both `x` and `y` are provided, it computes the `n-1` projections of the **n-t
 """
 function tensor_projection end
 
+function tensor_projection(nlp::AbstractNLPModel{T, S}, n::Int, x::AbstractVector,
+                           dimension::Int, directions...) where {T, S}
+    @lencheck nlp.meta.nvar x
+    p = S(undef, nlp.meta.nvar)
+    return tensor_projection!(nlp, n, x, dimension, p, directions...)
+end
+
+function tensor_projection(nlp::AbstractNLPModel{T, S}, n::Int, x::AbstractVector,
+                           y::AbstractVector, dimension::Int, directions...) where {T, S}
+    @lencheck nlp.meta.nvar x
+    @lencheck nlp.meta.ncon y
+    p = S(undef, nlp.meta.nvar)
+    return tensor_projection!(nlp, n, x, y, dimension, p, directions...)
+end
+
 """
     tensor_projection!(nlp, n, x, dimension, p, args...)
     tensor_projection!(nlp, n, x, y, dimension, p, args...)
