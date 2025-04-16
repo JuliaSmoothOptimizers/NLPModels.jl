@@ -58,8 +58,20 @@ function cons!(nlp::AbstractNLPModel, x::AbstractVector, cx::AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon cx
   increment!(nlp, :neval_cons)
-  nlp.meta.nlin > 0 && cons_lin!(nlp, x, view(cx, nlp.meta.lin))
-  nlp.meta.nnln > 0 && cons_nln!(nlp, x, view(cx, nlp.meta.nln))
+  if nlp.meta.nlin > 0
+    if nlp.meta.nnln == 0
+      cons_lin!(nlp, x, cx)
+    else
+      cons_lin!(nlp, x, view(cx, nlp.meta.lin))
+    end
+  end
+  if nlp.meta.nnln > 0
+    if nlp.meta.nlin == 0
+      cons_nln!(nlp, x, cx)
+    else
+      cons_nln!(nlp, x, view(cx, nlp.meta.nln))
+    end
+  end
   return cx
 end
 
@@ -354,8 +366,20 @@ function jprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv:
   @lencheck nlp.meta.nvar x v
   @lencheck nlp.meta.ncon Jv
   increment!(nlp, :neval_jprod)
-  nlp.meta.nlin > 0 && jprod_lin!(nlp, x, v, view(Jv, nlp.meta.lin))
-  nlp.meta.nnln > 0 && jprod_nln!(nlp, x, v, view(Jv, nlp.meta.nln))
+  if nlp.meta.nlin > 0
+    if nlp.meta.nnln == 0
+      jprod_lin!(nlp, x, v, Jv)
+    else
+      jprod_lin!(nlp, x, v, view(Jv, nlp.meta.lin))
+    end
+  end
+  if nlp.meta.nnln > 0
+    if nlp.meta.nlin == 0
+      jprod_nln!(nlp, x, v, Jv)
+    else
+      jprod_nln!(nlp, x, v, view(Jv, nlp.meta.nln))
+    end
+  end
   return Jv
 end
 
