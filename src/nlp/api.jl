@@ -58,8 +58,13 @@ function cons!(nlp::AbstractNLPModel, x::AbstractVector, cx::AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon cx
   increment!(nlp, :neval_cons)
-  nlp.meta.nlin > 0 && cons_lin!(nlp, x, view(cx, nlp.meta.lin))
-  nlp.meta.nnln > 0 && cons_nln!(nlp, x, view(cx, nlp.meta.nln))
+  if (nlp.meta.nlin > 0) && (nlp.meta.nnln > 0)
+    cons_lin!(nlp, x, view(cx, nlp.meta.lin))
+    cons_nln!(nlp, x, view(cx, nlp.meta.nln))
+  else
+    (nlp.meta.nlin > 0) && cons_lin!(nlp, x, cx)
+    (nlp.meta.nnln > 0) && cons_nln!(nlp, x, cx)
+  end
   return cx
 end
 
