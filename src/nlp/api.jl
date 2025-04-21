@@ -10,7 +10,7 @@ export jac_nln, jprod_nln, jprod_nln!, jtprod_nln, jtprod_nln!, jac_nln_op, jac_
 export jth_hess_coord, jth_hess_coord!, jth_hess
 export jth_hprod, jth_hprod!, ghjvprod, ghjvprod!
 export hess_structure!, hess_structure, hess_coord!, hess_coord
-export hess, hprod, hprod!, hess_op, hess_op!
+export hess, hprod, hprod!, shprod, shprod!, hess_op, hess_op!
 export varscale, lagscale, conscale
 
 """
@@ -1169,6 +1169,108 @@ place, with objective function scaled by `obj_weight`, where the Lagrangian Hess
 $(LAGRANGIAN_HESSIAN).
 """
 function hprod! end
+
+### SHPROD
+
+"""
+    Hv = shprod(nlp, x, nz_v, idx_v, v; obj_weight=1.0)
+
+Evaluate the product of the objective Hessian at `x` with the sparse vector `v`,
+with objective function scaled by `obj_weight`, where the objective Hessian is
+$(OBJECTIVE_HESSIAN).
+The sparse vector `v` is represented as:
+
+- `nz_v`: an integer specifying the number of nonzero entries in `v`
+- `idx_v`: an integer array of size `nvar` giving the position of the nonzero entries in `v`
+- `v`: a vector of size `nvar` giving the values of the nonzero entries
+- the nonzero entries in `v` are located at `v[idx_v[1:nz_v]]`
+- no particular ordering is assumed of `idx_v[1:nz_v]`.
+
+The return value is `(nz_Hv, idx_Hv, Hv)`, a sparse vector containing the result.
+"""
+function shprod(
+  nlp::AbstractNLPModel{T, S},
+  x::AbstractVector,
+  v::SparseVector{T, Ti};
+  obj_weight::Real = one(T),
+) where {T, S, Ti <: Integer}
+  @lencheck nlp.meta.nvar x idx_v v
+  Hv = S(undef, nlp.meta.nvar)
+  idx_Hv = Vector{Int}(undef, nlp.meta.nvar)
+  _ = shprod!(nlp, x, nz_v, idx_v, v, idx_Hv, Hv; obj_weight = obj_weight)
+  return SparseVector(nlp.meta.nvar, idx_Hv, Hv)
+end
+
+"""
+    Hv = hprod(nlp, x, y, v; obj_weight=1.0)
+
+Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v`,
+with objective function scaled by `obj_weight`, where the Lagrangian Hessian is
+$(LAGRANGIAN_HESSIAN).
+"""
+function hprod(
+  nlp::AbstractNLPModel{T, S},
+  x::AbstractVector,
+  y::AbstractVector,
+  v::AbstractVector;
+  obj_weight::Real = one(T),
+) where {T, S}
+  @lencheck nlp.meta.nvar x v
+  @lencheck nlp.meta.ncon y
+  Hv = S(undef, nlp.meta.nvar)
+  return hprod!(nlp, x, y, v, Hv; obj_weight = obj_weight)
+end
+
+"""
+    Hv = hprod!(nlp, x, v, Hv; obj_weight=1.0)
+
+Evaluate the product of the objective Hessian at `x` with the vector `v` in
+place, with objective function scaled by `obj_weight`, where the objective Hessian is
+$(OBJECTIVE_HESSIAN).
+"""
+function hprod!(
+  nlp::AbstractNLPModel{T, S},
+  x::AbstractVector,
+  v::AbstractVector,
+  Hv::AbstractVector;
+  obj_weight::Real = one(T),
+) where {T, S}
+  @lencheck nlp.meta.nvar x v Hv
+  y = fill!(S(undef, nlp.meta.ncon), 0)
+  hprod!(nlp, x, y, v, Hv, obj_weight = obj_weight)
+end
+
+"""
+    Hv = hprod!(nlp, rows, cols, vals, v, Hv)
+
+Evaluate the product of the objective or Lagrangian Hessian given by `(rows, cols, vals)` in
+triplet format with the vector `v` in place. Only one triangle of the Hessian should be given.
+"""
+function hprod!(
+  nlp::AbstractNLPModel,
+  rows::AbstractVector{<:Integer},
+  cols::AbstractVector{<:Integer},
+  vals::AbstractVector,
+  v::AbstractVector,
+  Hv::AbstractVector,
+)
+  @lencheck nlp.meta.nnzh rows cols vals
+  @lencheck nlp.meta.nvar v Hv
+  increment!(nlp, :neval_hprod)
+  coo_sym_prod!(cols, rows, vals, v, Hv)
+end
+
+"""
+    Hv = hprod!(nlp, x, y, v, Hv; obj_weight=1.0)
+
+Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in
+place, with objective function scaled by `obj_weight`, where the Lagrangian Hessian is
+$(LAGRANGIAN_HESSIAN).
+"""
+function hprod! end
+
+
+### END SHPROD
 
 """
     H = hess_op(nlp, x; obj_weight=1.0)
