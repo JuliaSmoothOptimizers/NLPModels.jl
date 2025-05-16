@@ -30,7 +30,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with:
-          version: '1.11.4'
+          version: 1
+
           arch: x64
       - id: getmatrix
         run: |
