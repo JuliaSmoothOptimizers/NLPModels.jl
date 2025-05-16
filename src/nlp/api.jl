@@ -194,15 +194,25 @@ function jac_structure!(
 ) where {T}
   @lencheck nlp.meta.nnzj rows cols
   lin_ind = 1:(nlp.meta.lin_nnzj)
-  nlp.meta.nlin > 0 && jac_lin_structure!(nlp, view(rows, lin_ind), view(cols, lin_ind))
-  for i in lin_ind
-    rows[i] += count(x < nlp.meta.lin[rows[i]] for x in nlp.meta.nln)
+  if nlp.meta.nlin > 0
+    if nlp.meta.nnln == 0
+      jac_lin_structure!(nlp, rows, cols)
+    else
+      jac_lin_structure!(nlp, view(rows, lin_ind), view(cols, lin_ind))
+      for i in lin_ind
+        rows[i] += count(x < nlp.meta.lin[rows[i]] for x in nlp.meta.nln)
+      end
+    end
   end
   if nlp.meta.nnln > 0
-    nln_ind = (nlp.meta.lin_nnzj + 1):(nlp.meta.lin_nnzj + nlp.meta.nln_nnzj)
-    jac_nln_structure!(nlp, view(rows, nln_ind), view(cols, nln_ind))
-    for i in nln_ind
-      rows[i] += count(x < nlp.meta.nln[rows[i]] for x in nlp.meta.lin)
+    if nlp.meta.nlin == 0
+      jac_nln_structure!(nlp, rows, cols)
+    else
+      nln_ind = (nlp.meta.lin_nnzj + 1):(nlp.meta.lin_nnzj + nlp.meta.nln_nnzj)
+      jac_nln_structure!(nlp, view(rows, nln_ind), view(cols, nln_ind))
+      for i in nln_ind
+        rows[i] += count(x < nlp.meta.nln[rows[i]] for x in nlp.meta.lin)
+      end
     end
   end
   return rows, cols
@@ -254,10 +264,22 @@ function jac_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVect
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nnzj vals
   increment!(nlp, :neval_jac)
-  lin_ind = 1:(nlp.meta.lin_nnzj)
-  nlp.meta.nlin > 0 && jac_lin_coord!(nlp, x, view(vals, lin_ind))
-  nln_ind = (nlp.meta.lin_nnzj + 1):(nlp.meta.lin_nnzj + nlp.meta.nln_nnzj)
-  nlp.meta.nnln > 0 && jac_nln_coord!(nlp, x, view(vals, nln_ind))
+  if nlp.meta.nlin > 0
+    if nlp.meta.nnln == 0
+      jac_lin_coord!(nlp, x, vals)
+    else
+      lin_ind = 1:(nlp.meta.lin_nnzj)
+      jac_lin_coord!(nlp, x, view(vals, lin_ind))
+    end
+  end
+  if nlp.meta.nnln > 0
+    if nlp.meta.nlin == 0
+      jac_nln_coord!(nlp, x, vals)
+    else
+      nln_ind = (nlp.meta.lin_nnzj + 1):(nlp.meta.lin_nnzj + nlp.meta.nln_nnzj)
+      jac_nln_coord!(nlp, x, view(vals, nln_ind))
+    end
+  end
   return vals
 end
 
@@ -505,9 +527,9 @@ function jtprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jt
   @lencheck nlp.meta.ncon v
   increment!(nlp, :neval_jtprod)
   if nlp.meta.nnln == 0
-    jtprod_lin!(nlp, x, v, Jtv)
+    (nlp.meta.nlin > 0) && jtprod_lin!(nlp, x, v, Jtv)
   elseif nlp.meta.nlin == 0
-    jtprod_nln!(nlp, x, v, Jtv)
+    (nlp.meta.nnln > 0) && jtprod_nln!(nlp, x, v, Jtv)
   elseif nlp.meta.nlin >= nlp.meta.nnln
     jtprod_lin!(nlp, x, view(v, nlp.meta.lin), Jtv)
     if nlp.meta.nnln > 0
