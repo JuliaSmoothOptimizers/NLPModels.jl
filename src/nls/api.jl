@@ -188,18 +188,18 @@ function jac_op_residual!(
   prod! = @closure (res, v, α, β) -> begin
     jprod_residual!(nls, x, v, Jv)
     if β == 0
-      @. res = α * Jv
+      res .= α .* Jv
     else
-      @. res = α * Jv + β * res
+      res .= α .* Jv .+ β .* res
     end
     return res
   end
   ctprod! = @closure (res, v, α, β) -> begin
     jtprod_residual!(nls, x, v, Jtv)
     if β == 0
-      @. res = α * Jtv
+      res .= α .* Jtv
     else
-      @. res = α * Jtv + β * res
+      res .= α .* Jtv .+ β .* res
     end
     return res
   end
@@ -234,18 +234,18 @@ function jac_op_residual!(
   prod! = @closure (res, v, α, β) -> begin
     jprod_residual!(nls, rows, cols, vals, v, Jv)
     if β == 0
-      @. res = α * Jv
+      res .= α .* Jv
     else
-      @. res = α * Jv + β * res
+      res .= α .* Jv .+ β .* res
     end
     return res
   end
   ctprod! = @closure (res, v, α, β) -> begin
     jtprod_residual!(nls, rows, cols, vals, v, Jtv)
     if β == 0
-      @. res = α * Jtv
+      res .= α .* Jtv
     else
-      @. res = α * Jtv + β * res
+      res .= α .* Jtv .+ β .* res
     end
     return res
   end
@@ -380,9 +380,9 @@ function hess_op_residual!(
   prod! = @closure (res, v, α, β) -> begin
     hprod_residual!(nls, x, i, v, Hiv)
     if β == 0
-      @. res = α * Hiv
+      res .= α .* Hiv
     else
-      @. res = α * Hiv + β * res
+      res .= α .* Hiv .+ β .* res
     end
     return res
   end
