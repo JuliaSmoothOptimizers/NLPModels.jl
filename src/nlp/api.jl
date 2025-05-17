@@ -678,18 +678,18 @@ function jac_op!(
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
     jprod!(nlp, x, v, Jv)
     if β == 0
-      @. res = α * Jv
+      res .= α .* Jv
     else
-      @. res = α * Jv + β * res
+      res .= α .* Jv .+ β .* res
     end
     return res
   end
   ctprod! = @closure (res, v, α, β) -> begin
     jtprod!(nlp, x, v, Jtv)
     if β == 0
-      @. res = α * Jtv
+      res .= α .* Jtv
     else
-      @. res = α * Jtv + β * res
+      res .= α .* Jtv .+ β .* res
     end
     return res
   end
@@ -717,18 +717,18 @@ function jac_op!(
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
     jprod!(nlp, rows, cols, vals, v, Jv)
     if β == 0
-      @. res = α * Jv
+      res .= α .* Jv
     else
-      @. res = α * Jv + β * res
+      res .= α .* Jv .+ β .* res
     end
     return res
   end
   ctprod! = @closure (res, v, α, β) -> begin
     jtprod!(nlp, rows, cols, vals, v, Jtv)
     if β == 0
-      @. res = α * Jtv
+      res .= α .* Jtv
     else
-      @. res = α * Jtv + β * res
+      res .= α .* Jtv .+ β .* res
     end
     return res
   end
@@ -768,18 +768,18 @@ function jac_lin_op!(
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
     jprod_lin!(nlp, x, v, Jv)
     if β == 0
-      @. res = α * Jv
+      res .= α .* Jv
     else
-      @. res = α * Jv + β * res
+      res .= α .* Jv .+ β .* res
     end
     return res
   end
   ctprod! = @closure (res, v, α, β) -> begin
     jtprod_lin!(nlp, x, v, Jtv)
     if β == 0
-      @. res = α * Jtv
+      res .= α .* Jtv
     else
-      @. res = α * Jtv + β * res
+      res .= α .* Jtv .+ β .* res
     end
     return res
   end
@@ -807,18 +807,18 @@ function jac_lin_op!(
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
     jprod_lin!(nlp, rows, cols, vals, v, Jv)
     if β == 0
-      @. res = α * Jv
+      res .= α .* Jv
     else
-      @. res = α * Jv + β * res
+      res .= α .* Jv .+ β .* res
     end
     return res
   end
   ctprod! = @closure (res, v, α, β) -> begin
     jtprod_lin!(nlp, rows, cols, vals, v, Jtv)
     if β == 0
-      @. res = α * Jtv
+      res .= α .* Jtv
     else
-      @. res = α * Jtv + β * res
+      res .= α .* Jtv .+ β .* res
     end
     return res
   end
@@ -858,18 +858,18 @@ function jac_nln_op!(
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
     jprod_nln!(nlp, x, v, Jv)
     if β == 0
-      @. res = α * Jv
+      res .= α .* Jv
     else
-      @. res = α * Jv + β * res
+      res .= α .* Jv .+ β .* res
     end
     return res
   end
   ctprod! = @closure (res, v, α, β) -> begin
     jtprod_nln!(nlp, x, v, Jtv)
     if β == 0
-      @. res = α * Jtv
+      res .= α .* Jtv
     else
-      @. res = α * Jtv + β * res
+      res .= α .* Jtv .+ β .* res
     end
     return res
   end
@@ -897,18 +897,18 @@ function jac_nln_op!(
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
     jprod_nln!(nlp, rows, cols, vals, v, Jv)
     if β == 0
-      @. res = α * Jv
+      res .= α .* Jv
     else
-      @. res = α * Jv + β * res
+      res .= α .* Jv .+ β .* res
     end
     return res
   end
   ctprod! = @closure (res, v, α, β) -> begin
     jtprod_nln!(nlp, rows, cols, vals, v, Jtv)
     if β == 0
-      @. res = α * Jtv
+      res .= α .* Jtv
     else
-      @. res = α * Jtv + β * res
+      res .= α .* Jtv .+ β .* res
     end
     return res
   end
@@ -1273,9 +1273,9 @@ function hess_op!(
   prod! = @closure (res, v, α, β) -> begin
     hprod!(nlp, x, v, Hv; obj_weight = obj_weight)
     if β == 0
-      @. res = α * Hv
+      res .= α .* Hv
     else
-      @. res = α * Hv + β * res
+      res .= α .* Hv .+ β .* res
     end
     return res
   end
@@ -1304,9 +1304,9 @@ function hess_op!(
   prod! = @closure (res, v, α, β) -> begin
     hprod!(nlp, rows, cols, vals, v, Hv)
     if β == 0
-      @. res = α * Hv
+      res .= α .* Hv
     else
-      @. res = α * Hv + β * res
+      res .= α .* Hv .+ β .* res
     end
     return res
   end
@@ -1335,9 +1335,9 @@ function hess_op!(
   prod! = @closure (res, v, α, β) -> begin
     hprod!(nlp, x, y, v, Hv; obj_weight = obj_weight)
     if β == 0
-      @. res = α * Hv
+      res .= α .* Hv
     else
-      @. res = α * Hv + β * res
+      res .= α .* Hv .+ β .* res
     end
     return res
   end
