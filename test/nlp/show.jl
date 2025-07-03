@@ -27,7 +27,6 @@
            jhess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     """
   @test strip.(split(chomp(showed), "\n")) == strip.(split(chomp(expected), "\n"))
 
-
   io = IOBuffer()
   show(io, NLPModelMeta(1))
   showed = String(take!(io))
