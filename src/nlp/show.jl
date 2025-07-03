@@ -96,6 +96,9 @@ function lines_of_description(m::AbstractNLPModelMeta)
   push!(conlines, histline("linear", m.nlin, m.ncon), histline("nonlinear", m.nnln, m.ncon))
   push!(conlines, sparsityline("nnzj", m.nnzj, m.nvar * m.ncon))
 
+  push!(conlines, sparsityline("lin_nnzj", m.lin_nnzj, m.nvar * m.ncon))
+  push!(conlines, sparsityline("nln_nnzj", m.nln_nnzj, m.nvar * m.ncon))
+
   append!(varlines, repeat([" "^length(varlines[1])], length(conlines) - length(varlines)))
   lines = varlines .* conlines
 
