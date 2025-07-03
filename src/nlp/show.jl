@@ -69,50 +69,47 @@ end
 Describe `meta` for the `show` function.
 """
 function lines_of_description(m::AbstractNLPModelMeta)
-  V = [
-    length(m.ifree),
-    length(m.ilow),
-    length(m.iupp),
-    length(m.irng),
-    length(m.ifix),
-    length(m.iinf),
-  ]
-  V = [sum(V); V]
-  S = ["All variables", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
-  varlines = lines_of_hist(S, V)
-  push!(varlines, sparsityline("nnzh", m.nnzh, m.nvar * (m.nvar + 1) / 2))
+    # Variable structure histogram
+    V = [
+        length(m.ifree),
+        length(m.ilow),
+        length(m.iupp),
+        length(m.irng),
+        length(m.ifix),
+        length(m.iinf),
+    ]
+    V = [sum(V); V]
+    S = ["All variables", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
+    varlines = lines_of_hist(S, V)
+    push!(varlines, sparsityline("nnzh", m.nnzh, m.nvar * (m.nvar + 1) ÷ 2))
 
-  V = [
-    length(m.jfree),
-    length(m.jlow),
-    length(m.jupp),
-    length(m.jrng),
-    length(m.jfix),
-    length(m.jinf),
-  ]
-  V = [sum(V); V]
-  S = ["All constraints", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
-  conlines = lines_of_hist(S, V)
-  push!(conlines, histline("linear", m.nlin, m.ncon))
-  push!(conlines, histline("nonlinear", m.nnln, m.ncon))
-    
-    if !isnothing(m.nnzj)
-        total = m.nvar * m.ncon
-        if total > 0
-            perc = 100 * m.nnzj / total
-            push!(conlines, @sprintf("  %56s: (%6.2f%% sparsity) %4d", "nnzj", perc, m.nnzj))
-        else
-            # Defined nnzj, but zero denominator (nvar * ncon == 0)
-            push!(conlines, @sprintf("  %56s: (%6s sparsity) %4d", "nnzj", "------%", m.nnzj))
-        end
-    else
-        push!(conlines, @sprintf("  %56s: (%6s sparsity)", "nnzj", "------%"))
-    end
+    # Constraint structure histogram
+    V = [
+        length(m.jfree),
+        length(m.jlow),
+        length(m.jupp),
+        length(m.jrng),
+        length(m.jfix),
+        length(m.jinf),
+    ]
+    V = [sum(V); V]
+    S = ["All constraints", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
+    conlines = lines_of_hist(S, V)
 
-  append!(varlines, repeat([" "^length(varlines[1])], length(conlines) - length(varlines)))
-  lines = varlines .* conlines
+    # Additional constraint info
+    append!(conlines, [
+        histline("linear", m.nlin, m.ncon),
+        histline("nonlinear", m.nnln, m.ncon),
+        sparsityline("nnzj", m.nnzj, m.nvar * m.ncon),
+        sparsityline("lin_nnzj", get(m, :lin_nnzj, 0), m.nlin * m.nvar),
+        sparsityline("nln_nnzj", get(m, :nln_nnzj, 0), m.nnln * m.nvar),
+    ])
 
-  return lines
+    # Pad variable lines
+    append!(varlines, repeat([" "^length(varlines[1])], length(conlines) - length(varlines)))
+    lines = varlines .* conlines
+
+    return lines
 end
 
 function Base.show(io::IO, m::AbstractNLPModelMeta)
