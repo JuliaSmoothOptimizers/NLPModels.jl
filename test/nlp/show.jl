@@ -49,3 +49,4 @@
   @inbounds for (sline, eline) in zip(splitlines(showed), splitlines(expected))
     @test startswith(strip(sline), strip(eline))
   end
+end
