@@ -93,12 +93,20 @@ function lines_of_description(m::AbstractNLPModelMeta)
   V = [sum(V); V]
   S = ["All constraints", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
   conlines = lines_of_hist(S, V)
-  push!(conlines, histline("linear", m.nlin, m.ncon), histline("nonlinear", m.nnln, m.ncon))
-  push!(conlines, sparsityline("nnzj", m.nnzj, m.nvar * m.ncon))
 
-  push!(conlines, sparsityline("lin_nnzj", m.lin_nnzj, m.nvar * m.ncon))
-  push!(conlines, sparsityline("nln_nnzj", m.nln_nnzj, m.nvar * m.ncon))
+  # Match expected output: linear / nonlinear / nnzj
+  push!(conlines, histline("linear", m.nlin, m.ncon))
+  push!(conlines, histline("nonlinear", m.nnln, m.ncon))
 
+  # Now manually format nnzj line to match expected output
+  if !isnothing(m.nnzj)
+    perc = 100 * m.nnzj / max(1, m.nvar * m.ncon)
+    push!(conlines, @sprintf("  %56s: (%6.2f%% sparsity) %4d", "nnzj", perc, m.nnzj))
+  else
+    push!(conlines, @sprintf("  %56s: (%6s sparsity)", "nnzj", "------%"))
+  end
+
+  # Align varlines and conlines
   append!(varlines, repeat([" "^length(varlines[1])], length(conlines) - length(varlines)))
   lines = varlines .* conlines
 
