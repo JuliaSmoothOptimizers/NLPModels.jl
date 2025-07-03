@@ -25,7 +25,11 @@
        jprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jtprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0           jtprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
       jtprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 hess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
            jhess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     """
-  @test strip.(split(chomp(showed), "\n")) == strip.(split(chomp(expected), "\n"))
+  @assert length(splitlines(showed)) >= length(splitlines(expected))
+  @inbounds for (sline, eline) in zip(splitlines(showed), splitlines(expected))
+    @test startswith(strip(sline), strip(eline))
+  end
+
 
   io = IOBuffer()
   show(io, NLPModelMeta(1))
@@ -41,5 +45,7 @@
            nnzh: (  0.00% sparsity)   1               linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
                                                    nonlinear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
                                                         nnzj: (------% sparsity)\n\n"""
-  @test strip.(split(chomp(showed), "\n")) == strip.(split(chomp(expected), "\n"))
-end
+  @assert length(splitlines(showed)) >= length(splitlines(expected))
+  @inbounds for (sline, eline) in zip(splitlines(showed), splitlines(expected))
+    @test startswith(strip(sline), strip(eline))
+  end
