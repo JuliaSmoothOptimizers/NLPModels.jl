@@ -69,47 +69,55 @@ end
 Describe `meta` for the `show` function.
 """
 function lines_of_description(m::AbstractNLPModelMeta)
-    V = [
-        length(m.ifree),
-        length(m.ilow),
-        length(m.iupp),
-        length(m.irng),
-        length(m.ifix),
-        length(m.iinf),
-    ]
-    V = [sum(V); V]
-    S = ["All variables", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
-    varlines = lines_of_hist(S, V)
-    push!(varlines, sparsityline("nnzh", m.nnzh, m.nvar * (m.nvar + 1) ÷ 2))
+  V = [
+    length(m.ifree),
+    length(m.ilow),
+    length(m.iupp),
+    length(m.irng),
+    length(m.ifix),
+    length(m.iinf),
+  ]
+  V = [sum(V); V]
+  S = ["All variables", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
+  varlines = lines_of_hist(S, V)
+  push!(varlines, sparsityline("nnzh", m.nnzh, m.nvar * (m.nvar + 1) / 2))
 
-    V = [
-        length(m.jfree),
-        length(m.jlow),
-        length(m.jupp),
-        length(m.jrng),
-        length(m.jfix),
-        length(m.jinf),
-    ]
-    V = [sum(V); V]
-    S = ["All constraints", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
-    conlines = lines_of_hist(S, V)
-
-    # Extract lin_nnzj and nln_nnzj if available
-    lin_nnzj = try getfield(m, :lin_nnzj) catch; 0 end
-    nln_nnzj = try getfield(m, :nln_nnzj) catch; 0 end
-
+  V = [
+    length(m.jfree),
+    length(m.jlow),
+    length(m.jupp),
+    length(m.jrng),
+    length(m.jfix),
+    length(m.jinf),
+  ]
+  V = [sum(V); V]
+  S = ["All constraints", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
+  conlines = lines_of_hist(S, V)
     append!(conlines, [
-        histline("linear", m.nlin, m.ncon),
-        histline("nonlinear", m.nnln, m.ncon),
-        sparsityline("nnzj", m.nnzj, m.nvar * m.ncon),
-        sparsityline("lin_nnzj", lin_nnzj, m.nlin * m.nvar),
-        sparsityline("nln_nnzj", nln_nnzj, m.nnln * m.nvar),
-    ])
+            histline("linear", m.nlin, m.ncon),
+            histline("nonlinear", m.nnln, m.ncon),
+            sparsityline("nnzj", m.nnzj, m.nvar * m.ncon),
+            ])
+    
+    if :lin_nnzj in fieldnames(typeof(m))
+        append!(conlines, [
+                sparsityline("lin_nnzj", getfield(m, :lin_nnzj), m.nlin * m.nvar),
+                ])
+    end
 
-    append!(varlines, repeat([" "^length(varlines[1])], length(conlines) - length(varlines)))
-    lines = varlines .* conlines
+    if :nln_nnzj in fieldnames(typeof(m))
+        append!(conlines, [
+            sparsityline("nln_nnzj", getfield(m, :nln_nnzj), m.nnln * m.nvar),
+        ])
+    end
 
-    return lines
+  push!(conlines, histline("linear", m.nlin, m.ncon), histline("nonlinear", m.nnln, m.ncon))
+  push!(conlines, sparsityline("nnzj", m.nnzj, m.nvar * m.ncon))
+
+  append!(varlines, repeat([" "^length(varlines[1])], length(conlines) - length(varlines)))
+  lines = varlines .* conlines
+
+  return lines
 end
 
 function Base.show(io::IO, m::AbstractNLPModelMeta)
