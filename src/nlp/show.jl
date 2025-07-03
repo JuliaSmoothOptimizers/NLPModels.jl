@@ -105,6 +105,7 @@ function lines_of_description(m::AbstractNLPModelMeta)
             sparsityline("lin_nnzj", getfield(m, :lin_nnzj), m.nlin * m.nvar),
         ])
     end
+    
     if :nln_nnzj in fieldnames(typeof(m))
         append!(conlines, [
             sparsityline("nln_nnzj", getfield(m, :nln_nnzj), m.nnln * m.nvar),
