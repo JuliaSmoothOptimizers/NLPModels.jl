@@ -69,7 +69,7 @@ end
 Describe `meta` for the `show` function.
 """
 function lines_of_description(m::AbstractNLPModelMeta)
-    V = [
+   V = [
         length(m.ifree),
         length(m.ilow),
         length(m.iupp),
@@ -77,12 +77,12 @@ function lines_of_description(m::AbstractNLPModelMeta)
         length(m.ifix),
         length(m.iinf),
     ]
-    V = [sum(V); V]
-    S = ["All variables", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
-    varlines = lines_of_hist(S, V)
-    push!(varlines, sparsityline("nnzh", m.nnzh, m.nvar * (m.nvar + 1) / 2))
+   V = [sum(V); V]
+   S = ["All variables", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
+   varlines = lines_of_hist(S, V)
+   push!(varlines, sparsityline("nnzh", m.nnzh, m.nvar * (m.nvar + 1) / 2))
 
-    V = [
+   V = [
         length(m.jfree),
         length(m.jlow),
         length(m.jupp),
@@ -90,37 +90,37 @@ function lines_of_description(m::AbstractNLPModelMeta)
         length(m.jfix),
         length(m.jinf),
     ]
-    V = [sum(V); V]
-    S = ["All constraints", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
-    conlines = lines_of_hist(S, V)
+   V = [sum(V); V]
+   S = ["All constraints", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
+   conlines = lines_of_hist(S, V)
 
-    append!(conlines, [
+   append!(conlines, [
         histline("linear", m.nlin, m.ncon),
         histline("nonlinear", m.nnln, m.ncon),
         sparsityline("nnzj", m.nnzj, m.nvar * m.ncon),
     ])
 
-    if :lin_nnzj in fieldnames(typeof(m))
+   if :lin_nnzj in fieldnames(typeof(m))
         append!(conlines, [
             sparsityline("lin_nnzj", getfield(m, :lin_nnzj), m.nlin * m.nvar),
         ])
-    end
+   end
     
-    if :nln_nnzj in fieldnames(typeof(m))
+   if :nln_nnzj in fieldnames(typeof(m))
         append!(conlines, [
             sparsityline("nln_nnzj", getfield(m, :nln_nnzj), m.nnln * m.nvar),
         ])
-    end
+   end
 
-    maxlen = max(length(varlines), length(conlines))
-    while length(varlines) < maxlen
+   maxlen = max(length(varlines), length(conlines))
+   while length(varlines) < maxlen
         push!(varlines, " "^length(varlines[1]))
-    end
-    while length(conlines) < maxlen
+   end
+   while length(conlines) < maxlen
         push!(conlines, " "^length(conlines[1]))
-    end
+   end
 
-    return varlines .* conlines
+   return varlines .* conlines
 end
 
 function Base.show(io::IO, m::AbstractNLPModelMeta)
