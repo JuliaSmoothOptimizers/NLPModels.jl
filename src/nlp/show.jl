@@ -108,7 +108,7 @@ function lines_of_description(m::AbstractNLPModelMeta)
   end
 
   if :nln_nnzj in fieldnames(typeof(m))
-    append!(conlines, [sparsityline("nln_nnzj", getfield(m, :nln_nnzj), m.nnln * m.nvar)])
+    push!(conlines, sparsityline("nln_nnzj", m.nln_nnzj, m.nnln * m.nvar))
   end
 
   maxlen = max(length(varlines), length(conlines))
