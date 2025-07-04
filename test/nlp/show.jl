@@ -5,17 +5,17 @@
   showed = String(take!(io))
   storage_type = typeof(nlp)
   expected = """  $storage_type
-   Problem name: Simple NLP Model
-    All variables: ████████████████████ 2      All constraints: ████████████████████ 2
-	     free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
- 	    lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                lower: ██████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 1
- 	    upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
- 	  low/upp: ████████████████████ 2              low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
- 	    fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                fixed: ██████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 1
- 	   infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
- 	     nnzh: ( 33.33% sparsity)   2               linear: ██████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 1
-		                                     nonlinear: ██████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 1
-    		                                          nnzj: (  0.00% sparsity)   4
+  Problem name: Simple NLP Model
+  All variables: ████████████████████ 2      All constraints: ████████████████████ 2
+	   free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
+ 	  lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                lower: ██████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 1
+ 	  upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
+ 	low/upp: ████████████████████ 2              low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
+ 	  fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                fixed: ██████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 1
+ 	 infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
+ 	   nnzh: ( 33.33% sparsity)   2               linear: ██████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 1
+		                                   nonlinear: ██████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 1
+    		                                        nnzj: (  0.00% sparsity)   4
 
    Counters:
  			 obj: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 grad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 cons: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
