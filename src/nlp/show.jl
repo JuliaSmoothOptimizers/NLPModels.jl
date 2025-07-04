@@ -68,7 +68,7 @@ end
 
 Describe `meta` for the `show` function.
 """
-function lines_of_description(m::AbstractNLPModelMeta)
+function lines_of_description(m::M) where {M <: AbstractNLPModelMeta}
   V = [
     length(m.ifree),
     length(m.ilow),
@@ -106,20 +106,14 @@ function lines_of_description(m::AbstractNLPModelMeta)
   if :lin_nnzj in fieldnames(typeof(m))
     push!(conlines, sparsityline("lin_nnzj", m.lin_nnzj, m.nlin * m.nvar))
   end
-
   if :nln_nnzj in fieldnames(typeof(m))
     push!(conlines, sparsityline("nln_nnzj", m.nln_nnzj, m.nnln * m.nvar))
   end
 
-  maxlen = max(length(varlines), length(conlines))
-  while length(varlines) < maxlen
-    push!(varlines, " "^length(varlines[1]))
-  end
-  while length(conlines) < maxlen
-    push!(conlines, " "^length(conlines[1]))
-  end
+  append!(varlines, repeat([" "^length(varlines[1])], length(conlines) - length(varlines)))
+  lines = varlines .* conlines
 
-  return varlines .* conlines
+  return lines
 end
 
 function Base.show(io::IO, m::AbstractNLPModelMeta)
