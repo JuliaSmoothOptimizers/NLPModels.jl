@@ -33,12 +33,10 @@
   io = IOBuffer()
   show(io, NLSMeta(1, 1))
   showed = String(take!(io))
-  expected = """
-   All residuals: ████████████████████ 1
-          linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
-       nonlinear: ████████████████████ 1
-            nnzj: (  0.00% sparsity)   1
-            nnzh: (  0.00% sparsity)   1
-"""
+  expected = """   All residuals: ████████████████████ 1
+  linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0
+nonlinear: ████████████████████ 1
+    nnzj: (  0.00% sparsity)   1
+    nnzh: (  0.00% sparsity)   1\n\n"""
   @test strip.(split(chomp(showed), "\n")) == strip.(split(chomp(expected), "\n"))
 end
