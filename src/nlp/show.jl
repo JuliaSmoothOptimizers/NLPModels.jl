@@ -103,7 +103,7 @@ function lines_of_description(m::M) where {M <: AbstractNLPModelMeta}
     ],
   )
 
-  if :lin_nnzj in fieldnames(typeof(m))
+  if :lin_nnzj in fieldnames(M)
     push!(conlines, sparsityline("lin_nnzj", m.lin_nnzj, m.nlin * m.nvar))
   end
   if :nln_nnzj in fieldnames(typeof(m))
