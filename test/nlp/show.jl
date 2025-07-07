@@ -45,6 +45,5 @@
                                                         nnzj: (------% sparsity)
                                                     lin_nnzj: (------% sparsity)
                                                     nln_nnzj: (------% sparsity)\n\n"""
-"""
   @test strip.(split(chomp(showed), "\n")) == strip.(split(chomp(expected), "\n"))
 end
