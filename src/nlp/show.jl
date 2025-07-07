@@ -68,7 +68,7 @@ end
 
 Describe `meta` for the `show` function.
 """
-function lines_of_description(m::AbstractNLPModelMeta)
+function lines_of_description(m::M) where {M <: AbstractNLPModelMeta}
   V = [
     length(m.ifree),
     length(m.ilow),
@@ -93,8 +93,22 @@ function lines_of_description(m::AbstractNLPModelMeta)
   V = [sum(V); V]
   S = ["All constraints", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
   conlines = lines_of_hist(S, V)
-  push!(conlines, histline("linear", m.nlin, m.ncon), histline("nonlinear", m.nnln, m.ncon))
-  push!(conlines, sparsityline("nnzj", m.nnzj, m.nvar * m.ncon))
+
+  append!(
+    conlines,
+    [
+      histline("linear", m.nlin, m.ncon),
+      histline("nonlinear", m.nnln, m.ncon),
+      sparsityline("nnzj", m.nnzj, m.nvar * m.ncon),
+    ],
+  )
+
+  if :lin_nnzj in fieldnames(M)
+    push!(conlines, sparsityline("lin_nnzj", m.lin_nnzj, m.nlin * m.nvar))
+  end
+  if :nln_nnzj in fieldnames(M)
+    push!(conlines, sparsityline("nln_nnzj", m.nln_nnzj, m.nnln * m.nvar))
+  end
 
   append!(varlines, repeat([" "^length(varlines[1])], length(conlines) - length(varlines)))
   lines = varlines .* conlines

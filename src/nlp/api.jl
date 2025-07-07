@@ -1344,6 +1344,30 @@ function hess_op!(
   return LinearOperator{T}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
 end
 
+"""
+    varscale(model::AbstractNLPModel)
+
+Return a vector containing the scaling factors for each variable in the model.
+This is typically used to normalize variables for numerical stability in solvers.
+
+By default, the scaling is model-dependent. If not overridden by the model, a vector of ones 
+is returned. Inspired by the AMPL scaling conventions.
+"""
 function varscale end
+
+"""
+    lagscale(model::AbstractNLPModel)
+
+Return a vector of scaling factors for the Lagrange multipliers associated with constraints.
+This can be used to improve numerical stability or condition number when solving KKT systems.
+"""
 function lagscale end
+
+"""
+    conscale(model::AbstractNLPModel)
+
+Return a vector of constraint scaling factors for the model.
+These are typically used to normalize constraints to have similar magnitudes and improve 
+convergence behavior in nonlinear solvers.
+"""
 function conscale end

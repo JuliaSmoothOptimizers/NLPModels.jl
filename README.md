@@ -111,8 +111,10 @@ Attribute   | Type               | Notes
 `jfree`     | `Vector{Int}`      | indices of "free" constraints (there shouldn't be any)
 `jinf`      | `Vector{Int}`      | indices of the visibly infeasible constraints
 `nnzo`      | `Int             ` | number of nonzeros in the gradient
-`nnzj`      | `Int             ` | number of nonzeros in the sparse Jacobian
 `nnzh`      | `Int             ` | number of nonzeros in the sparse Hessian
+`nnzj`      | `Int             ` | number of nonzeros in the sparse Jacobian
+`lin_nnzj`  | `Int             ` | number of nonzeros in the linear part of sparse Jacobian
+`nln_nnzj`  | `Int             ` | number of nonzeros in the nonlinear part of sparse Jacobian
 `minimize`  | `Bool            ` | true if `optimize == minimize`
 `islp`      | `Bool            ` | true if the problem is a linear program
 `name`      | `String`           | problem name
