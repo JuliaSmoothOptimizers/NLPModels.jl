@@ -266,10 +266,10 @@ function jac_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVect
   increment!(nlp, :neval_jac)
   if nlp.meta.nlin > 0
     if nlp.meta.nnln == 0
-      jac_lin_coord!(nlp, x, vals)
+      jac_lin_coord!(nlp, vals)
     else
       lin_ind = 1:(nlp.meta.lin_nnzj)
-      jac_lin_coord!(nlp, x, view(vals, lin_ind))
+      jac_lin_coord!(nlp, view(vals, lin_ind))
     end
   end
   if nlp.meta.nnln > 0
@@ -307,33 +307,31 @@ function jac(nlp::AbstractNLPModel, x::AbstractVector)
 end
 
 """
-    vals = jac_lin_coord!(nlp, x, vals)
+    vals = jac_lin_coord!(nlp, vals)
 
-Evaluate ``J(x)``, the linear constraints Jacobian at `x` in sparse coordinate format,
+Evaluate ``J(x)``, the linear constraints Jacobian in sparse coordinate format,
 overwriting `vals`.
 """
 function jac_lin_coord! end
 
 """
-    vals = jac_lin_coord(nlp, x)
+    vals = jac_lin_coord(nlp)
 
-Evaluate ``J(x)``, the linear constraints Jacobian at `x` in sparse coordinate format.
+Evaluate ``J(x)``, the linear constraints Jacobian in sparse coordinate format.
 """
-function jac_lin_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
-  @lencheck nlp.meta.nvar x
+function jac_lin_coord(nlp::AbstractNLPModel{T, S}) where {T, S}
   vals = S(undef, nlp.meta.lin_nnzj)
-  return jac_lin_coord!(nlp, x, vals)
+  return jac_lin_coord!(nlp, vals)
 end
 
 """
-    Jx = jac_lin(nlp, x)
+    Jx = jac_lin(nlp)
 
-Evaluate ``J(x)``, the linear constraints Jacobian at `x` as a sparse matrix.
+Evaluate ``J(x)``, the linear constraints Jacobian as a sparse matrix.
 """
-function jac_lin(nlp::AbstractNLPModel, x::AbstractVector)
-  @lencheck nlp.meta.nvar x
+function jac_lin(nlp::AbstractNLPModel)
   rows, cols = jac_lin_structure(nlp)
-  vals = jac_lin_coord(nlp, x)
+  vals = jac_lin_coord(nlp)
   sparse(rows, cols, vals, nlp.meta.nlin, nlp.meta.nvar)
 end
 
