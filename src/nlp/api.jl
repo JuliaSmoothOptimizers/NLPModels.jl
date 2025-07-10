@@ -309,7 +309,7 @@ end
 """
     vals = jac_lin_coord!(nlp, vals)
 
-Evaluate ``J(x)``, the linear constraints Jacobian in sparse coordinate format,
+Evaluate the linear constraints Jacobian in sparse coordinate format,
 overwriting `vals`.
 """
 function jac_lin_coord! end
@@ -317,7 +317,7 @@ function jac_lin_coord! end
 """
     vals = jac_lin_coord(nlp)
 
-Evaluate ``J(x)``, the linear constraints Jacobian in sparse coordinate format.
+Evaluate the linear constraints Jacobian in sparse coordinate format.
 """
 function jac_lin_coord(nlp::AbstractNLPModel{T, S}) where {T, S}
   vals = S(undef, nlp.meta.lin_nnzj)
@@ -734,37 +734,37 @@ function jac_op!(
 end
 
 """
-    J = jac_lin_op(nlp, x)
+    J = jac_lin_op(nlp)
 
-Return the linear Jacobian at `x` as a linear operator.
+Return the linear Jacobian as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`.
 """
-function jac_lin_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
-  @lencheck nlp.meta.nvar x
+function jac_lin_op(nlp::AbstractNLPModel{T, S}) where {T, S}
   Jv = S(undef, nlp.meta.nlin)
   Jtv = S(undef, nlp.meta.nvar)
-  return jac_lin_op!(nlp, x, Jv, Jtv)
+  return jac_lin_op!(nlp, Jv, Jtv)
 end
 
 """
-    J = jac_lin_op!(nlp, x, Jv, Jtv)
+    J = jac_lin_op!(nlp, Jv, Jtv)
 
-Return the linear Jacobian at `x` as a linear operator.
+Return the linear Jacobian as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`. The values `Jv` and `Jtv` are used as preallocated storage for the
 operations.
 """
 function jac_lin_op!(
   nlp::AbstractNLPModel{T, S},
-  x::AbstractVector{T},
   Jv::AbstractVector,
   Jtv::AbstractVector,
 ) where {T, S}
-  @lencheck nlp.meta.nvar x Jtv
+  @lencheck nlp.meta.nvar Jtv
   @lencheck nlp.meta.nlin Jv
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
-    jprod_lin!(nlp, x, v, Jv)
+    rows, cols = jac_lin_structure(nlp)
+    vals = jac_lin_coord(nlp)
+    jprod_lin!(nlp, rows, cols, vals, v, Jv)
     if β == 0
       res .= α .* Jv
     else
@@ -773,7 +773,9 @@ function jac_lin_op!(
     return res
   end
   ctprod! = @closure (res, v, α, β) -> begin
-    jtprod_lin!(nlp, x, v, Jtv)
+    rows, cols = jac_lin_structure(nlp)
+    vals = jac_lin_coord(nlp)
+    jtprod_lin!(nlp, rows, cols, vals, v, Jtv)
     if β == 0
       res .= α .* Jtv
     else
@@ -1369,3 +1371,4 @@ These are typically used to normalize constraints to have similar magnitudes and
 convergence behavior in nonlinear solvers.
 """
 function conscale end
+
