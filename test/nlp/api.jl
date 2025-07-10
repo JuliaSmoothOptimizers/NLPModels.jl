@@ -91,7 +91,7 @@
   @test mul!(w[2:2], Jop, v, 1.0, -1.0) ≈ res
   res = J(x)[2:2, :]' * w[2:2] - v
   @test mul!(v, Jop', w[2:2], 1.0, -1.0) ≈ res
-  Jop = jac_lin_op!(nlp, x, Jv[1:1], Jtw)
+  Jop = jac_lin_op!(nlp, Jv[1:1], Jtw)
   @test Jop * v ≈ J(x)[1:1, :] * v
   @test Jop' * w[1:1] ≈ Jtw
   res = J(x)[1:1, :] * v - w[1:1]
