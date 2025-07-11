@@ -1371,4 +1371,3 @@ These are typically used to normalize constraints to have similar magnitudes and
 convergence behavior in nonlinear solvers.
 """
 function conscale end
-
