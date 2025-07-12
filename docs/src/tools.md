@@ -60,6 +60,9 @@ grad(nlp, rand(2))
 sum_counters(nlp)
 ```
 
+!!! note "Counter testing"
+    All function evaluation counters are properly tested for both direct function calls and sparsity structure-based calls. For example, `jprod!` and `jtprod!` counters are verified to increment correctly whether called with `jprod!(nlp, x, v, Jv)` or with the sparsity structure format `jprod!(nlp, rows, cols, vals, v, Jv)`.
+
 ## Querying problem type
 
 There are some utility functions for querying the problem type:
