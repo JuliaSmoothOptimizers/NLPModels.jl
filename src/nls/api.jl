@@ -2,7 +2,7 @@ export residual, residual!, jac_residual, jac_structure_residual, jac_structure_
 export jac_coord_residual!, jac_coord_residual, jprod_residual, jprod_residual!
 export jtprod_residual, jtprod_residual!, jac_op_residual, jac_op_residual!
 export hess_residual, hess_structure_residual, hess_structure_residual!
-export hess_coord_residual!, hess_coord_residual, jth_hess_residual
+export hess_coord_residual!, hess_coord_residual, jth_hess_residual, jth_hess_residual_coord, jth_hess_residual_coord!
 export hprod_residual, hprod_residual!, hess_op_residual, hess_op_residual!
 
 """
@@ -325,10 +325,39 @@ Computes the Hessian of the j-th residual at x.
 """
 function jth_hess_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector, j::Int) where {T, S}
   @lencheck nls.meta.nvar x
+  @rangecheck 1 nls.nls_meta.nequ j
+  rows, cols = hess_structure_residual(nls)
+  vals = jth_hess_residual_coord(nls, x, j)
+  return Symmetric(sparse(rows, cols, vals, nls.meta.nvar, nls.meta.nvar), :L)
+end
+
+"""
+    vals = jth_hess_residual_coord(nls, x, j)
+
+Evaluate the Hessian of j-th residual at `x` in sparse coordinate format.
+Only the lower triangle is returned.
+"""
+function jth_hess_residual_coord(nls::AbstractNLSModel{T, S}, x::AbstractVector, j::Int) where {T, S}
+  @lencheck nls.meta.nvar x
+  @rangecheck 1 nls.nls_meta.nequ j
+  vals = S(undef, nls.nls_meta.nnzh)
+  return jth_hess_residual_coord!(nls, x, j, vals)
+end
+
+"""
+    vals = jth_hess_residual_coord!(nls, x, j, vals)
+
+Evaluate the Hessian of j-th residual at `x` in sparse coordinate format, with `vals` of
+length `nls.nls_meta.nnzh`, in place. Only the lower triangle is returned.
+"""
+function jth_hess_residual_coord!(nls::AbstractNLSModel{T, S}, x::AbstractVector, j::Int, vals::AbstractVector) where {T, S}
+  @lencheck nls.meta.nvar x
+  @rangecheck 1 nls.nls_meta.nequ j
+  @lencheck nls.nls_meta.nnzh vals
   increment!(nls, :neval_jhess_residual)
   decrement!(nls, :neval_hess_residual)
   v = [i == j ? one(T) : zero(T) for i = 1:(nls.nls_meta.nequ)]
-  return hess_residual(nls, x, v)
+  return hess_coord_residual!(nls, x, v, vals)
 end
 
 """
@@ -342,8 +371,9 @@ function hprod_residual(
   i::Int,
   v::AbstractVector,
 ) where {T, S}
-  @lencheck nls.meta.nvar x
-  Hv = S(undef, nls_meta(nls).nvar)
+  @lencheck nls.meta.nvar x v
+  @rangecheck 1 nls.nls_meta.nequ i
+  Hv = S(undef, nls.meta.nvar)
   hprod_residual!(nls, x, i, v, Hv)
 end
 
@@ -361,6 +391,7 @@ Computes the Hessian of the i-th residual at x, in linear operator form.
 """
 function hess_op_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector, i::Int) where {T, S}
   @lencheck nls.meta.nvar x
+  @rangecheck 1 nls.nls_meta.nequ i
   Hiv = S(undef, nls.meta.nvar)
   return hess_op_residual!(nls, x, i, Hiv)
 end
@@ -368,7 +399,7 @@ end
 """
     Hop = hess_op_residual!(nls, x, i, Hiv)
 
-Computes the Hessian of the i-th residual at x, in linear operator form. The vector `Hiv` is used as preallocated storage for the operation.
+Computes the Hessian of the i-th residual at x, in linear operator form. The vector Hiv is used as workspace.
 """
 function hess_op_residual!(
   nls::AbstractNLSModel{T, S},
@@ -377,6 +408,7 @@ function hess_op_residual!(
   Hiv::AbstractVector,
 ) where {T, S}
   @lencheck nls.meta.nvar x Hiv
+  @rangecheck 1 nls.nls_meta.nequ i
   prod! = @closure (res, v, α, β) -> begin
     hprod_residual!(nls, x, i, v, Hiv)
     if β == 0
@@ -386,7 +418,7 @@ function hess_op_residual!(
     end
     return res
   end
-  return LinearOperator{T}(nls_meta(nls).nvar, nls_meta(nls).nvar, true, true, prod!, prod!, prod!)
+  return LinearOperator{T}(nls.meta.nvar, nls.meta.nvar, true, true, prod!, prod!, prod!)
 end
 
 """
