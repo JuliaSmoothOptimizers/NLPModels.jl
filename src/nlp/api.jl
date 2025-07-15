@@ -1,3 +1,5 @@
+using Base: @deprecate
+
 export obj, grad, grad!, objgrad, objgrad!, objcons, objcons!
 export cons, cons!, cons_lin, cons_lin!, cons_nln, cons_nln!
 export jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad
@@ -266,10 +268,10 @@ function jac_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVect
   increment!(nlp, :neval_jac)
   if nlp.meta.nlin > 0
     if nlp.meta.nnln == 0
-      jac_lin_coord!(nlp, vals)
+      jac_lin_coord!(nlp, x, vals)
     else
       lin_ind = 1:(nlp.meta.lin_nnzj)
-      jac_lin_coord!(nlp, view(vals, lin_ind))
+      jac_lin_coord!(nlp, x, view(vals, lin_ind))
     end
   end
   if nlp.meta.nnln > 0
@@ -314,6 +316,9 @@ overwriting `vals`.
 """
 function jac_lin_coord! end
 
+# Deprecated version with x parameter
+@deprecate jac_lin_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVector) jac_lin_coord!(nlp, vals)
+
 """
     vals = jac_lin_coord(nlp)
 
@@ -324,16 +329,22 @@ function jac_lin_coord(nlp::AbstractNLPModel{T, S}) where {T, S}
   return jac_lin_coord!(nlp, vals)
 end
 
+# Deprecated version with x parameter
+@deprecate jac_lin_coord(nlp::AbstractNLPModel, x::AbstractVector) jac_lin_coord(nlp)
+
 """
     Jx = jac_lin(nlp)
 
-Evaluate ``J(x)``, the linear constraints Jacobian as a sparse matrix.
+Evaluate the linear constraints Jacobian as a sparse matrix.
 """
 function jac_lin(nlp::AbstractNLPModel)
   rows, cols = jac_lin_structure(nlp)
   vals = jac_lin_coord(nlp)
   sparse(rows, cols, vals, nlp.meta.nlin, nlp.meta.nvar)
 end
+
+# Deprecated version with x parameter
+@deprecate jac_lin(nlp::AbstractNLPModel, x::AbstractVector) jac_lin(nlp)
 
 """
     vals = jac_nln_coord!(nlp, x, vals)
@@ -746,6 +757,9 @@ function jac_lin_op(nlp::AbstractNLPModel{T, S}) where {T, S}
   return jac_lin_op!(nlp, Jv, Jtv)
 end
 
+# Deprecated version with x parameter
+@deprecate jac_lin_op(nlp::AbstractNLPModel, x::AbstractVector) jac_lin_op(nlp)
+
 """
     J = jac_lin_op!(nlp, Jv, Jtv)
 
@@ -759,8 +773,8 @@ function jac_lin_op!(
   Jv::AbstractVector,
   Jtv::AbstractVector,
 ) where {T, S}
-  @lencheck nlp.meta.nvar Jtv
   @lencheck nlp.meta.nlin Jv
+  @lencheck nlp.meta.nvar Jtv
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
     rows, cols = jac_lin_structure(nlp)
     vals = jac_lin_coord(nlp)
@@ -785,6 +799,9 @@ function jac_lin_op!(
   end
   return LinearOperator{T}(nlp.meta.nlin, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
+
+# Deprecated version with x parameter  
+@deprecate jac_lin_op!(nlp::AbstractNLPModel, x::AbstractVector, Jv::AbstractVector, Jtv::AbstractVector) jac_lin_op!(nlp, Jv, Jtv)
 
 """
     J = jac_lin_op!(nlp, rows, cols, vals, Jv, Jtv)
