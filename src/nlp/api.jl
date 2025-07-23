@@ -776,9 +776,7 @@ function jac_lin_op!(
   @lencheck nlp.meta.nlin Jv
   @lencheck nlp.meta.nvar Jtv
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
-    rows, cols = jac_lin_structure(nlp)
-    vals = jac_lin_coord(nlp)
-    jprod_lin!(nlp, rows, cols, vals, v, Jv)
+    jprod_lin!(nlp, v, Jv)
     if β == 0
       res .= α .* Jv
     else
