@@ -757,7 +757,6 @@ function jac_lin_op(nlp::AbstractNLPModel{T, S}) where {T, S}
   return jac_lin_op!(nlp, Jv, Jtv)
 end
 
-# Deprecated version with x parameter
 @deprecate jac_lin_op(nlp::AbstractNLPModel, x::AbstractVector) jac_lin_op(nlp)
 
 """
