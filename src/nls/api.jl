@@ -399,7 +399,7 @@ end
 """
     Hop = hess_op_residual!(nls, x, i, Hiv)
 
-Computes the Hessian of the i-th residual at x, in linear operator form. The vector Hiv is used as workspace.
+Computes the Hessian of the i-th residual at x, in linear operator form. The vector `Hiv` is used as preallocated storage for the operation.
 """
 function hess_op_residual!(
   nls::AbstractNLSModel{T, S},
@@ -418,7 +418,7 @@ function hess_op_residual!(
     end
     return res
   end
-  return LinearOperator{T}(nls.meta.nvar, nls.meta.nvar, true, true, prod!, prod!, prod!)
+  return LinearOperator{T}(nls_meta(nls).nvar, nls_meta(nls).nvar, true, true, prod!, prod!, prod!)
 end
 
 """
