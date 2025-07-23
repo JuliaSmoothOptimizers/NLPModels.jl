@@ -70,7 +70,7 @@ The following functions should be defined:
   - `jac_nln_structure!(nlp, jrows, jcols)`
   - `jac_lin_coord!(nlp, jvals)`
   - `jac_nln_coord!(nlp, x, jvals)`
-  - `jprod_lin!(nlp, x, v, Jv)`
+  - `jprod_lin!(nlp, v, Jv)`
   - `jprod_nln!(nlp, x, v, Jv)`
   - `jtprod_lin!(nlp, x, v, Jtv)`
   - `jtprod_nln!(nlp, x, v, Jtv)`
