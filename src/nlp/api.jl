@@ -316,7 +316,6 @@ overwriting `vals`.
 """
 function jac_lin_coord! end
 
-# Deprecated version with x parameter
 @deprecate jac_lin_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVector) jac_lin_coord!(nlp, vals)
 
 """
