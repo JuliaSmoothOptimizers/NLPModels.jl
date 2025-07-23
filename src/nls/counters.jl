@@ -57,7 +57,7 @@ for counter in fieldnames(NLSCounters)
   counter == :counters && continue
   @eval begin
     """
-    $($counter)(nlp)
+        $($counter)(nlp)
 
     Get the number of `$(split("$($counter)", "_")[2])` evaluations.
     """
