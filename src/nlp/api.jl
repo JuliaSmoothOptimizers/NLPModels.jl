@@ -785,9 +785,7 @@ function jac_lin_op!(
     return res
   end
   ctprod! = @closure (res, v, α, β) -> begin
-    rows, cols = jac_lin_structure(nlp)
-    vals = jac_lin_coord(nlp)
-    jtprod_lin!(nlp, rows, cols, vals, v, Jtv)
+    jtprod_lin!(nlp, v, Jtv)
     if β == 0
       res .= α .* Jtv
     else
