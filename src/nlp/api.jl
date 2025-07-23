@@ -329,7 +329,6 @@ function jac_lin_coord(nlp::AbstractNLPModel{T, S}) where {T, S}
   return jac_lin_coord!(nlp, vals)
 end
 
-# Deprecated version with x parameter
 @deprecate jac_lin_coord(nlp::AbstractNLPModel, x::AbstractVector) jac_lin_coord(nlp)
 
 """
