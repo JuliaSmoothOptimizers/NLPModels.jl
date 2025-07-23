@@ -341,7 +341,6 @@ function jac_lin(nlp::AbstractNLPModel)
   sparse(rows, cols, vals, nlp.meta.nlin, nlp.meta.nvar)
 end
 
-# Deprecated version with x parameter
 @deprecate jac_lin(nlp::AbstractNLPModel, x::AbstractVector) jac_lin(nlp)
 
 """
