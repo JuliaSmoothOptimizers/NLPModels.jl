@@ -937,7 +937,7 @@ length `nlp.meta.nnzh`, in place. Only the lower triangle is returned.
 function jth_hess_coord! end
 
 """
-   Hx = jth_hess(nlp, x, j)
+    Hx = jth_hess(nlp, x, j)
 
 Evaluate the Hessian of j-th constraint at `x` as a sparse matrix with
 the same sparsity pattern as the Lagrangian Hessian.
@@ -977,7 +977,7 @@ in place.
 function jth_hprod! end
 
 """
-   gHv = ghjvprod(nlp, x, g, v)
+    gHv = ghjvprod(nlp, x, g, v)
 
 Return the vector whose i-th component is gᵀ ∇²cᵢ(x) v.
 """
@@ -993,7 +993,7 @@ function ghjvprod(
 end
 
 """
-   ghjvprod!(nlp, x, g, v, gHv)
+    ghjvprod!(nlp, x, g, v, gHv)
 
 Return the vector whose i-th component is gᵀ ∇²cᵢ(x) v in place.
 """
