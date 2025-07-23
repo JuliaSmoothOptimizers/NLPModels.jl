@@ -796,7 +796,6 @@ function jac_lin_op!(
   return LinearOperator{T}(nlp.meta.nlin, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
 
-# Deprecated version with x parameter  
 @deprecate jac_lin_op!(nlp::AbstractNLPModel, x::AbstractVector, Jv::AbstractVector, Jtv::AbstractVector) jac_lin_op!(nlp, Jv, Jtv)
 
 """
