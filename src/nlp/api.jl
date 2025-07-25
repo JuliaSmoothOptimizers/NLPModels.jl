@@ -268,10 +268,10 @@ function jac_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVect
   increment!(nlp, :neval_jac)
   if nlp.meta.nlin > 0
     if nlp.meta.nnln == 0
-      jac_lin_coord!(nlp, x, vals)
+      jac_lin_coord!(nlp, vals)
     else
       lin_ind = 1:(nlp.meta.lin_nnzj)
-      jac_lin_coord!(nlp, x, view(vals, lin_ind))
+      jac_lin_coord!(nlp, view(vals, lin_ind))
     end
   end
   if nlp.meta.nnln > 0
@@ -396,9 +396,9 @@ function jprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv:
   increment!(nlp, :neval_jprod)
   if nlp.meta.nlin > 0
     if nlp.meta.nnln == 0
-      jprod_lin!(nlp, x, v, Jv)
+      jprod_lin!(nlp, v, Jv)
     else
-      jprod_lin!(nlp, x, v, view(Jv, nlp.meta.lin))
+      jprod_lin!(nlp, v, view(Jv, nlp.meta.lin))
     end
   end
   if nlp.meta.nnln > 0
@@ -410,6 +410,9 @@ function jprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv:
   end
   return Jv
 end
+
+@deprecate jprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector) jprod(nlp, v)
+@deprecate jprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv::AbstractVector) jprod!(nlp, v, Jv)
 
 """
     Jv = jprod!(nlp, rows, cols, vals, v, Jv)
@@ -433,22 +436,25 @@ function jprod!(
 end
 
 """
-    Jv = jprod_lin(nlp, x, v)
+    Jv = jprod_lin(nlp, v)
 
 Evaluate ``J(x)v``, the linear Jacobian-vector product at `x`.
 """
-function jprod_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
-  @lencheck nlp.meta.nvar x v
+function jprod_lin(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
+  @lencheck nlp.meta.nvar v
   Jv = S(undef, nlp.meta.nlin)
-  return jprod_lin!(nlp, x, v, Jv)
+  return jprod_lin!(nlp, v, Jv)
 end
 
 """
-    Jv = jprod_lin!(nlp, x, v, Jv)
+    Jv = jprod_lin!(nlp, v, Jv)
 
 Evaluate ``J(x)v``, the linear Jacobian-vector product at `x` in place.
 """
 function jprod_lin! end
+
+@deprecate jprod_lin(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector) jprod_lin(nlp, v)
+@deprecate jprod_lin!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv::AbstractVector) jprod_lin!(nlp, v, Jv)
 
 """
     Jv = jprod_lin!(nlp, rows, cols, vals, v, Jv)
@@ -533,18 +539,18 @@ function jtprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jt
   @lencheck nlp.meta.ncon v
   increment!(nlp, :neval_jtprod)
   if nlp.meta.nnln == 0
-    (nlp.meta.nlin > 0) && jtprod_lin!(nlp, x, v, Jtv)
+    (nlp.meta.nlin > 0) && jtprod_lin!(nlp, v, Jtv)
   elseif nlp.meta.nlin == 0
     (nlp.meta.nnln > 0) && jtprod_nln!(nlp, x, v, Jtv)
   elseif nlp.meta.nlin >= nlp.meta.nnln
-    jtprod_lin!(nlp, x, view(v, nlp.meta.lin), Jtv)
+    jtprod_lin!(nlp, view(v, nlp.meta.lin), Jtv)
     if nlp.meta.nnln > 0
       Jtv .+= jtprod_nln(nlp, x, view(v, nlp.meta.nln))
     end
   else
     jtprod_nln!(nlp, x, view(v, nlp.meta.nln), Jtv)
     if nlp.meta.nlin > 0
-      Jtv .+= jtprod_lin(nlp, x, view(v, nlp.meta.lin))
+      Jtv .+= jtprod_lin(nlp, view(v, nlp.meta.lin))
     end
   end
   return Jtv
@@ -572,23 +578,25 @@ function jtprod!(
 end
 
 """
-    Jtv = jtprod_lin(nlp, x, v)
+    Jtv = jtprod_lin(nlp, v)
 
 Evaluate ``J(x)^Tv``, the linear transposed-Jacobian-vector product at `x`.
 """
-function jtprod_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
-  @lencheck nlp.meta.nvar x
+function jtprod_lin(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nlin v
   Jtv = S(undef, nlp.meta.nvar)
-  return jtprod_lin!(nlp, x, v, Jtv)
+  return jtprod_lin!(nlp, v, Jtv)
 end
 
 """
-    Jtv = jtprod_lin!(nlp, x, v, Jtv)
+    Jtv = jtprod_lin!(nlp, v, Jtv)
 
 Evaluate ``J(x)^Tv``, the linear transposed-Jacobian-vector product at `x` in place.
 """
 function jtprod_lin! end
+
+@deprecate jtprod_lin(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector) jtprod_lin(nlp, v)
+@deprecate jtprod_lin!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jtv::AbstractVector) jtprod_lin!(nlp, v, Jtv)
 
 """
     Jtv = jtprod_lin!(nlp, rows, cols, vals, v, Jtv)

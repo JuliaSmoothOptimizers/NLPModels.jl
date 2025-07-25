@@ -33,10 +33,10 @@
   @test jac_lin(nlp) ≈ J(x)[1:1, :]
   @test jprod(nlp, x, v) ≈ J(x) * v
   @test jprod_nln(nlp, x, v) ≈ J(x)[2:2, :] * v
-  @test jprod_lin(nlp, x, v) ≈ J(x)[1:1, :] * v
+  @test jprod_lin(nlp, v) ≈ J(x)[1:1, :] * v
   @test jtprod(nlp, x, w) ≈ J(x)' * w
   @test jtprod_nln(nlp, x, w[2:2]) ≈ J(x)[2:2, :]' * w[2:2]
-  @test jtprod_lin(nlp, x, w[1:1]) ≈ J(x)[1:1, :]' * w[1:1]
+  @test jtprod_lin(nlp, w[1:1]) ≈ J(x)[1:1, :]' * w[1:1]
   @test hess(nlp, x, y) ≈ tril(H(x, y))
   @test hprod(nlp, x, y, v) ≈ H(x, y) * v
 

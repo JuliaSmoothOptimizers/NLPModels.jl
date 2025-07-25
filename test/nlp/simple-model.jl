@@ -159,13 +159,8 @@ function NLPModels.jprod_nln!(
   return Jv
 end
 
-function NLPModels.jprod_lin!(
-  nlp::SimpleNLPModel,
-  x::AbstractVector,
-  v::AbstractVector,
-  Jv::AbstractVector,
-)
-  @lencheck 2 x v
+function NLPModels.jprod_lin!(nlp::SimpleNLPModel, v::AbstractVector, Jv::AbstractVector)
+  @lencheck 2 v
   @lencheck 1 Jv
   increment!(nlp, :neval_jprod_lin)
   Jv .= [v[1] - 2 * v[2]]
@@ -185,13 +180,8 @@ function NLPModels.jtprod_nln!(
   return Jtv
 end
 
-function NLPModels.jtprod_lin!(
-  nlp::SimpleNLPModel,
-  x::AbstractVector,
-  v::AbstractVector,
-  Jtv::AbstractVector,
-)
-  @lencheck 2 x Jtv
+function NLPModels.jtprod_lin!(nlp::SimpleNLPModel, v::AbstractVector, Jtv::AbstractVector)
+  @lencheck 2 Jtv
   @lencheck 1 v
   increment!(nlp, :neval_jtprod_lin)
   Jtv .= [v[1]; -2 * v[1]]

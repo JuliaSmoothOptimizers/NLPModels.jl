@@ -72,7 +72,7 @@ The following functions should be defined:
   - `jac_nln_coord!(nlp, x, jvals)`
   - `jprod_lin!(nlp, v, Jv)`
   - `jprod_nln!(nlp, x, v, Jv)`
-  - `jtprod_lin!(nlp, x, v, Jtv)`
+  - `jtprod_lin!(nlp, v, Jtv)`
   - `jtprod_nln!(nlp, x, v, Jtv)`
   - `hess_coord!(nlp, x, y, hvals; obj_weight=1)`
   - `hprod!(nlp, x, y, v, Hv; obj_weight=1)`
