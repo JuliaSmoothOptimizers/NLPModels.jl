@@ -37,6 +37,27 @@ end
 
 SimpleNLPModel() = SimpleNLPModel(Float64)
 
+function NLPModels.jprod(nlp::SimpleNLPModel, x::AbstractVector, v::AbstractVector)
+  Jv = similar(v, nlp.meta.ncon)
+  NLPModels.jprod!(nlp, x, v, Jv)
+  return Jv
+end
+
+function NLPModels.jprod(nlp::SimpleNLPModel, v::AbstractVector)
+  Jv = similar(v, nlp.meta.ncon)
+  NLPModels.jprod!(nlp, v, Jv)
+  return Jv
+end
+
+function NLPModels.jprod!(nlp::SimpleNLPModel, v::AbstractVector, Jv::AbstractVector)
+  NLPModels.jprod_lin!(nlp, v, view(Jv, nlp.meta.lin))
+  NLPModels.jprod_nln!(nlp, x, v, view(Jv, nlp.meta.nln))
+  if length(Jv) > length(nlp.meta.lin)
+    Jv[length(nlp.meta.lin)+1:end] .= 0
+  end
+  return Jv
+end
+
 function NLPModels.obj(nlp::SimpleNLPModel, x::AbstractVector)
   @lencheck 2 x
   increment!(nlp, :neval_obj)
@@ -159,11 +180,17 @@ function NLPModels.jprod_nln!(
   return Jv
 end
 
+function NLPModels.jprod!(nlp::SimpleNLPModel, x::AbstractVector, v::AbstractVector, Jv::AbstractVector)
+  NLPModels.jprod_lin!(nlp, v, view(Jv, nlp.meta.lin))
+  NLPModels.jprod_nln!(nlp, x, v, view(Jv, nlp.meta.nln))
+  return Jv
+end
+
 function NLPModels.jprod_lin!(nlp::SimpleNLPModel, v::AbstractVector, Jv::AbstractVector)
   @lencheck 2 v
   @lencheck 1 Jv
   increment!(nlp, :neval_jprod_lin)
-  Jv .= [v[1] - 2 * v[2]]
+  Jv[1] = v[1] - 2 * v[2]
   return Jv
 end
 
