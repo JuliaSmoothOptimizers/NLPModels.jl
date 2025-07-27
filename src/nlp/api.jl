@@ -411,9 +411,6 @@ function jprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv:
   return Jv
 end
 
-@deprecate jprod(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector) jprod(nlp, v)
-@deprecate jprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv::AbstractVector) jprod!(nlp, v, Jv)
-
 """
     Jv = jprod!(nlp, rows, cols, vals, v, Jv)
 
