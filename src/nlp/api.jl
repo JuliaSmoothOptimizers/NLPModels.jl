@@ -1,3 +1,5 @@
+using Base: @deprecate
+
 export obj, grad, grad!, objgrad, objgrad!, objcons, objcons!
 export cons, cons!, cons_lin, cons_lin!, cons_nln, cons_nln!
 export jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad
@@ -266,10 +268,10 @@ function jac_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVect
   increment!(nlp, :neval_jac)
   if nlp.meta.nlin > 0
     if nlp.meta.nnln == 0
-      jac_lin_coord!(nlp, x, vals)
+      jac_lin_coord!(nlp, vals)
     else
       lin_ind = 1:(nlp.meta.lin_nnzj)
-      jac_lin_coord!(nlp, x, view(vals, lin_ind))
+      jac_lin_coord!(nlp, view(vals, lin_ind))
     end
   end
   if nlp.meta.nnln > 0
@@ -307,35 +309,39 @@ function jac(nlp::AbstractNLPModel, x::AbstractVector)
 end
 
 """
-    vals = jac_lin_coord!(nlp, x, vals)
+    vals = jac_lin_coord!(nlp, vals)
 
-Evaluate ``J(x)``, the linear constraints Jacobian at `x` in sparse coordinate format,
+Evaluate the linear constraints Jacobian in sparse coordinate format,
 overwriting `vals`.
 """
 function jac_lin_coord! end
 
-"""
-    vals = jac_lin_coord(nlp, x)
+@deprecate jac_lin_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVector) jac_lin_coord!(nlp, vals)
 
-Evaluate ``J(x)``, the linear constraints Jacobian at `x` in sparse coordinate format.
 """
-function jac_lin_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
-  @lencheck nlp.meta.nvar x
+    vals = jac_lin_coord(nlp)
+
+Evaluate the linear constraints Jacobian in sparse coordinate format.
+"""
+function jac_lin_coord(nlp::AbstractNLPModel{T, S}) where {T, S}
   vals = S(undef, nlp.meta.lin_nnzj)
-  return jac_lin_coord!(nlp, x, vals)
+  return jac_lin_coord!(nlp, vals)
 end
 
-"""
-    Jx = jac_lin(nlp, x)
+@deprecate jac_lin_coord(nlp::AbstractNLPModel, x::AbstractVector) jac_lin_coord(nlp)
 
-Evaluate ``J(x)``, the linear constraints Jacobian at `x` as a sparse matrix.
 """
-function jac_lin(nlp::AbstractNLPModel, x::AbstractVector)
-  @lencheck nlp.meta.nvar x
+    Jx = jac_lin(nlp)
+
+Evaluate the linear constraints Jacobian as a sparse matrix.
+"""
+function jac_lin(nlp::AbstractNLPModel)
   rows, cols = jac_lin_structure(nlp)
-  vals = jac_lin_coord(nlp, x)
+  vals = jac_lin_coord(nlp)
   sparse(rows, cols, vals, nlp.meta.nlin, nlp.meta.nvar)
 end
+
+@deprecate jac_lin(nlp::AbstractNLPModel, x::AbstractVector) jac_lin(nlp)
 
 """
     vals = jac_nln_coord!(nlp, x, vals)
@@ -390,9 +396,9 @@ function jprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv:
   increment!(nlp, :neval_jprod)
   if nlp.meta.nlin > 0
     if nlp.meta.nnln == 0
-      jprod_lin!(nlp, x, v, Jv)
+      jprod_lin!(nlp, v, Jv)
     else
-      jprod_lin!(nlp, x, v, view(Jv, nlp.meta.lin))
+      jprod_lin!(nlp, v, view(Jv, nlp.meta.lin))
     end
   end
   if nlp.meta.nnln > 0
@@ -427,22 +433,25 @@ function jprod!(
 end
 
 """
-    Jv = jprod_lin(nlp, x, v)
+    Jv = jprod_lin(nlp, v)
 
 Evaluate ``J(x)v``, the linear Jacobian-vector product at `x`.
 """
-function jprod_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
-  @lencheck nlp.meta.nvar x v
+function jprod_lin(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
+  @lencheck nlp.meta.nvar v
   Jv = S(undef, nlp.meta.nlin)
-  return jprod_lin!(nlp, x, v, Jv)
+  return jprod_lin!(nlp, v, Jv)
 end
 
 """
-    Jv = jprod_lin!(nlp, x, v, Jv)
+    Jv = jprod_lin!(nlp, v, Jv)
 
 Evaluate ``J(x)v``, the linear Jacobian-vector product at `x` in place.
 """
 function jprod_lin! end
+
+@deprecate jprod_lin(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector) jprod_lin(nlp, v)
+@deprecate jprod_lin!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv::AbstractVector) jprod_lin!(nlp, v, Jv)
 
 """
     Jv = jprod_lin!(nlp, rows, cols, vals, v, Jv)
@@ -527,18 +536,18 @@ function jtprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jt
   @lencheck nlp.meta.ncon v
   increment!(nlp, :neval_jtprod)
   if nlp.meta.nnln == 0
-    (nlp.meta.nlin > 0) && jtprod_lin!(nlp, x, v, Jtv)
+    (nlp.meta.nlin > 0) && jtprod_lin!(nlp, v, Jtv)
   elseif nlp.meta.nlin == 0
     (nlp.meta.nnln > 0) && jtprod_nln!(nlp, x, v, Jtv)
   elseif nlp.meta.nlin >= nlp.meta.nnln
-    jtprod_lin!(nlp, x, view(v, nlp.meta.lin), Jtv)
+    jtprod_lin!(nlp, view(v, nlp.meta.lin), Jtv)
     if nlp.meta.nnln > 0
       Jtv .+= jtprod_nln(nlp, x, view(v, nlp.meta.nln))
     end
   else
     jtprod_nln!(nlp, x, view(v, nlp.meta.nln), Jtv)
     if nlp.meta.nlin > 0
-      Jtv .+= jtprod_lin(nlp, x, view(v, nlp.meta.lin))
+      Jtv .+= jtprod_lin(nlp, view(v, nlp.meta.lin))
     end
   end
   return Jtv
@@ -566,23 +575,25 @@ function jtprod!(
 end
 
 """
-    Jtv = jtprod_lin(nlp, x, v)
+    Jtv = jtprod_lin(nlp, v)
 
 Evaluate ``J(x)^Tv``, the linear transposed-Jacobian-vector product at `x`.
 """
-function jtprod_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
-  @lencheck nlp.meta.nvar x
+function jtprod_lin(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nlin v
   Jtv = S(undef, nlp.meta.nvar)
-  return jtprod_lin!(nlp, x, v, Jtv)
+  return jtprod_lin!(nlp, v, Jtv)
 end
 
 """
-    Jtv = jtprod_lin!(nlp, x, v, Jtv)
+    Jtv = jtprod_lin!(nlp, v, Jtv)
 
 Evaluate ``J(x)^Tv``, the linear transposed-Jacobian-vector product at `x` in place.
 """
 function jtprod_lin! end
+
+@deprecate jtprod_lin(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector) jtprod_lin(nlp, v)
+@deprecate jtprod_lin!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jtv::AbstractVector) jtprod_lin!(nlp, v, Jtv)
 
 """
     Jtv = jtprod_lin!(nlp, rows, cols, vals, v, Jtv)
@@ -736,37 +747,37 @@ function jac_op!(
 end
 
 """
-    J = jac_lin_op(nlp, x)
+    J = jac_lin_op(nlp)
 
-Return the linear Jacobian at `x` as a linear operator.
+Return the linear Jacobian as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`.
 """
-function jac_lin_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
-  @lencheck nlp.meta.nvar x
+function jac_lin_op(nlp::AbstractNLPModel{T, S}) where {T, S}
   Jv = S(undef, nlp.meta.nlin)
   Jtv = S(undef, nlp.meta.nvar)
-  return jac_lin_op!(nlp, x, Jv, Jtv)
+  return jac_lin_op!(nlp, Jv, Jtv)
 end
 
-"""
-    J = jac_lin_op!(nlp, x, Jv, Jtv)
+@deprecate jac_lin_op(nlp::AbstractNLPModel, x::AbstractVector) jac_lin_op(nlp)
 
-Return the linear Jacobian at `x` as a linear operator.
+"""
+    J = jac_lin_op!(nlp, Jv, Jtv)
+
+Return the linear Jacobian as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or
 `J' * v`. The values `Jv` and `Jtv` are used as preallocated storage for the
 operations.
 """
 function jac_lin_op!(
   nlp::AbstractNLPModel{T, S},
-  x::AbstractVector{T},
   Jv::AbstractVector,
   Jtv::AbstractVector,
 ) where {T, S}
-  @lencheck nlp.meta.nvar x Jtv
   @lencheck nlp.meta.nlin Jv
+  @lencheck nlp.meta.nvar Jtv
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
-    jprod_lin!(nlp, x, v, Jv)
+    jprod_lin!(nlp, v, Jv)
     if β == 0
       res .= α .* Jv
     else
@@ -775,7 +786,7 @@ function jac_lin_op!(
     return res
   end
   ctprod! = @closure (res, v, α, β) -> begin
-    jtprod_lin!(nlp, x, v, Jtv)
+    jtprod_lin!(nlp, v, Jtv)
     if β == 0
       res .= α .* Jtv
     else
@@ -785,6 +796,8 @@ function jac_lin_op!(
   end
   return LinearOperator{T}(nlp.meta.nlin, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
+
+@deprecate jac_lin_op!(nlp::AbstractNLPModel, x::AbstractVector, Jv::AbstractVector, Jtv::AbstractVector) jac_lin_op!(nlp, Jv, Jtv)
 
 """
     J = jac_lin_op!(nlp, rows, cols, vals, Jv, Jtv)

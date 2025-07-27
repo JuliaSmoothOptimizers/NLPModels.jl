@@ -19,8 +19,8 @@ end
   @test_throws(MethodError, jth_congrad(model, [0.0], 1))
   @test_throws(MethodError, jth_sparse_congrad(model, [0.0], 1))
   @test_throws(MethodError, jth_congrad!(model, [0.0], 1, [2.0]))
-  @test_throws(MethodError, jprod_lin!(model, [0.0], [1.0], [2.0]))
-  @test_throws(MethodError, jtprod_lin!(model, [0.0], [1.0], [2.0]))
+  @test_throws(MethodError, jprod_lin!(model, [0.0], [2.0]))
+  @test_throws(MethodError, jtprod_lin!(model, [0.0], [2.0]))
   @test_throws(MethodError, jprod_nln!(model, [0.0], [1.0], [2.0]))
   @test_throws(MethodError, jtprod_nln!(model, [0.0], [1.0], [2.0]))
   @test_throws(MethodError, jth_hess_coord!(model, [0.0], 1))
@@ -28,6 +28,6 @@ end
   @test_throws(MethodError, ghjvprod!(model, [0.0], [1.0], [2.0], [3.0]))
   @assert isa(hess_op(model, [0.0]), LinearOperator)
   @assert isa(jac_op(model, [0.0]), LinearOperator)
-  @assert isa(jac_lin_op(model, [0.0]), LinearOperator)
+  @assert isa(jac_lin_op(model), LinearOperator)
   @assert isa(jac_nln_op(model, [0.0]), LinearOperator)
 end
