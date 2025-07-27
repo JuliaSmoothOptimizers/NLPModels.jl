@@ -2,7 +2,8 @@ export residual, residual!, jac_residual, jac_structure_residual, jac_structure_
 export jac_coord_residual!, jac_coord_residual, jprod_residual, jprod_residual!
 export jtprod_residual, jtprod_residual!, jac_op_residual, jac_op_residual!
 export hess_residual, hess_structure_residual, hess_structure_residual!
-export hess_coord_residual!, hess_coord_residual, jth_hess_residual, jth_hess_residual_coord, jth_hess_residual_coord!
+export hess_coord_residual!,
+  hess_coord_residual, jth_hess_residual, jth_hess_residual_coord, jth_hess_residual_coord!
 export hprod_residual, hprod_residual!, hess_op_residual, hess_op_residual!
 
 """
@@ -337,7 +338,11 @@ end
 Evaluate the Hessian of j-th residual at `x` in sparse coordinate format.
 Only the lower triangle is returned.
 """
-function jth_hess_residual_coord(nls::AbstractNLSModel{T, S}, x::AbstractVector, j::Int) where {T, S}
+function jth_hess_residual_coord(
+  nls::AbstractNLSModel{T, S},
+  x::AbstractVector,
+  j::Int,
+) where {T, S}
   @lencheck nls.meta.nvar x
   @rangecheck 1 nls.nls_meta.nequ j
   vals = S(undef, nls.nls_meta.nnzh)
@@ -350,7 +355,12 @@ end
 Evaluate the Hessian of j-th residual at `x` in sparse coordinate format, with `vals` of
 length `nls.nls_meta.nnzh`, in place. Only the lower triangle is returned.
 """
-function jth_hess_residual_coord!(nls::AbstractNLSModel{T, S}, x::AbstractVector, j::Int, vals::AbstractVector) where {T, S}
+function jth_hess_residual_coord!(
+  nls::AbstractNLSModel{T, S},
+  x::AbstractVector,
+  j::Int,
+  vals::AbstractVector,
+) where {T, S}
   @lencheck nls.meta.nvar x
   @rangecheck 1 nls.nls_meta.nequ j
   @lencheck nls.nls_meta.nnzh vals

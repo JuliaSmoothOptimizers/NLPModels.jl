@@ -316,7 +316,10 @@ overwriting `vals`.
 """
 function jac_lin_coord! end
 
-@deprecate jac_lin_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVector) jac_lin_coord!(nlp, vals)
+@deprecate jac_lin_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVector) jac_lin_coord!(
+  nlp,
+  vals,
+)
 
 """
     vals = jac_lin_coord(nlp)
@@ -451,7 +454,12 @@ Evaluate ``J(x)v``, the linear Jacobian-vector product at `x` in place.
 function jprod_lin! end
 
 @deprecate jprod_lin(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector) jprod_lin(nlp, v)
-@deprecate jprod_lin!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv::AbstractVector) jprod_lin!(nlp, v, Jv)
+@deprecate jprod_lin!(
+  nlp::AbstractNLPModel,
+  x::AbstractVector,
+  v::AbstractVector,
+  Jv::AbstractVector,
+) jprod_lin!(nlp, v, Jv)
 
 """
     Jv = jprod_lin!(nlp, rows, cols, vals, v, Jv)
@@ -592,8 +600,16 @@ Evaluate ``J(x)^Tv``, the linear transposed-Jacobian-vector product at `x` in pl
 """
 function jtprod_lin! end
 
-@deprecate jtprod_lin(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector) jtprod_lin(nlp, v)
-@deprecate jtprod_lin!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jtv::AbstractVector) jtprod_lin!(nlp, v, Jtv)
+@deprecate jtprod_lin(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector) jtprod_lin(
+  nlp,
+  v,
+)
+@deprecate jtprod_lin!(
+  nlp::AbstractNLPModel,
+  x::AbstractVector,
+  v::AbstractVector,
+  Jtv::AbstractVector,
+) jtprod_lin!(nlp, v, Jtv)
 
 """
     Jtv = jtprod_lin!(nlp, rows, cols, vals, v, Jtv)
@@ -797,7 +813,12 @@ function jac_lin_op!(
   return LinearOperator{T}(nlp.meta.nlin, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
 
-@deprecate jac_lin_op!(nlp::AbstractNLPModel, x::AbstractVector, Jv::AbstractVector, Jtv::AbstractVector) jac_lin_op!(nlp, Jv, Jtv)
+@deprecate jac_lin_op!(
+  nlp::AbstractNLPModel,
+  x::AbstractVector,
+  Jv::AbstractVector,
+  Jtv::AbstractVector,
+) jac_lin_op!(nlp, Jv, Jtv)
 
 """
     J = jac_lin_op!(nlp, rows, cols, vals, Jv, Jtv)
