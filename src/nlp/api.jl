@@ -172,6 +172,13 @@ function objgrad!(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector)
 end
 
 """
+    Jx = jac!(nlp, x, Jx)
+
+Compute in place the Jacobian `Jx` at `x`.
+"""
+function jac! end
+
+"""
     (rows,cols) = jac_structure(nlp)
 
 Return the structure of the constraints Jacobian in sparse coordinate format.
@@ -998,6 +1005,15 @@ end
 Return the vector whose i-th component is gᵀ ∇²cᵢ(x) v in place.
 """
 function ghjvprod! end
+
+"""
+    Hx = hess!(nlp, x, Hx)
+    Hx = hess!(nlp, x, y, Hx)
+
+Compute in place the Hessian `Hx` at `x` or `(x,y)` (depending on whether the
+problem is constrained or not).
+"""
+function hess! end
 
 """
     (rows,cols) = hess_structure(nlp)
