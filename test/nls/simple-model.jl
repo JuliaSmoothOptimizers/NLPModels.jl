@@ -52,6 +52,16 @@ function NLPModels.objcons!(nls::SimpleNLSModel, x::AbstractVector, Fx::Abstract
     return f, Fx
 end
 
+function NLPModels.objcons!(nls::SimpleNLSModel, x::AbstractVector, Fx::AbstractVector, res::AbstractVector; recompute::Bool=true)
+    @lencheck nls.meta.ncon Fx
+    NLPModels.cons_nln!(nls, x, Fx)
+    if recompute
+        res .= [1 - x[1]; 10 * (x[2] - x[1]^2)]
+    end
+    f = 0.5 * sum(abs2, res)
+    return f, Fx
+end
+
 function NLPModels.jprod(nls::SimpleNLSModel, x::AbstractVector, v::AbstractVector)
   Jv = similar(v, nls.meta.ncon)
   NLPModels.jprod!(nls, x, v, Jv)
