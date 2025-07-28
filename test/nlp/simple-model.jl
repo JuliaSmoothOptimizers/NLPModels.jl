@@ -159,7 +159,6 @@ function NLPModels.jprod_nln!(
   return Jv
 end
 
-
 function NLPModels.jprod_lin!(nlp::SimpleNLPModel, v::AbstractVector, Jv::AbstractVector)
   @lencheck 2 v
   @lencheck 1 Jv
