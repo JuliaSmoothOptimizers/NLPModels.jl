@@ -452,6 +452,30 @@ function obj(nls::AbstractNLSModel{T, S}, x::AbstractVector) where {T, S}
 end
 
 """
+    f, c = objcons!(nls, x, c)
+    f, c = objcons!(nls, x, c, Fx; recompute::Bool=true)
+
+In-place evaluation of constraints and objective for AbstractNLSModel.
+If `Fx` is provided, it is used for the objective; otherwise, the residual is computed.
+"""
+function objcons!(nls::AbstractNLSModel, x::AbstractVector, c::AbstractVector)
+    cons_nln!(nls, x, c)
+    Fx = similar(x, nls.nls_meta.nequ)
+    residual!(nls, x, Fx)
+    f = 0.5 * sum(abs2, Fx)
+    return f, c
+end
+
+function objcons!(nls::AbstractNLSModel, x::AbstractVector, c::AbstractVector, Fx::AbstractVector; recompute::Bool=true)
+    cons_nln!(nls, x, c)
+    if recompute
+        residual!(nls, x, Fx)
+    end
+    f = 0.5 * sum(abs2, Fx)
+    return f, c
+end
+
+"""
     g = grad!(nls, x, g)
     g = grad!(nls, x, g, Fx; recompute::Bool=true)
 
