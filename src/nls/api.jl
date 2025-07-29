@@ -458,12 +458,11 @@ end
 In-place evaluation of constraints and objective for AbstractNLSModel.
 If `Fx` is provided, it is used for the objective; otherwise, the residual is computed.
 """
-function objcons!(nls::AbstractNLSModel, x::AbstractVector, c::AbstractVector)
-    cons_nln!(nls, x, c)
-    Fx = similar(x, nls.nls_meta.nequ)
-    residual!(nls, x, Fx)
-    f = 0.5 * sum(abs2, Fx)
-    return f, c
+function objcons!(nls::AbstractNLSModel{T, S}, x::AbstractVector, c::AbstractVector) where {T, S}
+    @lencheck nls.meta.nvar x
+    @lencheck nls.meta.ncon c
+    Fx = S(undef, nls.nls_meta.nequ)
+    return objcons!(nls, x, c, Fx)
 end
 
 function objcons!(nls::AbstractNLSModel, x::AbstractVector, c::AbstractVector, Fx::AbstractVector; recompute::Bool=true)
