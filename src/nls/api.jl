@@ -466,12 +466,8 @@ function objcons!(nls::AbstractNLSModel{T, S}, x::AbstractVector, c::AbstractVec
 end
 
 function objcons!(nls::AbstractNLSModel, x::AbstractVector, c::AbstractVector, Fx::AbstractVector; recompute::Bool=true)
-    cons_nln!(nls, x, c)
-    if recompute
-        residual!(nls, x, Fx)
-    end
-    f = 0.5 * sum(abs2, Fx)
-    return f, c
+  cons_nln!(nls, x, c)
+  return obj(nls, x, Fx; recompute = recompute), c
 end
 
 """
