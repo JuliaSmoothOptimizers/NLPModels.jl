@@ -457,6 +457,7 @@ end
 
 In-place evaluation of constraints and objective for AbstractNLSModel.
 If `Fx` is provided, it is used for the objective; otherwise, the residual is computed.
+If `recompute` is `false`, the function assumes that `Fx` already contains the correct residual values and does not recompute them.
 """
 function objcons!(nls::AbstractNLSModel{T, S}, x::AbstractVector, c::AbstractVector) where {T, S}
     @lencheck nls.meta.nvar x
