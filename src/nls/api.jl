@@ -452,6 +452,26 @@ function obj(nls::AbstractNLSModel{T, S}, x::AbstractVector) where {T, S}
 end
 
 """
+    f, c = objcons!(nls, x, c)
+    f, c = objcons!(nls, x, c, Fx; recompute::Bool=true)
+
+In-place evaluation of constraints and objective for AbstractNLSModel.
+`Fx` is overwritten with the value of the residual `F(x)`.
+If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
+"""
+function objcons!(nls::AbstractNLSModel{T, S}, x::AbstractVector, c::AbstractVector) where {T, S}
+    @lencheck nls.meta.nvar x
+    @lencheck nls.meta.ncon c
+    Fx = S(undef, nls.nls_meta.nequ)
+    return objcons!(nls, x, c, Fx)
+end
+
+function objcons!(nls::AbstractNLSModel, x::AbstractVector, c::AbstractVector, Fx::AbstractVector; recompute::Bool=true)
+  cons_nln!(nls, x, c)
+  return obj(nls, x, Fx; recompute = recompute), c
+end
+
+"""
     g = grad!(nls, x, g)
     g = grad!(nls, x, g, Fx; recompute::Bool=true)
 
