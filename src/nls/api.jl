@@ -456,7 +456,7 @@ end
     f, c = objcons!(nls, x, c, Fx; recompute::Bool=true)
 
 In-place evaluation of constraints and objective for AbstractNLSModel.
-If `Fx` is provided, it is used for the objective; otherwise, the residual is computed.
+`Fx` is overwritten with the value of the residual `F(x)`.
 If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
 """
 function objcons!(nls::AbstractNLSModel{T, S}, x::AbstractVector, c::AbstractVector) where {T, S}
