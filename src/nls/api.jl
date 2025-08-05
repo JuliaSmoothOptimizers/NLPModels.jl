@@ -473,7 +473,7 @@ function objcons!(
   Fx::AbstractVector;
   recompute::Bool = true,
 )
-  cons_nln!(nls, x, c)
+  cons!(nls, x, c)
   return obj(nls, x, Fx; recompute = recompute), c
 end
 
