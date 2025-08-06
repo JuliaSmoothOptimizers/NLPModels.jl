@@ -460,13 +460,19 @@ If `Fx` is provided, it is used for the objective; otherwise, the residual is co
 If `recompute` is `false`, the function assumes that `Fx` already contains the correct residual values and does not recompute them.
 """
 function objcons!(nls::AbstractNLSModel{T, S}, x::AbstractVector, c::AbstractVector) where {T, S}
-    @lencheck nls.meta.nvar x
-    @lencheck nls.meta.ncon c
-    Fx = S(undef, nls.nls_meta.nequ)
-    return objcons!(nls, x, c, Fx)
+  @lencheck nls.meta.nvar x
+  @lencheck nls.meta.ncon c
+  Fx = S(undef, nls.nls_meta.nequ)
+  return objcons!(nls, x, c, Fx)
 end
 
-function objcons!(nls::AbstractNLSModel, x::AbstractVector, c::AbstractVector, Fx::AbstractVector; recompute::Bool=true)
+function objcons!(
+  nls::AbstractNLSModel,
+  x::AbstractVector,
+  c::AbstractVector,
+  Fx::AbstractVector;
+  recompute::Bool = true,
+)
   cons_nln!(nls, x, c)
   return obj(nls, x, Fx; recompute = recompute), c
 end
