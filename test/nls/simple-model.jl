@@ -43,42 +43,6 @@ end
 
 SimpleNLSModel() = SimpleNLSModel(Float64)
 
-# In-place objcons! for NLS
-function NLPModels.objcons!(nls::SimpleNLSModel, x::AbstractVector, Fx::AbstractVector)
-  @lencheck nls.meta.ncon Fx
-  NLPModels.cons_nln!(nls, x, Fx)
-  res = [1 - x[1]; 10 * (x[2] - x[1]^2)]
-  f = 0.5 * sum(abs2, res)
-  return f, Fx
-end
-
-function NLPModels.jprod(nls::SimpleNLSModel, x::AbstractVector, v::AbstractVector)
-  Jv = similar(v, nls.meta.ncon)
-  NLPModels.jprod!(nls, x, v, Jv)
-  return Jv
-end
-
-function NLPModels.jprod(nls::SimpleNLSModel, v::AbstractVector)
-  Jv = similar(v, nls.meta.ncon)
-  NLPModels.jprod!(nls, v, Jv)
-  return Jv
-end
-
-function NLPModels.jprod!(nls::SimpleNLSModel, v::AbstractVector, Jv::AbstractVector)
-  NLPModels.jprod_nln!(nls, nls.meta.x0, v, Jv)
-  return Jv
-end
-
-function NLPModels.jprod!(
-  nls::SimpleNLSModel,
-  x::AbstractVector,
-  v::AbstractVector,
-  Jv::AbstractVector,
-)
-  NLPModels.jprod_nln!(nls, x, v, Jv)
-  return Jv
-end
-
 function NLPModels.residual!(nls::SimpleNLSModel, x::AbstractVector, Fx::AbstractVector)
   @lencheck 2 x Fx
   increment!(nls, :neval_residual)
