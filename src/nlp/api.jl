@@ -537,6 +537,7 @@ end
     Jtv = jtprod!(nlp, x, v, Jtv)
 
 Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product at `x` in place.
+If the problem has linear and nonlinear constraints, this function allocates.
 """
 function jtprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jtv::AbstractVector)
   @lencheck nlp.meta.nvar x Jtv
@@ -546,33 +547,15 @@ function jtprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jt
     (nlp.meta.nlin > 0) && jtprod_lin!(nlp, v, Jtv)
   elseif nlp.meta.nlin == 0
     (nlp.meta.nnln > 0) && jtprod_nln!(nlp, x, v, Jtv)
-  else
-    # Both linear and nonlinear constraints present
-    # Use allocation-free accumulation approach
-    fill!(Jtv, zero(eltype(Jtv)))
-
-    # Accumulate linear part directly
-    if nlp.meta.nlin > 0
-      jtprod_lin!(nlp, view(v, nlp.meta.lin), Jtv)
-    end
-
-    # Accumulate nonlinear part using coordinate-based approach
+  elseif nlp.meta.nlin >= nlp.meta.nnln
+    jtprod_lin!(nlp, view(v, nlp.meta.lin), Jtv)
     if nlp.meta.nnln > 0
-      # Get structure (this is typically cached/precomputed)
-      rows = Vector{Int}(undef, nlp.meta.nln_nnzj)
-      cols = Vector{Int}(undef, nlp.meta.nln_nnzj)
-      jac_nln_structure!(nlp, rows, cols)
-
-      # Get values
-      vals = similar(Jtv, nlp.meta.nln_nnzj)
-      jac_nln_coord!(nlp, x, vals)
-
-      # Manual transpose jacobian-vector product: Jtv += J^T * v_nln
-      v_nln = view(v, nlp.meta.nln)
-      for k in eachindex(rows, cols, vals)
-        i, j = rows[k], cols[k]  # i-th constraint, j-th variable
-        Jtv[j] += vals[k] * v_nln[i]
-      end
+      Jtv .+= jtprod_nln(nlp, x, view(v, nlp.meta.nln))
+    end
+  else
+    jtprod_nln!(nlp, x, view(v, nlp.meta.nln), Jtv)
+    if nlp.meta.nlin > 0
+      Jtv .+= jtprod_lin(nlp, view(v, nlp.meta.lin))
     end
   end
   return Jtv
