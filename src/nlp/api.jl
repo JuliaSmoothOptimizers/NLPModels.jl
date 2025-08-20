@@ -1396,7 +1396,61 @@ function hess_op!(
 end
 
 """
-    varscale(model::AbstractNLPModel)
+  jac_coord(model::AbstractDenseNLPModel, x)
+
+Return the dense Jacobian of constraints at `x` for dense models.
+"""
+function jac_coord(model::AbstractDenseNLPModel, x)
+  error("jac_coord not implemented for AbstractDenseNLPModel. See src/nlp/dense.jl.")
+end
+
+"""
+  jac_structure(model::AbstractDenseNLPModel)
+
+Return the dense Jacobian structure for dense models.
+"""
+function jac_structure(model::AbstractDenseNLPModel)
+  error("jac_structure not implemented for AbstractDenseNLPModel. See src/nlp/dense.jl.")
+end
+
+"""
+  hess_coord(model::AbstractDenseNLPModel, x)
+
+Return the dense Hessian at `x` for dense models.
+"""
+function hess_coord(model::AbstractDenseNLPModel, x)
+  error("hess_coord not implemented for AbstractDenseNLPModel. See src/nlp/dense.jl.")
+end
+
+"""
+  hess_structure(model::AbstractDenseNLPModel)
+
+Return the dense Hessian structure for dense models.
+"""
+function hess_structure(model::AbstractDenseNLPModel)
+  error("hess_structure not implemented for AbstractDenseNLPModel. See src/nlp/dense.jl.")
+end
+
+"""
+  jth_hess_coord(model::AbstractDenseNLPModel, x, j)
+
+Return the dense Hessian of the j-th constraint at `x` for dense models.
+"""
+function jth_hess_coord(model::AbstractDenseNLPModel, x, j)
+  error("jth_hess_coord not implemented for AbstractDenseNLPModel. See src/nlp/dense.jl.")
+end
+
+"""
+  jth_hess_structure(model::AbstractDenseNLPModel)
+
+Return the dense Hessian structure for the j-th constraint for dense models.
+"""
+function jth_hess_structure(model::AbstractDenseNLPModel)
+  error("jth_hess_structure not implemented for AbstractDenseNLPModel. See src/nlp/dense.jl.")
+end
+
+"""
+  varscale(model::AbstractNLPModel)
 
 Return a vector containing the scaling factors for each variable in the model.
 This is typically used to normalize variables for numerical stability in solvers.
@@ -1404,21 +1458,30 @@ This is typically used to normalize variables for numerical stability in solvers
 By default, the scaling is model-dependent. If not overridden by the model, a vector of ones 
 is returned. Inspired by the AMPL scaling conventions.
 """
-function varscale end
+function varscale(model::AbstractNLPModel, x=nothing)
+  # Default: return ones for each variable
+  return ones(eltype(model), model.meta.nvar)
+end
 
 """
-    lagscale(model::AbstractNLPModel)
+  lagscale(model::AbstractNLPModel)
 
 Return a vector of scaling factors for the Lagrange multipliers associated with constraints.
 This can be used to improve numerical stability or condition number when solving KKT systems.
 """
-function lagscale end
+function lagscale(model::AbstractNLPModel, x=nothing)
+  # Default: return ones for each constraint
+  return ones(eltype(model), model.meta.ncon)
+end
 
 """
-    conscale(model::AbstractNLPModel)
+  conscale(model::AbstractNLPModel)
 
 Return a vector of constraint scaling factors for the model.
 These are typically used to normalize constraints to have similar magnitudes and improve 
 convergence behavior in nonlinear solvers.
 """
-function conscale end
+function conscale(model::AbstractNLPModel, x=nothing)
+  # Default: return ones for each constraint
+  return ones(eltype(model), model.meta.ncon)
+end

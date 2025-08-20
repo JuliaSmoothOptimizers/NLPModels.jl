@@ -24,14 +24,21 @@ with `σ = obj_weight`
 """
 
 """
-    AbstractNLPModel
+  AbstractNLPModel{T, S}
 
 Base type for an optimization model.
 """
 abstract type AbstractNLPModel{T, S} end
 
 """
-    AbstractNLSModel <: AbstractNLPModel
+  AbstractDenseNLPModel{T, S} <: AbstractNLPModel{T, S}
+
+Base type for a dense optimization model (Jacobian/Hessian stored as dense matrices).
+"""
+abstract type AbstractDenseNLPModel{T, S} <: AbstractNLPModel{T, S} end
+
+"""
+  AbstractNLSModel{T, S} <: AbstractNLPModel{T, S}
 
 Base type for a nonlinear least-squares model.
 """
@@ -41,5 +48,6 @@ for f in ["utils", "api", "counters", "meta", "show", "tools"]
   include("nlp/$f.jl")
   include("nls/$f.jl")
 end
+include("nlp/dense.jl")
 
 end # module
