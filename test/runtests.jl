@@ -9,6 +9,7 @@ include("nlp/meta.jl")
 include("nlp/show.jl")
 include("nlp/tools.jl")
 include("nlp/utils.jl")
+include("nlp/dense.jl")
 
 include("nls/simple-model.jl")
 include("nls/api.jl")
