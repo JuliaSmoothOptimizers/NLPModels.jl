@@ -41,7 +41,7 @@ for f in ["utils", "api", "counters", "meta", "show", "tools"]
   include("nlp/$f.jl")
   include("nls/$f.jl")
 end
-include("nlp/defaults.jl")  # Include default implementations after API definitions
+include("nlp/defaults.jl")
 
 end # module
 
