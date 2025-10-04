@@ -1,6 +1,4 @@
-# Default implementations for NLP API functions (separated from api.jl)
-# This file contains default implementations to separate API definitions from implementations.
-
+# Default implementations for NLPModel API functions
 function grad(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
   g = S(undef, nlp.meta.nvar)
