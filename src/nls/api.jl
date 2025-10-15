@@ -243,8 +243,6 @@ If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
 """
 function grad! end
 
-function grad! end
-
 """
     f, g = objgrad!(nls, x, g)
     f, g = objgrad!(nls, x, g, Fx; recompute::Bool=true)
