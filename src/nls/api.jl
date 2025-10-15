@@ -253,5 +253,3 @@ Evaluate f(x) and ∇f(x) of `nls::AbstractNLSModel` at `x`. `Fx` is overwritten
 If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
 """
 function objgrad! end
-
-function objgrad! end
