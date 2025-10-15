@@ -1,6 +1,4 @@
-"""
-Default implementations for AbstractNLSModel APIs.
-"""
+# Default implementations for AbstractNLSModel APIs.
 
 function residual(nls::AbstractNLSModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nls.meta.nvar x
