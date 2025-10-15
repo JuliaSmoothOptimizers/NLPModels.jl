@@ -234,8 +234,6 @@ If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
 """
 function objcons! end
 
-function objcons! end
-
 """
     g = grad!(nls, x, g)
     g = grad!(nls, x, g, Fx; recompute::Bool=true)
