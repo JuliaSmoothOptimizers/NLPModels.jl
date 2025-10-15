@@ -164,26 +164,6 @@ Evaluate ``J(x)``, the constraints Jacobian at `x` in sparse coordinate format,
 rewriting `vals`.
 """
 function jac_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVector)
-  @lencheck nlp.meta.nvar x
-  @lencheck nlp.meta.nnzj vals
-  increment!(nlp, :neval_jac)
-  if nlp.meta.nlin > 0
-    if nlp.meta.nnln == 0
-      jac_lin_coord!(nlp, vals)
-    else
-      lin_ind = 1:(nlp.meta.lin_nnzj)
-      jac_lin_coord!(nlp, view(vals, lin_ind))
-    end
-  end
-  if nlp.meta.nnln > 0
-    if nlp.meta.nlin == 0
-      jac_nln_coord!(nlp, x, vals)
-    else
-      nln_ind = (nlp.meta.lin_nnzj + 1):(nlp.meta.lin_nnzj + nlp.meta.nln_nnzj)
-      jac_nln_coord!(nlp, x, view(vals, nln_ind))
-    end
-  end
-  return vals
 end
 
 """
@@ -476,11 +456,6 @@ function jtprod!(
   v::AbstractVector,
   Jtv::AbstractVector,
 )
-  @lencheck nlp.meta.nnzj rows cols vals
-  @lencheck nlp.meta.ncon v
-  @lencheck nlp.meta.nvar Jtv
-  increment!(nlp, :neval_jtprod)
-  coo_prod!(cols, rows, vals, v, Jtv)
 end
 
 """
@@ -526,11 +501,6 @@ function jtprod_lin!(
   v::AbstractVector,
   Jtv::AbstractVector,
 )
-  @lencheck nlp.meta.lin_nnzj rows cols vals
-  @lencheck nlp.meta.nlin v
-  @lencheck nlp.meta.nvar Jtv
-  increment!(nlp, :neval_jtprod_lin)
-  coo_prod!(cols, rows, vals, v, Jtv)
 end
 
 """
@@ -566,11 +536,6 @@ function jtprod_nln!(
   v::AbstractVector,
   Jtv::AbstractVector,
 )
-  @lencheck nlp.meta.nln_nnzj rows cols vals
-  @lencheck nlp.meta.nnln v
-  @lencheck nlp.meta.nvar Jtv
-  increment!(nlp, :neval_jtprod_nln)
-  coo_prod!(cols, rows, vals, v, Jtv)
 end
 
 """
@@ -638,29 +603,7 @@ function jac_op!(
   vals::AbstractVector{T},
   Jv::AbstractVector,
   Jtv::AbstractVector,
-) where {T, S}
-  @lencheck nlp.meta.nnzj rows cols vals
-  @lencheck nlp.meta.ncon Jv
-  @lencheck nlp.meta.nvar Jtv
-  prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
-    jprod!(nlp, rows, cols, vals, v, Jv)
-    if β == 0
-      res .= α .* Jv
-    else
-      res .= α .* Jv .+ β .* res
-    end
-    return res
-  end
-  ctprod! = @closure (res, v, α, β) -> begin
-    jtprod!(nlp, rows, cols, vals, v, Jtv)
-    if β == 0
-      res .= α .* Jtv
-    else
-      res .= α .* Jtv .+ β .* res
-    end
-    return res
-  end
-  return LinearOperator{T}(nlp.meta.ncon, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
+ ) where {T, S}
 end
 
 """
@@ -690,28 +633,7 @@ function jac_lin_op!(
   nlp::AbstractNLPModel{T, S},
   Jv::AbstractVector,
   Jtv::AbstractVector,
-) where {T, S}
-  @lencheck nlp.meta.nlin Jv
-  @lencheck nlp.meta.nvar Jtv
-  prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
-    jprod_lin!(nlp, v, Jv)
-    if β == 0
-      res .= α .* Jv
-    else
-      res .= α .* Jv .+ β .* res
-    end
-    return res
-  end
-  ctprod! = @closure (res, v, α, β) -> begin
-    jtprod_lin!(nlp, v, Jtv)
-    if β == 0
-      res .= α .* Jtv
-    else
-      res .= α .* Jtv .+ β .* res
-    end
-    return res
-  end
-  return LinearOperator{T}(nlp.meta.nlin, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
+ ) where {T, S}
 end
 
 @deprecate jac_lin_op!(
@@ -735,29 +657,7 @@ function jac_lin_op!(
   vals::AbstractVector{T},
   Jv::AbstractVector,
   Jtv::AbstractVector,
-) where {T, S}
-  @lencheck nlp.meta.lin_nnzj rows cols vals
-  @lencheck nlp.meta.nlin Jv
-  @lencheck nlp.meta.nvar Jtv
-  prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
-    jprod_lin!(nlp, rows, cols, vals, v, Jv)
-    if β == 0
-      res .= α .* Jv
-    else
-      res .= α .* Jv .+ β .* res
-    end
-    return res
-  end
-  ctprod! = @closure (res, v, α, β) -> begin
-    jtprod_lin!(nlp, rows, cols, vals, v, Jtv)
-    if β == 0
-      res .= α .* Jtv
-    else
-      res .= α .* Jtv .+ β .* res
-    end
-    return res
-  end
-  return LinearOperator{T}(nlp.meta.nlin, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
+ ) where {T, S}
 end
 
 """
@@ -787,28 +687,7 @@ function jac_nln_op!(
   x::AbstractVector{T},
   Jv::AbstractVector,
   Jtv::AbstractVector,
-) where {T, S}
-  @lencheck nlp.meta.nvar x Jtv
-  @lencheck nlp.meta.nnln Jv
-  prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
-    jprod_nln!(nlp, x, v, Jv)
-    if β == 0
-      res .= α .* Jv
-    else
-      res .= α .* Jv .+ β .* res
-    end
-    return res
-  end
-  ctprod! = @closure (res, v, α, β) -> begin
-    jtprod_nln!(nlp, x, v, Jtv)
-    if β == 0
-      res .= α .* Jtv
-    else
-      res .= α .* Jtv .+ β .* res
-    end
-    return res
-  end
-  return LinearOperator{T}(nlp.meta.nnln, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
+ ) where {T, S}
 end
 
 """
@@ -825,29 +704,7 @@ function jac_nln_op!(
   vals::AbstractVector{T},
   Jv::AbstractVector,
   Jtv::AbstractVector,
-) where {T, S}
-  @lencheck nlp.meta.nln_nnzj rows cols vals
-  @lencheck nlp.meta.nnln Jv
-  @lencheck nlp.meta.nvar Jtv
-  prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
-    jprod_nln!(nlp, rows, cols, vals, v, Jv)
-    if β == 0
-      res .= α .* Jv
-    else
-      res .= α .* Jv .+ β .* res
-    end
-    return res
-  end
-  ctprod! = @closure (res, v, α, β) -> begin
-    jtprod_nln!(nlp, rows, cols, vals, v, Jtv)
-    if β == 0
-      res .= α .* Jtv
-    else
-      res .= α .* Jtv .+ β .* res
-    end
-    return res
-  end
-  return LinearOperator{T}(nlp.meta.nnln, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
+ ) where {T, S}
 end
 
 """
@@ -1135,10 +992,6 @@ function hprod!(
   v::AbstractVector,
   Hv::AbstractVector,
 )
-  @lencheck nlp.meta.nnzh rows cols vals
-  @lencheck nlp.meta.nvar v Hv
-  increment!(nlp, :neval_hprod)
-  coo_sym_prod!(cols, rows, vals, v, Hv)
 end
 
 """
@@ -1204,17 +1057,6 @@ function hess_op!(
   Hv::AbstractVector;
   obj_weight::Real = one(T),
 ) where {T, S}
-  @lencheck nlp.meta.nvar x Hv
-  prod! = @closure (res, v, α, β) -> begin
-    hprod!(nlp, x, v, Hv; obj_weight = obj_weight)
-    if β == 0
-      res .= α .* Hv
-    else
-      res .= α .* Hv .+ β .* res
-    end
-    return res
-  end
-  return LinearOperator{T}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
 end
 
 """
@@ -1234,18 +1076,6 @@ function hess_op!(
   vals::AbstractVector,
   Hv::AbstractVector,
 ) where {T, S}
-  @lencheck nlp.meta.nnzh rows cols vals
-  @lencheck nlp.meta.nvar Hv
-  prod! = @closure (res, v, α, β) -> begin
-    hprod!(nlp, rows, cols, vals, v, Hv)
-    if β == 0
-      res .= α .* Hv
-    else
-      res .= α .* Hv .+ β .* res
-    end
-    return res
-  end
-  return LinearOperator{T}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
 end
 
 """
@@ -1265,18 +1095,6 @@ function hess_op!(
   Hv::AbstractVector;
   obj_weight::Real = one(T),
 ) where {T, S}
-  @lencheck nlp.meta.nvar x Hv
-  @lencheck nlp.meta.ncon y
-  prod! = @closure (res, v, α, β) -> begin
-    hprod!(nlp, x, y, v, Hv; obj_weight = obj_weight)
-    if β == 0
-      res .= α .* Hv
-    else
-      res .= α .* Hv .+ β .* res
-    end
-    return res
-  end
-  return LinearOperator{T}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
 end
 
 """
