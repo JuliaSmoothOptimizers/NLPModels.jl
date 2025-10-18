@@ -213,41 +213,11 @@ Computes the Hessian of the i-th residual at x, in linear operator form. The vec
 """
 function hess_op_residual! end
 
-"""
-    f = obj(nls, x)
-    f = obj(nls, x, Fx; recompute::Bool=true)
-
-Evaluate `f(x)`, the objective function of `nls::AbstractNLSModel`. `Fx` is overwritten with the value of the residual `F(x)`.
-If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
-"""
 function obj end
 
-function obj end
-
-"""
-    f, c = objcons!(nls, x, c)
-    f, c = objcons!(nls, x, c, Fx; recompute::Bool=true)
-
-In-place evaluation of constraints and objective for AbstractNLSModel.
-`Fx` is overwritten with the value of the residual `F(x)`.
-If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
-"""
 function objcons! end
 
-"""
-    g = grad!(nls, x, g)
-    g = grad!(nls, x, g, Fx; recompute::Bool=true)
-
-Evaluate `∇f(x)`, the gradient of the objective function of `nls::AbstractNLSModel` at `x` in place. `Fx` is overwritten with the value of the residual `F(x)`.
-If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
-"""
 function grad! end
 
-"""
-    f, g = objgrad!(nls, x, g)
-    f, g = objgrad!(nls, x, g, Fx; recompute::Bool=true)
-
-Evaluate f(x) and ∇f(x) of `nls::AbstractNLSModel` at `x`. `Fx` is overwritten with the value of the residual `F(x)`.
-If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
-"""
 function objgrad! end
+

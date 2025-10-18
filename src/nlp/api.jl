@@ -19,6 +19,14 @@ export varscale, lagscale, conscale
     f = obj(nlp, x)
 
 Evaluate ``f(x)``, the objective function of `nlp` at `x`.
+
+For `nls::AbstractNLSModel`, the objective is defined as ``f(x) = \\frac{1}{2}\\|F(x)\\|^2``
+where ``F(x)`` is the residual. Additional signatures for NLS models:
+
+    f = obj(nls, x, Fx; recompute::Bool=true)
+
+where `Fx` is overwritten with the value of the residual ``F(x)``.
+If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
 """
 function obj end
 
@@ -33,6 +41,13 @@ function grad end
     g = grad!(nlp, x, g)
 
 Evaluate ``∇f(x)``, the gradient of the objective function at `x` in place.
+
+For `nls::AbstractNLSModel`, additional signature:
+
+    g = grad!(nls, x, g, Fx; recompute::Bool=true)
+
+where `Fx` is overwritten with the value of the residual ``F(x)``.
+If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
 """
 function grad! end
 
@@ -97,6 +112,13 @@ function objcons end
     f, c = objcons!(nlp, x, c)
 
 Evaluate ``f(x)`` and ``c(x)`` at `x`. `c` is overwritten with the value of ``c(x)``.
+
+For `nls::AbstractNLSModel`, additional signature:
+
+    f, c = objcons!(nls, x, c, Fx; recompute::Bool=true)
+
+where `Fx` is overwritten with the value of the residual ``F(x)``.
+If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
 """
 function objcons! end
 
@@ -112,6 +134,13 @@ function objgrad end
 
 Evaluate ``f(x)`` and ``∇f(x)`` at `x`. `g` is overwritten with the
 value of ``∇f(x)``.
+
+For `nls::AbstractNLSModel`, additional signature:
+
+    f, g = objgrad!(nls, x, g, Fx; recompute::Bool=true)
+
+where `Fx` is overwritten with the value of the residual ``F(x)``.
+If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
 """
 function objgrad! end
 
