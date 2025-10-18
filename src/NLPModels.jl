@@ -7,7 +7,7 @@ using FastClosures
 # JSO
 using LinearOperators
 
-export AbstractNLPModel, AbstractNLSModel
+export AbstractNLPModel, AbstractNLSModel, AbstractDenseNLPModel
 
 # For documentation purpose
 const OBJECTIVE_HESSIAN = raw"""
@@ -24,30 +24,32 @@ with `σ = obj_weight`
 """
 
 """
-  AbstractNLPModel{T, S}
+    AbstractNLPModel
 
 Base type for an optimization model.
 """
 abstract type AbstractNLPModel{T, S} end
 
 """
-  AbstractDenseNLPModel{T, S} <: AbstractNLPModel{T, S}
+    AbstractDenseNLPModel <: AbstractNLPModel
 
 Base type for a dense optimization model (Jacobian/Hessian stored as dense matrices).
 """
 abstract type AbstractDenseNLPModel{T, S} <: AbstractNLPModel{T, S} end
 
 """
-  AbstractNLSModel{T, S} <: AbstractNLPModel{T, S}
+    AbstractNLSModel <: AbstractNLPModel
 
 Base type for a nonlinear least-squares model.
 """
 abstract type AbstractNLSModel{T, S} <: AbstractNLPModel{T, S} end
 
-for f in ["utils", "api", "counters", "meta", "show", "tools"]
+for f in ["utils", "api", "counters", "meta", "show", "tools", "dense"]
   include("nlp/$f.jl")
+end
+
+for f in ["utils", "api", "counters", "meta", "show", "tools"]
   include("nls/$f.jl")
 end
-include("nlp/dense.jl")
 
 end # module
