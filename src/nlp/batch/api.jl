@@ -185,3 +185,8 @@ batch_objgrad!(bnlp::AbstractBatchNLPModel, xs::VV, gs::Vector) =
   _batch_map_tuple!(objgrad!, bnlp, gs, xs)
 batch_objcons!(bnlp::AbstractBatchNLPModel, xs::VV, cs::Vector) =
   _batch_map_tuple!(objcons!, bnlp, cs, xs)
+
+function NLPModels.increment!(bnlp::AbstractBatchNLPModel, fun::Symbol)
+  NLPModels.increment!(bnlp, Val(fun))
+end
+  
