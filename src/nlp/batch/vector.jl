@@ -1,13 +1,14 @@
 export VectorBatchNLPModel
 struct VectorBatchNLPModel{T, S, M <: AbstractNLPModel{T, S}} <: AbstractBatchNLPModel{T, S}
   models::Vector{M}
+  counters::Counters
   meta::NLPModelMeta{T, S}
 end
 function VectorBatchNLPModel(models::Vector{M}) where {M <: AbstractNLPModel}
   isempty(models) && error("Cannot create VectorBatchNLPModel from empty vector")
   # TODO: check all metas the same, all structures same, etc.
   meta = first(models).meta
-  VectorBatchNLPModel{eltype(meta.x0), typeof(meta.x0), M}(models, meta)
+  VectorBatchNLPModel{eltype(meta.x0), typeof(meta.x0), M}(models, Counters(), meta)
 end
 Base.length(vnlp::VectorBatchNLPModel) = length(vnlp.models)
 Base.getindex(vnlp::VectorBatchNLPModel, i::Integer) = vnlp.models[i]
@@ -80,4 +81,11 @@ function _batch_map_tuple!(f, bnlp::VectorBatchNLPModel, outputs::Vector, xs::VV
     firsts[i], _ = f(bnlp[i], args_i..., outputs[i])
   end
   return firsts, outputs
+end
+
+for fun in fieldnames(Counters)
+  @eval function NLPModels.increment!(bnlp::VectorBatchNLPModel, ::Val{$(Meta.quot(fun))})
+    # sub-model counters are already incremented since we call their methods
+    bnlp.counters.$fun += 1
+  end
 end
