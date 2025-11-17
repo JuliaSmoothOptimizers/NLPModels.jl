@@ -4,6 +4,7 @@ include("nlp/simple-model.jl")
 include("nlp/dummy-model.jl")
 
 include("nlp/api.jl")
+include("nlp/batch_api.jl")
 include("nlp/counters.jl")
 include("nlp/meta.jl")
 include("nlp/show.jl")
