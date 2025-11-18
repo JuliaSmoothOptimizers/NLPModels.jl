@@ -1,5 +1,19 @@
 using Base: @deprecate
 
+function _has_external_method(f, tt::Type)
+  if !Base.hasmethod(f, tt)
+    return false
+  end
+
+  ml = methods(f, tt)
+  for m in ml.ms
+    if m.module !== @__MODULE__
+      return true
+    end
+  end
+  return false
+end
+
 export obj, grad, grad!, objgrad, objgrad!, objcons, objcons!
 export cons, cons!, cons_lin, cons_lin!, cons_nln, cons_nln!
 export jth_con, jth_congrad, jth_congrad!, jth_sparse_congrad
@@ -269,19 +283,27 @@ function jac_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVect
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nnzj vals
   increment!(nlp, :neval_jac)
-  if nlp.meta.nlin > 0
+    if nlp.meta.nlin > 0
     if nlp.meta.nnln == 0
-      if hasmethod(jac_lin_coord!, Tuple{typeof(nlp), AbstractVector, typeof(vals)})
+      try
         jac_lin_coord!(nlp, x, vals)
-      else
-        jac_lin_coord!(nlp, vals)
+      catch err
+        if err isa MethodError
+          jac_lin_coord!(nlp, vals)
+        else
+          rethrow(err)
+        end
       end
     else
       lin_ind = 1:(nlp.meta.lin_nnzj)
-      if hasmethod(jac_lin_coord!, Tuple{typeof(nlp), AbstractVector, AbstractVector})
+      try
         jac_lin_coord!(nlp, x, view(vals, lin_ind))
-      else
-        jac_lin_coord!(nlp, view(vals, lin_ind))
+      catch err
+        if err isa MethodError
+          jac_lin_coord!(nlp, view(vals, lin_ind))
+        else
+          rethrow(err)
+        end
       end
     end
   end
@@ -412,18 +434,26 @@ function jprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv:
   @lencheck nlp.meta.nvar x v
   @lencheck nlp.meta.ncon Jv
   increment!(nlp, :neval_jprod)
-  if nlp.meta.nlin > 0
+    if nlp.meta.nlin > 0
     if nlp.meta.nnln == 0
-      if hasmethod(jprod_lin!, Tuple{typeof(nlp), AbstractVector, AbstractVector, typeof(Jv)})
+      try
         jprod_lin!(nlp, x, v, Jv)
-      else
-        jprod_lin!(nlp, v, Jv)
+      catch err
+        if err isa MethodError
+          jprod_lin!(nlp, v, Jv)
+        else
+          rethrow(err)
+        end
       end
     else
-      if hasmethod(jprod_lin!, Tuple{typeof(nlp), AbstractVector, AbstractVector, AbstractVector})
+      try
         jprod_lin!(nlp, x, v, view(Jv, nlp.meta.lin))
-      else
-        jprod_lin!(nlp, v, view(Jv, nlp.meta.lin))
+      catch err
+        if err isa MethodError
+          jprod_lin!(nlp, v, view(Jv, nlp.meta.lin))
+        else
+          rethrow(err)
+        end
       end
     end
   end
@@ -466,7 +496,11 @@ Evaluate ``J(x)v``, the linear Jacobian-vector product at `x`.
 function jprod_lin(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar v
   Jv = S(undef, nlp.meta.nlin)
-  return jprod_lin!(nlp, v, Jv)
+  if _has_external_method(jprod_lin!, Tuple{typeof(nlp), AbstractVector, AbstractVector, typeof(Jv)}) && !isempty(nlp.meta.x0)
+    return jprod_lin!(nlp, nlp.meta.x0, v, Jv)
+  else
+    return jprod_lin!(nlp, v, Jv)
+  end
 end
 
 """
@@ -566,21 +600,29 @@ function jtprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jt
   @lencheck nlp.meta.nvar x Jtv
   @lencheck nlp.meta.ncon v
   increment!(nlp, :neval_jtprod)
-  if nlp.meta.nnln == 0
+    if nlp.meta.nnln == 0
     if nlp.meta.nlin > 0
-      if hasmethod(jtprod_lin!, Tuple{typeof(nlp), AbstractVector, AbstractVector, typeof(Jtv)})
+      try
         jtprod_lin!(nlp, x, v, Jtv)
-      else
-        jtprod_lin!(nlp, v, Jtv)
+      catch err
+        if err isa MethodError
+          jtprod_lin!(nlp, v, Jtv)
+        else
+          rethrow(err)
+        end
       end
     end
   elseif nlp.meta.nlin == 0
     (nlp.meta.nnln > 0) && jtprod_nln!(nlp, x, v, Jtv)
   elseif nlp.meta.nlin >= nlp.meta.nnln
-    if hasmethod(jtprod_lin!, Tuple{typeof(nlp), AbstractVector, AbstractVector, typeof(Jtv)})
+    try
       jtprod_lin!(nlp, x, view(v, nlp.meta.lin), Jtv)
-    else
-      jtprod_lin!(nlp, view(v, nlp.meta.lin), Jtv)
+    catch err
+      if err isa MethodError
+        jtprod_lin!(nlp, view(v, nlp.meta.lin), Jtv)
+      else
+        rethrow(err)
+      end
     end
     if nlp.meta.nnln > 0
       Jtv .+= jtprod_nln(nlp, x, view(v, nlp.meta.nln))
@@ -623,7 +665,13 @@ Evaluate ``J(x)^Tv``, the linear transposed-Jacobian-vector product at `x`.
 function jtprod_lin(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nlin v
   Jtv = S(undef, nlp.meta.nvar)
-  return jtprod_lin!(nlp, v, Jtv)
+  # Prefer downstream implementations that expect the old signature
+  # `jtprod_lin!(nlp, x, v, Jtv)` if they exist and an initial `x0` is available.
+  if _has_external_method(jtprod_lin!, Tuple{typeof(nlp), AbstractVector, AbstractVector, typeof(Jtv)}) && !isempty(nlp.meta.x0)
+    return jtprod_lin!(nlp, nlp.meta.x0, v, Jtv)
+  else
+    return jtprod_lin!(nlp, v, Jtv)
+  end
 end
 
 """
@@ -826,7 +874,11 @@ function jac_lin_op!(
   @lencheck nlp.meta.nlin Jv
   @lencheck nlp.meta.nvar Jtv
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
-    jprod_lin!(nlp, v, Jv)
+    if _has_external_method(jprod_lin!, Tuple{typeof(nlp), AbstractVector, AbstractVector, typeof(Jv)}) && !isempty(nlp.meta.x0)
+      jprod_lin!(nlp, nlp.meta.x0, v, Jv)
+    else
+      jprod_lin!(nlp, v, Jv)
+    end
     if β == 0
       res .= α .* Jv
     else
@@ -835,7 +887,11 @@ function jac_lin_op!(
     return res
   end
   ctprod! = @closure (res, v, α, β) -> begin
-    jtprod_lin!(nlp, v, Jtv)
+    if _has_external_method(jtprod_lin!, Tuple{typeof(nlp), AbstractVector, AbstractVector, typeof(Jtv)}) && !isempty(nlp.meta.x0)
+      jtprod_lin!(nlp, nlp.meta.x0, v, Jtv)
+    else
+      jtprod_lin!(nlp, v, Jtv)
+    end
     if β == 0
       res .= α .* Jtv
     else
