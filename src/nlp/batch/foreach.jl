@@ -99,12 +99,13 @@ end
 #     2. define _batch_map(f::func, ::MyBatchModel, ...)
 # in most cases, using the first option is preferable.
 # however, when overriding several functions at a time,
-# for example if you know all the jac/hess structures are identical, one can write
+# for example if you know the hess structures are identical,
+# one can write something like
 #
 # function NLPModels._batch_map(
-#     f::F,
+#     f::hess_structure,
 #     bnlp::MyBatchModel
-# ) where {F<:Union{jac_structure,jac_lin_structure,jac_nln_structure,hess_structure}}
+# )
 #     
 #     return f(first(bnlp))
 # end
