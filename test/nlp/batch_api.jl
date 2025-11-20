@@ -1,8 +1,10 @@
 @testset "Batch API" begin
   # Generate models
+  # TODO: non-identical models
   n_models = 5
   models = [SimpleNLPModel() for _ = 1:n_models]
-  n, m = models[1].meta.nvar, models[1].meta.ncon
+  meta = models[1].meta
+  n, m = meta.nvar, meta.ncon
   xs = [randn(n) for _ = 1:n_models]
   ys = [randn(m) for _ = 1:n_models]
   vs = [randn(n) for _ = 1:n_models]
@@ -10,7 +12,7 @@
   gs = [zeros(n) for _ = 1:n_models]
   cs = [zeros(m) for _ = 1:n_models]
   obj_weights = rand(n_models)
-  for batch_model in [VectorBatchNLPModel]
+  for batch_model in [ForEachBatchNLPModel]
     @testset "$batch_model consistency" begin
       bnlp = batch_model(models)
 
@@ -59,9 +61,9 @@
       @test batch_cs_lin ≈ manual_cs_lin
 
       # Test batch_cons_lin!
-      cs_lin = [zeros(bnlp.meta.nlin) for _ = 1:n_models]
+      cs_lin = [zeros(meta.nlin) for _ = 1:n_models]
       batch_cons_lin!(bnlp, xs, cs_lin)
-      manual_cs_lin = [cons_lin!(models[i], xs[i], zeros(bnlp.meta.nlin)) for i = 1:n_models]
+      manual_cs_lin = [cons_lin!(models[i], xs[i], zeros(meta.nlin)) for i = 1:n_models]
       @test cs_lin ≈ manual_cs_lin
 
       # Test batch_cons_nln
@@ -70,9 +72,9 @@
       @test batch_cs_nln ≈ manual_cs_nln
 
       # Test batch_cons_nln!
-      cs_nln = [zeros(bnlp.meta.nnln) for _ = 1:n_models]
+      cs_nln = [zeros(meta.nnln) for _ = 1:n_models]
       batch_cons_nln!(bnlp, xs, cs_nln)
-      manual_cs_nln = [cons_nln!(models[i], xs[i], zeros(bnlp.meta.nnln)) for i = 1:n_models]
+      manual_cs_nln = [cons_nln!(models[i], xs[i], zeros(meta.nnln)) for i = 1:n_models]
       @test cs_nln ≈ manual_cs_nln
 
       # Test batch_objcons
@@ -100,9 +102,9 @@
       @test batch_jac_coords ≈ manual_jac_coords
 
       # Test batch_jac_coord!
-      jac_coords = [zeros(bnlp.meta.nnzj) for _ = 1:n_models]
+      jac_coords = [zeros(meta.nnzj) for _ = 1:n_models]
       batch_jac_coord!(bnlp, xs, jac_coords)
-      manual_jac_coords = [jac_coord!(models[i], xs[i], zeros(bnlp.meta.nnzj)) for i = 1:n_models]
+      manual_jac_coords = [jac_coord!(models[i], xs[i], zeros(meta.nnzj)) for i = 1:n_models]
       @test jac_coords ≈ manual_jac_coords
 
       # Test batch_jac_lin
@@ -116,10 +118,10 @@
       @test batch_jac_lin_coords ≈ manual_jac_lin_coords
 
       # Test batch_jac_lin_coord!
-      jac_lin_coords = [zeros(bnlp.meta.lin_nnzj) for _ = 1:n_models]
+      jac_lin_coords = [zeros(meta.lin_nnzj) for _ = 1:n_models]
       batch_jac_lin_coord!(bnlp, jac_lin_coords)
       manual_jac_lin_coords =
-        [jac_lin_coord!(models[i], zeros(bnlp.meta.lin_nnzj)) for i = 1:n_models]
+        [jac_lin_coord!(models[i], zeros(meta.lin_nnzj)) for i = 1:n_models]
       @test jac_lin_coords ≈ manual_jac_lin_coords
 
       # Test batch_jac_nln
@@ -133,10 +135,10 @@
       @test batch_jac_nln_coords ≈ manual_jac_nln_coords
 
       # Test batch_jac_nln_coord!
-      jac_nln_coords = [zeros(bnlp.meta.nln_nnzj) for _ = 1:n_models]
+      jac_nln_coords = [zeros(meta.nln_nnzj) for _ = 1:n_models]
       batch_jac_nln_coord!(bnlp, xs, jac_nln_coords)
       manual_jac_nln_coords =
-        [jac_nln_coord!(models[i], xs[i], zeros(bnlp.meta.nln_nnzj)) for i = 1:n_models]
+        [jac_nln_coord!(models[i], xs[i], zeros(meta.nln_nnzj)) for i = 1:n_models]
       @test jac_nln_coords ≈ manual_jac_nln_coords
 
       # Test batch_jprod
@@ -167,13 +169,13 @@
       @test batch_jprod_lins ≈ manual_jprod_lins
 
       # Test batch_jprod_lin!
-      jprod_lins = [zeros(bnlp.meta.nlin) for _ = 1:n_models]
+      jprod_lins = [zeros(meta.nlin) for _ = 1:n_models]
       batch_jprod_lin!(bnlp, vs, jprod_lins)
-      manual_jprod_lins = [jprod_lin!(models[i], vs[i], zeros(bnlp.meta.nlin)) for i = 1:n_models]
+      manual_jprod_lins = [jprod_lin!(models[i], vs[i], zeros(meta.nlin)) for i = 1:n_models]
       @test jprod_lins ≈ manual_jprod_lins
 
       # Test batch_jtprod_lin
-      ws_lin = [ws[i][1:(bnlp.meta.nlin)] for i = 1:n_models]
+      ws_lin = [ws[i][1:(meta.nlin)] for i = 1:n_models]
       batch_jtprod_lins = batch_jtprod_lin(bnlp, ws_lin)
       manual_jtprod_lins = [jtprod_lin(models[i], ws_lin[i]) for i = 1:n_models]
       @test batch_jtprod_lins ≈ manual_jtprod_lins
@@ -190,14 +192,14 @@
       @test batch_jprod_nlns ≈ manual_jprod_nlns
 
       # Test batch_jprod_nln!
-      jprod_nlns = [zeros(bnlp.meta.nnln) for _ = 1:n_models]
+      jprod_nlns = [zeros(meta.nnln) for _ = 1:n_models]
       batch_jprod_nln!(bnlp, xs, vs, jprod_nlns)
       manual_jprod_nlns =
-        [jprod_nln!(models[i], xs[i], vs[i], zeros(bnlp.meta.nnln)) for i = 1:n_models]
+        [jprod_nln!(models[i], xs[i], vs[i], zeros(meta.nnln)) for i = 1:n_models]
       @test jprod_nlns ≈ manual_jprod_nlns
 
       # Test batch_jtprod_nln
-      ws_nln = [ws[i][(bnlp.meta.nlin + 1):end] for i = 1:n_models]
+      ws_nln = [ws[i][(meta.nlin + 1):end] for i = 1:n_models]
       batch_jtprod_nlns = batch_jtprod_nln(bnlp, xs, ws_nln)
       manual_jtprod_nlns = [jtprod_nln(models[i], xs[i], ws_nln[i]) for i = 1:n_models]
       @test batch_jtprod_nlns ≈ manual_jtprod_nlns
@@ -207,16 +209,6 @@
       batch_jtprod_nln!(bnlp, xs, ws_nln, jtprod_nlns)
       manual_jtprod_nlns = [jtprod_nln!(models[i], xs[i], ws_nln[i], zeros(n)) for i = 1:n_models]
       @test jtprod_nlns ≈ manual_jtprod_nlns
-
-      # Test batch_hess (without y)
-      batch_hesses = batch_hess(bnlp, xs)
-      manual_hesses = [hess(models[i], xs[i]) for i = 1:n_models]
-      @test batch_hesses ≈ manual_hesses
-
-      # Test batch_hess (with y)
-      batch_hesses = batch_hess(bnlp, xs, ys)
-      manual_hesses = [hess(models[i], xs[i], ys[i]) for i = 1:n_models]
-      @test batch_hesses ≈ manual_hesses
 
       # Test batch_hess with obj_weights (without y)
       batch_hesses = batch_hess(bnlp, xs; obj_weights = obj_weights)
@@ -228,16 +220,6 @@
       manual_hesses =
         [hess(models[i], xs[i], ys[i]; obj_weight = obj_weights[i]) for i = 1:n_models]
       @test batch_hesses ≈ manual_hesses
-
-      # Test batch_hess_coord (without y)
-      batch_hess_coords = batch_hess_coord(bnlp, xs)
-      manual_hess_coords = [hess_coord(models[i], xs[i]) for i = 1:n_models]
-      @test batch_hess_coords ≈ manual_hess_coords
-
-      # Test batch_hess_coord (with y)
-      batch_hess_coords = batch_hess_coord(bnlp, xs, ys)
-      manual_hess_coords = [hess_coord(models[i], xs[i], ys[i]) for i = 1:n_models]
-      @test batch_hess_coords ≈ manual_hess_coords
 
       # Test batch_hess_coord with obj_weights (without y)
       batch_hess_coords = batch_hess_coord(bnlp, xs; obj_weights = obj_weights)
@@ -251,46 +233,23 @@
         [hess_coord(models[i], xs[i], ys[i]; obj_weight = obj_weights[i]) for i = 1:n_models]
       @test batch_hess_coords ≈ manual_hess_coords
 
-      # Test batch_hess_coord! (without y)
-      hess_coords = [zeros(bnlp.meta.nnzh) for _ = 1:n_models]
-      batch_hess_coord!(bnlp, xs, hess_coords)
-      manual_hess_coords = [hess_coord!(models[i], xs[i], zeros(bnlp.meta.nnzh)) for i = 1:n_models]
-      @test hess_coords ≈ manual_hess_coords
-
-      # Test batch_hess_coord! (with y)
-      hess_coords = [zeros(bnlp.meta.nnzh) for _ = 1:n_models]
-      batch_hess_coord!(bnlp, xs, ys, hess_coords)
-      manual_hess_coords =
-        [hess_coord!(models[i], xs[i], ys[i], zeros(bnlp.meta.nnzh)) for i = 1:n_models]
-      @test hess_coords ≈ manual_hess_coords
-
       # Test batch_hess_coord! with obj_weights (without y)
-      hess_coords = [zeros(bnlp.meta.nnzh) for _ = 1:n_models]
+      hess_coords = [zeros(meta.nnzh) for _ = 1:n_models]
       batch_hess_coord!(bnlp, xs, hess_coords; obj_weights = obj_weights)
       manual_hess_coords = [
-        hess_coord!(models[i], xs[i], zeros(bnlp.meta.nnzh); obj_weight = obj_weights[i]) for
+        hess_coord!(models[i], xs[i], zeros(meta.nnzh); obj_weight = obj_weights[i]) for
         i = 1:n_models
       ]
       @test hess_coords ≈ manual_hess_coords
 
       # Test batch_hess_coord! with obj_weights (with y)
-      hess_coords = [zeros(bnlp.meta.nnzh) for _ = 1:n_models]
+      hess_coords = [zeros(meta.nnzh) for _ = 1:n_models]
       batch_hess_coord!(bnlp, xs, ys, hess_coords; obj_weights = obj_weights)
       manual_hess_coords = [
-        hess_coord!(models[i], xs[i], ys[i], zeros(bnlp.meta.nnzh); obj_weight = obj_weights[i])
+        hess_coord!(models[i], xs[i], ys[i], zeros(meta.nnzh); obj_weight = obj_weights[i])
         for i = 1:n_models
       ]
       @test hess_coords ≈ manual_hess_coords
-
-      # Test batch_hprod (without y)
-      batch_hprods = batch_hprod(bnlp, xs, vs)
-      manual_hprods = [hprod(models[i], xs[i], vs[i]) for i = 1:n_models]
-      @test batch_hprods ≈ manual_hprods
-
-      # Test batch_hprod (with y)
-      batch_hprods = batch_hprod(bnlp, xs, ys, vs)
-      manual_hprods = [hprod(models[i], xs[i], ys[i], vs[i]) for i = 1:n_models]
-      @test batch_hprods ≈ manual_hprods
 
       # Test batch_hprod with obj_weights (without y)
       batch_hprods = batch_hprod(bnlp, xs, vs; obj_weights = obj_weights)
@@ -303,18 +262,6 @@
       manual_hprods =
         [hprod(models[i], xs[i], ys[i], vs[i]; obj_weight = obj_weights[i]) for i = 1:n_models]
       @test batch_hprods ≈ manual_hprods
-
-      # Test batch_hprod! (without y)
-      hprods = [zeros(n) for _ = 1:n_models]
-      batch_hprod!(bnlp, xs, vs, hprods)
-      manual_hprods = [hprod!(models[i], xs[i], vs[i], zeros(n)) for i = 1:n_models]
-      @test hprods ≈ manual_hprods
-
-      # Test batch_hprod! (with y)
-      hprods = [zeros(n) for _ = 1:n_models]
-      batch_hprod!(bnlp, xs, ys, vs, hprods)
-      manual_hprods = [hprod!(models[i], xs[i], ys[i], vs[i], zeros(n)) for i = 1:n_models]
-      @test hprods ≈ manual_hprods
 
       # Test batch_hprod! with obj_weights (without y)
       hprods = [zeros(n) for _ = 1:n_models]
@@ -332,20 +279,6 @@
       ]
       @test hprods ≈ manual_hprods
 
-      # Test batch_hess_op (without y)
-      batch_hess_ops = batch_hess_op(bnlp, xs)
-      manual_hess_ops = [hess_op(models[i], xs[i]) for i = 1:n_models]
-      for i = 1:n_models
-        @test batch_hess_ops[i] * vs[i] ≈ manual_hess_ops[i] * vs[i]
-      end
-
-      # Test batch_hess_op (with y)
-      batch_hess_ops = batch_hess_op(bnlp, xs, ys)
-      manual_hess_ops = [hess_op(models[i], xs[i], ys[i]) for i = 1:n_models]
-      for i = 1:n_models
-        @test batch_hess_ops[i] * vs[i] ≈ manual_hess_ops[i] * vs[i]
-      end
-
       # Test batch_hess_op with obj_weights (without y)
       batch_hess_ops = batch_hess_op(bnlp, xs; obj_weights = obj_weights)
       manual_hess_ops = [hess_op(models[i], xs[i]; obj_weight = obj_weights[i]) for i = 1:n_models]
@@ -357,22 +290,6 @@
       batch_hess_ops = batch_hess_op(bnlp, xs, ys; obj_weights = obj_weights)
       manual_hess_ops =
         [hess_op(models[i], xs[i], ys[i]; obj_weight = obj_weights[i]) for i = 1:n_models]
-      for i = 1:n_models
-        @test batch_hess_ops[i] * vs[i] ≈ manual_hess_ops[i] * vs[i]
-      end
-
-      # Test batch_hess_op! (without y)
-      hvs = [zeros(n) for _ = 1:n_models]
-      batch_hess_ops = batch_hess_op!(bnlp, xs, hvs)
-      manual_hess_ops = [hess_op!(models[i], xs[i], zeros(n)) for i = 1:n_models]
-      for i = 1:n_models
-        @test batch_hess_ops[i] * vs[i] ≈ manual_hess_ops[i] * vs[i]
-      end
-
-      # Test batch_hess_op! (with y)
-      hvs = [zeros(n) for _ = 1:n_models]
-      batch_hess_ops = batch_hess_op!(bnlp, xs, ys, hvs)
-      manual_hess_ops = [hess_op!(models[i], xs[i], ys[i], zeros(n)) for i = 1:n_models]
       for i = 1:n_models
         @test batch_hess_ops[i] * vs[i] ≈ manual_hess_ops[i] * vs[i]
       end
@@ -424,10 +341,10 @@
       @test batch_jth_hess_coords ≈ manual_jth_hess_coords
 
       # Test batch_jth_hess_coord!
-      jth_hess_coords = [zeros(bnlp.meta.nnzh) for _ = 1:n_models]
+      jth_hess_coords = [zeros(meta.nnzh) for _ = 1:n_models]
       batch_jth_hess_coord!(bnlp, xs, j, jth_hess_coords)
       manual_jth_hess_coords =
-        [jth_hess_coord!(models[i], xs[i], j, zeros(bnlp.meta.nnzh)) for i = 1:n_models]
+        [jth_hess_coord!(models[i], xs[i], j, zeros(meta.nnzh)) for i = 1:n_models]
       @test jth_hess_coords ≈ manual_jth_hess_coords
 
       # Test batch_jth_hess
@@ -478,18 +395,18 @@
       # Test batch_jac_lin_op
       batch_jac_lin_ops = batch_jac_lin_op(bnlp)
       manual_jac_lin_ops = [jac_lin_op(models[i]) for i = 1:n_models]
-      ws_lin_vec = ws[1][1:(bnlp.meta.nlin)]
+      ws_lin_vec = ws[1][1:(meta.nlin)]
       for i = 1:n_models
         @test batch_jac_lin_ops[i] * vs[i] ≈ manual_jac_lin_ops[i] * vs[i]
         @test batch_jac_lin_ops[i]' * ws_lin_vec ≈ manual_jac_lin_ops[i]' * ws_lin_vec
       end
 
       # Test batch_jac_lin_op!
-      jvs_lin = [zeros(bnlp.meta.nlin) for _ = 1:n_models]
+      jvs_lin = [zeros(meta.nlin) for _ = 1:n_models]
       jtvs_lin = [zeros(n) for _ = 1:n_models]
       batch_jac_lin_ops = batch_jac_lin_op!(bnlp, jvs_lin, jtvs_lin)
       manual_jac_lin_ops =
-        [jac_lin_op!(models[i], zeros(bnlp.meta.nlin), zeros(n)) for i = 1:n_models]
+        [jac_lin_op!(models[i], zeros(meta.nlin), zeros(n)) for i = 1:n_models]
       for i = 1:n_models
         @test batch_jac_lin_ops[i] * vs[i] ≈ manual_jac_lin_ops[i] * vs[i]
         @test batch_jac_lin_ops[i]' * ws_lin_vec ≈ manual_jac_lin_ops[i]' * ws_lin_vec
@@ -498,18 +415,18 @@
       # Test batch_jac_nln_op
       batch_jac_nln_ops = batch_jac_nln_op(bnlp, xs)
       manual_jac_nln_ops = [jac_nln_op(models[i], xs[i]) for i = 1:n_models]
-      ws_nln_vec = ws[1][(bnlp.meta.nlin + 1):end]
+      ws_nln_vec = ws[1][(meta.nlin + 1):end]
       for i = 1:n_models
         @test batch_jac_nln_ops[i] * vs[i] ≈ manual_jac_nln_ops[i] * vs[i]
         @test batch_jac_nln_ops[i]' * ws_nln_vec ≈ manual_jac_nln_ops[i]' * ws_nln_vec
       end
 
       # Test batch_jac_nln_op!
-      jvs_nln = [zeros(bnlp.meta.nnln) for _ = 1:n_models]
+      jvs_nln = [zeros(meta.nnln) for _ = 1:n_models]
       jtvs_nln = [zeros(n) for _ = 1:n_models]
       batch_jac_nln_ops = batch_jac_nln_op!(bnlp, xs, jvs_nln, jtvs_nln)
       manual_jac_nln_ops =
-        [jac_nln_op!(models[i], xs[i], zeros(bnlp.meta.nnln), zeros(n)) for i = 1:n_models]
+        [jac_nln_op!(models[i], xs[i], zeros(meta.nnln), zeros(n)) for i = 1:n_models]
       for i = 1:n_models
         @test batch_jac_nln_ops[i] * vs[i] ≈ manual_jac_nln_ops[i] * vs[i]
         @test batch_jac_nln_ops[i]' * ws_nln_vec ≈ manual_jac_nln_ops[i]' * ws_nln_vec
@@ -529,39 +446,61 @@
       @test batch_conscales ≈ manual_conscales
 
       # Test structure functions
-      first_model = first(models)
-      @test batch_jac_structure(bnlp) == jac_structure(first_model)
-      @test batch_jac_lin_structure(bnlp) == jac_lin_structure(first_model)
-      @test batch_jac_nln_structure(bnlp) == jac_nln_structure(first_model)
-      @test batch_hess_structure(bnlp) == hess_structure(first_model)
+      jac_structures = batch_jac_structure(bnlp)
+      manual_jac_structures = [jac_structure(models[i]) for i = 1:n_models]
+      @test jac_structures == manual_jac_structures
 
-      rows, cols = jac_structure(first_model)
-      fill!(rows, 0)
-      fill!(cols, 0)
-      batch_jac_structure!(bnlp, rows, cols)
-      @test rows == jac_structure(first_model)[1]
-      @test cols == jac_structure(first_model)[2]
+      jac_lin_structures = batch_jac_lin_structure(bnlp)
+      manual_jac_lin_structures = [jac_lin_structure(models[i]) for i = 1:n_models]
+      @test jac_lin_structures == manual_jac_lin_structures
 
-      rows, cols = jac_lin_structure(first_model)
-      fill!(rows, 0)
-      fill!(cols, 0)
-      batch_jac_lin_structure!(bnlp, rows, cols)
-      @test rows == jac_lin_structure(first_model)[1]
-      @test cols == jac_lin_structure(first_model)[2]
+      jac_nln_structures = batch_jac_nln_structure(bnlp)
+      manual_jac_nln_structures = [jac_nln_structure(models[i]) for i = 1:n_models]
+      @test jac_nln_structures == manual_jac_nln_structures
 
-      rows, cols = jac_nln_structure(first_model)
-      fill!(rows, 0)
-      fill!(cols, 0)
-      batch_jac_nln_structure!(bnlp, rows, cols)
-      @test rows == jac_nln_structure(first_model)[1]
-      @test cols == jac_nln_structure(first_model)[2]
+      hess_structures = batch_hess_structure(bnlp)
+      manual_hess_structures = [hess_structure(models[i]) for i = 1:n_models]
+      @test hess_structures == manual_hess_structures
 
-      rows, cols = hess_structure(first_model)
-      fill!(rows, 0)
-      fill!(cols, 0)
-      batch_hess_structure!(bnlp, rows, cols)
-      @test rows == hess_structure(first_model)[1]
-      @test cols == hess_structure(first_model)[2]
+      rowss = [copy(manual_jac_structures[i][1]) for i = 1:n_models]
+      colss = [copy(manual_jac_structures[i][2]) for i = 1:n_models]
+      foreach(r -> fill!(r, 0), rowss)
+      foreach(c -> fill!(c, 0), colss)
+      batch_jac_structure!(bnlp, rowss, colss)
+      for i = 1:n_models
+        @test rowss[i] == manual_jac_structures[i][1]
+        @test colss[i] == manual_jac_structures[i][2]
+      end
+
+      rowss = [copy(manual_jac_lin_structures[i][1]) for i = 1:n_models]
+      colss = [copy(manual_jac_lin_structures[i][2]) for i = 1:n_models]
+      foreach(r -> fill!(r, 0), rowss)
+      foreach(c -> fill!(c, 0), colss)
+      batch_jac_lin_structure!(bnlp, rowss, colss)
+      for i = 1:n_models
+        @test rowss[i] == manual_jac_lin_structures[i][1]
+        @test colss[i] == manual_jac_lin_structures[i][2]
+      end
+
+      rowss = [copy(manual_jac_nln_structures[i][1]) for i = 1:n_models]
+      colss = [copy(manual_jac_nln_structures[i][2]) for i = 1:n_models]
+      foreach(r -> fill!(r, 0), rowss)
+      foreach(c -> fill!(c, 0), colss)
+      batch_jac_nln_structure!(bnlp, rowss, colss)
+      for i = 1:n_models
+        @test rowss[i] == manual_jac_nln_structures[i][1]
+        @test colss[i] == manual_jac_nln_structures[i][2]
+      end
+
+      rowss = [copy(manual_hess_structures[i][1]) for i = 1:n_models]
+      colss = [copy(manual_hess_structures[i][2]) for i = 1:n_models]
+      foreach(r -> fill!(r, 0), rowss)
+      foreach(c -> fill!(c, 0), colss)
+      batch_hess_structure!(bnlp, rowss, colss)
+      for i = 1:n_models
+        @test rowss[i] == manual_hess_structures[i][1]
+        @test colss[i] == manual_hess_structures[i][2]
+      end
     end
   end
 end
