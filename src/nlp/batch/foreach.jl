@@ -94,21 +94,6 @@ for fun in fieldnames(Counters)
   end
 end
 
-# There are two options for defining "special cases":
-#     1. define batch_func(::MyBatchModel)
-#     2. define _batch_map(f::func, ::MyBatchModel, ...)
-# in most cases, using the first option is preferable.
-# however, when overriding several functions at a time,
-# for example if you know the hess structures are identical,
-# one can write something like
-#
-# function NLPModels._batch_map(
-#     f::hess_structure,
-#     bnlp::MyBatchModel
-# )
-#     
-#     return f(first(bnlp))
-# end
 
 batch_jac_structure(bnlp::ForEachBatchNLPModel) =
   _batch_map(jac_structure, bnlp)
