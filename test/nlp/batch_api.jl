@@ -5,6 +5,11 @@
   models = [SimpleNLPModel() for _ = 1:n_models]
   meta = models[1].meta
   n, m = meta.nvar, meta.ncon
+  T = eltype(meta.lcon)
+  lcon_values = [[T(-i / 2), T((i - 1) / 2)] for i = 1:n_models]
+  for i = 1:n_models
+    models[i].meta.lcon .= lcon_values[i]
+  end
   xs = [randn(n) for _ = 1:n_models]
   ys = [randn(m) for _ = 1:n_models]
   vs = [randn(n) for _ = 1:n_models]
@@ -12,9 +17,22 @@
   gs = [zeros(n) for _ = 1:n_models]
   cs = [zeros(m) for _ = 1:n_models]
   obj_weights = rand(n_models)
-  for batch_model in [ForEachBatchNLPModel]
-    @testset "$batch_model consistency" begin
-      bnlp = batch_model(models)
+  function make_inplace_batch_model()
+    base_model = SimpleNLPModel()
+    updates = [nlp -> copyto!(get_lcon(nlp), lcons) for lcons in lcon_values]
+    return InplaceBatchNLPModel(base_model, updates)
+  end
+
+  @test_throws ErrorException InplaceBatchNLPModel(SimpleNLPModel(), [])
+
+  batch_model_builders = [
+    ("ForEachBatchNLPModel", () -> ForEachBatchNLPModel(models)),
+    ("InplaceBatchNLPModel", () -> make_inplace_batch_model()),
+  ]
+
+  for (batch_model_name, build_batch_model) in batch_model_builders
+    @testset "$batch_model_name consistency" begin
+      bnlp = build_batch_model()
 
       # Test batch_obj
       batch_fs = batch_obj(bnlp, xs)
