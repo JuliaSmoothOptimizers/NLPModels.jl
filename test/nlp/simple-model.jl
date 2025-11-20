@@ -14,9 +14,10 @@ x₀ = [2.0, 2.0].
 mutable struct SimpleNLPModel{T, S} <: AbstractNLPModel{T, S}
   meta::NLPModelMeta{T, S}
   counters::Counters
+  p::T
 end
 
-function SimpleNLPModel(::Type{T}) where {T}
+function SimpleNLPModel(::Type{T}; p = T(4)) where {T}
   meta = NLPModelMeta(
     2,
     nnzh = 2,
@@ -32,10 +33,10 @@ function SimpleNLPModel(::Type{T}) where {T}
     nln_nnzj = 2,
   )
 
-  return SimpleNLPModel(meta, Counters())
+  return SimpleNLPModel(meta, Counters(), T(p))
 end
 
-SimpleNLPModel() = SimpleNLPModel(Float64)
+SimpleNLPModel(; p = 4.0) = SimpleNLPModel(Float64; p = p)
 
 function NLPModels.obj(nlp::SimpleNLPModel, x::AbstractVector)
   @lencheck 2 x
@@ -73,7 +74,7 @@ function NLPModels.hess_coord!(
   @lencheck 2 x y vals
   increment!(nlp, :neval_hess)
   vals .= 2obj_weight
-  vals[1] -= y[2] / 2
+  vals[1] -= 2y[2] / nlp.p
   vals[2] -= 2y[2]
   return vals
 end
@@ -89,7 +90,7 @@ function NLPModels.hprod!(
   @lencheck 2 x y v Hv
   increment!(nlp, :neval_hprod)
   Hv .= 2obj_weight * v
-  Hv[1] -= y[2] * v[1] / 2
+  Hv[1] -= (2y[2] / nlp.p) * v[1]
   Hv[2] -= 2y[2] * v[2]
   return Hv
 end
@@ -98,7 +99,7 @@ function NLPModels.cons_nln!(nlp::SimpleNLPModel, x::AbstractVector, cx::Abstrac
   @lencheck 2 x
   @lencheck 1 cx
   increment!(nlp, :neval_cons_nln)
-  cx .= [-x[1]^2 / 4 - x[2]^2 + 1]
+  cx .= [-x[1]^2 / nlp.p - x[2]^2 + 1]
   return cx
 end
 
@@ -135,7 +136,7 @@ end
 function NLPModels.jac_nln_coord!(nlp::SimpleNLPModel, x::AbstractVector, vals::AbstractVector)
   @lencheck 2 x vals
   increment!(nlp, :neval_jac_nln)
-  vals .= [-x[1] / 2, -2 * x[2]]
+  vals .= [-2 * x[1] / nlp.p, -2 * x[2]]
   return vals
 end
 
@@ -155,7 +156,7 @@ function NLPModels.jprod_nln!(
   @lencheck 2 x v
   @lencheck 1 Jv
   increment!(nlp, :neval_jprod_nln)
-  Jv .= [-x[1] * v[1] / 2 - 2 * x[2] * v[2]]
+  Jv .= [-(2 * x[1] / nlp.p) * v[1] - 2 * x[2] * v[2]]
   return Jv
 end
 
@@ -181,7 +182,7 @@ function NLPModels.jtprod_nln!(
   @lencheck 2 x Jtv
   @lencheck 1 v
   increment!(nlp, :neval_jtprod_nln)
-  Jtv .= [-x[1] * v[1] / 2; -2 * x[2] * v[1]]
+  Jtv .= [-(2 * x[1] / nlp.p) * v[1]; -2 * x[2] * v[1]]
   return Jtv
 end
 
@@ -209,7 +210,7 @@ function NLPModels.jth_hess_coord!(
   if j == 1
     vals .= 0
   elseif j == 2
-    vals[1] = -1 / 2
+    vals[1] = -2 / nlp.p
     vals[2] = -2
   end
   return vals
@@ -227,7 +228,7 @@ function NLPModels.jth_hprod!(
   if j == 1
     Hv .= 0
   elseif j == 2
-    Hv[1] = -v[1] / 2
+    Hv[1] = -(2 / nlp.p) * v[1]
     Hv[2] = -2v[2]
   end
   return Hv
@@ -243,7 +244,7 @@ function NLPModels.ghjvprod!(
   @lencheck nlp.meta.nvar x g v
   @lencheck nlp.meta.ncon gHv
   increment!(nlp, :neval_hprod)
-  gHv .= [T(0); -g[1] * v[1] / 2 - 2 * g[2] * v[2]]
+  gHv .= [T(0); -(2 * g[1] / nlp.p) * v[1] - 2 * g[2] * v[2]]
   return gHv
 end
 
@@ -254,7 +255,7 @@ function NLPModels.jth_con(nlp::SimpleNLPModel, x::AbstractVector{T}, j::Integer
   if j == 1
     return x[1] - 2 * x[2] + 1
   elseif j == 2
-    return -x[1]^2 / 4 - x[2]^2 + 1
+    return -x[1]^2 / nlp.p - x[2]^2 + 1
   end
 end
 
@@ -270,7 +271,7 @@ function NLPModels.jth_congrad!(
   if j == 1
     g .= [T(1); T(-2)]
   elseif j == 2
-    g .= [-x[1] / 2; -2 * x[2]]
+    g .= [-2 * x[1] / nlp.p; -2 * x[2]]
   end
   return g
 end
@@ -282,7 +283,7 @@ function NLPModels.jth_sparse_congrad(nlp::SimpleNLPModel, x::AbstractVector{T},
   if j == 1
     vals = [T(1); T(-2)]
   elseif j == 2
-    vals = [-x[1] / 2; -2 * x[2]]
+    vals = [-2 * x[1] / nlp.p; -2 * x[2]]
   end
   return sparse([1, 1], [1, 2], vals, 1, nlp.meta.nvar)
 end
