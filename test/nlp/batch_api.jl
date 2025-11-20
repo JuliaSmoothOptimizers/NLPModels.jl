@@ -19,10 +19,7 @@
   function make_inplace_batch_model()
     base_model = SimpleNLPModel()
     updates = [
-      begin
-        param = p
-        nlp -> (nlp.p = param)
-      end for p in p_values
+      nlp -> (nlp.p = p) for p in p_values
     ]
     return InplaceBatchNLPModel(base_model, updates)
   end
