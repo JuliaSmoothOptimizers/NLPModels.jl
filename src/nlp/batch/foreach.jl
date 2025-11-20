@@ -25,7 +25,7 @@ function _batch_map(f::F, bnlp::ForEachBatchNLPModel, xs::Vararg{T,N}) where {F,
   return results
 end
 
-function _batch_map!(f::F, bnlp::ForEachBatchNLPModel, xs::Vararg{Any,N}) where {F,N}
+function _batch_map!(f::F, bnlp::ForEachBatchNLPModel, xs::Vararg{T,N}) where {F,T,N}
   n = bnlp.batch_size
   length(xs) == 0 && error("Cannot call _batch_map! without providing arguments.")
   @lencheck_tup n xs
@@ -52,7 +52,7 @@ function _batch_map_weight(f::F, bnlp::ForEachBatchNLPModel, obj_weights, xs::Va
   return results
 end
 
-function _batch_map_weight!(f::F, bnlp::ForEachBatchNLPModel, obj_weights, xs::Vararg{Any,N}) where {F,N}
+function _batch_map_weight!(f::F, bnlp::ForEachBatchNLPModel, obj_weights, xs::Vararg{T,N}) where {F,T,N}
   n = bnlp.batch_size
   length(xs) == 0 && error("Cannot call _batch_map_weight! without providing arguments.")
   @lencheck_tup n xs
