@@ -43,6 +43,6 @@ for f in ["utils", "api", "counters", "meta", "show", "tools"]
 end
 
 include("nlp/batch/api.jl")
-include("nlp/batch/vector.jl")
+include("nlp/batch/foreach.jl")
 
 end # module

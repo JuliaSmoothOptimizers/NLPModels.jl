@@ -1,0 +1,277 @@
+export ForEachBatchNLPModel
+struct ForEachBatchNLPModel{M} <: AbstractBatchNLPModel
+  models::M
+  counters::Counters
+  batch_size::Int
+end
+function ForEachBatchNLPModel(models::M) where {M}
+  isempty(models) && error("Cannot create ForEachBatchNLPModel from empty collection.")
+  ForEachBatchNLPModel{M}(models, Counters(), length(models))
+end
+Base.length(vnlp::ForEachBatchNLPModel) = length(vnlp.models)
+Base.getindex(vnlp::ForEachBatchNLPModel, i::Integer) = vnlp.models[i]
+Base.iterate(vnlp::ForEachBatchNLPModel, state::Integer = 1) = iterate(vnlp.models, state)
+
+
+function _batch_map(f::F, bnlp::ForEachBatchNLPModel, xs::Vararg{T,N}) where {F,T,N}
+  n = bnlp.batch_size
+  @lencheck_tup n xs
+  results = []
+  resize!(results, n)
+  for i = 1:n
+    args_i = (x[i] for x in xs)
+    results[i] = f(bnlp[i], args_i...)
+  end
+  return results
+end
+
+function _batch_map!(f::F, bnlp::ForEachBatchNLPModel, outputs, xs::Vararg{T,N}) where {F,T,N}
+  n = bnlp.batch_size
+  @lencheck_tup n xs
+  @lencheck n outputs
+  for i = 1:n
+    args_i = (x[i] for x in xs)
+    f(bnlp[i], outputs[i], args_i...)
+  end
+  return outputs
+end
+
+function _batch_map_weight(f::F, bnlp::ForEachBatchNLPModel, obj_weights, xs::Vararg{T,N}) where {F,T,N}
+  n = bnlp.batch_size
+  @lencheck_tup n xs
+  @lencheck n obj_weights
+  results = []
+  resize!(results, n)
+  for i = 1:n
+    args_i = (x[i] for x in xs)
+    results[i] = f(bnlp[i], args_i...; obj_weight = obj_weights[i])
+  end
+  return results
+end
+
+function _batch_map_weight!(f::F, bnlp::ForEachBatchNLPModel, outputs, obj_weights, xs::Vararg{T,N}) where {F,T,N}
+  n = bnlp.batch_size
+  @lencheck_tup n xs
+  @lencheck n outputs obj_weights
+  for i = 1:n
+    args_i = (x[i] for x in xs)
+    f(bnlp[i], outputs[i], args_i...; obj_weight = obj_weights[i])
+  end
+  return outputs
+end
+
+function _batch_map_tuple(f::F, bnlp::ForEachBatchNLPModel, xs::Vararg{T,N}) where {F,T,N}
+  n = bnlp.batch_size
+  @lencheck_tup n xs
+  results = _batch_map(f, bnlp, xs...)
+
+  first_result = first(results)
+  T1, T2 = typeof(first_result[1]), typeof(first_result[2])
+  vec1, vec2 = Vector{T1}(undef, n), Vector{T2}(undef, n)
+  for i = 1:n
+    vec1[i], vec2[i] = results[i]
+  end
+  return vec1, vec2
+end
+
+function _batch_map_tuple!(f::F, bnlp::ForEachBatchNLPModel, outputs, xs::Vararg{T,N}) where {F,T,N}
+  n = bnlp.batch_size
+  @lencheck_tup n xs
+  @lencheck n outputs
+  firsts = []
+  resize!(firsts, n)
+  for i = 1:n
+    args_i = (x[i] for x in xs)
+    firsts[i], _ = f(bnlp[i], args_i..., outputs[i])
+  end
+  return firsts, outputs
+end
+
+for fun in fieldnames(Counters)
+  @eval function NLPModels.increment!(bnlp::ForEachBatchNLPModel, ::Val{$(Meta.quot(fun))})
+    # sub-model counters are already incremented since we call their methods
+    bnlp.counters.$fun += 1
+  end
+end
+
+# There are two options for defining "special cases":
+#     1. define batch_func(::MyBatchModel)
+#     2. define _batch_map(f::func, ::MyBatchModel, ...)
+# in most cases, using the first option is preferable.
+# however, when overriding several functions at a time,
+# for example if you know all the jac/hess structures are identical, one can write
+#
+# function NLPModels._batch_map(
+#     f::F,
+#     bnlp::MyBatchModel
+# ) where {F<:Union{jac_structure,jac_lin_structure,jac_nln_structure,hess_structure}}
+#     
+#     return f(first(bnlp))
+# end
+
+batch_jac_structure(bnlp::ForEachBatchNLPModel) =
+  _batch_map(jac_structure, bnlp)
+batch_jac_lin_structure(bnlp::ForEachBatchNLPModel) =
+  _batch_map(jac_lin_structure, bnlp)
+batch_jac_nln_structure(bnlp::ForEachBatchNLPModel) =
+  _batch_map(jac_nln_structure, bnlp)
+batch_hess_structure(bnlp::ForEachBatchNLPModel) =
+  _batch_map(hess_structure, bnlp)
+batch_obj(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map(obj, bnlp, xs)
+batch_grad(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map(grad, bnlp, xs)
+batch_cons(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map(cons, bnlp, xs)
+batch_cons_lin(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map(cons_lin, bnlp, xs)
+batch_cons_nln(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map(cons_nln, bnlp, xs)
+batch_jac(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map(jac, bnlp, xs)
+batch_jac_lin(bnlp::ForEachBatchNLPModel) =
+  _batch_map(jac_lin, bnlp)
+batch_jac_nln(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map(jac_nln, bnlp, xs)
+batch_jac_lin_coord(bnlp::ForEachBatchNLPModel) =
+  _batch_map(jac_lin_coord, bnlp)
+batch_jac_coord(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map(jac_coord, bnlp, xs)
+batch_jac_nln_coord(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map(jac_nln_coord, bnlp, xs)
+batch_varscale(bnlp::ForEachBatchNLPModel) =
+  _batch_map(varscale, bnlp)
+batch_lagscale(bnlp::ForEachBatchNLPModel) =
+  _batch_map(lagscale, bnlp)
+batch_conscale(bnlp::ForEachBatchNLPModel) =
+  _batch_map(conscale, bnlp)
+batch_jprod(bnlp::ForEachBatchNLPModel, xs, vs) =
+  _batch_map(jprod, bnlp, xs, vs)
+batch_jtprod(bnlp::ForEachBatchNLPModel, xs, vs) =
+  _batch_map(jtprod, bnlp, xs, vs)
+batch_jprod_nln(bnlp::ForEachBatchNLPModel, xs, vs) =
+  _batch_map(jprod_nln, bnlp, xs, vs)
+batch_jtprod_nln(bnlp::ForEachBatchNLPModel, xs, vs) =
+  _batch_map(jtprod_nln, bnlp, xs, vs)
+batch_jprod_lin(bnlp::ForEachBatchNLPModel, vs) =
+  _batch_map(jprod_lin, bnlp, vs)
+batch_jtprod_lin(bnlp::ForEachBatchNLPModel, vs) =
+  _batch_map(jtprod_lin, bnlp, vs)
+batch_ghjvprod(bnlp::ForEachBatchNLPModel, xs, gs, vs) =
+  _batch_map(ghjvprod, bnlp, xs, gs, vs)
+
+batch_jac_structure!(bnlp::ForEachBatchNLPModel, rowss, colss) =
+  _batch_map!(jac_structure!, bnlp, rowss, colss)
+batch_jac_lin_structure!(bnlp::ForEachBatchNLPModel, rowss, colss) =
+  _batch_map!(jac_lin_structure!, bnlp, rowss, colss)
+batch_jac_nln_structure!(bnlp::ForEachBatchNLPModel, rowss, colss) =
+  _batch_map!(jac_nln_structure!, bnlp, rowss, colss)
+batch_hess_structure!(bnlp::ForEachBatchNLPModel, rowss, colss) =
+  _batch_map!(hess_structure!, bnlp, rowss, colss)
+batch_jac_lin_coord!(bnlp::ForEachBatchNLPModel, valss) =
+  _batch_map!(jac_lin_coord!, bnlp, valss)
+batch_grad!(bnlp::ForEachBatchNLPModel, xs, gs) =
+  _batch_map!((m, g, x) -> grad!(m, x, g), bnlp, gs, xs)
+batch_cons!(bnlp::ForEachBatchNLPModel, xs, cs) =
+  _batch_map!((m, c, x) -> cons!(m, x, c), bnlp, cs, xs)
+batch_cons_lin!(bnlp::ForEachBatchNLPModel, xs, cs) =
+  _batch_map!((m, c, x) -> cons_lin!(m, x, c), bnlp, cs, xs)
+batch_cons_nln!(bnlp::ForEachBatchNLPModel, xs, cs) =
+  _batch_map!((m, c, x) -> cons_nln!(m, x, c), bnlp, cs, xs)
+batch_jac_coord!(bnlp::ForEachBatchNLPModel, xs, valss) =
+  _batch_map!((m, vals, x) -> jac_coord!(m, x, vals), bnlp, valss, xs)
+batch_jac_nln_coord!(bnlp::ForEachBatchNLPModel, xs, valss) =
+  _batch_map!((m, vals, x) -> jac_nln_coord!(m, x, vals), bnlp, valss, xs)
+batch_jprod!(bnlp::ForEachBatchNLPModel, xs, vs, Jvs) =
+  _batch_map!((m, Jv, x, v) -> jprod!(m, x, v, Jv), bnlp, Jvs, xs, vs)
+batch_jtprod!(bnlp::ForEachBatchNLPModel, xs, vs, Jtvs) =
+  _batch_map!((m, Jtv, x, v) -> jtprod!(m, x, v, Jtv), bnlp, Jtvs, xs, vs)
+batch_jprod_nln!(bnlp::ForEachBatchNLPModel, xs, vs, Jvs) =
+  _batch_map!((m, Jv, x, v) -> jprod_nln!(m, x, v, Jv), bnlp, Jvs, xs, vs)
+batch_jtprod_nln!(bnlp::ForEachBatchNLPModel, xs, vs, Jtvs) =
+  _batch_map!((m, Jtv, x, v) -> jtprod_nln!(m, x, v, Jtv), bnlp, Jtvs, xs, vs)
+batch_jprod_lin!(bnlp::ForEachBatchNLPModel, vs, Jvs) =
+  _batch_map!((m, Jv, v) -> jprod_lin!(m, v, Jv), bnlp, Jvs, vs)
+batch_jtprod_lin!(bnlp::ForEachBatchNLPModel, vs, Jtvs) =
+  _batch_map!((m, Jtv, v) -> jtprod_lin!(m, v, Jtv), bnlp, Jtvs, vs)
+batch_ghjvprod!(bnlp::ForEachBatchNLPModel, xs, gs, vs, gHvs) =
+  _batch_map!((m, gHv, x, g, v) -> ghjvprod!(m, x, g, v, gHv), bnlp, gHvs, xs, gs, vs)
+
+## jth
+batch_jth_con(bnlp::ForEachBatchNLPModel, xs, j::Integer) =
+  _batch_map((m, x) -> jth_con(m, x, j), bnlp, xs)
+batch_jth_congrad(bnlp::ForEachBatchNLPModel, xs, j::Integer) =
+  _batch_map((m, x) -> jth_congrad(m, x, j), bnlp, xs)
+batch_jth_sparse_congrad(bnlp::ForEachBatchNLPModel, xs, j::Integer) =
+  _batch_map((m, x) -> jth_sparse_congrad(m, x, j), bnlp, xs)
+batch_jth_hess_coord(bnlp::ForEachBatchNLPModel, xs, j::Integer) =
+  _batch_map((m, x) -> jth_hess_coord(m, x, j), bnlp, xs)
+batch_jth_hess(bnlp::ForEachBatchNLPModel, xs, j::Integer) =
+  _batch_map((m, x) -> jth_hess(m, x, j), bnlp, xs)
+batch_jth_hprod(bnlp::ForEachBatchNLPModel, xs, vs, j::Integer) =
+  _batch_map((m, x, v) -> jth_hprod(m, x, v, j), bnlp, xs, vs)
+
+batch_jth_congrad!(bnlp::ForEachBatchNLPModel, xs, j::Integer, outputs) =
+  _batch_map!((m, out, x) -> jth_congrad!(m, x, j, out), bnlp, outputs, xs)
+batch_jth_hess_coord!(bnlp::ForEachBatchNLPModel, xs, j::Integer, outputs) =
+  _batch_map!((m, out, x) -> jth_hess_coord!(m, x, j, out), bnlp, outputs, xs)
+batch_jth_hprod!(bnlp::ForEachBatchNLPModel, xs, vs, j::Integer, outputs) =
+  _batch_map!((m, out, x, v) -> jth_hprod!(m, x, v, j, out), bnlp, outputs, xs, vs)
+
+# hess (need to treat obj_weight)  FIXME: container type..
+batch_hprod(bnlp::ForEachBatchNLPModel, xs, vs; obj_weights) =
+  _batch_map_weight((m, x, v; obj_weight) -> hprod(m, x, v; obj_weight = obj_weight), bnlp, obj_weights, xs, vs)
+batch_hprod(bnlp::ForEachBatchNLPModel, xs, ys, vs; obj_weights) =
+  _batch_map_weight((m, x, y, v; obj_weight) -> hprod(m, x, y, v; obj_weight = obj_weight), bnlp, obj_weights, xs, ys, vs)
+batch_hess_coord(bnlp::ForEachBatchNLPModel, xs; obj_weights) =
+  _batch_map_weight((m, x; obj_weight) -> hess_coord(m, x; obj_weight = obj_weight), bnlp, obj_weights, xs)
+batch_hess_coord(bnlp::ForEachBatchNLPModel, xs, ys; obj_weights) =
+  _batch_map_weight((m, x, y; obj_weight) -> hess_coord(m, x, y; obj_weight = obj_weight), bnlp, obj_weights, xs, ys)
+batch_hess_op(bnlp::ForEachBatchNLPModel, xs; obj_weights) =
+  _batch_map_weight((m, x; obj_weight) -> hess_op(m, x; obj_weight = obj_weight), bnlp, obj_weights, xs)
+batch_hess_op(bnlp::ForEachBatchNLPModel, xs, ys; obj_weights) =
+  _batch_map_weight((m, x, y; obj_weight) -> hess_op(m, x, y; obj_weight = obj_weight), bnlp, obj_weights, xs, ys)
+
+batch_hprod!(bnlp::ForEachBatchNLPModel, xs, vs, outputs; obj_weights) =
+  _batch_map_weight!((m, Hv, x, v; obj_weight) -> hprod!(m, x, v, Hv; obj_weight = obj_weight), bnlp, outputs, obj_weights, xs, vs)
+batch_hprod!(bnlp::ForEachBatchNLPModel, xs, ys, vs, outputs; obj_weights) =
+  _batch_map_weight!((m, Hv, x, y, v; obj_weight) -> hprod!(m, x, y, v, Hv; obj_weight = obj_weight), bnlp, outputs, obj_weights, xs, ys, vs)
+batch_hess_coord!(bnlp::ForEachBatchNLPModel, xs, outputs; obj_weights) =
+  _batch_map_weight!((m, vals, x; obj_weight) -> hess_coord!(m, x, vals; obj_weight = obj_weight), bnlp, outputs, obj_weights, xs)
+batch_hess_coord!(bnlp::ForEachBatchNLPModel, xs, ys, outputs; obj_weights) =
+  _batch_map_weight!((m, vals, x, y; obj_weight) -> hess_coord!(m, x, y, vals; obj_weight = obj_weight), bnlp, outputs, obj_weights, xs, ys)
+batch_hess_op!(bnlp::ForEachBatchNLPModel, xs, Hvs; obj_weights) =
+  _batch_map_weight((m, x, Hv; obj_weight) -> hess_op!(m, x, Hv; obj_weight = obj_weight), bnlp, obj_weights, xs, Hvs)
+batch_hess_op!(bnlp::ForEachBatchNLPModel, xs, ys, Hvs; obj_weights) =
+  _batch_map_weight((m, x, y, Hv; obj_weight) -> hess_op!(m, x, y, Hv; obj_weight = obj_weight), bnlp, obj_weights, xs, ys, Hvs)
+
+batch_hess(bnlp::ForEachBatchNLPModel, xs; obj_weights) =
+  _batch_map_weight((m, x; obj_weight) -> hess(m, x; obj_weight = obj_weight), bnlp, obj_weights, xs)
+batch_hess(bnlp::ForEachBatchNLPModel, xs, ys; obj_weights) =
+  _batch_map_weight((m, x, y; obj_weight) -> hess(m, x, y; obj_weight = obj_weight), bnlp, obj_weights, xs, ys)
+
+## operators
+batch_jac_op(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map(jac_op, bnlp, xs)
+batch_jac_lin_op(bnlp::ForEachBatchNLPModel) =
+  _batch_map(jac_lin_op, bnlp)
+batch_jac_nln_op(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map(jac_nln_op, bnlp, xs)
+
+batch_jac_op!(bnlp::ForEachBatchNLPModel, xs, Jvs, Jtvs) =
+  _batch_map(jac_op!, bnlp, xs, Jvs, Jtvs)
+batch_jac_lin_op!(bnlp::ForEachBatchNLPModel, Jvs, Jtvs) =
+  _batch_map(jac_lin_op!, bnlp, Jvs, Jtvs)
+batch_jac_nln_op!(bnlp::ForEachBatchNLPModel, xs, Jvs, Jtvs) =
+  _batch_map(jac_nln_op!, bnlp, xs, Jvs, Jtvs)
+
+## tuple functions
+batch_objgrad(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map_tuple(objgrad, bnlp, xs)
+batch_objcons(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map_tuple(objcons, bnlp, xs)
+
+batch_objgrad!(bnlp::ForEachBatchNLPModel, xs, gs) =
+  _batch_map_tuple!(objgrad!, bnlp, gs, xs)
+batch_objcons!(bnlp::ForEachBatchNLPModel, xs, cs) =
+  _batch_map_tuple!(objcons!, bnlp, cs, xs)
