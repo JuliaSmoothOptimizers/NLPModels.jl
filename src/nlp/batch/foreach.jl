@@ -8,7 +8,7 @@ function ForEachBatchNLPModel(models::M) where {M}
   isempty(models) && error("Cannot create ForEachBatchNLPModel from empty collection.")
   ForEachBatchNLPModel{M}(models, Counters(), length(models))
 end
-Base.length(vnlp::ForEachBatchNLPModel) = length(vnlp.models)
+Base.length(vnlp::ForEachBatchNLPModel) = vnlp.batch_size
 Base.getindex(vnlp::ForEachBatchNLPModel, i::Integer) = vnlp.models[i]
 Base.iterate(vnlp::ForEachBatchNLPModel, state::Integer = 1) = iterate(vnlp.models, state)
 
@@ -204,7 +204,7 @@ batch_jth_hess_coord!(bnlp::ForEachBatchNLPModel, xs, j::Integer, outputs) =
 batch_jth_hprod!(bnlp::ForEachBatchNLPModel, xs, vs, j::Integer, outputs) =
   _batch_map!((m, out, x, v) -> jth_hprod!(m, x, v, j, out), bnlp, outputs, xs, vs)
 
-# hess (need to treat obj_weight)  FIXME: container type..
+# hess (need to treat obj_weight)  FIXME: obj_weights is required in batch API
 batch_hprod(bnlp::ForEachBatchNLPModel, xs, vs; obj_weights) =
   _batch_map_weight((m, x, v; obj_weight) -> hprod(m, x, v; obj_weight = obj_weight), bnlp, obj_weights, xs, vs)
 batch_hprod(bnlp::ForEachBatchNLPModel, xs, ys, vs; obj_weights) =
