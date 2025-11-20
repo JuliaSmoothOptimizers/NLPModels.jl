@@ -1387,7 +1387,9 @@ This is typically used to normalize variables for numerical stability in solvers
 By default, the scaling is model-dependent. If not overridden by the model, a vector of ones 
 is returned. Inspired by the AMPL scaling conventions.
 """
-function varscale end
+function varscale(model::AbstractNLPModel{T, S}) where {T, S}
+  return ones(T, model.meta.nvar)
+end
 
 """
     lagscale(model::AbstractNLPModel)
@@ -1395,7 +1397,9 @@ function varscale end
 Return a vector of scaling factors for the Lagrange multipliers associated with constraints.
 This can be used to improve numerical stability or condition number when solving KKT systems.
 """
-function lagscale end
+function lagscale(model::AbstractNLPModel{T, S}) where {T, S}
+  return ones(T, model.meta.ncon)
+end
 
 """
     conscale(model::AbstractNLPModel)
@@ -1404,4 +1408,6 @@ Return a vector of constraint scaling factors for the model.
 These are typically used to normalize constraints to have similar magnitudes and improve 
 convergence behavior in nonlinear solvers.
 """
-function conscale end
+function conscale(model::AbstractNLPModel{T, S}) where {T, S}
+  return ones(T, model.meta.ncon)
+end
