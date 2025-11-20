@@ -1,14 +1,13 @@
 @testset "Batch API" begin
-  # Generate models
-  # TODO: non-identical models
+  # Generate models with varying curvature parameter
   n_models = 5
   models = [SimpleNLPModel() for _ = 1:n_models]
   meta = models[1].meta
   n, m = meta.nvar, meta.ncon
   T = eltype(meta.lcon)
-  lcon_values = [[T(-i / 2), T((i - 1) / 2)] for i = 1:n_models]
+  p_values = [T(2 + i) for i = 1:n_models]
   for i = 1:n_models
-    models[i].meta.lcon .= lcon_values[i]
+    models[i].p = p_values[i]
   end
   xs = [randn(n) for _ = 1:n_models]
   ys = [randn(m) for _ = 1:n_models]
@@ -19,7 +18,12 @@
   obj_weights = rand(n_models)
   function make_inplace_batch_model()
     base_model = SimpleNLPModel()
-    updates = [nlp -> copyto!(get_lcon(nlp), lcons) for lcons in lcon_values]
+    updates = [
+      begin
+        param = p
+        nlp -> (nlp.p = param)
+      end for p in p_values
+    ]
     return InplaceBatchNLPModel(base_model, updates)
   end
 
@@ -297,38 +301,57 @@
       ]
       @test hprods ≈ manual_hprods
 
-      # Test batch_hess_op with obj_weights (without y)
-      batch_hess_ops = batch_hess_op(bnlp, xs; obj_weights = obj_weights)
-      manual_hess_ops = [hess_op(models[i], xs[i]; obj_weight = obj_weights[i]) for i = 1:n_models]
-      for i = 1:n_models
-        @test batch_hess_ops[i] * vs[i] ≈ manual_hess_ops[i] * vs[i]
-      end
+      if isa(bnlp, ForEachBatchNLPModel) # NOTE: excluding InplaceBatchNLPModel
+        # Test batch_hess_op with obj_weights (without y)
+        batch_hess_ops = batch_hess_op(bnlp, xs; obj_weights = obj_weights)
+        manual_hess_ops = [
+          hess_op(models[i], xs[i]; obj_weight = obj_weights[i]) for i = 1:n_models
+        ]
+        for i = 1:n_models
+          @test batch_hess_ops[i] * vs[i] ≈ manual_hess_ops[i] * vs[i]
+        end
 
-      # Test batch_hess_op with obj_weights (with y)
-      batch_hess_ops = batch_hess_op(bnlp, xs, ys; obj_weights = obj_weights)
-      manual_hess_ops =
-        [hess_op(models[i], xs[i], ys[i]; obj_weight = obj_weights[i]) for i = 1:n_models]
-      for i = 1:n_models
-        @test batch_hess_ops[i] * vs[i] ≈ manual_hess_ops[i] * vs[i]
-      end
+        # Test batch_hess_op with obj_weights (with y)
+        batch_hess_ops = batch_hess_op(bnlp, xs, ys; obj_weights = obj_weights)
+        manual_hess_ops = [
+          hess_op(models[i], xs[i], ys[i]; obj_weight = obj_weights[i]) for i = 1:n_models
+        ]
+        for i = 1:n_models
+          @test batch_hess_ops[i] * vs[i] ≈ manual_hess_ops[i] * vs[i]
+        end
 
-      # Test batch_hess_op! with obj_weights (without y)
-      hvs = [zeros(n) for _ = 1:n_models]
-      batch_hess_ops = batch_hess_op!(bnlp, xs, hvs; obj_weights = obj_weights)
-      manual_hess_ops =
-        [hess_op!(models[i], xs[i], zeros(n); obj_weight = obj_weights[i]) for i = 1:n_models]
-      for i = 1:n_models
-        @test batch_hess_ops[i] * vs[i] ≈ manual_hess_ops[i] * vs[i]
-      end
+        # Test batch_hess_op! with obj_weights (without y)
+        hvs = [zeros(n) for _ = 1:n_models]
+        batch_hess_ops = batch_hess_op!(bnlp, xs, hvs; obj_weights = obj_weights)
+        manual_hess_ops = [
+          hess_op!(models[i], xs[i], zeros(n); obj_weight = obj_weights[i]) for i = 1:n_models
+        ]
+        for i = 1:n_models
+          @test batch_hess_ops[i] * vs[i] ≈ manual_hess_ops[i] * vs[i]
+        end
 
-      # Test batch_hess_op! with obj_weights (with y)
-      hvs = [zeros(n) for _ = 1:n_models]
-      batch_hess_ops = batch_hess_op!(bnlp, xs, ys, hvs; obj_weights = obj_weights)
-      manual_hess_ops = [
-        hess_op!(models[i], xs[i], ys[i], zeros(n); obj_weight = obj_weights[i]) for i = 1:n_models
-      ]
-      for i = 1:n_models
-        @test batch_hess_ops[i] * vs[i] ≈ manual_hess_ops[i] * vs[i]
+        # Test batch_hess_op! with obj_weights (with y)
+        hvs = [zeros(n) for _ = 1:n_models]
+        batch_hess_ops = batch_hess_op!(bnlp, xs, ys, hvs; obj_weights = obj_weights)
+        manual_hess_ops = [
+          hess_op!(models[i], xs[i], ys[i], zeros(n); obj_weight = obj_weights[i]) for
+          i = 1:n_models
+        ]
+        for i = 1:n_models
+          @test batch_hess_ops[i] * vs[i] ≈ manual_hess_ops[i] * vs[i]
+        end
+      else
+        @test_throws ErrorException batch_hess_op(bnlp, xs; obj_weights = obj_weights)
+        @test_throws ErrorException batch_hess_op(bnlp, xs, ys; obj_weights = obj_weights)
+        @test_throws ErrorException batch_hess_op!(bnlp, xs, [zeros(n) for _ = 1:n_models];
+                                                   obj_weights = obj_weights)
+        @test_throws ErrorException batch_hess_op!(
+          bnlp,
+          xs,
+          ys,
+          [zeros(n) for _ = 1:n_models];
+          obj_weights = obj_weights,
+        )
       end
 
       # Test batch_jth_con
@@ -392,62 +415,77 @@
       manual_ghjvprods = [ghjvprod!(models[i], xs[i], gs[i], vs[i], zeros(m)) for i = 1:n_models]
       @test ghjvprods ≈ manual_ghjvprods
 
-      # Test batch_jac_op
-      batch_jac_ops = batch_jac_op(bnlp, xs)
-      manual_jac_ops = [jac_op(models[i], xs[i]) for i = 1:n_models]
-      for i = 1:n_models
-        @test batch_jac_ops[i] * vs[i] ≈ manual_jac_ops[i] * vs[i]
-        @test batch_jac_ops[i]' * ws[i] ≈ manual_jac_ops[i]' * ws[i]
-      end
+      if isa(bnlp, ForEachBatchNLPModel)
+        # Test batch_jac_op
+        batch_jac_ops = batch_jac_op(bnlp, xs)
+        manual_jac_ops = [jac_op(models[i], xs[i]) for i = 1:n_models]
+        for i = 1:n_models
+          @test batch_jac_ops[i] * vs[i] ≈ manual_jac_ops[i] * vs[i]
+          @test batch_jac_ops[i]' * ws[i] ≈ manual_jac_ops[i]' * ws[i]
+        end
 
-      # Test batch_jac_op!
-      jvs = [zeros(m) for _ = 1:n_models]
-      jtvs = [zeros(n) for _ = 1:n_models]
-      batch_jac_ops = batch_jac_op!(bnlp, xs, jvs, jtvs)
-      manual_jac_ops = [jac_op!(models[i], xs[i], zeros(m), zeros(n)) for i = 1:n_models]
-      for i = 1:n_models
-        @test batch_jac_ops[i] * vs[i] ≈ manual_jac_ops[i] * vs[i]
-        @test batch_jac_ops[i]' * ws[i] ≈ manual_jac_ops[i]' * ws[i]
-      end
+        # Test batch_jac_op!
+        jvs = [zeros(m) for _ = 1:n_models]
+        jtvs = [zeros(n) for _ = 1:n_models]
+        batch_jac_ops = batch_jac_op!(bnlp, xs, jvs, jtvs)
+        manual_jac_ops = [jac_op!(models[i], xs[i], zeros(m), zeros(n)) for i = 1:n_models]
+        for i = 1:n_models
+          @test batch_jac_ops[i] * vs[i] ≈ manual_jac_ops[i] * vs[i]
+          @test batch_jac_ops[i]' * ws[i] ≈ manual_jac_ops[i]' * ws[i]
+        end
 
-      # Test batch_jac_lin_op
-      batch_jac_lin_ops = batch_jac_lin_op(bnlp)
-      manual_jac_lin_ops = [jac_lin_op(models[i]) for i = 1:n_models]
-      ws_lin_vec = ws[1][1:(meta.nlin)]
-      for i = 1:n_models
-        @test batch_jac_lin_ops[i] * vs[i] ≈ manual_jac_lin_ops[i] * vs[i]
-        @test batch_jac_lin_ops[i]' * ws_lin_vec ≈ manual_jac_lin_ops[i]' * ws_lin_vec
-      end
+        # Test batch_jac_lin_op
+        batch_jac_lin_ops = batch_jac_lin_op(bnlp)
+        manual_jac_lin_ops = [jac_lin_op(models[i]) for i = 1:n_models]
+        ws_lin_vec = ws[1][1:(meta.nlin)]
+        for i = 1:n_models
+          @test batch_jac_lin_ops[i] * vs[i] ≈ manual_jac_lin_ops[i] * vs[i]
+          @test batch_jac_lin_ops[i]' * ws_lin_vec ≈ manual_jac_lin_ops[i]' * ws_lin_vec
+        end
 
-      # Test batch_jac_lin_op!
-      jvs_lin = [zeros(meta.nlin) for _ = 1:n_models]
-      jtvs_lin = [zeros(n) for _ = 1:n_models]
-      batch_jac_lin_ops = batch_jac_lin_op!(bnlp, jvs_lin, jtvs_lin)
-      manual_jac_lin_ops =
-        [jac_lin_op!(models[i], zeros(meta.nlin), zeros(n)) for i = 1:n_models]
-      for i = 1:n_models
-        @test batch_jac_lin_ops[i] * vs[i] ≈ manual_jac_lin_ops[i] * vs[i]
-        @test batch_jac_lin_ops[i]' * ws_lin_vec ≈ manual_jac_lin_ops[i]' * ws_lin_vec
-      end
+        # Test batch_jac_lin_op!
+        jvs_lin = [zeros(meta.nlin) for _ = 1:n_models]
+        jtvs_lin = [zeros(n) for _ = 1:n_models]
+        batch_jac_lin_ops = batch_jac_lin_op!(bnlp, jvs_lin, jtvs_lin)
+        manual_jac_lin_ops =
+          [jac_lin_op!(models[i], zeros(meta.nlin), zeros(n)) for i = 1:n_models]
+        for i = 1:n_models
+          @test batch_jac_lin_ops[i] * vs[i] ≈ manual_jac_lin_ops[i] * vs[i]
+          @test batch_jac_lin_ops[i]' * ws_lin_vec ≈ manual_jac_lin_ops[i]' * ws_lin_vec
+        end
 
-      # Test batch_jac_nln_op
-      batch_jac_nln_ops = batch_jac_nln_op(bnlp, xs)
-      manual_jac_nln_ops = [jac_nln_op(models[i], xs[i]) for i = 1:n_models]
-      ws_nln_vec = ws[1][(meta.nlin + 1):end]
-      for i = 1:n_models
-        @test batch_jac_nln_ops[i] * vs[i] ≈ manual_jac_nln_ops[i] * vs[i]
-        @test batch_jac_nln_ops[i]' * ws_nln_vec ≈ manual_jac_nln_ops[i]' * ws_nln_vec
-      end
+        # Test batch_jac_nln_op
+        batch_jac_nln_ops = batch_jac_nln_op(bnlp, xs)
+        manual_jac_nln_ops = [jac_nln_op(models[i], xs[i]) for i = 1:n_models]
+        ws_nln_vec = ws[1][(meta.nlin + 1):end]
+        for i = 1:n_models
+          @test batch_jac_nln_ops[i] * vs[i] ≈ manual_jac_nln_ops[i] * vs[i]
+          @test batch_jac_nln_ops[i]' * ws_nln_vec ≈ manual_jac_nln_ops[i]' * ws_nln_vec
+        end
 
-      # Test batch_jac_nln_op!
-      jvs_nln = [zeros(meta.nnln) for _ = 1:n_models]
-      jtvs_nln = [zeros(n) for _ = 1:n_models]
-      batch_jac_nln_ops = batch_jac_nln_op!(bnlp, xs, jvs_nln, jtvs_nln)
-      manual_jac_nln_ops =
-        [jac_nln_op!(models[i], xs[i], zeros(meta.nnln), zeros(n)) for i = 1:n_models]
-      for i = 1:n_models
-        @test batch_jac_nln_ops[i] * vs[i] ≈ manual_jac_nln_ops[i] * vs[i]
-        @test batch_jac_nln_ops[i]' * ws_nln_vec ≈ manual_jac_nln_ops[i]' * ws_nln_vec
+        # Test batch_jac_nln_op!
+        jvs_nln = [zeros(meta.nnln) for _ = 1:n_models]
+        jtvs_nln = [zeros(n) for _ = 1:n_models]
+        batch_jac_nln_ops = batch_jac_nln_op!(bnlp, xs, jvs_nln, jtvs_nln)
+        manual_jac_nln_ops =
+          [jac_nln_op!(models[i], xs[i], zeros(meta.nnln), zeros(n)) for i = 1:n_models]
+        for i = 1:n_models
+          @test batch_jac_nln_ops[i] * vs[i] ≈ manual_jac_nln_ops[i] * vs[i]
+          @test batch_jac_nln_ops[i]' * ws_nln_vec ≈ manual_jac_nln_ops[i]' * ws_nln_vec
+        end
+      else
+        @test_throws ErrorException batch_jac_op(bnlp, xs)
+        @test_throws ErrorException batch_jac_op!(bnlp, xs, [zeros(m) for _ = 1:n_models],
+                                                  [zeros(n) for _ = 1:n_models])
+        @test_throws ErrorException batch_jac_lin_op(bnlp)
+        @test_throws ErrorException batch_jac_lin_op!(bnlp,
+                                                      [zeros(meta.nlin) for _ = 1:n_models],
+                                                      [zeros(n) for _ = 1:n_models])
+        @test_throws ErrorException batch_jac_nln_op(bnlp, xs)
+        @test_throws ErrorException batch_jac_nln_op!(bnlp,
+                                                      xs,
+                                                      [zeros(meta.nnln) for _ = 1:n_models],
+                                                      [zeros(n) for _ = 1:n_models])
       end
 
       # Test batch_varscale, batch_lagscale, batch_conscale
