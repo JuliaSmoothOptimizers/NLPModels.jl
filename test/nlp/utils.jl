@@ -2,11 +2,25 @@ mutable struct SuperNLPModel{T, S} <: AbstractNLPModel{T, S}
   model
 end
 
-@testset "Testing @lencheck e @rangecheck" begin
+@testset "Testing @lencheck, @lencheck_tup, @rangecheck" begin
   x = zeros(2)
   @lencheck 2 x
   @test_throws DimensionError @lencheck 1 x
   @test_throws DimensionError @lencheck 3 x
+
+  xs = (zeros(2), ones(2))
+  @lencheck_tup 2 xs
+  xs_bad = (zeros(2), ones(3))
+  err = try
+    @lencheck_tup 2 xs_bad
+    nothing
+  catch e
+    e
+  end
+  @test isa(err, DimensionError)
+  @test err.name == "xs_bad[2]"
+  @test err.dim_expected == 2
+  @test err.dim_found == 3
 
   @rangecheck 1 3 2
   @test_throws ErrorException @rangecheck 1 3 0
