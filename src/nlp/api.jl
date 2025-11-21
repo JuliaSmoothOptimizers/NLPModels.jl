@@ -317,7 +317,7 @@ overwriting `vals`.
 function jac_lin_coord! end
 
 function jac_lin_coord!(nlp::AbstractNLPModel, vals::AbstractVector)
-  @warn "Calling deprecated method jac_lin_coord!(nlp, x, vals). Use jac_lin_coord!(nlp, vals) instead."
+  # @warn "Calling deprecated method jac_lin_coord!(nlp, x, vals). Use jac_lin_coord!(nlp, vals) instead."
   return jac_lin_coord!(nlp, nlp.meta.x0, vals)
 end
 
@@ -456,7 +456,7 @@ Evaluate ``J(x)v``, the linear Jacobian-vector product at `x` in place.
 function jprod_lin! end
 
 function jprod_lin!(nlp::AbstractNLPModel, v::AbstractVector, Jv::AbstractVector)
-  @warn "Calling deprecated method jprod_lin!(nlp, x, v, Jv). Use jprod_lin!(nlp, v, Jv) instead."
+  # @warn "Calling deprecated method jprod_lin!(nlp, x, v, Jv). Use jprod_lin!(nlp, v, Jv) instead."
   jprod_lin!(nlp, nlp.meta.x0, v, Jv)
   return Jv
 end
@@ -606,7 +606,7 @@ Evaluate ``J(x)^Tv``, the linear transposed-Jacobian-vector product at `x` in pl
 function jtprod_lin! end
 
 function jtprod_lin!(nlp::AbstractNLPModel, v::AbstractVector, Jtv::AbstractVector)
-  @warn "Calling deprecated method jtprod_lin!(nlp, x, v, Jtv). Use jtprod_lin!(nlp, v, Jtv) instead."
+  # @warn "Calling deprecated method jtprod_lin!(nlp, x, v, Jtv). Use jtprod_lin!(nlp, v, Jtv) instead."
   jtprod_lin!(nlp, nlp.meta.x0, v, Jtv)
   return Jtv
 end
