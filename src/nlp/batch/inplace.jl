@@ -200,7 +200,7 @@ batch_jtprod_lin!(bnlp::InplaceBatchNLPModel, vs, Jtvs) =
 batch_ghjvprod!(bnlp::InplaceBatchNLPModel, xs, gs, vs, gHvs) =
   _batch_map!(ghjvprod!, bnlp, xs, gs, vs, gHvs)
 
-## jth
+## jth  FIXME: allow for vector of js
 batch_jth_con(bnlp::InplaceBatchNLPModel, xs, j::Integer) =
   _batch_map((m, x) -> jth_con(m, x, j), bnlp, xs)
 batch_jth_congrad(bnlp::InplaceBatchNLPModel, xs, j::Integer) =
