@@ -79,40 +79,45 @@ See the [Models](@ref), the [Tools](@ref tools-section), or the [API](@ref).
 
 `NLPModelMeta` objects have the following attributes (with `S <: AbstractVector`):
 
-Attribute   | Type               | Notes
-------------|--------------------|------------------------------------
-`nvar`      | `Int             ` | number of variables
-`x0  `      | `S`                | initial guess
-`lvar`      | `S`                | vector of lower bounds
-`uvar`      | `S`                | vector of upper bounds
-`ifix`      | `Vector{Int}`      | indices of fixed variables
-`ilow`      | `Vector{Int}`      | indices of variables with lower bound only
-`iupp`      | `Vector{Int}`      | indices of variables with upper bound only
-`irng`      | `Vector{Int}`      | indices of variables with lower and upper bound (range)
-`ifree`     | `Vector{Int}`      | indices of free variables
-`iinf`      | `Vector{Int}`      | indices of visibly infeasible bounds
-`ncon`      | `Int             ` | total number of general constraints
-`nlin `     | `Int             ` | number of linear constraints
-`nnln`      | `Int             ` | number of nonlinear general constraints
-`y0  `      | `S`                | initial Lagrange multipliers
-`lcon`      | `S`                | vector of constraint lower bounds
-`ucon`      | `S`                | vector of constraint upper bounds
-`lin `      | `Vector{Int}`      | indices of linear constraints
-`nln`       | `Vector{Int}`      | indices of nonlinear constraints
-`jfix`      | `Vector{Int}`      | indices of equality constraints
-`jlow`      | `Vector{Int}`      | indices of constraints of the form c(x) ≥ cl
-`jupp`      | `Vector{Int}`      | indices of constraints of the form c(x) ≤ cu
-`jrng`      | `Vector{Int}`      | indices of constraints of the form cl ≤ c(x) ≤ cu
-`jfree`     | `Vector{Int}`      | indices of "free" constraints (there shouldn't be any)
-`jinf`      | `Vector{Int}`      | indices of the visibly infeasible constraints
-`nnzo`      | `Int             ` | number of nonzeros in the gradient
-`nnzj`      | `Int             ` | number of nonzeros in the sparse Jacobian
-`lin_nnzj`  | `Int             ` | number of nonzeros in the sparse linear constraints Jacobian
-`nln_nnzj`  | `Int             ` | number of nonzeros in the sparse nonlinear constraints Jacobian
-`nnzh`      | `Int             ` | number of nonzeros in the lower triangular part of the sparse Hessian of the Lagrangian
-`minimize`  | `Bool            ` | true if `optimize == minimize`
-`islp`      | `Bool            ` | true if the problem is a linear program
-`name`      | `String`           | problem name
+Attribute            | Type          | Notes
+---------------------|---------------|------------------------------------
+`nvar`               | `Int`         | number of variables
+`x0  `               | `S`           | initial guess
+`lvar`               | `S`           | vector of lower bounds
+`uvar`               | `S`           | vector of upper bounds
+`ifix`               | `Vector{Int}` | indices of fixed variables
+`ilow`               | `Vector{Int}` | indices of variables with lower bound only
+`iupp`               | `Vector{Int}` | indices of variables with upper bound only
+`irng`               | `Vector{Int}` | indices of variables with lower and upper bound (range)
+`ifree`              | `Vector{Int}` | indices of free variables
+`iinf`               | `Vector{Int}` | indices of visibly infeasible bounds
+`ncon`               | `Int`         | total number of general constraints
+`nlin `              | `Int`         | number of linear constraints
+`nnln`               | `Int`         | number of nonlinear general constraints
+`y0  `               | `S`           | initial Lagrange multipliers
+`lcon`               | `S`           | vector of constraint lower bounds
+`ucon`               | `S`           | vector of constraint upper bounds
+`lin `               | `Vector{Int}` | indices of linear constraints
+`nln`                | `Vector{Int}` | indices of nonlinear constraints
+`jfix`               | `Vector{Int}` | indices of equality constraints
+`jlow`               | `Vector{Int}` | indices of constraints of the form c(x) ≥ cl
+`jupp`               | `Vector{Int}` | indices of constraints of the form c(x) ≤ cu
+`jrng`               | `Vector{Int}` | indices of constraints of the form cl ≤ c(x) ≤ cu
+`jfree`              | `Vector{Int}` | indices of "free" constraints (there shouldn't be any)
+`jinf`               | `Vector{Int}` | indices of the visibly infeasible constraints
+`nnzo`               | `Int`         | number of nonzeros in the gradient
+`nnzj`               | `Int`         | number of nonzeros in the sparse Jacobian
+`lin_nnzj`           | `Int`         | number of nonzeros in the sparse linear constraints Jacobian
+`nln_nnzj`           | `Int`         | number of nonzeros in the sparse nonlinear constraints Jacobian
+`nnzh`               | `Int`         | number of nonzeros in the lower triangular part of the sparse Hessian of the Lagrangian
+`minimize`           | `Bool`        | true if `optimize == minimize`
+`islp`               | `Bool`        | true if the problem is a linear program
+`name`               | `String`      | problem name
+`jacobian_available` | `Bool`        | true if the sparse Jacobian of the constraints is available
+`hessian_available`  | `Bool`        | true if the sparse Hessian of the Lagrangian is available
+`Jv_available`       | `Bool`        | true if the Jacobian-vector product `J * v` is available
+`Jtv_available`      | `Bool`        | true if the transpose Jacobian-vector product `J' * v` is available
+`Hv_available`       | `Bool`        | true if the Hessian-vector product of the objective or Lagrangian `H * v` is available
 
 ## License
 
