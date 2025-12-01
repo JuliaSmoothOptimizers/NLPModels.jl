@@ -53,11 +53,11 @@ struct NLSMeta{T, S}
     nnzj = nequ * nvar,
     nnzh = div(nvar * (nvar + 1), 2),
     lin = Int[],
-    jacobian_residual_available::Bool = true
-    hessian_residual_available::Bool = true
-    Jv_residual_available::Bool = true
-    Jtv_residual_available::Bool = true
-    Hv_residual_available::Bool = true
+    jacobian_residual_available::Bool = true,
+    hessian_residual_available::Bool = true,
+    Jv_residual_available::Bool = true,
+    Jtv_residual_available::Bool = true,
+    Hv_residual_available::Bool = true,
   ) where {T, S}
     nnzj = max(0, nnzj)
     nnzh = max(0, nnzh)
