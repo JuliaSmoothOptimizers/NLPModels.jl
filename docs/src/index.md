@@ -113,11 +113,12 @@ Attribute            | Type          | Notes
 `minimize`           | `Bool`        | true if `optimize == minimize`
 `islp`               | `Bool`        | true if the problem is a linear program
 `name`               | `String`      | problem name
+`gradient_available` | `Bool`        | true if the gradient of the objective is available
 `jacobian_available` | `Bool`        | true if the sparse Jacobian of the constraints is available
 `hessian_available`  | `Bool`        | true if the sparse Hessian of the Lagrangian is available
 `Jv_available`       | `Bool`        | true if the Jacobian-vector product `J * v` is available
 `Jtv_available`      | `Bool`        | true if the transpose Jacobian-vector product `J' * v` is available
-`Hv_available`       | `Bool`        | true if the Hessian-vector product of the objective or Lagrangian `H * v` is available
+`Hv_available`       | `Bool`        | true if the Hessian-vector product of the Lagrangian `H * v` is available
 
 ## License
 

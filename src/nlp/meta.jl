@@ -51,11 +51,12 @@ The following keyword arguments are accepted:
 - `minimize`: true if optimize == minimize
 - `islp`: true if the problem is a linear program
 - `name`: problem name
+- `gradient_available`: indicates whether the gradient of the objective is available
 - `jacobian_available`: indicates whether the sparse Jacobian of the constraints is available
 - `hessian_available`: indicates whether the sparse Hessian of the Lagrangian is available
 - `Jv_available`: indicates whether the Jacobian-vector product `J * v` is available
 - `Jtv_available`: indicates whether the transpose Jacobian-vector product `J' * v` is available
-- `Hv_available`: indicates whether the Hessian-vector product of the objective or Lagrangian `H * v` is available
+- `Hv_available`: indicates whether the Hessian-vector product of the Lagrangian `H * v` is available
 
 `NLPModelMeta` also contains the following attributes, which are computed from the variables above:
 - `nvar`: number of variables
@@ -120,6 +121,7 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
   islp::Bool
   name::String
 
+  gradient_available::Bool
   jacobian_available::Bool
   hessian_available::Bool
   Jv_available::Bool
@@ -148,6 +150,7 @@ function NLPModelMeta{T, S}(
   minimize::Bool = true,
   islp::Bool = false,
   name = "Generic",
+  gradient_available::Bool = true,
   jacobian_available::Bool = true,
   hessian_available::Bool = true,
   Jv_available::Bool = true,
@@ -229,6 +232,7 @@ function NLPModelMeta{T, S}(
     minimize,
     islp,
     name,
+    gradient_available,
     jacobian_available,
     hessian_available,
     Jv_available,
@@ -262,6 +266,7 @@ function NLPModelMeta(
   minimize::Bool = meta.minimize,
   islp::Bool = meta.islp,
   name = meta.name,
+  gradient_available::Bool = meta.gradient_available,
   jacobian_available::Bool = meta.jacobian_available,
   hessian_available::Bool = meta.hessian_available,
   Jv_available::Bool = meta.Jv_available,
@@ -289,6 +294,7 @@ function NLPModelMeta(
     minimize = minimize,
     islp = islp,
     name = name,
+    gradient_available = gradient_available,
     jacobian_available = jacobian_available,
     hessian_available = hessian_available,
     Jv_available = Jv_available,
