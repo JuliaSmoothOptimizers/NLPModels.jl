@@ -6,7 +6,7 @@ After calling one the [API](@ref) functions to get a function value, the
 number of times that function was called is stored inside the
 `NLPModel`. For instance
 
-```@example
+```julia
 using ADNLPModels, LinearAlgebra, NLPModels
 nlp = ADNLPModel(x -> dot(x, x), zeros(2))
 for i = 1:100
@@ -52,7 +52,7 @@ least squares models (the ones with `residual` below).
 To get the sum of all counters except `cons`, `jac`, `jprod` and `jtprod` called for a problem, use
 [`sum_counters`](@ref).
 
-```@example
+```julia
 using ADNLPModels, LinearAlgebra, NLPModels
 nlp = ADNLPModel(x -> dot(x, x), zeros(2))
 obj(nlp, rand(2))
