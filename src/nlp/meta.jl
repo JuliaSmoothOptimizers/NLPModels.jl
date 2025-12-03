@@ -51,12 +51,12 @@ The following keyword arguments are accepted:
 - `minimize`: true if optimize == minimize
 - `islp`: true if the problem is a linear program
 - `name`: problem name
-- `gradient_available`: indicates whether the gradient of the objective is available
-- `jacobian_available`: indicates whether the sparse Jacobian of the constraints is available
-- `hessian_available`: indicates whether the sparse Hessian of the Lagrangian is available
-- `Jv_available`: indicates whether the Jacobian-vector product `J * v` is available
-- `Jtv_available`: indicates whether the transpose Jacobian-vector product `J' * v` is available
-- `Hv_available`: indicates whether the Hessian-vector product of the Lagrangian `H * v` is available
+- `grad_available`: indicates whether the gradient of the objective is available
+- `jac_available`: indicates whether the sparse Jacobian of the constraints is available
+- `hess_available`: indicates whether the sparse Hessian of the Lagrangian is available
+- `jprod_available`: indicates whether the Jacobian-vector product `J * v` is available
+- `jtprod_available`: indicates whether the transpose Jacobian-vector product `J' * v` is available
+- `hprod_available`: indicates whether the Hessian-vector product of the Lagrangian `H * v` is available
 
 `NLPModelMeta` also contains the following attributes, which are computed from the variables above:
 - `nvar`: number of variables
@@ -121,12 +121,12 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
   islp::Bool
   name::String
 
-  gradient_available::Bool
-  jacobian_available::Bool
-  hessian_available::Bool
-  Jv_available::Bool
-  Jtv_available::Bool
-  Hv_available::Bool
+  grad_available::Bool
+  jac_available::Bool
+  hess_available::Bool
+  jprod_available::Bool
+  jtprod_available::Bool
+  hprod_available::Bool
 end
 
 function NLPModelMeta{T, S}(
@@ -150,12 +150,12 @@ function NLPModelMeta{T, S}(
   minimize::Bool = true,
   islp::Bool = false,
   name = "Generic",
-  gradient_available::Bool = true,
-  jacobian_available::Bool = true,
-  hessian_available::Bool = true,
-  Jv_available::Bool = true,
-  Jtv_available::Bool = true,
-  Hv_available::Bool = true,
+  grad_available::Bool = true,
+  jac_available::Bool = true,
+  hess_available::Bool = true,
+  jprod_available::Bool = true,
+  jtprod_available::Bool = true,
+  hprod_available::Bool = true,
 ) where {T, S}
   if (nvar < 1) || (ncon < 0)
     error("Nonsensical dimensions")
@@ -232,12 +232,12 @@ function NLPModelMeta{T, S}(
     minimize,
     islp,
     name,
-    gradient_available,
-    jacobian_available,
-    hessian_available,
-    Jv_available,
-    Jtv_available,
-    Hv_available,
+    grad_available,
+    jac_available,
+    hess_available,
+    jprod_available,
+    jtprod_available,
+    hprod_available,
   )
 end
 
@@ -266,12 +266,12 @@ function NLPModelMeta(
   minimize::Bool = meta.minimize,
   islp::Bool = meta.islp,
   name = meta.name,
-  gradient_available::Bool = meta.gradient_available,
-  jacobian_available::Bool = meta.jacobian_available,
-  hessian_available::Bool = meta.hessian_available,
-  Jv_available::Bool = meta.Jv_available,
-  Jtv_available::Bool = meta.Jtv_available,
-  Hv_available::Bool = meta.Hv_available,
+  grad_available::Bool = meta.grad_available,
+  jac_available::Bool = meta.jac_available,
+  hess_available::Bool = meta.hess_available,
+  jprod_available::Bool = meta.jprod_available,
+  jtprod_available::Bool = meta.jtprod_available,
+  hprod_available::Bool = meta.hprod_available,
 ) where {T, S}
   NLPModelMeta{T, S}(
     nvar,
@@ -294,12 +294,12 @@ function NLPModelMeta(
     minimize = minimize,
     islp = islp,
     name = name,
-    gradient_available = gradient_available,
-    jacobian_available = jacobian_available,
-    hessian_available = hessian_available,
-    Jv_available = Jv_available,
-    Jtv_available = Jtv_available,
-    Hv_available = Hv_available,
+    grad_available = grad_available,
+    jac_available = jac_available,
+    hess_available = hess_available,
+    jprod_available = jprod_available,
+    jtprod_available = jtprod_available,
+    hprod_available = hprod_available,
   )
 end
 

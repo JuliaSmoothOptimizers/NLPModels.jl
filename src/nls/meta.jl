@@ -15,11 +15,11 @@ The following keyword arguments are accepted:
 - `nnzj`: number of elements needed to store the nonzeros of the Jacobian of the residual
 - `nnzh`: number of elements needed to store the nonzeros of the sum of Hessians of the residuals
 - `lin`: indices of linear residuals
-- `jacobian_residual_available`: indicates whether the sparse Jacobian of the residuals is available
-- `hessian_residual_available`: indicates whether the sum of the sparse Hessians of the residuals is available
-- `Jv_residual_available`: indicates whether the Jacobian-vector product for the residuals is available
-- `Jtv_residual_available`: indicates whether the transpose Jacobian-vector product for the residuals is available
-- `Hv_residual_available`: indicates whether the sum of Hessian-vector product for the residuals is available
+- `jac_residual_available`: indicates whether the sparse Jacobian of the residuals is available
+- `hess_residual_available`: indicates whether the sum of the sparse Hessians of the residuals is available
+- `jprod_residual_available`: indicates whether the Jacobian-vector product for the residuals is available
+- `jtprod_residual_available`: indicates whether the transpose Jacobian-vector product for the residuals is available
+- `hprod_residual_available`: indicates whether the sum of Hessian-vector product for the residuals is available
 
 `NLSMeta` also contains the following attributes, which are computed from the variables above:
 - `nequ`: size of the residual
@@ -40,11 +40,11 @@ struct NLSMeta{T, S}
   lin::Vector{Int} # List of linear residuals
   nlin::Int # = length(lin)
 
-  jacobian_residual_available::Bool
-  hessian_residual_available::Bool
-  Jv_residual_available::Bool
-  Jtv_residual_available::Bool
-  Hv_residual_available::Bool
+  jac_residual_available::Bool
+  hess_residual_available::Bool
+  jprod_residual_available::Bool
+  jtprod_residual_available::Bool
+  hprod_residual_available::Bool
 
   function NLSMeta{T, S}(
     nequ::Int,
@@ -53,11 +53,11 @@ struct NLSMeta{T, S}
     nnzj = nequ * nvar,
     nnzh = div(nvar * (nvar + 1), 2),
     lin = Int[],
-    jacobian_residual_available::Bool = true,
-    hessian_residual_available::Bool = true,
-    Jv_residual_available::Bool = true,
-    Jtv_residual_available::Bool = true,
-    Hv_residual_available::Bool = true,
+    jac_residual_available::Bool = true,
+    hess_residual_available::Bool = true,
+    jprod_residual_available::Bool = true,
+    jtprod_residual_available::Bool = true,
+    hprod_residual_available::Bool = true,
   ) where {T, S}
     nnzj = max(0, nnzj)
     nnzh = max(0, nnzh)
@@ -67,8 +67,8 @@ struct NLSMeta{T, S}
     nnln = length(nln)
 
     return new{T, S}(nequ, nvar, x0, nnzj, nnzh, nln, nnln, lin, nlin,
-                     jacobian_residual_available, hessian_residual_available, Jv_residual_available,
-                     Jtv_residual_available, Hv_residual_available)
+                     jac_residual_available, hess_residual_available, jprod_residual_available,
+                     jtprod_residual_available, hprod_residual_available)
   end
 end
 
