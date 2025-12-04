@@ -19,7 +19,6 @@ The following keyword arguments are accepted:
 - `hess_residual_available`: indicates whether the sum of the sparse Hessians of the residuals is available
 - `jprod_residual_available`: indicates whether the Jacobian-vector product for the residuals is available
 - `jtprod_residual_available`: indicates whether the transpose Jacobian-vector product for the residuals is available
-- `hprod_residual_available`: indicates whether the sum of Hessian-vector product for the residuals is available
 
 `NLSMeta` also contains the following attributes, which are computed from the variables above:
 - `nequ`: size of the residual
@@ -44,7 +43,6 @@ struct NLSMeta{T, S}
   hess_residual_available::Bool
   jprod_residual_available::Bool
   jtprod_residual_available::Bool
-  hprod_residual_available::Bool
 
   function NLSMeta{T, S}(
     nequ::Int,
@@ -57,7 +55,6 @@ struct NLSMeta{T, S}
     hess_residual_available::Bool = true,
     jprod_residual_available::Bool = true,
     jtprod_residual_available::Bool = true,
-    hprod_residual_available::Bool = true,
   ) where {T, S}
     nnzj = max(0, nnzj)
     nnzh = max(0, nnzh)
@@ -67,8 +64,8 @@ struct NLSMeta{T, S}
     nnln = length(nln)
 
     return new{T, S}(nequ, nvar, x0, nnzj, nnzh, nln, nnln, lin, nlin,
-                     jac_residual_available, hess_residual_available, jprod_residual_available,
-                     jtprod_residual_available, hprod_residual_available)
+                     jac_residual_available, hess_residual_available,
+                     jprod_residual_available, jtprod_residual_available)
   end
 end
 
