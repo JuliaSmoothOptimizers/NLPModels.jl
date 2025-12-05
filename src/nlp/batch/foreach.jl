@@ -122,12 +122,12 @@ batch_cons_nln(bnlp::ForEachBatchNLPModel, xs) =
   _batch_map(cons_nln, bnlp, xs)
 batch_jac(bnlp::ForEachBatchNLPModel, xs) =
   _batch_map(jac, bnlp, xs)
-batch_jac_lin(bnlp::ForEachBatchNLPModel) =
-  _batch_map(jac_lin, bnlp)
+batch_jac_lin(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map(jac_lin, bnlp, xs)
 batch_jac_nln(bnlp::ForEachBatchNLPModel, xs) =
   _batch_map(jac_nln, bnlp, xs)
-batch_jac_lin_coord(bnlp::ForEachBatchNLPModel) =
-  _batch_map(jac_lin_coord, bnlp)
+batch_jac_lin_coord(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map(jac_lin_coord, bnlp, xs)
 batch_jac_coord(bnlp::ForEachBatchNLPModel, xs) =
   _batch_map(jac_coord, bnlp, xs)
 batch_jac_nln_coord(bnlp::ForEachBatchNLPModel, xs) =
@@ -146,10 +146,10 @@ batch_jprod_nln(bnlp::ForEachBatchNLPModel, xs, vs) =
   _batch_map(jprod_nln, bnlp, xs, vs)
 batch_jtprod_nln(bnlp::ForEachBatchNLPModel, xs, vs) =
   _batch_map(jtprod_nln, bnlp, xs, vs)
-batch_jprod_lin(bnlp::ForEachBatchNLPModel, vs) =
-  _batch_map(jprod_lin, bnlp, vs)
-batch_jtprod_lin(bnlp::ForEachBatchNLPModel, vs) =
-  _batch_map(jtprod_lin, bnlp, vs)
+batch_jprod_lin(bnlp::ForEachBatchNLPModel, xs, vs) =
+  _batch_map(jprod_lin, bnlp, xs, vs)
+batch_jtprod_lin(bnlp::ForEachBatchNLPModel, xs, vs) =
+  _batch_map(jtprod_lin, bnlp, xs, vs)
 batch_ghjvprod(bnlp::ForEachBatchNLPModel, xs, gs, vs) =
   _batch_map(ghjvprod, bnlp, xs, gs, vs)
 
@@ -161,8 +161,8 @@ batch_jac_nln_structure!(bnlp::ForEachBatchNLPModel, rowss, colss) =
   _batch_map!(jac_nln_structure!, bnlp, rowss, colss)
 batch_hess_structure!(bnlp::ForEachBatchNLPModel, rowss, colss) =
   _batch_map!(hess_structure!, bnlp, rowss, colss)
-batch_jac_lin_coord!(bnlp::ForEachBatchNLPModel, valss) =
-  _batch_map!(jac_lin_coord!, bnlp, valss)
+batch_jac_lin_coord!(bnlp::ForEachBatchNLPModel, xs, valss) =
+  _batch_map!(jac_lin_coord!, bnlp, xs, valss)
 batch_grad!(bnlp::ForEachBatchNLPModel, xs, gs) =
   _batch_map!(grad!, bnlp, xs, gs)
 batch_cons!(bnlp::ForEachBatchNLPModel, xs, cs) =
@@ -183,10 +183,10 @@ batch_jprod_nln!(bnlp::ForEachBatchNLPModel, xs, vs, Jvs) =
   _batch_map!(jprod_nln!, bnlp, xs, vs, Jvs)
 batch_jtprod_nln!(bnlp::ForEachBatchNLPModel, xs, vs, Jtvs) =
   _batch_map!(jtprod_nln!, bnlp, xs, vs, Jtvs)
-batch_jprod_lin!(bnlp::ForEachBatchNLPModel, vs, Jvs) =
-  _batch_map!(jprod_lin!, bnlp, vs, Jvs)
-batch_jtprod_lin!(bnlp::ForEachBatchNLPModel, vs, Jtvs) =
-  _batch_map!(jtprod_lin!, bnlp, vs, Jtvs)
+batch_jprod_lin!(bnlp::ForEachBatchNLPModel, xs, vs, Jvs) =
+  _batch_map!(jprod_lin!, bnlp, xs, vs, Jvs)
+batch_jtprod_lin!(bnlp::ForEachBatchNLPModel, xs, vs, Jtvs) =
+  _batch_map!(jtprod_lin!, bnlp, xs, vs, Jtvs)
 batch_ghjvprod!(bnlp::ForEachBatchNLPModel, xs, gs, vs, gHvs) =
   _batch_map!(ghjvprod!, bnlp, xs, gs, vs, gHvs)
 
@@ -246,15 +246,15 @@ batch_hess(bnlp::ForEachBatchNLPModel, xs, ys; obj_weights) =
 ## operators
 batch_jac_op(bnlp::ForEachBatchNLPModel, xs) =
   _batch_map(jac_op, bnlp, xs)
-batch_jac_lin_op(bnlp::ForEachBatchNLPModel) =
-  _batch_map(jac_lin_op, bnlp)
+batch_jac_lin_op(bnlp::ForEachBatchNLPModel, xs) =
+  _batch_map(jac_lin_op, bnlp, xs)
 batch_jac_nln_op(bnlp::ForEachBatchNLPModel, xs) =
   _batch_map(jac_nln_op, bnlp, xs)
 
 batch_jac_op!(bnlp::ForEachBatchNLPModel, xs, Jvs, Jtvs) =
   _batch_map(jac_op!, bnlp, xs, Jvs, Jtvs)
-batch_jac_lin_op!(bnlp::ForEachBatchNLPModel, Jvs, Jtvs) =
-  _batch_map(jac_lin_op!, bnlp, Jvs, Jtvs)
+batch_jac_lin_op!(bnlp::ForEachBatchNLPModel, xs, Jvs, Jtvs) =
+  _batch_map(jac_lin_op!, bnlp, xs, Jvs, Jtvs)
 batch_jac_nln_op!(bnlp::ForEachBatchNLPModel, xs, Jvs, Jtvs) =
   _batch_map(jac_nln_op!, bnlp, xs, Jvs, Jtvs)
 
