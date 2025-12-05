@@ -127,20 +127,20 @@
       @test jac_coords ≈ manual_jac_coords
 
       # Test batch_jac_lin
-      batch_jac_lins = batch_jac_lin(bnlp)
-      manual_jac_lins = [jac_lin(models[i]) for i = 1:n_models]
+      batch_jac_lins = batch_jac_lin(bnlp, xs)
+      manual_jac_lins = [jac_lin(models[i], xs[i]) for i = 1:n_models]
       @test batch_jac_lins ≈ manual_jac_lins
 
       # Test batch_jac_lin_coord
-      batch_jac_lin_coords = batch_jac_lin_coord(bnlp)
-      manual_jac_lin_coords = [jac_lin_coord(models[i]) for i = 1:n_models]
+      batch_jac_lin_coords = batch_jac_lin_coord(bnlp, xs)
+      manual_jac_lin_coords = [jac_lin_coord(models[i], xs[i]) for i = 1:n_models]
       @test batch_jac_lin_coords ≈ manual_jac_lin_coords
 
       # Test batch_jac_lin_coord!
       jac_lin_coords = [zeros(meta.lin_nnzj) for _ = 1:n_models]
-      batch_jac_lin_coord!(bnlp, jac_lin_coords)
+      batch_jac_lin_coord!(bnlp, xs, jac_lin_coords)
       manual_jac_lin_coords =
-        [jac_lin_coord!(models[i], zeros(meta.lin_nnzj)) for i = 1:n_models]
+        [jac_lin_coord!(models[i], xs[i], zeros(meta.lin_nnzj)) for i = 1:n_models]
       @test jac_lin_coords ≈ manual_jac_lin_coords
 
       # Test batch_jac_nln
@@ -183,26 +183,26 @@
       @test jtprods ≈ manual_jtprods
 
       # Test batch_jprod_lin
-      batch_jprod_lins = batch_jprod_lin(bnlp, vs)
-      manual_jprod_lins = [jprod_lin(models[i], vs[i]) for i = 1:n_models]
+      batch_jprod_lins = batch_jprod_lin(bnlp, xs, vs)
+      manual_jprod_lins = [jprod_lin(models[i], xs[i], vs[i]) for i = 1:n_models]
       @test batch_jprod_lins ≈ manual_jprod_lins
 
       # Test batch_jprod_lin!
       jprod_lins = [zeros(meta.nlin) for _ = 1:n_models]
-      batch_jprod_lin!(bnlp, vs, jprod_lins)
-      manual_jprod_lins = [jprod_lin!(models[i], vs[i], zeros(meta.nlin)) for i = 1:n_models]
+      batch_jprod_lin!(bnlp, xs, vs, jprod_lins)
+      manual_jprod_lins = [jprod_lin!(models[i], xs[i], vs[i], zeros(meta.nlin)) for i = 1:n_models]
       @test jprod_lins ≈ manual_jprod_lins
 
       # Test batch_jtprod_lin
       ws_lin = [ws[i][1:(meta.nlin)] for i = 1:n_models]
-      batch_jtprod_lins = batch_jtprod_lin(bnlp, ws_lin)
-      manual_jtprod_lins = [jtprod_lin(models[i], ws_lin[i]) for i = 1:n_models]
+      batch_jtprod_lins = batch_jtprod_lin(bnlp, xs, ws_lin)
+      manual_jtprod_lins = [jtprod_lin(models[i], xs[i], ws_lin[i]) for i = 1:n_models]
       @test batch_jtprod_lins ≈ manual_jtprod_lins
 
       # Test batch_jtprod_lin!
       jtprod_lins = [zeros(n) for _ = 1:n_models]
-      batch_jtprod_lin!(bnlp, ws_lin, jtprod_lins)
-      manual_jtprod_lins = [jtprod_lin!(models[i], ws_lin[i], zeros(n)) for i = 1:n_models]
+      batch_jtprod_lin!(bnlp, xs, ws_lin, jtprod_lins)
+      manual_jtprod_lins = [jtprod_lin!(models[i], xs[i], ws_lin[i], zeros(n)) for i = 1:n_models]
       @test jtprod_lins ≈ manual_jtprod_lins
 
       # Test batch_jprod_nln
@@ -432,8 +432,8 @@
         end
 
         # Test batch_jac_lin_op
-        batch_jac_lin_ops = batch_jac_lin_op(bnlp)
-        manual_jac_lin_ops = [jac_lin_op(models[i]) for i = 1:n_models]
+        batch_jac_lin_ops = batch_jac_lin_op(bnlp, xs)
+        manual_jac_lin_ops = [jac_lin_op(models[i], xs[i]) for i = 1:n_models]
         ws_lin_vec = ws[1][1:(meta.nlin)]
         for i = 1:n_models
           @test batch_jac_lin_ops[i] * vs[i] ≈ manual_jac_lin_ops[i] * vs[i]
@@ -443,9 +443,9 @@
         # Test batch_jac_lin_op!
         jvs_lin = [zeros(meta.nlin) for _ = 1:n_models]
         jtvs_lin = [zeros(n) for _ = 1:n_models]
-        batch_jac_lin_ops = batch_jac_lin_op!(bnlp, jvs_lin, jtvs_lin)
+        batch_jac_lin_ops = batch_jac_lin_op!(bnlp, xs, jvs_lin, jtvs_lin)
         manual_jac_lin_ops =
-          [jac_lin_op!(models[i], zeros(meta.nlin), zeros(n)) for i = 1:n_models]
+          [jac_lin_op!(models[i], xs[i], zeros(meta.nlin), zeros(n)) for i = 1:n_models]
         for i = 1:n_models
           @test batch_jac_lin_ops[i] * vs[i] ≈ manual_jac_lin_ops[i] * vs[i]
           @test batch_jac_lin_ops[i]' * ws_lin_vec ≈ manual_jac_lin_ops[i]' * ws_lin_vec
@@ -474,8 +474,8 @@
         @test_throws ErrorException batch_jac_op(bnlp, xs)
         @test_throws ErrorException batch_jac_op!(bnlp, xs, [zeros(m) for _ = 1:n_models],
                                                   [zeros(n) for _ = 1:n_models])
-        @test_throws ErrorException batch_jac_lin_op(bnlp)
-        @test_throws ErrorException batch_jac_lin_op!(bnlp,
+        @test_throws ErrorException batch_jac_lin_op(bnlp, xs)
+        @test_throws ErrorException batch_jac_lin_op!(bnlp, xs,
                                                       [zeros(meta.nlin) for _ = 1:n_models],
                                                       [zeros(n) for _ = 1:n_models])
         @test_throws ErrorException batch_jac_nln_op(bnlp, xs)
