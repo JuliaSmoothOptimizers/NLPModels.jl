@@ -35,15 +35,12 @@ function _batch_map!(f::F, bnlp::InplaceBatchNLPModel, xs::Vararg{T,N}) where {F
   n = bnlp.batch_size
   length(xs) == 0 && error("Cannot call _batch_map! without providing arguments.")
   @lencheck_tup n xs
-  outputs = xs[end]
-  inputs = length(xs) == 1 ? () : Base.ntuple(i -> xs[i], length(xs) - 1)
-  @lencheck n outputs
   for i = 1:n
-    args_i = (x[i] for x in inputs)
+    args_i = (x[i] for x in xs)
     bnlp.updates[i](bnlp.base_model)  # call update function
-    f(bnlp.base_model, args_i..., outputs[i])
+    f(bnlp.base_model, args_i...)
   end
-  return outputs
+  return xs[end]
 end
 
 function _batch_map_weight(f::F, bnlp::InplaceBatchNLPModel, obj_weights, xs::Vararg{T,N}) where {F,T,N}
@@ -65,15 +62,12 @@ function _batch_map_weight!(f::F, bnlp::InplaceBatchNLPModel, obj_weights, xs::V
   length(xs) == 0 && error("_batch_map_weight! with zero args")
   @lencheck_tup n xs
   @lencheck n obj_weights
-  outputs = xs[end]
-  inputs = length(xs) == 1 ? () : Base.ntuple(i -> xs[i], length(xs) - 1)
-  @lencheck n outputs
   for i = 1:n
-    args_i = (x[i] for x in inputs)
+    args_i = (x[i] for x in xs)
     bnlp.updates[i](bnlp.base_model)  # call update function
-    f(bnlp.base_model, args_i..., outputs[i]; obj_weight = obj_weights[i])
+    f(bnlp.base_model, args_i...; obj_weight = obj_weights[i])
   end
-  return outputs
+  return xs[end]
 end
 
 function _batch_map_tuple(f::F, bnlp::InplaceBatchNLPModel, xs::Vararg{T,N}) where {F,T,N}
