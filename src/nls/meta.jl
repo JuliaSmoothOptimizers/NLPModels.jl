@@ -66,10 +66,22 @@ struct NLSMeta{T, S}
     nlin = length(lin)
     nnln = length(nln)
 
-    return new{T, S}(nequ, nvar, x0, nnzj, nnzh, nln, nnln, lin, nlin,
-                     jac_residual_available, hess_residual_available,
-                     jprod_residual_available, jtprod_residual_available,
-                     hprod_residual_available)
+    return new{T, S}(
+      nequ,
+      nvar,
+      x0,
+      nnzj,
+      nnzh,
+      nln,
+      nnln,
+      lin,
+      nlin,
+      jac_residual_available,
+      hess_residual_available,
+      jprod_residual_available,
+      jtprod_residual_available,
+      hprod_residual_available,
+    )
   end
 end
 
