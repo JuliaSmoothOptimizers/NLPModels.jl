@@ -2,6 +2,7 @@ using LinearAlgebra, LinearOperators, NLPModels, SparseArrays, Test
 
 include("nlp/simple-model.jl")
 include("nlp/dummy-model.jl")
+include("nlp/dense-model.jl")
 
 include("nlp/api.jl")
 include("nlp/counters.jl")
