@@ -2,4 +2,4 @@
 *.jl.mem
 docs/build
 docs/site
-Manifest.toml
+Manifest*.toml
