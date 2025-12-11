@@ -24,6 +24,7 @@ function obj end
     g = grad(nlp, x)
 
 Evaluate ``∇f(x)``, the gradient of the objective function at `x`.
+This function is only available if `nlp.meta.grad_available` is set to `true`.
 """
 function grad(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -35,6 +36,7 @@ end
     g = grad!(nlp, x, g)
 
 Evaluate ``∇f(x)``, the gradient of the objective function at `x` in place.
+This function is only available if `nlp.meta.grad_available` is set to `true`.
 """
 function grad! end
 
@@ -151,6 +153,7 @@ end
     f, g = objgrad(nlp, x)
 
 Evaluate ``f(x)`` and ``∇f(x)`` at `x`.
+This function is only available if `nlp.meta.grad_available` is set to `true`.
 """
 function objgrad(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -161,8 +164,8 @@ end
 """
     f, g = objgrad!(nlp, x, g)
 
-Evaluate ``f(x)`` and ``∇f(x)`` at `x`. `g` is overwritten with the
-value of ``∇f(x)``.
+Evaluate ``f(x)`` and ``∇f(x)`` at `x`. `g` is overwritten with the value of ``∇f(x)``.
+This function is only available if `nlp.meta.grad_available` is set to `true`.
 """
 function objgrad!(nlp::AbstractNLPModel, x::AbstractVector, g::AbstractVector)
   @lencheck nlp.meta.nvar x g
@@ -175,6 +178,7 @@ end
     (rows,cols) = jac_structure(nlp)
 
 Return the structure of the constraints Jacobian in sparse coordinate format.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac_structure(nlp::AbstractNLPModel)
   rows = Vector{Int}(undef, nlp.meta.nnzj)
@@ -186,6 +190,7 @@ end
     jac_structure!(nlp, rows, cols)
 
 Return the structure of the constraints Jacobian in sparse coordinate format in place.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac_structure!(
   nlp::AbstractNLPModel,
@@ -222,6 +227,7 @@ end
     (rows,cols) = jac_lin_structure(nlp)
 
 Return the structure of the linear constraints Jacobian in sparse coordinate format.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac_lin_structure(nlp::AbstractNLPModel)
   rows = Vector{Int}(undef, nlp.meta.lin_nnzj)
@@ -233,6 +239,7 @@ end
     jac_lin_structure!(nlp, rows, cols)
 
 Return the structure of the linear constraints Jacobian in sparse coordinate format in place.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac_lin_structure! end
 
@@ -240,6 +247,7 @@ function jac_lin_structure! end
     (rows,cols) = jac_nln_structure(nlp)
 
 Return the structure of the nonlinear constraints Jacobian in sparse coordinate format.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac_nln_structure(nlp::AbstractNLPModel)
   rows = Vector{Int}(undef, nlp.meta.nln_nnzj)
@@ -251,14 +259,15 @@ end
     jac_nln_structure!(nlp, rows, cols)
 
 Return the structure of the nonlinear constraints Jacobian in sparse coordinate format in place.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac_nln_structure! end
 
 """
     vals = jac_coord!(nlp, x, vals)
 
-Evaluate ``J(x)``, the constraints Jacobian at `x` in sparse coordinate format,
-rewriting `vals`.
+Evaluate ``J(x)``, the constraints Jacobian at `x` in sparse coordinate format, rewriting `vals`.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVector)
   @lencheck nlp.meta.nvar x
@@ -287,6 +296,7 @@ end
     vals = jac_coord(nlp, x)
 
 Evaluate ``J(x)``, the constraints Jacobian at `x` in sparse coordinate format.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -298,6 +308,7 @@ end
     Jx = jac(nlp, x)
 
 Evaluate ``J(x)``, the constraints Jacobian at `x` as a sparse matrix.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac(nlp::AbstractNLPModel, x::AbstractVector)
   @lencheck nlp.meta.nvar x
@@ -309,8 +320,8 @@ end
 """
     vals = jac_lin_coord!(nlp, x, vals)
 
-Evaluate ``J(x)``, the linear constraints Jacobian at `x` in sparse coordinate format,
-overwriting `vals`.
+Evaluate ``J(x)``, the linear constraints Jacobian at `x` in sparse coordinate format, overwriting `vals`.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac_lin_coord! end
 
@@ -318,6 +329,7 @@ function jac_lin_coord! end
     vals = jac_lin_coord(nlp, x)
 
 Evaluate ``J(x)``, the linear constraints Jacobian at `x` in sparse coordinate format.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac_lin_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -329,6 +341,7 @@ end
     Jx = jac_lin(nlp, x)
 
 Evaluate ``J(x)``, the linear constraints Jacobian at `x` as a sparse matrix.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac_lin(nlp::AbstractNLPModel, x::AbstractVector)
   @lencheck nlp.meta.nvar x
@@ -340,8 +353,8 @@ end
 """
     vals = jac_nln_coord!(nlp, x, vals)
 
-Evaluate ``J(x)``, the nonlinear constraints Jacobian at `x` in sparse coordinate format,
-overwriting `vals`.
+Evaluate ``J(x)``, the nonlinear constraints Jacobian at `x` in sparse coordinate format, overwriting `vals`.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac_nln_coord! end
 
@@ -349,6 +362,7 @@ function jac_nln_coord! end
     vals = jac_nln_coord(nlp, x)
 
 Evaluate ``J(x)``, the nonlinear constraints Jacobian at `x` in sparse coordinate format.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac_nln_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -360,6 +374,7 @@ end
     Jx = jac_nln(nlp, x)
 
 Evaluate ``J(x)``, the nonlinear constraints Jacobian at `x` as a sparse matrix.
+This function is only available if `nlp.meta.jac_available` is set to `true`.
 """
 function jac_nln(nlp::AbstractNLPModel, x::AbstractVector)
   @lencheck nlp.meta.nvar x
@@ -372,6 +387,7 @@ end
     Jv = jprod(nlp, x, v)
 
 Evaluate ``J(x)v``, the Jacobian-vector product at `x`.
+This function is only available if `nlp.meta.jprod_available` is set to `true`.
 """
 function jprod(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x v
@@ -383,6 +399,7 @@ end
     Jv = jprod!(nlp, x, v, Jv)
 
 Evaluate ``J(x)v``, the Jacobian-vector product at `x` in place.
+This function is only available if `nlp.meta.jprod_available` is set to `true`.
 """
 function jprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv::AbstractVector)
   @lencheck nlp.meta.nvar x v
@@ -408,8 +425,8 @@ end
 """
     Jv = jprod!(nlp, rows, cols, vals, v, Jv)
 
-Evaluate ``J(x)v``, the Jacobian-vector product, where the Jacobian is given by
-`(rows, cols, vals)` in triplet format.
+Evaluate ``J(x)v``, the Jacobian-vector product, where the Jacobian is given by `(rows, cols, vals)` in triplet format.
+This function is only available if `nlp.meta.jprod_available` is set to `true`.
 """
 function jprod!(
   nlp::AbstractNLPModel,
@@ -430,6 +447,7 @@ end
     Jv = jprod_lin(nlp, x, v)
 
 Evaluate ``J(x)v``, the linear Jacobian-vector product at `x`.
+This function is only available if `nlp.meta.jprod_available` is set to `true`.
 """
 function jprod_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x v
@@ -441,14 +459,15 @@ end
     Jv = jprod_lin!(nlp, x, v, Jv)
 
 Evaluate ``J(x)v``, the linear Jacobian-vector product at `x` in place.
+This function is only available if `nlp.meta.jprod_available` is set to `true`.
 """
 function jprod_lin! end
 
 """
     Jv = jprod_lin!(nlp, rows, cols, vals, v, Jv)
 
-Evaluate ``J(x)v``, the linear Jacobian-vector product, where the Jacobian is given by
-`(rows, cols, vals)` in triplet format.
+Evaluate ``J(x)v``, the linear Jacobian-vector product, where the Jacobian is given by `(rows, cols, vals)` in triplet format.
+This function is only available if `nlp.meta.jprod_available` is set to `true`.
 """
 function jprod_lin!(
   nlp::AbstractNLPModel,
@@ -469,6 +488,7 @@ end
     Jv = jprod_nln(nlp, x, v)
 
 Evaluate ``J(x)v``, the nonlinear Jacobian-vector product at `x`.
+This function is only available if `nlp.meta.jprod_available` is set to `true`.
 """
 function jprod_nln(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x v
@@ -480,14 +500,15 @@ end
     Jv = jprod_nln!(nlp, x, v, Jv)
 
 Evaluate ``J(x)v``, the nonlinear Jacobian-vector product at `x` in place.
+This function is only available if `nlp.meta.jprod_available` is set to `true`.
 """
 function jprod_nln! end
 
 """
     Jv = jprod_nln!(nlp, rows, cols, vals, v, Jv)
 
-Evaluate ``J(x)v``, the nonlinear Jacobian-vector product, where the Jacobian is given by
-`(rows, cols, vals)` in triplet format.
+Evaluate ``J(x)v``, the nonlinear Jacobian-vector product, where the Jacobian is given by `(rows, cols, vals)` in triplet format.
+This function is only available if `nlp.meta.jprod_available` is set to `true`.
 """
 function jprod_nln!(
   nlp::AbstractNLPModel,
@@ -508,6 +529,7 @@ end
     Jtv = jtprod(nlp, x, v)
 
 Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product at `x`.
+This function is only available if `nlp.meta.jtprod_available` is set to `true`.
 """
 function jtprod(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -521,6 +543,7 @@ end
 
 Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product at `x` in place.
 If the problem has linear and nonlinear constraints, this function allocates.
+This function is only available if `nlp.meta.jtprod_available` is set to `true`.
 """
 function jtprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jtv::AbstractVector)
   @lencheck nlp.meta.nvar x Jtv
@@ -549,6 +572,7 @@ end
 
 Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product, where the
 Jacobian is given by `(rows, cols, vals)` in triplet format.
+This function is only available if `nlp.meta.jtprod_available` is set to `true`.
 """
 function jtprod!(
   nlp::AbstractNLPModel,
@@ -569,6 +593,7 @@ end
     Jtv = jtprod_lin(nlp, x, v)
 
 Evaluate ``J(x)^Tv``, the linear transposed-Jacobian-vector product at `x`.
+This function is only available if `nlp.meta.jtprod_available` is set to `true`.
 """
 function jtprod_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -581,6 +606,7 @@ end
     Jtv = jtprod_lin!(nlp, x, v, Jtv)
 
 Evaluate ``J(x)^Tv``, the linear transposed-Jacobian-vector product at `x` in place.
+This function is only available if `nlp.meta.jtprod_available` is set to `true`.
 """
 function jtprod_lin! end
 
@@ -589,6 +615,7 @@ function jtprod_lin! end
 
 Evaluate ``J(x)^Tv``, the linear transposed-Jacobian-vector product, where the
 Jacobian is given by `(rows, cols, vals)` in triplet format.
+This function is only available if `nlp.meta.jtprod_available` is set to `true`.
 """
 function jtprod_lin!(
   nlp::AbstractNLPModel,
@@ -609,6 +636,7 @@ end
     Jtv = jtprod_nln(nlp, x, v)
 
 Evaluate ``J(x)^Tv``, the nonlinear transposed-Jacobian-vector product at `x`.
+This function is only available if `nlp.meta.jtprod_available` is set to `true`.
 """
 function jtprod_nln(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -621,6 +649,7 @@ end
     Jtv = jtprod_nln!(nlp, x, v, Jtv)
 
 Evaluate ``J(x)^Tv``, the nonlinear transposed-Jacobian-vector product at `x` in place.
+This function is only available if `nlp.meta.jtprod_available` is set to `true`.
 """
 function jtprod_nln! end
 
@@ -629,6 +658,7 @@ function jtprod_nln! end
 
 Evaluate ``J(x)^Tv``, the nonlinear transposed-Jacobian-vector product, where the
 Jacobian is given by `(rows, cols, vals)` in triplet format.
+This function is only available if `nlp.meta.jtprod_available` is set to `true`.
 """
 function jtprod_nln!(
   nlp::AbstractNLPModel,
@@ -649,8 +679,8 @@ end
     J = jac_op(nlp, x)
 
 Return the Jacobian at `x` as a linear operator.
-The resulting object may be used as if it were a matrix, e.g., `J * v` or
-`J' * v`.
+The resulting object may be used as if it were a matrix, e.g., `J * v` or  `J' * v`.
+This function is only available if both `nlp.meta.jprod_available` and `nlp.meta.jtprod_available` are set to `true`.
 """
 function jac_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -663,9 +693,9 @@ end
     J = jac_op!(nlp, x, Jv, Jtv)
 
 Return the Jacobian at `x` as a linear operator.
-The resulting object may be used as if it were a matrix, e.g., `J * v` or
-`J' * v`. The values `Jv` and `Jtv` are used as preallocated storage for the
-operations.
+The resulting object may be used as if it were a matrix, e.g., `J * v` or `J' * v`.
+The values `Jv` and `Jtv` are used as preallocated storage for the operations.
+This function is only available if both `nlp.meta.jprod_available` and `nlp.meta.jtprod_available` are set to `true`.
 """
 function jac_op!(
   nlp::AbstractNLPModel{T, S},
@@ -702,6 +732,7 @@ end
 Return the Jacobian given by `(rows, cols, vals)` as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or `J' * v`.
 The values `Jv` and `Jtv` are used as preallocated storage for the operations.
+This function is only available if both `nlp.meta.jprod_available` and `nlp.meta.jtprod_available` are set to `true`.
 """
 function jac_op!(
   nlp::AbstractNLPModel{T, S},
@@ -739,8 +770,8 @@ end
     J = jac_lin_op(nlp, x)
 
 Return the linear Jacobian at `x` as a linear operator.
-The resulting object may be used as if it were a matrix, e.g., `J * v` or
-`J' * v`.
+The resulting object may be used as if it were a matrix, e.g., `J * v` or `J' * v`.
+This function is only available if both `nlp.meta.jprod_available` and `nlp.meta.jtprod_available` are set to `true`.
 """
 function jac_lin_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -753,9 +784,9 @@ end
     J = jac_lin_op!(nlp, x, Jv, Jtv)
 
 Return the linear Jacobian at `x` as a linear operator.
-The resulting object may be used as if it were a matrix, e.g., `J * v` or
-`J' * v`. The values `Jv` and `Jtv` are used as preallocated storage for the
-operations.
+The resulting object may be used as if it were a matrix, e.g., `J * v` or `J' * v`.
+The values `Jv` and `Jtv` are used as preallocated storage for the operations.
+This function is only available if both `nlp.meta.jprod_available` and `nlp.meta.jtprod_available` are set to `true`.
 """
 function jac_lin_op!(
   nlp::AbstractNLPModel{T, S},
@@ -792,6 +823,7 @@ end
 Return the linear Jacobian given by `(rows, cols, vals)` as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or `J' * v`.
 The values `Jv` and `Jtv` are used as preallocated storage for the operations.
+This function is only available if both `nlp.meta.jprod_available` and `nlp.meta.jtprod_available` are set to `true`.
 """
 function jac_lin_op!(
   nlp::AbstractNLPModel{T, S},
@@ -829,8 +861,8 @@ end
     J = jac_nln_op(nlp, x)
 
 Return the nonlinear Jacobian at `x` as a linear operator.
-The resulting object may be used as if it were a matrix, e.g., `J * v` or
-`J' * v`.
+The resulting object may be used as if it were a matrix, e.g., `J * v` or `J' * v`.
+This function is only available if both `nlp.meta.jprod_available` and `nlp.meta.jtprod_available` are set to `true`.
 """
 function jac_nln_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -843,9 +875,9 @@ end
     J = jac_nln_op!(nlp, x, Jv, Jtv)
 
 Return the nonlinear Jacobian at `x` as a linear operator.
-The resulting object may be used as if it were a matrix, e.g., `J * v` or
-`J' * v`. The values `Jv` and `Jtv` are used as preallocated storage for the
-operations.
+The resulting object may be used as if it were a matrix, e.g., `J * v` or `J' * v`.
+The values `Jv` and `Jtv` are used as preallocated storage for the operations.
+This function is only available if both `nlp.meta.jprod_available` and `nlp.meta.jtprod_available` are set to `true`.
 """
 function jac_nln_op!(
   nlp::AbstractNLPModel{T, S},
@@ -882,6 +914,7 @@ end
 Return the nonlinear Jacobian given by `(rows, cols, vals)` as a linear operator.
 The resulting object may be used as if it were a matrix, e.g., `J * v` or `J' * v`.
 The values `Jv` and `Jtv` are used as preallocated storage for the operations.
+This function is only available if both `nlp.meta.jprod_available` and `nlp.meta.jtprod_available` are set to `true`.
 """
 function jac_nln_op!(
   nlp::AbstractNLPModel{T, S},
@@ -1003,6 +1036,7 @@ function ghjvprod! end
     (rows,cols) = hess_structure(nlp)
 
 Return the structure of the Lagrangian Hessian in sparse coordinate format.
+This function is only available if `nlp.meta.hess_available` is set to `true`.
 """
 function hess_structure(nlp::AbstractNLPModel)
   rows = Vector{Int}(undef, nlp.meta.nnzh)
@@ -1014,6 +1048,7 @@ end
     hess_structure!(nlp, rows, cols)
 
 Return the structure of the Lagrangian Hessian in sparse coordinate format in place.
+This function is only available if `nlp.meta.hess_available` is set to `true`.
 """
 function hess_structure! end
 
@@ -1024,6 +1059,7 @@ Evaluate the objective Hessian at `x` in sparse coordinate format,
 with objective function scaled by `obj_weight`, i.e.,
 $(OBJECTIVE_HESSIAN), overwriting `vals`.
 Only the lower triangle is returned.
+This function is only available if `nlp.meta.hess_available` is set to `true`.
 """
 function hess_coord!(
   nlp::AbstractNLPModel{T, S},
@@ -1044,6 +1080,7 @@ Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format,
 with objective function scaled by `obj_weight`, i.e.,
 $(LAGRANGIAN_HESSIAN), overwriting `vals`.
 Only the lower triangle is returned.
+This function is only available if `nlp.meta.hess_available` is set to `true`.
 """
 function hess_coord! end
 
@@ -1052,9 +1089,9 @@ function hess_coord! end
 
 Evaluate the objective Hessian at `x` in sparse coordinate format,
 with objective function scaled by `obj_weight`, i.e.,
-
 $(OBJECTIVE_HESSIAN).
 Only the lower triangle is returned.
+This function is only available if `nlp.meta.hess_available` is set to `true`.
 """
 function hess_coord(
   nlp::AbstractNLPModel{T, S},
@@ -1071,9 +1108,9 @@ end
 
 Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format,
 with objective function scaled by `obj_weight`, i.e.,
-
 $(LAGRANGIAN_HESSIAN).
 Only the lower triangle is returned.
+This function is only available if `nlp.meta.hess_available` is set to `true`.
 """
 function hess_coord(
   nlp::AbstractNLPModel{T, S},
@@ -1092,9 +1129,9 @@ end
 
 Evaluate the objective Hessian at `x` as a sparse matrix,
 with objective function scaled by `obj_weight`, i.e.,
-
 $(OBJECTIVE_HESSIAN).
 A `Symmetric` object wrapping the lower triangle is returned.
+This function is only available if `nlp.meta.hess_available` is set to `true`.
 """
 function hess(
   nlp::AbstractNLPModel{T, S},
@@ -1112,9 +1149,9 @@ end
 
 Evaluate the Lagrangian Hessian at `(x,y)` as a sparse matrix,
 with objective function scaled by `obj_weight`, i.e.,
-
 $(LAGRANGIAN_HESSIAN).
 A `Symmetric` object wrapping the lower triangle is returned.
+This function is only available if `nlp.meta.hess_available` is set to `true`.
 """
 function hess(
   nlp::AbstractNLPModel{T, S},
@@ -1135,6 +1172,7 @@ end
 Evaluate the product of the objective Hessian at `x` with the vector `v`,
 with objective function scaled by `obj_weight`, where the objective Hessian is
 $(OBJECTIVE_HESSIAN).
+This function is only available if `nlp.meta.hprod_available` is set to `true`.
 """
 function hprod(
   nlp::AbstractNLPModel{T, S},
@@ -1153,6 +1191,7 @@ end
 Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v`,
 with objective function scaled by `obj_weight`, where the Lagrangian Hessian is
 $(LAGRANGIAN_HESSIAN).
+This function is only available if `nlp.meta.hprod_available` is set to `true`.
 """
 function hprod(
   nlp::AbstractNLPModel{T, S},
@@ -1173,6 +1212,7 @@ end
 Evaluate the product of the objective Hessian at `x` with the vector `v` in
 place, with objective function scaled by `obj_weight`, where the objective Hessian is
 $(OBJECTIVE_HESSIAN).
+This function is only available if `nlp.meta.hprod_available` is set to `true`.
 """
 function hprod!(
   nlp::AbstractNLPModel{T, S},
@@ -1191,6 +1231,7 @@ end
 
 Evaluate the product of the objective or Lagrangian Hessian given by `(rows, cols, vals)` in
 triplet format with the vector `v` in place. Only one triangle of the Hessian should be given.
+This function is only available if `nlp.meta.hprod_available` is set to `true`.
 """
 function hprod!(
   nlp::AbstractNLPModel,
@@ -1212,6 +1253,7 @@ end
 Evaluate the product of the Lagrangian Hessian at `(x,y)` with the vector `v` in
 place, with objective function scaled by `obj_weight`, where the Lagrangian Hessian is
 $(LAGRANGIAN_HESSIAN).
+This function is only available if `nlp.meta.hprod_available` is set to `true`.
 """
 function hprod! end
 
@@ -1222,6 +1264,7 @@ Return the objective Hessian at `x` with objective function scaled by
 `obj_weight` as a linear operator. The resulting object may be used as if it were a
 matrix, e.g., `H * v`. The linear operator H represents
 $(OBJECTIVE_HESSIAN).
+This function is only available if `nlp.meta.hprod_available` is set to `true`.
 """
 function hess_op(
   nlp::AbstractNLPModel{T, S},
@@ -1240,6 +1283,7 @@ Return the Lagrangian Hessian at `(x,y)` with objective function scaled by
 `obj_weight` as a linear operator. The resulting object may be used as if it were a
 matrix, e.g., `H * v`. The linear operator H represents
 $(LAGRANGIAN_HESSIAN).
+This function is only available if `nlp.meta.hprod_available` is set to `true`.
 """
 function hess_op(
   nlp::AbstractNLPModel{T, S},
@@ -1262,6 +1306,7 @@ object may be used as if it were a matrix, e.g., `w = H * v`. The vector `Hv` is
 used as preallocated storage for the operation.  The linear operator H
 represents
 $(OBJECTIVE_HESSIAN).
+This function is only available if `nlp.meta.hprod_available` is set to `true`.
 """
 function hess_op!(
   nlp::AbstractNLPModel{T, S},
@@ -1288,9 +1333,10 @@ end
 Return the Hessian given by `(rows, cols, vals)` as a linear operator,
 and storing the result on `Hv`. The resulting
 object may be used as if it were a matrix, e.g., `w = H * v`.
-  The vector `Hv` is used as preallocated storage for the operation.  The linear operator H
-represents
+The vector `Hv` is used as preallocated storage for the operation.
+The linear operator H represents
 $(OBJECTIVE_HESSIAN).
+This function is only available if `nlp.meta.hprod_available` is set to `true`.
 """
 function hess_op!(
   nlp::AbstractNLPModel{T, S},
@@ -1322,6 +1368,7 @@ object may be used as if it were a matrix, e.g., `w = H * v`. The vector `Hv` is
 used as preallocated storage for the operation.  The linear operator H
 represents
 $(LAGRANGIAN_HESSIAN).
+This function is only available if `nlp.meta.hprod_available` is set to `true`.
 """
 function hess_op!(
   nlp::AbstractNLPModel{T, S},

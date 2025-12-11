@@ -28,6 +28,7 @@ function residual! end
     Jx = jac_residual(nls, x)
 
 Computes ``J(x)``, the Jacobian of the residual at x.
+This function is only available if `nls_meta(nls).jac_residual_available` is set to `true`.
 """
 function jac_residual(nls::AbstractNLSModel, x::AbstractVector)
   @lencheck nls.meta.nvar x
@@ -40,6 +41,7 @@ end
     (rows,cols) = jac_structure_residual!(nls, rows, cols)
 
 Returns the structure of the constraint's Jacobian in sparse coordinate format in place.
+This function is only available if `nls_meta(nls).jac_residual_available` is set to `true`.
 """
 function jac_structure_residual! end
 
@@ -47,6 +49,7 @@ function jac_structure_residual! end
     (rows,cols) = jac_structure_residual(nls)
 
 Returns the structure of the constraint's Jacobian in sparse coordinate format.
+This function is only available if `nls_meta(nls).jac_residual_available` is set to `true`.
 """
 function jac_structure_residual(nls::AbstractNLSModel)
   rows = Vector{Int}(undef, nls.nls_meta.nnzj)
@@ -59,6 +62,7 @@ end
 
 Computes the Jacobian of the residual at `x` in sparse coordinate format, rewriting
 `vals`. `rows` and `cols` are not rewritten.
+This function is only available if `nls_meta(nls).jac_residual_available` is set to `true`.
 """
 function jac_coord_residual! end
 
@@ -66,6 +70,7 @@ function jac_coord_residual! end
     (rows,cols,vals) = jac_coord_residual(nls, x)
 
 Computes the Jacobian of the residual at `x` in sparse coordinate format.
+This function is only available if `nls_meta(nls).jac_residual_available` is set to `true`.
 """
 function jac_coord_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nls.meta.nvar x
@@ -77,6 +82,7 @@ end
     Jv = jprod_residual(nls, x, v)
 
 Computes the product of the Jacobian of the residual at x and a vector, i.e.,  ``J(x)v``.
+This function is only available if `nls_meta(nls).jprod_residual_available` is set to `true`.
 """
 function jprod_residual(
   nls::AbstractNLSModel{T, S},
@@ -91,7 +97,8 @@ end
 """
     Jv = jprod_residual!(nls, x, v, Jv)
 
-Computes the product of the Jacobian of the residual at x and a vector, i.e.,  ``J(x)v``, storing it in `Jv`.
+Computes the product of the Jacobian of the residual at x and a vector, i.e., ``J(x)v``, storing it in `Jv`.
+This function is only available if `nls_meta(nls).jprod_residual_available` is set to `true`.
 """
 function jprod_residual! end
 
@@ -99,7 +106,8 @@ function jprod_residual! end
     Jv = jprod_residual!(nls, rows, cols, vals, v, Jv)
 
 Computes the product of the Jacobian of the residual given by `(rows, cols, vals)`
-and a vector, i.e.,  ``J(x)v``, storing it in `Jv`.
+and a vector, i.e., ``J(x)v``, storing it in `Jv`.
+This function is only available if `nls_meta(nls).jprod_residual_available` is set to `true`.
 """
 function jprod_residual!(
   nls::AbstractNLSModel,
@@ -119,7 +127,8 @@ end
 """
     Jtv = jtprod_residual(nls, x, v)
 
-Computes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  ``J(x)^Tv``.
+Computes the product of the transpose of the Jacobian of the residual at x and a vector, i.e., ``J(x)^Tv``.
+This function is only available if `nls_meta(nls).jtprod_residual_available` is set to `true`.
 """
 function jtprod_residual(
   nls::AbstractNLSModel{T, S},
@@ -135,7 +144,8 @@ end
 """
     Jtv = jtprod_residual!(nls, x, v, Jtv)
 
-Computes the product of the transpose of the Jacobian of the residual at x and a vector, i.e.,  ``J(x)^Tv``, storing it in `Jtv`.
+Computes the product of the transpose of the Jacobian of the residual at x and a vector, i.e., ``J(x)^Tv``, storing it in `Jtv`.
+This function is only available if `nls_meta(nls).jtprod_residual_available` is set to `true`.
 """
 function jtprod_residual! end
 
@@ -143,7 +153,8 @@ function jtprod_residual! end
     Jtv = jtprod_residual!(nls, rows, cols, vals, v, Jtv)
 
 Computes the product of the transpose of the Jacobian of the residual given by `(rows, cols, vals)`
-and a vector, i.e.,  ``J(x)^Tv``, storing it in `Jv`.
+and a vector, i.e., ``J(x)^Tv``, storing it in `Jv`.
+This function is only available if `nls_meta(nls).jtprod_residual_available` is set to `true`.
 """
 function jtprod_residual!(
   nls::AbstractNLSModel,
@@ -164,6 +175,7 @@ end
     Jx = jac_op_residual(nls, x)
 
 Computes ``J(x)``, the Jacobian of the residual at x, in linear operator form.
+This function is only available if both `nls_meta(nls).jprod_residual_available` and `nls_meta(nls).jtprod_residual_available` are set to `true`.
 """
 function jac_op_residual(nls::AbstractNLSModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nls.meta.nvar x
@@ -177,6 +189,7 @@ end
 
 Computes ``J(x)``, the Jacobian of the residual at x, in linear operator form. The
 vectors `Jv` and `Jtv` are used as preallocated storage for the operations.
+This function is only available if both `nls_meta(nls).jprod_residual_available` and `nls_meta(nls).jtprod_residual_available` are set to `true`.
 """
 function jac_op_residual!(
   nls::AbstractNLSModel{T, S},
@@ -220,6 +233,7 @@ end
 
 Computes ``J(x)``, the Jacobian of the residual given by `(rows, cols, vals)`, in linear operator form. The
 vectors `Jv` and `Jtv` are used as preallocated storage for the operations.
+This function is only available if both `nls_meta(nls).jprod_residual_available` and `nls_meta(nls).jtprod_residual_available` are set to `true`.
 """
 function jac_op_residual!(
   nls::AbstractNLSModel{T, S},
@@ -264,9 +278,9 @@ end
 """
     H = hess_residual(nls, x, v)
 
-Computes the linear combination of the Hessians of the residuals at `x` with coefficients
-`v`.
+Computes the linear combination of the Hessians of the residuals at `x` with coefficients `v`.
 A `Symmetric` object wrapping the lower triangle is returned.
+This function is only available if `nls_meta(nls).hess_residual_available` is set to `true`.
 """
 function hess_residual(nls::AbstractNLSModel, x::AbstractVector, v::AbstractVector)
   @lencheck nls.meta.nvar x
@@ -280,6 +294,7 @@ end
     (rows,cols) = hess_structure_residual(nls)
 
 Returns the structure of the residual Hessian.
+This function is only available if `nls_meta(nls).hess_residual_available` is set to `true`.
 """
 function hess_structure_residual(nls::AbstractNLSModel)
   rows = Vector{Int}(undef, nls.nls_meta.nnzh)
@@ -291,6 +306,7 @@ end
     hess_structure_residual!(nls, rows, cols)
 
 Returns the structure of the residual Hessian in place.
+This function is only available if `nls_meta(nls).hess_residual_available` is set to `true`.
 """
 function hess_structure_residual! end
 
@@ -299,6 +315,7 @@ function hess_structure_residual! end
 
 Computes the linear combination of the Hessians of the residuals at `x` with coefficients
 `v` in sparse coordinate format, rewriting `vals`.
+This function is only available if `nls_meta(nls).hess_residual_available` is set to `true`.
 """
 function hess_coord_residual! end
 
@@ -307,6 +324,7 @@ function hess_coord_residual! end
 
 Computes the linear combination of the Hessians of the residuals at `x` with coefficients
 `v` in sparse coordinate format.
+This function is only available if `nls_meta(nls).hess_residual_available` is set to `true`.
 """
 function hess_coord_residual(
   nls::AbstractNLSModel{T, S},
@@ -374,6 +392,7 @@ end
     Hiv = hprod_residual(nls, x, i, v)
 
 Computes the product of the Hessian of the i-th residual at x, times the vector v.
+This function is only available if `nls_meta(nls).hprod_residual_available` is set to `true`.
 """
 function hprod_residual(
   nls::AbstractNLSModel{T, S},
@@ -391,6 +410,7 @@ end
     Hiv = hprod_residual!(nls, x, i, v, Hiv)
 
 Computes the product of the Hessian of the i-th residual at x, times the vector v, and stores it in vector Hiv.
+This function is only available if `nls_meta(nls).hprod_residual_available` is set to `true`.
 """
 function hprod_residual! end
 
@@ -410,6 +430,7 @@ end
     Hop = hess_op_residual!(nls, x, i, Hiv)
 
 Computes the Hessian of the i-th residual at x, in linear operator form. The vector `Hiv` is used as preallocated storage for the operation.
+This function is only available if `nls_meta(nls).hprod_residual_available` is set to `true`.
 """
 function hess_op_residual!(
   nls::AbstractNLSModel{T, S},
@@ -483,6 +504,7 @@ end
 
 Evaluate `∇f(x)`, the gradient of the objective function of `nls::AbstractNLSModel` at `x` in place. `Fx` is overwritten with the value of the residual `F(x)`.
 If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
+This function is only available if `nls_meta(nls).jtprod_residual_available` is set to `true`.
 """
 function grad!(
   nls::AbstractNLSModel,
@@ -510,6 +532,7 @@ end
 
 Evaluate f(x) and ∇f(x) of `nls::AbstractNLSModel` at `x`. `Fx` is overwritten with the value of the residual `F(x)`.
 If `recompute` is `true`, then `Fx` is updated with the residual at `x`.
+This function is only available if `nls_meta(nls).jtprod_residual_available` is set to `true`.
 """
 function objgrad!(
   nls::AbstractNLSModel,
