@@ -68,11 +68,11 @@ The following functions should be defined:
   - `cons_nln!(nlp, x, c)`
   - `jac_lin_structure!(nlp, jrows, jcols)`
   - `jac_nln_structure!(nlp, jrows, jcols)`
-  - `jac_lin_coord!(nlp, jvals)`
+  - `jac_lin_coord!(nlp, x, jvals)`
   - `jac_nln_coord!(nlp, x, jvals)`
-  - `jprod_lin!(nlp, v, Jv)`
+  - `jprod_lin!(nlp, x, v, Jv)`
   - `jprod_nln!(nlp, x, v, Jv)`
-  - `jtprod_lin!(nlp, v, Jtv)`
+  - `jtprod_lin!(nlp, x, v, Jtv)`
   - `jtprod_nln!(nlp, x, v, Jtv)`
   - `hess_coord!(nlp, x, y, hvals; obj_weight=1)`
   - `hprod!(nlp, x, y, v, Hv; obj_weight=1)`
@@ -81,6 +81,15 @@ The linear constraints are specified at the initialization of the `NLPModelMeta`
 The indices of linear and nonlinear constraints are respectively available in `nlp.meta.lin` and `nlp.meta.nln`.
 If your model uses only linear (resp. nonlinear) constraints, then it suffices to implement the `*_lin` (resp. `*_nln`) functions.
 Alternatively, one could implement only the functions without the suffixes `_nln!` (e.g., only `cons!`), but this might run into errors with tools differentiating linear and nonlinear constraints.
+
+## [Availability of the API](@id availability-api)
+
+If only a subset of the functions listed above is implemented, you can indicate which ones are not available when creating the [`NLPModelMeta`](@ref), using the keyword arguments
+`grad_available`, `jac_available`, `hess_available`, `jprod_available`, `jtprod_available`, and `hprod_available`.
+
+By default, `grad_available`, `hess_available`, and `hprod_available` are set to `true`.
+For constrained problems (`ncon > 0`), the fields `jac_available`, `jprod_available`, and `jtprod_available` are also set to `true`.
+For unconstrained problems (`ncon == 0`), they default to `false`.
 
 ## [Expected behaviour](@id expected-behaviour)
 

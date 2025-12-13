@@ -45,6 +45,9 @@ NLPModels instances.
 | ``J(x)``            | [`jac_lin`](@ref), [`jac_nln`](@ref), [`jac`](@ref), [`jac_lin_op`](@ref), [`jac_lin_op!`](@ref), [`jac_nln_op`](@ref), [`jac_nln_op!`](@ref),[`jac_op`](@ref), [`jac_op!`](@ref), [`jac_lin_coord`](@ref), [`jac_lin_coord!`](@ref), [`jac_nln_coord`](@ref), [`jac_nln_coord!`](@ref), [`jac_coord`](@ref), [`jac_coord!`](@ref), [`jac_lin_structure`](@ref), [`jac_lin_structure!`](@ref), [`jac_nln_structure`](@ref), [`jac_nln_structure!`](@ref), [`jac_structure`](@ref), [`jprod_lin`](@ref), [`jprod_lin!`](@ref), [`jprod_nln`](@ref), [`jprod_nln!`](@ref), [`jprod`](@ref), [`jprod!`](@ref), [`jtprod_lin`](@ref), [`jtprod_lin!`](@ref), [`jtprod_nln`](@ref), [`jtprod_nln!`](@ref), [`jtprod`](@ref), [`jtprod!`](@ref) |
 | ``\nabla^2 L(x,y)`` | [`hess`](@ref), [`hess_op`](@ref), [`hess_coord`](@ref), [`hess_coord!`](@ref), [`hess_structure`](@ref), [`hess_structure!`](@ref), [`hprod`](@ref), [`hprod!`](@ref), [`jth_hprod`](@ref), [`jth_hprod!`](@ref), [`jth_hess`](@ref), [`jth_hess_coord`](@ref), [`jth_hess_coord!`](@ref), [`ghjvprod`](@ref), [`ghjvprod!`](@ref)  |
 
+If only a subset of the functions listed above is implemented, you can indicate which ones are not available when creating the [`NLPModelMeta`](@ref), using the keyword arguments
+`grad_available`, `jac_available`, `hess_available`, `jprod_available`, `jtprod_available`, and `hprod_available`.
+
 ## [API for NLSModels](@id nls-api)
 
 For the Nonlinear Least Squares models, ``f(x) = \tfrac{1}{2} \Vert F(x)\Vert^2``,
@@ -59,3 +62,5 @@ and its derivatives. Namely,
 | ``F(x)``            | [`residual`](@ref), [`residual!`](@ref) |
 | ``J_F(x)``          | [`jac_residual`](@ref), [`jac_coord_residual`](@ref), [`jac_coord_residual!`](@ref), [`jac_structure_residual`](@ref), [`jac_structure_residual!`](@ref), [`jprod_residual`](@ref), [`jprod_residual!`](@ref), [`jtprod_residual`](@ref), [`jtprod_residual!`](@ref), [`jac_op_residual`](@ref), [`jac_op_residual!`](@ref) |
 | ``\nabla^2 F_i(x)`` | [`hess_residual`](@ref), [`hess_coord_residual`](@ref), [`hess_coord_residual!`](@ref), [`hess_structure_residual`](@ref), [`hess_structure_residual!`](@ref), [`jth_hess_residual`](@ref), [`jth_hess_residual_coord`](@ref), [`jth_hess_residual_coord!`](@ref), [`hprod_residual`](@ref), [`hprod_residual!`](@ref), [`hess_op_residual`](@ref), [`hess_op_residual!`](@ref) |
+
+If only a subset of the functions listed above is implemented, you can indicate which ones are not available when creating the [`NLSMeta`](@ref), using the keyword arguments `jac_residual_available`, `hess_residual_available`, `jprod_residual_available`, `jtprod_residual_available`, and `hprod_residual_available`.

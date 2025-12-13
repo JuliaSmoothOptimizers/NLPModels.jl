@@ -51,6 +51,12 @@ The following keyword arguments are accepted:
 - `minimize`: true if optimize == minimize
 - `islp`: true if the problem is a linear program
 - `name`: problem name
+- `grad_available`: indicates whether the gradient of the objective is available
+- `jac_available`: indicates whether the sparse Jacobian of the constraints is available
+- `hess_available`: indicates whether the sparse Hessian of the Lagrangian is available
+- `jprod_available`: indicates whether the Jacobian-vector product `J * v` is available
+- `jtprod_available`: indicates whether the transpose Jacobian-vector product `J' * v` is available
+- `hprod_available`: indicates whether the Hessian-vector product of the Lagrangian `H * v` is available
 
 `NLPModelMeta` also contains the following attributes, which are computed from the variables above:
 - `nvar`: number of variables
@@ -114,6 +120,13 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
   minimize::Bool
   islp::Bool
   name::String
+
+  grad_available::Bool
+  jac_available::Bool
+  hess_available::Bool
+  jprod_available::Bool
+  jtprod_available::Bool
+  hprod_available::Bool
 end
 
 function NLPModelMeta{T, S}(
@@ -134,9 +147,15 @@ function NLPModelMeta{T, S}(
   nln_nnzj = nnzj - lin_nnzj,
   nnzh = nvar * (nvar + 1) / 2,
   lin = Int[],
-  minimize = true,
-  islp = false,
+  minimize::Bool = true,
+  islp::Bool = false,
   name = "Generic",
+  grad_available::Bool = true,
+  jac_available::Bool = (ncon > 0),
+  hess_available::Bool = true,
+  jprod_available::Bool = (ncon > 0),
+  jtprod_available::Bool = (ncon > 0),
+  hprod_available::Bool = true,
 ) where {T, S}
   if (nvar < 1) || (ncon < 0)
     error("Nonsensical dimensions")
@@ -213,6 +232,12 @@ function NLPModelMeta{T, S}(
     minimize,
     islp,
     name,
+    grad_available,
+    jac_available,
+    hess_available,
+    jprod_available,
+    jtprod_available,
+    hprod_available,
   )
 end
 
@@ -238,9 +263,15 @@ function NLPModelMeta(
   nln_nnzj = meta.nln_nnzj,
   nnzh = meta.nnzh,
   lin = meta.lin,
-  minimize = meta.minimize,
-  islp = meta.islp,
+  minimize::Bool = meta.minimize,
+  islp::Bool = meta.islp,
   name = meta.name,
+  grad_available::Bool = meta.grad_available,
+  jac_available::Bool = meta.jac_available,
+  hess_available::Bool = meta.hess_available,
+  jprod_available::Bool = meta.jprod_available,
+  jtprod_available::Bool = meta.jtprod_available,
+  hprod_available::Bool = meta.hprod_available,
 ) where {T, S}
   NLPModelMeta{T, S}(
     nvar,
@@ -263,6 +294,12 @@ function NLPModelMeta(
     minimize = minimize,
     islp = islp,
     name = name,
+    grad_available = grad_available,
+    jac_available = jac_available,
+    hess_available = hess_available,
+    jprod_available = jprod_available,
+    jtprod_available = jtprod_available,
+    hprod_available = hprod_available,
   )
 end
 
