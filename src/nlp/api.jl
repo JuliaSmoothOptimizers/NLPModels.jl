@@ -642,7 +642,7 @@ function jac_op!(
   vals::AbstractVector{T},
   Jv::AbstractVector,
   Jtv::AbstractVector,
- ) where {T, S}
+) where {T, S}
 end
 
 """
@@ -711,7 +711,7 @@ function jac_lin_op!(
   vals::AbstractVector{T},
   Jv::AbstractVector,
   Jtv::AbstractVector,
- ) where {T, S}
+) where {T, S}
 end
 
 """
@@ -741,7 +741,7 @@ function jac_nln_op!(
   x::AbstractVector{T},
   Jv::AbstractVector,
   Jtv::AbstractVector,
- ) where {T, S}
+) where {T, S}
 end
 
 """
@@ -759,7 +759,7 @@ function jac_nln_op!(
   vals::AbstractVector{T},
   Jv::AbstractVector,
   Jtv::AbstractVector,
- ) where {T, S}
+) where {T, S}
 end
 
 """

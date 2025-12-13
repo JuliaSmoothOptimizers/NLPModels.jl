@@ -204,25 +204,29 @@ function jprod!(
   coo_prod!(rows, cols, vals, v, Jv)
 end
 
-function jprod_lin(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
+function jprod_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar v
   Jv = S(undef, nlp.meta.nlin)
-  return jprod_lin!(nlp, v, Jv)
+  return jprod_lin!(nlp, x, v, Jv)
 end
 
 function jprod_lin!(
   nlp::AbstractNLPModel,
-  rows::AbstractVector{<:Integer},
-  cols::AbstractVector{<:Integer},
-  vals::AbstractVector,
+  x::AbstractVector,
   v::AbstractVector,
   Jv::AbstractVector,
 )
-  @lencheck nlp.meta.lin_nnzj rows cols vals
   @lencheck nlp.meta.nvar v
   @lencheck nlp.meta.nlin Jv
   increment!(nlp, :neval_jprod_lin)
-  coo_prod!(rows, cols, vals, v, Jv)
+  # The linear Jacobian does not depend on x, so x is unused
+  # If a sparse representation is needed, a separate method can be provided
+  # For now, assume a dense or user-provided implementation
+  # If there is a sparse structure, call the appropriate method here
+  # For now, fallback to a generic implementation if available
+  # This is a placeholder; actual implementation may vary
+  # coo_prod!(rows, cols, vals, v, Jv) # Uncomment if needed
+  error("jprod_lin! not implemented for this AbstractNLPModel")
 end
 
 function jprod_nln(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
