@@ -26,15 +26,13 @@ mutable struct Counters
   neval_jprod_lin::Int  # Number of linear constraints Jacobian-vector products.
   neval_jprod_nln::Int  # Number of nonlinear constraints Jacobian-vector products.
   neval_jtprod::Int  # Number of transposed Jacobian-vector products.
-  neval_jtprod_lin::Int  # Number of transposed linear constraints Jacobian-vector products.
-  neval_jtprod_nln::Int  # Number of transposed nonlinear constraints Jacobian-vector products.
   neval_hess::Int  # Number of Lagrangian/objective Hessian evaluations.
   neval_hprod::Int  # Number of Lagrangian/objective Hessian-vector products.
   neval_jhess::Int  # Number of individual Lagrangian Hessian evaluations.
   neval_jhprod::Int  # Number of individual constraint Hessian-vector products.
 
   function Counters()
-    return new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    return new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
   end
 end
 

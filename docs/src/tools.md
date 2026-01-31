@@ -35,8 +35,6 @@ least squares models (the ones with `residual` below).
 | [`neval_jprod_lin`](@ref)       | Product of linear constraints Jacobian and vector |
 | [`neval_jprod_nln`](@ref)       | Product of nonlinear constraints Jacobian and vector |
 | [`neval_jtprod`](@ref)          | Product of transposed Jacobian and vector |
-| [`neval_jtprod_lin`](@ref)      | Product of transposed linear constraints Jacobian and vector |
-| [`neval_jtprod_nln`](@ref)      | Product of transposed nonlinear constraints Jacobian and vector |
 | [`neval_hess`](@ref)            | Hessian |
 | [`neval_hprod`](@ref)           | Product of Hessian and vector |
 | [`neval_jhess`](@ref)           | Individual Lagrangian Hessian evaluations |

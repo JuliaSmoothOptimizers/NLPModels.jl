@@ -35,8 +35,8 @@ The essential fields are
 - `lvar`, `uvar`: Bounds on the variables (default to `(-∞,∞)`)
 - `ncon`: Number of constraints (defaults to `0`)
 - `lcon`, `ucon`: Bounds on the constraints (default to `(-∞,∞)`)
-- `nnzh`: The length of the vectors used to store a triangle of the Hessian in triplet format (defaults to `nvar * (nvar + 1) / 2`
 - `nnzj`: The length of the vectors used to store the Jacobian in triplet format (default to `nvar * ncon`)
+- `nnzh`: The length of the vectors used to store a triangle of the Hessian in triplet format (defaults to `nvar * (nvar + 1) / 2`
 
 There are about 30 functions in the NLPModels API, and a few with more than one signature.
 Luckily, many have a default implementation.
@@ -63,24 +63,25 @@ The following functions should be defined:
   - `hess_structure!(nlp, hrows, hcols)`
   - `hess_coord!(nlp, x, hvals; obj_weight=1)`
   - `hprod!(nlp, x, v, Hv; obj_weight=1)` (actually defaults to calling the constrained case)
+
 - Constraints (constrained models need to worry about these and the ones above)
   - `cons_lin!(nlp, x, c)`
   - `cons_nln!(nlp, x, c)`
-  - `jac_lin_structure!(nlp, jrows, jcols)`
-  - `jac_nln_structure!(nlp, jrows, jcols)`
-  - `jac_lin_coord!(nlp, x, jvals)`
-  - `jac_nln_coord!(nlp, x, jvals)`
+  - `jac_coord_lin!(nlp, x, jvals)`
+  - `jac_coord_nln!(nlp, x, jvals)`
   - `jprod_lin!(nlp, x, v, Jv)`
   - `jprod_nln!(nlp, x, v, Jv)`
-  - `jtprod_lin!(nlp, x, v, Jtv)`
-  - `jtprod_nln!(nlp, x, v, Jtv)`
+  - `jtprod!(nlp, x, v, Jtv)`
   - `hess_coord!(nlp, x, y, hvals; obj_weight=1)`
   - `hprod!(nlp, x, y, v, Hv; obj_weight=1)`
 
 The linear constraints are specified at the initialization of the `NLPModelMeta` using the keyword arguement `lin`.
-The indices of linear and nonlinear constraints are respectively available in `nlp.meta.lin` and `nlp.meta.nln`.
-If your model uses only linear (resp. nonlinear) constraints, then it suffices to implement the `*_lin` (resp. `*_nln`) functions.
-Alternatively, one could implement only the functions without the suffixes `_nln!` (e.g., only `cons!`), but this might run into errors with tools differentiating linear and nonlinear constraints.
+The indices of linear and nonlinear constraints are available in `nlp.meta.lin` and `nlp.meta.nln`, respectively.
+
+If the model contains only linear (respectively nonlinear) constraints, it is sufficient to implement the in-place functions with the `_lin!` (resp. `_nln!`) suffixes for `cons*`, `jac_coord*`, and `jprod*`.
+These specialized implementations can also be used to avoid recomputing coefficients associated with linear constraints multiple times.
+
+Alternatively, one may implement only the unsuffixed functions (`cons!`, `jac_coord!` and `jprod!`).
 
 ## [Availability of the API](@id availability-api)
 

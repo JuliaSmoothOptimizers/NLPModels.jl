@@ -44,8 +44,6 @@ The following keyword arguments are accepted:
 - `ucon`: vector of constraint upper bounds
 - `nnzo`: number of nonzeros in the gradient
 - `nnzj`: number of elements needed to store the nonzeros in the sparse Jacobian
-- `lin_nnzj`: number of elements needed to store the nonzeros in the sparse Jacobian of linear constraints
-- `nln_nnzj`: number of elements needed to store the nonzeros in the sparse Jacobian of nonlinear constraints
 - `nnzh`: number of elements needed to store the nonzeros in the sparse Hessian
 - `lin`: indices of linear constraints
 - `minimize`: true if optimize == minimize
@@ -107,8 +105,6 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
 
   nnzo::Int
   nnzj::Int
-  lin_nnzj::Int
-  nln_nnzj::Int
   nnzh::Int
 
   nlin::Int
@@ -143,8 +139,6 @@ function NLPModelMeta{T, S}(
   ucon::S = fill!(S(undef, ncon), T(Inf)),
   nnzo = nvar,
   nnzj = nvar * ncon,
-  lin_nnzj = 0,
-  nln_nnzj = nnzj - lin_nnzj,
   nnzh = nvar * (nvar + 1) / 2,
   lin = Int[],
   minimize::Bool = true,
@@ -164,7 +158,6 @@ function NLPModelMeta{T, S}(
   @lencheck nvar x0 lvar uvar
   @lencheck ncon y0 lcon ucon
   @rangecheck 1 ncon lin
-  @assert nnzj == lin_nnzj + nln_nnzj
 
   ifix = findall(lvar .== uvar)
   ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf)))
@@ -222,8 +215,6 @@ function NLPModelMeta{T, S}(
     jinf,
     nnzo,
     nnzj,
-    lin_nnzj,
-    nln_nnzj,
     nnzh,
     nlin,
     nnln,
@@ -259,8 +250,6 @@ function NLPModelMeta(
   ucon::S = meta.ucon,
   nnzo = meta.nnzo,
   nnzj = meta.nnzj,
-  lin_nnzj = meta.lin_nnzj,
-  nln_nnzj = meta.nln_nnzj,
   nnzh = meta.nnzh,
   lin = meta.lin,
   minimize::Bool = meta.minimize,
@@ -287,8 +276,6 @@ function NLPModelMeta(
     ucon = ucon,
     nnzo = nnzo,
     nnzj = nnzj,
-    lin_nnzj = lin_nnzj,
-    nln_nnzj = nln_nnzj,
     nnzh = nnzh,
     lin = lin,
     minimize = minimize,

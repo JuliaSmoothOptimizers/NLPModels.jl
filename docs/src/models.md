@@ -5,6 +5,7 @@ The following is a list of packages implementing the NLPModels API.
 If you want your package listed here, open a Pull Request.
 
 If you want to create your own interface, check these [Guidelines](@ref).
+
 ## Packages
 
 - [NLPModelsModifiers.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsModifiers.jl):
@@ -24,7 +25,10 @@ If you want to create your own interface, check these [Guidelines](@ref).
   Creates a linear least squares model.
 - [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl):
   For PDE-constrained problems.
-- [BlockNLPModels.jl](https://github.com/exanauts/BlockNLPModels.jl): For modeling block structured nonlinear optimization problems.
+- [BlockNLPModels.jl](https://github.com/exanauts/BlockNLPModels.jl):
+  For modeling block structured nonlinear optimization problems.
+- [ExaModels.jl](https://github.com/exanauts/ExaModels.jl):
+  For problems specialized for SIMD abstraction.
 
 ## Model internals
 
