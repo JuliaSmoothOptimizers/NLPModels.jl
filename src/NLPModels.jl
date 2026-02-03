@@ -41,9 +41,6 @@ for f in ["utils", "api", "counters", "meta", "show", "tools"]
   include("nlp/$f.jl")
   include("nls/$f.jl")
 end
-
-include("nlp/batch/api.jl")
-include("nlp/batch/foreach.jl")
-include("nlp/batch/inplace.jl")
+include("nlp/batch_api.jl")
 
 end # module

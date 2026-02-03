@@ -42,24 +42,6 @@ macro lencheck(l, vars...)
 end
 
 """
-    @lencheck_tup n xs
-
-Check that the entries contained in `xs` all have length `n`.
-"""
-macro lencheck_tup(l, tup)
-  tupname = string(tup)
-  quote
-    _expected_len = $(esc(l))
-    _vars = $(esc(tup))
-    for (_idx, _var) in enumerate(_vars)
-      if length(_var) != _expected_len
-        throw(DimensionError(string($tupname, "[", _idx, "]"), _expected_len, length(_var)))
-      end
-    end
-  end
-end
-
-"""
     @rangecheck ℓ u i j k …
 
 Check that values `i`, `j`, `k`, etc. are in the range `[ℓ,u]`.
