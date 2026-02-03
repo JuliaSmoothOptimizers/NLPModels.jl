@@ -5,7 +5,7 @@ export AbstractNLPModelMeta, NLPModelMeta, reset_data!
 
 Base type for metadata related to an optimization model.
 """
-abstract type AbstractNLPModelMeta{T, S} end
+abstract type AbstractNLPModelMeta{T, S, VI} end
 
 """
     NLPModelMeta <: AbstractNLPModelMeta
@@ -76,18 +76,18 @@ The following keyword arguments are accepted:
 - `nnln`: number of nonlinear general constraints
 - `nln`: indices of nonlinear constraints
 """
-struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
+struct NLPModelMeta{T, S, VI} <: AbstractNLPModelMeta{T, S, VI}
   nvar::Int
   x0::S
   lvar::S
   uvar::S
 
-  ifix::Vector{Int}
-  ilow::Vector{Int}
-  iupp::Vector{Int}
-  irng::Vector{Int}
-  ifree::Vector{Int}
-  iinf::Vector{Int}
+  ifix::VI
+  ilow::VI
+  iupp::VI
+  irng::VI
+  ifree::VI
+  iinf::VI
 
   nlvb::Int
   nlvo::Int
@@ -98,12 +98,12 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
   lcon::S
   ucon::S
 
-  jfix::Vector{Int}
-  jlow::Vector{Int}
-  jupp::Vector{Int}
-  jrng::Vector{Int}
-  jfree::Vector{Int}
-  jinf::Vector{Int}
+  jfix::VI
+  jlow::VI
+  jupp::VI
+  jrng::VI
+  jfree::VI
+  jinf::VI
 
   nnzo::Int
   nnzj::Int
@@ -114,8 +114,8 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
   nlin::Int
   nnln::Int
 
-  lin::Vector{Int}
-  nln::Vector{Int}
+  lin::VI
+  nln::VI
 
   minimize::Bool
   islp::Bool
@@ -145,7 +145,7 @@ function NLPModelMeta{T, S}(
   nnzj = nvar * ncon,
   lin_nnzj = 0,
   nln_nnzj = nnzj - lin_nnzj,
-  nnzh = nvar * (nvar + 1) / 2,
+  nnzh = nvar * (nvar + 1) ÷ 2,
   lin = Int[],
   minimize::Bool = true,
   islp::Bool = false,
@@ -157,7 +157,65 @@ function NLPModelMeta{T, S}(
   jtprod_available::Bool = (ncon > 0),
   hprod_available::Bool = true,
 ) where {T, S}
-  if (nvar < 1) || (ncon < 0)
+  NLPModelMeta{T, S, Vector{Int}}(
+    nvar;
+    x0,
+    lvar,
+    uvar,
+    nlvb,
+    nlvo,
+    nlvc,
+    ncon,
+    y0,
+    lcon,
+    ucon,
+    nnzo,
+    nnzj,
+    lin_nnzj,
+    nln_nnzj,
+    nnzh,
+    lin,
+    minimize,
+    islp,
+    name,
+    grad_available,
+    jac_available,
+    hess_available,
+    jprod_available,
+    jtprod_available,
+    hprod_available,
+  )
+end
+
+function NLPModelMeta{T, S, VI}(
+  nvar::Int;
+  x0::S = fill!(S(undef, nvar), zero(T)),
+  lvar::S = fill!(S(undef, nvar), T(-Inf)),
+  uvar::S = fill!(S(undef, nvar), T(Inf)),
+  nlvb = nvar,
+  nlvo = nvar,
+  nlvc = nvar,
+  ncon = 0,
+  y0::S = fill!(S(undef, ncon), zero(T)),
+  lcon::S = fill!(S(undef, ncon), T(-Inf)),
+  ucon::S = fill!(S(undef, ncon), T(Inf)),
+  nnzo = nvar,
+  nnzj = nvar * ncon,
+  lin_nnzj = 0,
+  nln_nnzj = nnzj - lin_nnzj,
+  nnzh = nvar * (nvar + 1) ÷ 2,
+  lin = VI(undef, 0),
+  minimize::Bool = true,
+  islp::Bool = false,
+  name = "Generic",
+  grad_available::Bool = true,
+  jac_available::Bool = (ncon > 0),
+  hess_available::Bool = true,
+  jprod_available::Bool = (ncon > 0),
+  jtprod_available::Bool = (ncon > 0),
+  hprod_available::Bool = true,
+) where {T, S, VI}
+  if (nvar < 1) || (ncon < 0) || (nnzj < 0) || (nnzh < 0)
     error("Nonsensical dimensions")
   end
 
@@ -166,37 +224,41 @@ function NLPModelMeta{T, S}(
   @rangecheck 1 ncon lin
   @assert nnzj == lin_nnzj + nln_nnzj
 
-  ifix = findall(lvar .== uvar)
-  ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf)))
-  iupp = findall((lvar .== T(-Inf)) .& (uvar .< T(Inf)))
-  irng = findall((lvar .> T(-Inf)) .& (uvar .< T(Inf)) .& (lvar .< uvar))
-  ifree = findall((lvar .== T(-Inf)) .& (uvar .== T(Inf)))
-  iinf = findall(lvar .> uvar)
+  ifix = VI(undef, nvar)
+  ilow = VI(undef, nvar)
+  iupp = VI(undef, nvar)
+  irng = VI(undef, nvar)
+  ifree = VI(undef, nvar)
+  iinf = VI(undef, nvar)
+
+  map!((lv, uv) -> lv == uv, ifix, lvar, uvar)
+  map!((lv, uv) -> (lv > T(-Inf)) & (uv == T(Inf)), ilow, lvar, uvar)
+  map!((lv, uv) -> (lv == T(-Inf)) & (uv < T(Inf)), iupp, lvar, uvar)
+  map!((lv, uv) -> (lv > T(-Inf)) & (uv < T(Inf)), irng, lvar, uvar)
+  map!((lv, uv) -> (lv == T(-Inf)) & (uv == T(Inf)), ifree, lvar, uvar)
+  map!((lv, uv) -> lv > uv, iinf, lvar, uvar)
+
+  jfix = VI(undef, ncon)
+  jlow = VI(undef, ncon)
+  jupp = VI(undef, ncon)
+  jrng = VI(undef, ncon)
+  jfree = VI(undef, ncon)
+  jinf = VI(undef, ncon)
 
   if ncon > 0
-    jfix = findall(lcon .== ucon)
-    jlow = findall((lcon .> T(-Inf)) .& (ucon .== T(Inf)))
-    jupp = findall((lcon .== T(-Inf)) .& (ucon .< T(Inf)))
-    jrng = findall((lcon .> T(-Inf)) .& (ucon .< T(Inf)) .& (lcon .< ucon))
-    jfree = findall((lcon .== T(-Inf)) .& (ucon .== T(Inf)))
-    jinf = findall(lcon .> ucon)
-  else
-    jfix = Int[]
-    jlow = Int[]
-    jupp = Int[]
-    jrng = Int[]
-    jfree = Int[]
-    jinf = Int[]
+    map!((lc, uc) -> lc == uc, jfix, lcon, ucon)
+    map!((lc, uc) -> (lc > T(-Inf)) & (uc == T(Inf)), jlow, lcon, ucon)
+    map!((lc, uc) -> (lc == T(-Inf)) & (uc < T(Inf)), jupp, lcon, ucon)
+    map!((lc, uc) -> (lc > T(-Inf)) & (uc < T(Inf)), jrng, lcon, ucon)
+    map!((lc, uc) -> (lc == T(-Inf)) & (uc == T(Inf)), jfree, lcon, ucon)
+    map!((lc, uc) -> lc > uc, jinf, lcon, ucon)
   end
 
-  nnzj = max(0, nnzj)
-  nnzh = max(0, nnzh)
-
-  nln = setdiff(1:ncon, lin)
+  nln = setdiff(VI(1:ncon), lin)
   nlin = length(lin)
   nnln = length(nln)
 
-  NLPModelMeta{T, S}(
+  NLPModelMeta{T, S, VI}(
     nvar,
     x0,
     lvar,
@@ -242,10 +304,10 @@ function NLPModelMeta{T, S}(
 end
 
 NLPModelMeta(nvar::Int; x0::S = zeros(nvar), kwargs...) where {S} =
-  NLPModelMeta{eltype(S), S}(nvar, x0 = x0; kwargs...)
+  NLPModelMeta{eltype(S), S, Vector{Int}}(nvar, x0 = x0; kwargs...)
 
 function NLPModelMeta(
-  meta::AbstractNLPModelMeta{T, S};
+  meta::AbstractNLPModelMeta{T, S, VI};
   nvar::Int = meta.nvar,
   x0::S = meta.x0,
   lvar::S = meta.lvar,
@@ -272,8 +334,8 @@ function NLPModelMeta(
   jprod_available::Bool = meta.jprod_available,
   jtprod_available::Bool = meta.jtprod_available,
   hprod_available::Bool = meta.hprod_available,
-) where {T, S}
-  NLPModelMeta{T, S}(
+) where {T, S, VI}
+  NLPModelMeta{T, S, VI}(
     nvar,
     x0 = x0,
     lvar = lvar,
