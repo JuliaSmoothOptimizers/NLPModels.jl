@@ -224,34 +224,27 @@ function NLPModelMeta{T, S, VI}(
   @rangecheck 1 ncon lin
   @assert nnzj == lin_nnzj + nln_nnzj
 
-  ifix = VI(undef, nvar)
-  ilow = VI(undef, nvar)
-  iupp = VI(undef, nvar)
-  irng = VI(undef, nvar)
-  ifree = VI(undef, nvar)
-  iinf = VI(undef, nvar)
-
-  map!((lv, uv) -> lv == uv, ifix, lvar, uvar)
-  map!((lv, uv) -> (lv > T(-Inf)) & (uv == T(Inf)), ilow, lvar, uvar)
-  map!((lv, uv) -> (lv == T(-Inf)) & (uv < T(Inf)), iupp, lvar, uvar)
-  map!((lv, uv) -> (lv > T(-Inf)) & (uv < T(Inf)), irng, lvar, uvar)
-  map!((lv, uv) -> (lv == T(-Inf)) & (uv == T(Inf)), ifree, lvar, uvar)
-  map!((lv, uv) -> lv > uv, iinf, lvar, uvar)
-
-  jfix = VI(undef, ncon)
-  jlow = VI(undef, ncon)
-  jupp = VI(undef, ncon)
-  jrng = VI(undef, ncon)
-  jfree = VI(undef, ncon)
-  jinf = VI(undef, ncon)
+  ifix = findall(lvar .== uvar) |> VI
+  ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf))) |> VI
+  iupp = findall((lvar .== T(-Inf)) .& (uvar .< T(Inf))) |> VI
+  irng = findall((lvar .> T(-Inf)) .& (uvar .< T(Inf)) .& (lvar .< uvar)) |> VI
+  ifree = findall((lvar .== T(-Inf)) .& (uvar .== T(Inf))) |> VI
+  iinf = findall(lvar .> uvar) |> VI
 
   if ncon > 0
-    map!((lc, uc) -> lc == uc, jfix, lcon, ucon)
-    map!((lc, uc) -> (lc > T(-Inf)) & (uc == T(Inf)), jlow, lcon, ucon)
-    map!((lc, uc) -> (lc == T(-Inf)) & (uc < T(Inf)), jupp, lcon, ucon)
-    map!((lc, uc) -> (lc > T(-Inf)) & (uc < T(Inf)), jrng, lcon, ucon)
-    map!((lc, uc) -> (lc == T(-Inf)) & (uc == T(Inf)), jfree, lcon, ucon)
-    map!((lc, uc) -> lc > uc, jinf, lcon, ucon)
+    jfix = findall(lcon .== ucon) |> VI
+    jlow = findall((lcon .> T(-Inf)) .& (ucon .== T(Inf))) |> VI
+    jupp = findall((lcon .== T(-Inf)) .& (ucon .< T(Inf))) |> VI
+    jrng = findall((lcon .> T(-Inf)) .& (ucon .< T(Inf)) .& (lcon .< ucon)) |> VI
+    jfree = findall((lcon .== T(-Inf)) .& (ucon .== T(Inf))) |> VI
+    jinf = findall(lcon .> ucon) |> VI
+  else
+    jfix = VI(undef, 0)
+    jlow = VI(undef, 0)
+    jupp = VI(undef, 0)
+    jrng = VI(undef, 0)
+    jfree = VI(undef, 0)
+    jinf = VI(undef, 0)
   end
 
   nln = setdiff(VI(1:ncon), lin)
