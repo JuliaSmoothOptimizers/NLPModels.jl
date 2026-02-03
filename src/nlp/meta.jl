@@ -46,7 +46,7 @@ The following keyword arguments are accepted:
 - `nnzj`: number of elements needed to store the nonzeros in the Jacobian
 - `lin_nnzj`: number of elements needed to store the nonzeros in the Jacobian of linear constraints
 - `nln_nnzj`: number of elements needed to store the nonzeros in the Jacobian of nonlinear constraints
-- `nnzh`: number of elements needed to store the nonzeros in the Hessian of the Lagragian
+- `nnzh`: number of elements needed to store the nonzeros in the Hessian of the Lagrangian
 - `lin`: indices of linear constraints
 - `minimize`: true if optimize == minimize
 - `islp`: true if the problem is a linear program
