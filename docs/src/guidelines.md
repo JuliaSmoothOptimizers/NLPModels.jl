@@ -82,6 +82,9 @@ The indices of linear and nonlinear constraints are respectively available in `n
 If your model uses only linear (resp. nonlinear) constraints, then it suffices to implement the `*_lin` (resp. `*_nln`) functions.
 Alternatively, one could implement only the functions without the suffixes `_nln!` (e.g., only `cons!`), but this might run into errors with tools differentiating linear and nonlinear constraints.
 
+If the Jacobian or the Hessian of the Lagrangian is dense, there is no need to implement the corresponding `*_structure!` methods.
+This is specified at the initialization of [`NLPModelMeta`](@ref) through the keyword arguments `sparse_jacobian` and `sparse_hessian`.
+
 ## [Availability of the API](@id availability-api)
 
 If only a subset of the functions listed above is implemented, you can indicate which ones are not available when creating the [`NLPModelMeta`](@ref), using the keyword arguments

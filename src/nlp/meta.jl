@@ -43,17 +43,19 @@ The following keyword arguments are accepted:
 - `lcon`: vector of constraint lower bounds
 - `ucon`: vector of constraint upper bounds
 - `nnzo`: number of nonzeros in the gradient
-- `nnzj`: number of elements needed to store the nonzeros in the sparse Jacobian
-- `lin_nnzj`: number of elements needed to store the nonzeros in the sparse Jacobian of linear constraints
-- `nln_nnzj`: number of elements needed to store the nonzeros in the sparse Jacobian of nonlinear constraints
-- `nnzh`: number of elements needed to store the nonzeros in the sparse Hessian
+- `nnzj`: number of elements needed to store the nonzeros in the Jacobian
+- `lin_nnzj`: number of elements needed to store the nonzeros in the Jacobian of linear constraints
+- `nln_nnzj`: number of elements needed to store the nonzeros in the Jacobian of nonlinear constraints
+- `nnzh`: number of elements needed to store the nonzeros in the Hessian of the Lagragian
 - `lin`: indices of linear constraints
 - `minimize`: true if optimize == minimize
 - `islp`: true if the problem is a linear program
 - `name`: problem name
+- `sparse_jacobian`: indicates whether the Jacobian of the constraints is sparse
+- `sparse_hessian`: indicates whether the Hessian of the Lagrangian is sparse
 - `grad_available`: indicates whether the gradient of the objective is available
-- `jac_available`: indicates whether the sparse Jacobian of the constraints is available
-- `hess_available`: indicates whether the sparse Hessian of the Lagrangian is available
+- `jac_available`: indicates whether the Jacobian of the constraints is available
+- `hess_available`: indicates whether the Hessian of the Lagrangian is available
 - `jprod_available`: indicates whether the Jacobian-vector product `J * v` is available
 - `jtprod_available`: indicates whether the transpose Jacobian-vector product `J' * v` is available
 - `hprod_available`: indicates whether the Hessian-vector product of the Lagrangian `H * v` is available
@@ -121,6 +123,9 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
   islp::Bool
   name::String
 
+  sparse_jacobian::Bool
+  sparse_hessian::Bool
+
   grad_available::Bool
   jac_available::Bool
   hess_available::Bool
@@ -145,11 +150,13 @@ function NLPModelMeta{T, S}(
   nnzj = nvar * ncon,
   lin_nnzj = 0,
   nln_nnzj = nnzj - lin_nnzj,
-  nnzh = nvar * (nvar + 1) / 2,
+  nnzh = nvar * (nvar + 1) ÷ 2,
   lin = Int[],
   minimize::Bool = true,
   islp::Bool = false,
   name = "Generic",
+  sparse_jacobian::Bool = true,
+  sparse_hessian::Bool = true,
   grad_available::Bool = true,
   jac_available::Bool = (ncon > 0),
   hess_available::Bool = true,
@@ -157,7 +164,7 @@ function NLPModelMeta{T, S}(
   jtprod_available::Bool = (ncon > 0),
   hprod_available::Bool = true,
 ) where {T, S}
-  if (nvar < 1) || (ncon < 0)
+  if (nvar < 1) || (ncon < 0) || (nnzj < 0) || (nnzh < 0)
     error("Nonsensical dimensions")
   end
 
@@ -188,9 +195,6 @@ function NLPModelMeta{T, S}(
     jfree = Int[]
     jinf = Int[]
   end
-
-  nnzj = max(0, nnzj)
-  nnzh = max(0, nnzh)
 
   nln = setdiff(1:ncon, lin)
   nlin = length(lin)
@@ -232,6 +236,8 @@ function NLPModelMeta{T, S}(
     minimize,
     islp,
     name,
+    sparse_jacobian,
+    sparse_hessian,
     grad_available,
     jac_available,
     hess_available,
@@ -266,6 +272,8 @@ function NLPModelMeta(
   minimize::Bool = meta.minimize,
   islp::Bool = meta.islp,
   name = meta.name,
+  sparse_jacobian::Bool = true,
+  sparse_hessian::Bool = true,
   grad_available::Bool = meta.grad_available,
   jac_available::Bool = meta.jac_available,
   hess_available::Bool = meta.hess_available,
@@ -294,6 +302,8 @@ function NLPModelMeta(
     minimize = minimize,
     islp = islp,
     name = name,
+    sparse_jacobian = sparse_jacobian,
+    sparse_hessian = sparse_hessian,
     grad_available = grad_available,
     jac_available = jac_available,
     hess_available = hess_available,
