@@ -380,7 +380,7 @@ end
     Jx = jac_nln(nlp, x)
 
 Evaluate ``J(x)``, the nonlinear constraints Jacobian at `x` as a sparse matrix.
-TThis function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_nln(nlp::AbstractNLPModel, x::AbstractVector)
   @lencheck nlp.meta.nvar x
