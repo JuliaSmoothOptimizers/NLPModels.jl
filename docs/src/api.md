@@ -29,6 +29,7 @@ If not, click on the link and go to the description.
 
 - `!` means inplace;
 - `_coord` means coordinate format;
+- `_dense` means dense format;
 - `prod` means matrix-vector product;
 - `_op` means operator (as in [LinearOperators.jl](https://github.com/JuliaSmoothOptimizers/LinearOperators.jl));
 - `_lin` and `_nln` respectively refer to linear and nonlinear constraints.
