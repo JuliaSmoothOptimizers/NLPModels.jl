@@ -64,26 +64,33 @@ The following functions should be defined:
   - `hess_coord!(nlp, x, hvals; obj_weight=1)` (sparse Hessian)
   - `hess_dense!(nlp, x, Hx; obj_weight=1)` (dense Hessian)
   - `hprod!(nlp, x, v, Hv; obj_weight=1)` (actually defaults to calling the constrained case)
+
 - Constraints (constrained models need to worry about these and the ones above)
-  - `cons_lin!(nlp, x, c)`
-  - `cons_nln!(nlp, x, c)`
-  - `jac_lin_structure!(nlp, jrows, jcols)` (sparse Jacobian)
-  - `jac_nln_structure!(nlp, jrows, jcols)` (sparse Jacobian)
-  - `jac_lin_coord!(nlp, x, jvals)` (sparse Jacobian)
-  - `jac_nln_coord!(nlp, x, jvals)` (sparse Jacobian)
+  - `cons!(nlp, x, c)`
+  - `jac_structure!(nlp, jrows, jcols)` (sparse Jacobian)
+  - `jac_coord!(nlp, x, jvals)` (sparse Jacobian)
   - `jac_dense!(nlp, x, Jx)` (dense Jacobian)
-  - `jprod_lin!(nlp, x, v, Jv)`
-  - `jprod_nln!(nlp, x, v, Jv)`
-  - `jtprod_lin!(nlp, x, v, Jtv)`
-  - `jtprod_nln!(nlp, x, v, Jtv)`
+  - `jprod!(nlp, x, v, Jv)`
+  - `jtprod!(nlp, x, v, Jtv)`
   - `hess_coord!(nlp, x, y, hvals; obj_weight=1)` (sparse Hessian)
   - `hess_dense!(nlp, x, y, Hx; obj_weight=1)` (dense Hessian)
   - `hprod!(nlp, x, y, v, Hv; obj_weight=1)`
 
+When the split API is enabled (`nlp.meta.split_api = true`), the treatment of linear and nonlinear constraints and their associated Jacobians is separated, and the following additional functions must be provided:
+
+- `cons_lin!(nlp, x, c)`
+- `cons_nln!(nlp, x, c)`
+- `jac_lin_structure!(nlp, jrows, jcols)`
+- `jac_nln_structure!(nlp, jrows, jcols)`
+- `jac_lin_coord!(nlp, x, jvals)`
+- `jac_nln_coord!(nlp, x, jvals)`
+- `jprod_lin!(nlp, x, v, Jv)`
+- `jprod_nln!(nlp, x, v, Jv)`
+- `jtprod_lin!(nlp, x, v, Jtv)`
+- `jtprod_nln!(nlp, x, v, Jtv)`
+
 The linear constraints are specified at the initialization of the `NLPModelMeta` using the keyword arguement `lin`.
 The indices of linear and nonlinear constraints are respectively available in `nlp.meta.lin` and `nlp.meta.nln`.
-If your model uses only linear (resp. nonlinear) constraints, then it suffices to implement the `*_lin` (resp. `*_nln`) functions.
-Alternatively, one could implement only the functions without the suffixes `_nln!` (e.g., only `cons!`), but this might run into errors with tools differentiating linear and nonlinear constraints.
 
 If the Jacobian or the Hessian of the Lagrangian is dense, there is no need to implement the corresponding `*_structure!` and `*_coord!` methods.
 Only the corresponding `*_dense!` methods need to be implemented.
