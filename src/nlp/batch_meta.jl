@@ -10,26 +10,30 @@ abstract type AbstractBatchNLPModelMeta{T, S, VI} end
 """
     BatchNLPModelMeta <: AbstractBatchNLPModelMeta
 
-A composite type that represents the main features of the optimization problem
+A composite type that represents the main features of a batch of
+nonlinear optimization problems sharing the same structure.
 
-    optimize    obj(x)
-    subject to  lvar ≤    x    ≤ uvar
-                lcon ≤ cons(x) ≤ ucon
+Each batch contains `nbatch` independent NLP models of the form:
 
-where `x`        is an `nvar`-dimensional vector,
-      `obj`      is the real-valued objective function,
-      `cons`     is the vector-valued constraint function,
-      `optimize` is either "minimize" or "maximize".
+    optimize    objᵢ(xᵢ)
+    subject to  lvarᵢ ≤    xᵢ    ≤ uvarᵢ
+                lconᵢ ≤ consᵢ(xᵢ) ≤ uconᵢ
 
-Here, `lvar`, `uvar`, `lcon` and `ucon` are vectors.
-Some of their components may be infinite to indicate that the corresponding bound or general constraint is not present.
+for i = 1, ..., nbatch.
+
+Each model variable vector `xᵢ` has dimension `nvar`, and constraint vector
+`consᵢ(xᵢ)` has dimension `ncon`.
+
+All batch data are stored in concatenated vectors of length:
+
+- `nvar * nbatch` for variables and bounds (`x0`, `lvar`, `uvar`)
+- `ncon * nbatch` for constraints and multipliers (`y0`, `lcon`, `ucon`)
 
 ---
 
     BatchNLPModelMeta(nbatch::Int, nvar; kwargs...)
 
-Create an `BatchNLPModelMeta` with `nvar` variables.
-Alternatively, create an `NLPModelMeta` copy from another `AbstractNLPModelMeta`.
+Create a `BatchNLPModelMeta` with `nbatch` models, each having `nvar` variables.
 The following keyword arguments are accepted:
 - `x0`: initial guess
 - `lvar`: vector of lower bounds
@@ -133,34 +137,27 @@ function BatchNLPModelMeta{T, S, VI}(
     error("Nonsensical dimensions")
   end
 
-  ifix = VI(undef, nvar * nbatch)
-  ilow = VI(undef, nvar * nbatch)
-  iupp = VI(undef, nvar * nbatch)
-  irng = VI(undef, nvar * nbatch)
-  ifree = VI(undef, nvar * nbatch)
-  iinf = VI(undef, nvar * nbatch)
-
-  map!((lv, uv) -> lv == uv, ifix, lvar, uvar)
-  map!((lv, uv) -> (lv > T(-Inf)) & (uv == T(Inf)), ilow, lvar, uvar)
-  map!((lv, uv) -> (lv == T(-Inf)) & (uv < T(Inf)), iupp, lvar, uvar)
-  map!((lv, uv) -> (lv > T(-Inf)) & (uv < T(Inf)), irng, lvar, uvar)
-  map!((lv, uv) -> (lv == T(-Inf)) & (uv == T(Inf)), ifree, lvar, uvar)
-  map!((lv, uv) -> lv > uv, iinf, lvar, uvar)
-
-  jfix = VI(undef, ncon * nbatch)
-  jlow = VI(undef, ncon * nbatch)
-  jupp = VI(undef, ncon * nbatch)
-  jrng = VI(undef, ncon * nbatch)
-  jfree = VI(undef, ncon * nbatch)
-  jinf = VI(undef, ncon * nbatch)
+  ifix = convert(VI, findall(lvar .== uvar))
+  ilow = convert(VI, findall((lvar .> T(-Inf)) .& (uvar .== T(Inf))))
+  iupp = convert(VI, findall((lvar .== T(-Inf)) .& (uvar .< T(Inf))))
+  irng = convert(VI, findall((lvar .> T(-Inf)) .& (uvar .< T(Inf)) .& (lvar .< uvar)))
+  ifree = convert(VI, findall((lvar .== T(-Inf)) .& (uvar .== T(Inf))))
+  iinf = convert(VI, findall(lvar .> uvar))
 
   if ncon > 0
-    map!((lc, uc) -> lc == uc, jfix, lcon, ucon)
-    map!((lc, uc) -> (lc > T(-Inf)) & (uc == T(Inf)), jlow, lcon, ucon)
-    map!((lc, uc) -> (lc == T(-Inf)) & (uc < T(Inf)), jupp, lcon, ucon)
-    map!((lc, uc) -> (lc > T(-Inf)) & (uc < T(Inf)), jrng, lcon, ucon)
-    map!((lc, uc) -> (lc == T(-Inf)) & (uc == T(Inf)), jfree, lcon, ucon)
-    map!((lc, uc) -> lc > uc, jinf, lcon, ucon)
+    jfix = convert(VI, findall(lcon .== ucon))
+    jlow = convert(VI, findall((lcon .> T(-Inf)) .& (ucon .== T(Inf))))
+    jupp = convert(VI, findall((lcon .== T(-Inf)) .& (ucon .< T(Inf))))
+    jrng = convert(VI, findall((lcon .> T(-Inf)) .& (ucon .< T(Inf)) .& (lcon .< ucon)))
+    jfree = convert(VI, findall((lcon .== T(-Inf)) .& (ucon .== T(Inf))))
+    jinf = convert(VI, findall(lcon .> ucon))
+  else
+    jfix = VI(undef, 0)
+    jlow = VI(undef, 0)
+    jupp = VI(undef, 0)
+    jrng = VI(undef, 0)
+    jfree = VI(undef, 0)
+    jinf = VI(undef, 0)
   end
 
   BatchNLPModelMeta{T, S, VI}(
