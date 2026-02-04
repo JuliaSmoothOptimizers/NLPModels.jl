@@ -23,9 +23,6 @@ abstract type AbstractBatchNLPModel{T,S,VI} end
 
 """
     bf = batch_obj(bnlp, bx)
-
-The input `bx` contains `bnlp.nbatch` points stacked in a full strided (column-wise) layout.
-The output `bf` stores the objective value for each batch entry.
 """
 function batch_obj(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractVector) where {T, S}
   @lencheck (bnlp.meta.nvar * bnlp.meta.nbatch) bx
@@ -36,17 +33,12 @@ end
 
 """
     bf = batch_obj!(bnlp, bx, bf)
-
-Evaluate ``[ f(x₁) | f(x₂) | ... ]``, the objective function of `bnlp` at `bx = [ x₁ | x₂ | ... ]` in place.
-Both input `bx` and output `bf` follow a full strided (column-wise) batch layout.
 """
 function batch_obj! end
 
 """
     bg = batch_grad(bnlp, bx)
 
-Evaluate ``∇f(x)``, the gradient of the objective function at `bx`.
-The gradients are returned in a full strided (column-wise) layout, with one gradient vector per batch entry.
 This function is only available if `bnlp.meta.grad_available` is set to `true`.
 """
 function batch_grad(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractVector) where {T, S}
@@ -59,18 +51,12 @@ end
 """
     bg = batch_grad!(bnlp, bx, bg)
 
-Evaluate ``∇f(bx)`` for a batch of points stored in `bx` in place.
-Both input `bx` and output `bg` use a full strided (column-wise) batch layout.
 This function is only available if `bbnlp.meta.grad_available` is set to `true`.
 """
 function batch_grad! end
 
 """
     bc = batch_cons(bnlp, bx)
-
-Evaluate ``c(x)``, the constraints at `x`.
-The constraints are returned in a full strided (column-wise) layout, with one constraint
-vector per batch entry.
 """
 function batch_cons(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractVector) where {T, S}
   @lencheck (bnlp.meta.nvar * bnlp.meta.nbatch) bx
@@ -81,16 +67,12 @@ end
 
 """
     bc = batch_cons!(bnlp, bx, bc)
-
-Evaluate ``c(x)``, the constraints at `x` in place.
-Both input `bx` and output `c` follow a full strided (column-wise) batch layout.
 """
 function batch_cons! end
 
 """
     (jrows, jcols) = batch_jac_structure(bnlp)
 
-Return the structure of the constraints Jacobian in sparse coordinate format.
 This function is only available if `bbnlp.meta.jac_available` is set to `true`.
 """
 function batch_jac_structure(bnlp::AbstractBatchNLPModel{T, S, VI}) where {T, S, VI}
@@ -103,7 +85,6 @@ end
 """
     (jrows, jcols) = batch_jac_structure!(bnlp, jrows, jcols)
 
-Return the structure of the constraints Jacobian in sparse coordinate format in place.
 This function is only available if `bbnlp.meta.jac_available` is set to `true`.
 """
 function batch_jac_structure! end 
@@ -111,7 +92,6 @@ function batch_jac_structure! end
 """
     bjvals = batch_jac_coord(bnlp, bx)
 
-Evaluate ``J(x)``, the constraints Jacobian at `x` in sparse coordinate format.
 This function is only available if `bbnlp.meta.jac_available` is set to `true`.
 """
 function batch_jac_coord(bnlp::AbstractBatchNLPModel, bx::AbstractVector, bjvals::AbstractVector)
@@ -124,7 +104,6 @@ end
 """
     bjvals = batch_jac_coord!(bnlp, bx, bjvals)
 
-Evaluate ``J(x)``, the constraints Jacobian at `x` in sparse coordinate format, rewriting `vals`.
 This function is only available if `bbnlp.meta.jac_available` is set to `true`.
 """
 function batch_jac_coord! end
@@ -132,7 +111,6 @@ function batch_jac_coord! end
 """
     bJv = batch_jprod(bnlp, bx, bv)
 
-Evaluate ``J(x)v``, the Jacobian-vector product at `x`.
 This function is only available if `bbnlp.meta.jprod_available` is set to `true`.
 """
 function batch_jprod(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractVector, bv::AbstractVector) where {T, S}
@@ -145,7 +123,6 @@ end
 """
     bJv = batch_jprod!(bnlp, bx, bv, bJv)
 
-Evaluate ``J(x)v``, the Jacobian-vector product at `x` in place.
 This function is only available if `bbnlp.meta.jprod_available` is set to `true`.
 """
 function batch_jprod! end
@@ -153,7 +130,6 @@ function batch_jprod! end
 """
     bJtv = batch_jtprod(bnlp, bx, bv)
 
-Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product at `x`.
 This function is only available if `bbnlp.meta.jtprod_available` is set to `true`.
 """
 function batch_jtprod(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractVector, bv::AbstractVector) where {T, S}
@@ -167,8 +143,6 @@ end
 """
     bJtv = batch_jtprod!(bnlp, bx, bv, Jtv)
 
-Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product at `x` in place.
-If the problem has linear and nonlinear constraints, this function allocates.
 This function is only available if `bbnlp.meta.jtprod_available` is set to `true`.
 """
 function batch_jtprod! end
@@ -176,7 +150,6 @@ function batch_jtprod! end
 """
     (hrows, hcols) = batch_hess_structure(bnlp)
 
-Return the structure of the Lagrangian Hessian in sparse coordinate format.
 This function is only available if `bbnlp.meta.hess_available` is set to `true`.
 """
 function batch_hess_structure(bnlp::AbstractBatchNLPModel{T,S,VI}) where {T, S, VI}
@@ -189,7 +162,6 @@ end
 """
     (hrows, hcols) = batch_hess_structure!(bnlp, hrows, hcols)
 
-Return the structure of the Lagrangian Hessian in sparse coordinate format in place.
 This function is only available if `bbnlp.meta.hess_available` is set to `true`.
 """
 function batch_hess_structure! end
@@ -197,10 +169,6 @@ function batch_hess_structure! end
 """
     bhvals = batch_hess_coord(bnlp, bx, by, bobj_weight)
 
-Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format,
-with objective function scaled by `obj_weight`, i.e.,
-$(LAGRANGIAN_HESSIAN).
-Only the lower triangle is returned.
 This function is only available if `nlp.meta.hess_available` is set to `true`.
 """
 function batch_hess_coord(
@@ -219,10 +187,6 @@ end
 """
     bhvals = batch_hess_coord!(bnlp, bx, by, bobj_weight, bhvals)
 
-Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format,
-with objective function scaled by `obj_weight`, i.e.,
-$(LAGRANGIAN_HESSIAN), overwriting `vals`.
-Only the lower triangle is returned.
 This function is only available if `bbnlp.meta.hess_available` is set to `true`.
 """
 function batch_hess_coord! end
@@ -230,9 +194,6 @@ function batch_hess_coord! end
 """
     bHv = batch_hprod(bnlp, bx, by, bv, bobj_weight)
 
-Evaluate the product of the objective Hessian at `x` with the vector `v`,
-with objective function scaled by `obj_weight`, where the objective Hessian is
-$(OBJECTIVE_HESSIAN).
 This function is only available if `bbnlp.meta.hprod_available` is set to `true`.
 """
 function batch_hprod(
@@ -252,9 +213,6 @@ end
 """
     bHv = batch_hprod!(bnlp, bx, by, bv, bobj_weight, bHv)
 
-Evaluate the product of the objective Hessian at `x` with the vector `v` in
-place, with objective function scaled by `obj_weight`, where the objective Hessian is
-$(OBJECTIVE_HESSIAN).
 This function is only available if `bbnlp.meta.hprod_available` is set to `true`.
 """
 function batch_hprod! end
