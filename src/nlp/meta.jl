@@ -150,7 +150,7 @@ function NLPModelMeta{T, S}(
   nnzj = nvar * ncon,
   lin_nnzj = 0,
   nln_nnzj = nnzj - lin_nnzj,
-  nnzh = nvar * (nvar + 1) ÷ 2,
+  nnzh = sparse_hessian ? nvar * (nvar + 1) ÷ 2 : nvar * nvar,
   lin = Int[],
   minimize::Bool = true,
   islp::Bool = false,

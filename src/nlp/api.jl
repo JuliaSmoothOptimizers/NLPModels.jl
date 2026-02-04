@@ -12,6 +12,7 @@ export jth_hprod, jth_hprod!, ghjvprod, ghjvprod!
 export hess_structure!, hess_structure, hess_coord!, hess_coord
 export hess, hprod, hprod!, hess_op, hess_op!
 export varscale, lagscale, conscale
+export jac_dense!, hess_dense!
 
 """
     f = obj(nlp, x)
@@ -266,10 +267,8 @@ function jac_nln_structure! end
 """
     vals = jac_coord!(nlp, x, vals)
 
-Evaluate ``J(x)``, the constraints Jacobian at `x`, overwriting `vals`.
-It uses a sparse coordinate format when `nlp.meta.sparse_jacobian` is set to `true`.
-Otherwise, `vals` is expected to be a dense matrix.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+Evaluate ``J(x)``, the constraints Jacobian at `x` in sparse coordinate format, overwriting `vals`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVector)
   @lencheck nlp.meta.nvar x
@@ -305,6 +304,14 @@ function jac_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   vals = S(undef, nlp.meta.nnzj)
   return jac_coord!(nlp, x, vals)
 end
+
+"""
+    Jx = jac_dense!(nlp, x, Jx)
+
+Evaluate ``J(x)``, the constraints Jacobian at `x` in dense format, overwriting `Jx`.
+This function is only available when `nlp.meta.jac_available` is set to `true` and `nlp.meta.sparse_jacobian` is set to `false`.
+"""
+function jac_dense! end
 
 """
     Jx = jac(nlp, x)
@@ -1066,12 +1073,11 @@ function hess_structure! end
 """
     vals = hess_coord!(nlp, x, vals; obj_weight=1.0)
 
-Evaluate the objective Hessian at `x` with objective function scaled by
-`obj_weight`, i.e., $(OBJECTIVE_HESSIAN), overwriting `vals`.
+Evaluate the objective Hessian at `x` in sparse coordinate format,
+with objective function scaled by `obj_weight`, i.e.,
+$(OBJECTIVE_HESSIAN), overwriting `vals`.
 Only the lower triangle is returned.
-It uses a sparse coordinate format when `nlp.meta.sparse_hessian` is set to `true`.
-Otherwise, `vals` is expected to be a dense matrix.
-This function is only available if `nlp.meta.hess_available` is set to `true`.
+This function is only available when both `nlp.meta.hess_available` and `nlp.meta.sparse_hessian` are set to `true`.
 """
 function hess_coord!(
   nlp::AbstractNLPModel{T, S},
@@ -1088,12 +1094,11 @@ end
 """
     vals = hess_coord!(nlp, x, y, vals; obj_weight=1.0)
 
-Evaluate the Lagrangian Hessian at `(x,y)` with objective function scaled by
-`obj_weight`, i.e., $(LAGRANGIAN_HESSIAN), overwriting `vals`.
+Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format,
+with objective function scaled by `obj_weight`, i.e.,
+$(LAGRANGIAN_HESSIAN), overwriting `vals`.
 Only the lower triangle is returned.
-It uses a sparse coordinate format when `nlp.meta.sparse_hessian` is set to `true`.
-Otherwise, `vals` is expected to be a dense matrix.
-This function is only available if `nlp.meta.hess_available` is set to `true`.
+This function is only available when both `nlp.meta.hess_available` and `nlp.meta.sparse_hessian` are set to `true`.
 """
 function hess_coord! end
 
@@ -1156,6 +1161,17 @@ function hess(
   vals = hess_coord(nlp, x, obj_weight = obj_weight)
   Symmetric(sparse(rows, cols, vals, nlp.meta.nvar, nlp.meta.nvar), :L)
 end
+
+"""
+    Hx = hess_dense!(nlp, x, Hx; obj_weight=1.0)
+    Hx = hess_dense!(nlp, x, y, Hx; obj_weight=1.0)
+
+The first method evaluates ``H(x)``, the Hessian of the objective at `x` in dense format, overwriting `Hx`.
+The second method evaluates ``H(x,y)``, the Hessian of the Lagrangian at `(x,y)` in dense format, overwriting `Hx`.
+Only the lower triangular part of `Hx` needs to be filled.
+This function is only available when `nlp.meta.hess_available` is set to `true` and `nlp.meta.sparse_hessian` is set to `false`.
+"""
+function hess_dense! end
 
 """
     Hx = hess(nlp, x, y; obj_weight=1.0)
