@@ -329,10 +329,8 @@ end
 """
     vals = jac_lin_coord!(nlp, x, vals)
 
-Evaluate ``J(x)``, the linear constraints Jacobian at `x`, overwriting `vals`.
-It uses a sparse coordinate format when `nlp.meta.sparse_jacobian` is set to `true`.
-Otherwise, `vals` is expected to be a dense matrix.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+Evaluate ``J(x)``, the linear constraints Jacobian at `x` in sparse coordinate format, overwriting `vals`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_lin_coord! end
 
@@ -364,10 +362,8 @@ end
 """
     vals = jac_nln_coord!(nlp, x, vals)
 
-Evaluate ``J(x)``, the nonlinear constraints Jacobian at `x`, overwriting `vals`.
-It uses a sparse coordinate format when `nlp.meta.sparse_jacobian` is set to `true`.
-Otherwise, `vals` is expected to be a dense matrix.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+Evaluate ``J(x)``, the nonlinear constraints Jacobian at `x` in sparse coordinate format, overwriting `vals`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_nln_coord! end
 
