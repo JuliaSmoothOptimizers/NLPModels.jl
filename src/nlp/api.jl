@@ -974,11 +974,9 @@ end
 """
     vals = jth_hess_coord!(nlp, x, j, vals)
 
-Evaluate the Hessian of j-th constraint at `x`, overwriting `vals`.
+Evaluate the Hessian of j-th constraint at `x` in sparse coordinate format, with `vals` of length `nlp.meta.nnzh`, in place.
 Only the lower triangle is returned.
-It uses a sparse coordinate format, with `vals` of length `nlp.meta.nnzh`,
-when `nlp.meta.sparse_hessian` is set to `true`.
-Otherwise, `vals` is expected to be a dense matrix.
+This function is only available when `nlp.meta.sparse_hessian` is set to `true`.
 """
 function jth_hess_coord! end
 
