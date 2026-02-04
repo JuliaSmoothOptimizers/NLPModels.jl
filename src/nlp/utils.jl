@@ -1,6 +1,6 @@
 export coo_prod!, coo_sym_prod!
 export @default_counters
-export DimensionError, @lencheck, @lencheck_tup, @rangecheck
+export DimensionError, @lencheck, @rangecheck
 
 """
     DimensionError <: Exception
