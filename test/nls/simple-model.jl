@@ -135,12 +135,31 @@ function NLPModels.hprod_residual!(
   return Hiv
 end
 
+function NLPModels.cons!(nls::SimpleNLSModel, x::AbstractVector, cx::AbstractVector)
+  @lencheck 2 x
+  @lencheck 3 cx
+  increment!(nls, :neval_cons)
+  cx .= [x[1] + x[2]^2; x[1]^2 + x[2]; x[1]^2 + x[2]^2 - 1]
+  return cx
+end
+
 function NLPModels.cons_nln!(nls::SimpleNLSModel, x::AbstractVector, cx::AbstractVector)
   @lencheck 2 x
   @lencheck 3 cx
   increment!(nls, :neval_cons_nln)
   cx .= [x[1] + x[2]^2; x[1]^2 + x[2]; x[1]^2 + x[2]^2 - 1]
   return cx
+end
+
+function NLPModels.jac_structure!(
+  nls::SimpleNLSModel,
+  rows::AbstractVector{<:Integer},
+  cols::AbstractVector{<:Integer},
+)
+  @lencheck 6 rows cols
+  rows .= [1, 1, 2, 2, 3, 3]
+  cols .= [1, 2, 1, 2, 1, 2]
+  return rows, cols
 end
 
 function NLPModels.jac_nln_structure!(
@@ -154,12 +173,33 @@ function NLPModels.jac_nln_structure!(
   return rows, cols
 end
 
+function NLPModels.jac_coord!(nls::SimpleNLSModel, x::AbstractVector, vals::AbstractVector)
+  @lencheck 2 x
+  @lencheck 6 vals
+  increment!(nls, :neval_jac)
+  vals .= [1, 2x[2], 2x[1], 1, 2x[1], 2x[2]]
+  return vals
+end
+
 function NLPModels.jac_nln_coord!(nls::SimpleNLSModel, x::AbstractVector, vals::AbstractVector)
   @lencheck 2 x
   @lencheck 6 vals
   increment!(nls, :neval_jac_nln)
   vals .= [1, 2x[2], 2x[1], 1, 2x[1], 2x[2]]
   return vals
+end
+
+function NLPModels.jprod!(
+  nls::SimpleNLSModel,
+  x::AbstractVector,
+  v::AbstractVector,
+  Jv::AbstractVector,
+)
+  @lencheck 2 x v
+  @lencheck 3 Jv
+  increment!(nls, :neval_jprod)
+  Jv .= [v[1] + 2x[2] * v[2]; 2x[1] * v[1] + v[2]; 2x[1] * v[1] + 2x[2] * v[2]]
+  return Jv
 end
 
 function NLPModels.jprod_nln!(
@@ -173,6 +213,19 @@ function NLPModels.jprod_nln!(
   increment!(nls, :neval_jprod_nln)
   Jv .= [v[1] + 2x[2] * v[2]; 2x[1] * v[1] + v[2]; 2x[1] * v[1] + 2x[2] * v[2]]
   return Jv
+end
+
+function NLPModels.jtprod!(
+  nls::SimpleNLSModel,
+  x::AbstractVector,
+  v::AbstractVector,
+  Jtv::AbstractVector,
+)
+  @lencheck 2 x Jtv
+  @lencheck 3 v
+  increment!(nls, :neval_jtprod)
+  Jtv .= [v[1] + 2x[1] * (v[2] + v[3]); v[2] + 2x[2] * (v[1] + v[3])]
+  return Jtv
 end
 
 function NLPModels.jtprod_nln!(

@@ -57,26 +57,7 @@ end
 
 Evaluate ``c(x)``, the constraints at `x` in place.
 """
-function cons!(nlp::AbstractNLPModel, x::AbstractVector, cx::AbstractVector)
-  @lencheck nlp.meta.nvar x
-  @lencheck nlp.meta.ncon cx
-  increment!(nlp, :neval_cons)
-  if nlp.meta.nlin > 0
-    if nlp.meta.nnln == 0
-      cons_lin!(nlp, x, cx)
-    else
-      cons_lin!(nlp, x, view(cx, nlp.meta.lin))
-    end
-  end
-  if nlp.meta.nnln > 0
-    if nlp.meta.nlin == 0
-      cons_nln!(nlp, x, cx)
-    else
-      cons_nln!(nlp, x, view(cx, nlp.meta.nln))
-    end
-  end
-  return cx
-end
+function cons! end
 
 """
     c = cons_lin(nlp, x)
@@ -193,36 +174,7 @@ end
 Return the structure of the constraints Jacobian in sparse coordinate format in place.
 This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
-function jac_structure!(
-  nlp::AbstractNLPModel,
-  rows::AbstractVector{T},
-  cols::AbstractVector{T},
-) where {T}
-  @lencheck nlp.meta.nnzj rows cols
-  lin_ind = 1:(nlp.meta.lin_nnzj)
-  if nlp.meta.nlin > 0
-    if nlp.meta.nnln == 0
-      jac_lin_structure!(nlp, rows, cols)
-    else
-      jac_lin_structure!(nlp, view(rows, lin_ind), view(cols, lin_ind))
-      for i in lin_ind
-        rows[i] += count(x < nlp.meta.lin[rows[i]] for x in nlp.meta.nln)
-      end
-    end
-  end
-  if nlp.meta.nnln > 0
-    if nlp.meta.nlin == 0
-      jac_nln_structure!(nlp, rows, cols)
-    else
-      nln_ind = (nlp.meta.lin_nnzj + 1):(nlp.meta.lin_nnzj + nlp.meta.nln_nnzj)
-      jac_nln_structure!(nlp, view(rows, nln_ind), view(cols, nln_ind))
-      for i in nln_ind
-        rows[i] += count(x < nlp.meta.nln[rows[i]] for x in nlp.meta.lin)
-      end
-    end
-  end
-  return rows, cols
-end
+function jac_structure! end
 
 """
     (rows,cols) = jac_lin_structure(nlp)
@@ -270,29 +222,7 @@ function jac_nln_structure! end
 Evaluate ``J(x)``, the constraints Jacobian at `x` in sparse coordinate format, overwriting `vals`.
 This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
-function jac_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVector)
-  @lencheck nlp.meta.nvar x
-  @lencheck nlp.meta.nnzj vals
-  increment!(nlp, :neval_jac)
-  if nlp.meta.nlin > 0
-    if nlp.meta.nnln == 0
-      jac_lin_coord!(nlp, x, vals)
-    else
-      lin_ind = 1:(nlp.meta.lin_nnzj)
-      jac_lin_coord!(nlp, x, view(vals, lin_ind))
-    end
-  end
-  if nlp.meta.nnln > 0
-    if nlp.meta.nlin == 0
-      jac_nln_coord!(nlp, x, vals)
-    else
-      nln_ind = (nlp.meta.lin_nnzj + 1):(nlp.meta.lin_nnzj + nlp.meta.nln_nnzj)
-      jac_nln_coord!(nlp, x, view(vals, nln_ind))
-    end
-  end
-  return vals
-end
-
+function jac_coord! end
 """
     vals = jac_coord(nlp, x)
 
@@ -410,26 +340,7 @@ end
 Evaluate ``J(x)v``, the Jacobian-vector product at `x` in place.
 This function is only available if `nlp.meta.jprod_available` is set to `true`.
 """
-function jprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv::AbstractVector)
-  @lencheck nlp.meta.nvar x v
-  @lencheck nlp.meta.ncon Jv
-  increment!(nlp, :neval_jprod)
-  if nlp.meta.nlin > 0
-    if nlp.meta.nnln == 0
-      jprod_lin!(nlp, x, v, Jv)
-    else
-      jprod_lin!(nlp, x, v, view(Jv, nlp.meta.lin))
-    end
-  end
-  if nlp.meta.nnln > 0
-    if nlp.meta.nlin == 0
-      jprod_nln!(nlp, x, v, Jv)
-    else
-      jprod_nln!(nlp, x, v, view(Jv, nlp.meta.nln))
-    end
-  end
-  return Jv
-end
+function jprod! end
 
 """
     Jv = jprod!(nlp, rows, cols, vals, v, Jv)
@@ -554,27 +465,7 @@ Evaluate ``J(x)^Tv``, the transposed-Jacobian-vector product at `x` in place.
 If the problem has linear and nonlinear constraints, this function allocates.
 This function is only available if `nlp.meta.jtprod_available` is set to `true`.
 """
-function jtprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jtv::AbstractVector)
-  @lencheck nlp.meta.nvar x Jtv
-  @lencheck nlp.meta.ncon v
-  increment!(nlp, :neval_jtprod)
-  if nlp.meta.nnln == 0
-    (nlp.meta.nlin > 0) && jtprod_lin!(nlp, x, v, Jtv)
-  elseif nlp.meta.nlin == 0
-    (nlp.meta.nnln > 0) && jtprod_nln!(nlp, x, v, Jtv)
-  elseif nlp.meta.nlin >= nlp.meta.nnln
-    jtprod_lin!(nlp, x, view(v, nlp.meta.lin), Jtv)
-    if nlp.meta.nnln > 0
-      Jtv .+= jtprod_nln(nlp, x, view(v, nlp.meta.nln))
-    end
-  else
-    jtprod_nln!(nlp, x, view(v, nlp.meta.nln), Jtv)
-    if nlp.meta.nlin > 0
-      Jtv .+= jtprod_lin(nlp, x, view(v, nlp.meta.lin))
-    end
-  end
-  return Jtv
-end
+function jtprod! end
 
 """
     Jtv = jtprod!(nlp, rows, cols, vals, v, Jtv)
