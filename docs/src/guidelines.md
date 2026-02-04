@@ -87,6 +87,7 @@ Alternatively, one could implement only the functions without the suffixes `_nln
 
 If the Jacobian or the Hessian of the Lagrangian is dense, there is no need to implement the corresponding `*_structure!` and `*_coord!` methods.
 Only the corresponding `*_dense!` methods need to be implemented.
+Note that only the in-place API is provided for dense Jacobians and Hessians.
 This is specified at the initialization of [`NLPModelMeta`](@ref) through the keyword arguments `sparse_jacobian` and `sparse_hessian`.
 
 ## [Availability of the API](@id availability-api)
