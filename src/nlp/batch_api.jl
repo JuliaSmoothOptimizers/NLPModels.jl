@@ -44,7 +44,7 @@ This function is only available if `bnlp.meta.grad_available` is set to `true`.
 function batch_grad(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractVector) where {T, S}
   @lencheck (bnlp.meta.nvar * bnlp.meta.nbatch) bx
   bg = S(undef, bnlp.meta.nvar * bnlp.meta.nbatch)
-  batch_grad!(nlp, bx, bg)
+  batch_grad!(bnlp, bx, bg)
   return bg
 end
 
@@ -172,7 +172,7 @@ function batch_hess_structure! end
 This function is only available if `bnlp.meta.hess_available` is set to `true`.
 """
 function batch_hess_coord(
-  bnlp::AbstractNLPModel{T, S},
+  bnlp::AbstractBatchNLPModel{T, S},
   bx::AbstractVector,
   by::AbstractVector,
   bobj_weight::AbstractVector,
@@ -180,7 +180,7 @@ function batch_hess_coord(
   @lencheck (bnlp.meta.nvar * bnlp.meta.nbatch) bx
   @lencheck (bnlp.meta.ncon * bnlp.meta.nbatch) by
   @lencheck bnlp.meta.nbatch bobj_weight
-  vals = S(undef, nlp.meta.nnzh * bnlp.meta.nbatch)
+  bhvals = S(undef, bnlp.meta.nnzh * bnlp.meta.nbatch)
   return batch_hess_coord!(bnlp, bx, by, bobj_weight, bhvals)
 end
 
