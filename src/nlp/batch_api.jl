@@ -3,10 +3,10 @@ export AbstractBatchNLPModel
 export batch_obj, batch_obj!
 export batch_grad, batch_grad!
 export batch_cons, batch_cons!
-export batch_jac_structure!, batch_jac_structure
-export batch_hess_structure!, batch_hess_structure
-export batch_jac_coord!, batch_jac_coord
-export batch_hess_coord!, batch_hess_coord
+export batch_jac_structure, batch_jac_structure!
+export batch_hess_structure, batch_hess_structure!
+export batch_jac_coord, batch_jac_coord!
+export batch_hess_coord, batch_hess_coord!
 export batch_jprod, batch_jprod!
 export batch_jtprod, batch_jtprod!
 export batch_hprod, batch_hprod!
@@ -51,7 +51,7 @@ end
 """
     bg = batch_grad!(bnlp, bx, bg)
 
-This function is only available if `bbnlp.meta.grad_available` is set to `true`.
+This function is only available if `bnlp.meta.grad_available` is set to `true`.
 """
 function batch_grad! end
 
@@ -73,7 +73,7 @@ function batch_cons! end
 """
     (jrows, jcols) = batch_jac_structure(bnlp)
 
-This function is only available if `bbnlp.meta.jac_available` is set to `true`.
+This function is only available if `bnlp.meta.jac_available` is set to `true`.
 """
 function batch_jac_structure(bnlp::AbstractBatchNLPModel{T, S, VI}) where {T, S, VI}
   jrows = VI(undef, bnlp.meta.nnzj)
@@ -85,14 +85,14 @@ end
 """
     (jrows, jcols) = batch_jac_structure!(bnlp, jrows, jcols)
 
-This function is only available if `bbnlp.meta.jac_available` is set to `true`.
+This function is only available if `bnlp.meta.jac_available` is set to `true`.
 """
 function batch_jac_structure! end 
 
 """
     bjvals = batch_jac_coord(bnlp, bx)
 
-This function is only available if `bbnlp.meta.jac_available` is set to `true`.
+This function is only available if `bnlp.meta.jac_available` is set to `true`.
 """
 function batch_jac_coord(bnlp::AbstractBatchNLPModel, bx::AbstractVector, bjvals::AbstractVector)
   @lencheck (bnlp.meta.nvar * bnlp.meta.nbatch) bx
@@ -104,14 +104,14 @@ end
 """
     bjvals = batch_jac_coord!(bnlp, bx, bjvals)
 
-This function is only available if `bbnlp.meta.jac_available` is set to `true`.
+This function is only available if `bnlp.meta.jac_available` is set to `true`.
 """
 function batch_jac_coord! end
 
 """
     bJv = batch_jprod(bnlp, bx, bv)
 
-This function is only available if `bbnlp.meta.jprod_available` is set to `true`.
+This function is only available if `bnlp.meta.jprod_available` is set to `true`.
 """
 function batch_jprod(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractVector, bv::AbstractVector) where {T, S}
   @lencheck (bnlp.meta.nvar * bnlp.meta.nbatch) bx bv
@@ -123,14 +123,14 @@ end
 """
     bJv = batch_jprod!(bnlp, bx, bv, bJv)
 
-This function is only available if `bbnlp.meta.jprod_available` is set to `true`.
+This function is only available if `bnlp.meta.jprod_available` is set to `true`.
 """
 function batch_jprod! end
 
 """
     bJtv = batch_jtprod(bnlp, bx, bv)
 
-This function is only available if `bbnlp.meta.jtprod_available` is set to `true`.
+This function is only available if `bnlp.meta.jtprod_available` is set to `true`.
 """
 function batch_jtprod(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractVector, bv::AbstractVector) where {T, S}
   @lencheck (bnlp.meta.nvar * bnlp.meta.nbatch) bx
@@ -141,16 +141,16 @@ function batch_jtprod(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractVector, bv:
 end
 
 """
-    bJtv = batch_jtprod!(bnlp, bx, bv, Jtv)
+    bJtv = batch_jtprod!(bnlp, bx, bv, bJtv)
 
-This function is only available if `bbnlp.meta.jtprod_available` is set to `true`.
+This function is only available if `bnlp.meta.jtprod_available` is set to `true`.
 """
 function batch_jtprod! end
 
 """
     (hrows, hcols) = batch_hess_structure(bnlp)
 
-This function is only available if `bbnlp.meta.hess_available` is set to `true`.
+This function is only available if `bnlp.meta.hess_available` is set to `true`.
 """
 function batch_hess_structure(bnlp::AbstractBatchNLPModel{T,S,VI}) where {T, S, VI}
   hrows = VI(undef, bnlp.meta.nnzh)
@@ -162,14 +162,14 @@ end
 """
     (hrows, hcols) = batch_hess_structure!(bnlp, hrows, hcols)
 
-This function is only available if `bbnlp.meta.hess_available` is set to `true`.
+This function is only available if `bnlp.meta.hess_available` is set to `true`.
 """
 function batch_hess_structure! end
 
 """
     bhvals = batch_hess_coord(bnlp, bx, by, bobj_weight)
 
-This function is only available if `nlp.meta.hess_available` is set to `true`.
+This function is only available if `bnlp.meta.hess_available` is set to `true`.
 """
 function batch_hess_coord(
   bnlp::AbstractNLPModel{T, S},
@@ -187,14 +187,14 @@ end
 """
     bhvals = batch_hess_coord!(bnlp, bx, by, bobj_weight, bhvals)
 
-This function is only available if `bbnlp.meta.hess_available` is set to `true`.
+This function is only available if `bnlp.meta.hess_available` is set to `true`.
 """
 function batch_hess_coord! end
 
 """
     bHv = batch_hprod(bnlp, bx, by, bv, bobj_weight)
 
-This function is only available if `bbnlp.meta.hprod_available` is set to `true`.
+This function is only available if `bnlp.meta.hprod_available` is set to `true`.
 """
 function batch_hprod(
   bnlp::AbstractBatchNLPModel{T, S},
@@ -213,6 +213,6 @@ end
 """
     bHv = batch_hprod!(bnlp, bx, by, bv, bobj_weight, bHv)
 
-This function is only available if `bbnlp.meta.hprod_available` is set to `true`.
+This function is only available if `bnlp.meta.hprod_available` is set to `true`.
 """
 function batch_hprod! end
