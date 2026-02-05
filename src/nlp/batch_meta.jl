@@ -5,7 +5,7 @@ export AbstractBatchNLPModelMeta, BatchNLPModelMeta
 
 Abstract base type for metadata related to batched nonlinear optimization models.
 """
-abstract type AbstractBatchNLPModelMeta{T, S, VI} end
+abstract type AbstractBatchNLPModelMeta{T, S} end
 
 """
     BatchNLPModelMeta <: AbstractBatchNLPModelMeta
@@ -70,31 +70,31 @@ The following keyword arguments are accepted:
 - `jfree`: indices of "free" constraints (there shouldn't be any)
 - `jinf`: indices of the visibly infeasible constraints
 """
-struct BatchNLPModelMeta{T, S, VI} <: AbstractBatchNLPModelMeta{T, S, VI}
+struct BatchNLPModelMeta{T, S} <: AbstractBatchNLPModelMeta{T, S}
   nbatch::Int
   nvar::Int
   x0::S
   lvar::S
   uvar::S
 
-  ifix::VI
-  ilow::VI
-  iupp::VI
-  irng::VI
-  ifree::VI
-  iinf::VI
+  ifix::Vector{Int}
+  ilow::Vector{Int}
+  iupp::Vector{Int}
+  irng::Vector{Int}
+  ifree::Vector{Int}
+  iinf::Vector{Int}
 
   ncon::Int
   y0::S
   lcon::S
   ucon::S
 
-  jfix::VI
-  jlow::VI
-  jupp::VI
-  jrng::VI
-  jfree::VI
-  jinf::VI
+  jfix::Vector{Int}
+  jlow::Vector{Int}
+  jupp::Vector{Int}
+  jrng::Vector{Int}
+  jfree::Vector{Int}
+  jinf::Vector{Int}
 
   nnzj::Int
   nnzh::Int
@@ -111,7 +111,7 @@ struct BatchNLPModelMeta{T, S, VI} <: AbstractBatchNLPModelMeta{T, S, VI}
   hprod_available::Bool
 end
 
-function BatchNLPModelMeta{T, S, VI}(
+function BatchNLPModelMeta{T, S}(
   nbatch::Int,
   nvar::Int;
   x0::S = fill!(S(undef, nvar * nbatch), zero(T)),
@@ -132,35 +132,35 @@ function BatchNLPModelMeta{T, S, VI}(
   jprod_available::Bool = (ncon > 0),
   jtprod_available::Bool = (ncon > 0),
   hprod_available::Bool = true,
-) where {T, S, VI}
+) where {T, S}
   if (nvar < 1) || (ncon < 0) || (nnzj < 0) || (nnzh < 0)
     error("Nonsensical dimensions")
   end
 
-  ifix = convert(VI, findall(lvar .== uvar))
-  ilow = convert(VI, findall((lvar .> T(-Inf)) .& (uvar .== T(Inf))))
-  iupp = convert(VI, findall((lvar .== T(-Inf)) .& (uvar .< T(Inf))))
-  irng = convert(VI, findall((lvar .> T(-Inf)) .& (uvar .< T(Inf)) .& (lvar .< uvar)))
-  ifree = convert(VI, findall((lvar .== T(-Inf)) .& (uvar .== T(Inf))))
-  iinf = convert(VI, findall(lvar .> uvar))
+  ifix = findall(lvar .== uvar)
+  ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf)))
+  iupp = findall((lvar .== T(-Inf)) .& (uvar .< T(Inf)))
+  irng = findall((lvar .> T(-Inf)) .& (uvar .< T(Inf)) .& (lvar .< uvar))
+  ifree = findall((lvar .== T(-Inf)) .& (uvar .== T(Inf)))
+  iinf = findall(lvar .> uvar)
 
   if ncon > 0
-    jfix = convert(VI, findall(lcon .== ucon))
-    jlow = convert(VI, findall((lcon .> T(-Inf)) .& (ucon .== T(Inf))))
-    jupp = convert(VI, findall((lcon .== T(-Inf)) .& (ucon .< T(Inf))))
-    jrng = convert(VI, findall((lcon .> T(-Inf)) .& (ucon .< T(Inf)) .& (lcon .< ucon)))
-    jfree = convert(VI, findall((lcon .== T(-Inf)) .& (ucon .== T(Inf))))
-    jinf = convert(VI, findall(lcon .> ucon))
+    jfix = findall(lcon .== ucon)
+    jlow = findall((lcon .> T(-Inf)) .& (ucon .== T(Inf)))
+    jupp = findall((lcon .== T(-Inf)) .& (ucon .< T(Inf)))
+    jrng = findall((lcon .> T(-Inf)) .& (ucon .< T(Inf)) .& (lcon .< ucon))
+    jfree = findall((lcon .== T(-Inf)) .& (ucon .== T(Inf)))
+    jinf = findall(lcon .> ucon)
   else
-    jfix = VI(undef, 0)
-    jlow = VI(undef, 0)
-    jupp = VI(undef, 0)
-    jrng = VI(undef, 0)
-    jfree = VI(undef, 0)
-    jinf = VI(undef, 0)
+    jfix = Int[]
+    jlow = Int[]
+    jupp = Int[]
+    jrng = Int[]
+    jfree = Int[]
+    jinf = Int[]
   end
 
-  BatchNLPModelMeta{T, S, VI}(
+  BatchNLPModelMeta{T, S}(
     nbatch,
     nvar,
     x0,

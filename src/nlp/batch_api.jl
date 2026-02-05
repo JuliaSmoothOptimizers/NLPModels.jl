@@ -19,7 +19,7 @@ Abstract base type for batched nonlinear optimization models.
 Each model in the batch has the same number of variables and constraints,
 and the sparsity patterns of the Jacobian and the Hessian of the Lagrangian are identical across the batch.
 """
-abstract type AbstractBatchNLPModel{T,S,VI} end
+abstract type AbstractBatchNLPModel{T, S} end
 
 """
     bf = batch_obj(bnlp, bx)
@@ -75,9 +75,9 @@ function batch_cons! end
 
 This function is only available if `bnlp.meta.jac_available` is set to `true`.
 """
-function batch_jac_structure(bnlp::AbstractBatchNLPModel{T, S, VI}) where {T, S, VI}
-  jrows = VI(undef, bnlp.meta.nnzj)
-  jcols = VI(undef, bnlp.meta.nnzj)
+function batch_jac_structure(bnlp::AbstractBatchNLPModel{T, S}) where {T, S}
+  jrows = Vector{Int}(undef, bnlp.meta.nnzj)
+  jcols = Vector{Int}(undef, bnlp.meta.nnzj)
   batch_jac_structure!(bnlp, jrows, jcols)
   return (jrows, jcols)
 end
@@ -152,9 +152,9 @@ function batch_jtprod! end
 
 This function is only available if `bnlp.meta.hess_available` is set to `true`.
 """
-function batch_hess_structure(bnlp::AbstractBatchNLPModel{T,S,VI}) where {T, S, VI}
-  hrows = VI(undef, bnlp.meta.nnzh)
-  hcols = VI(undef, bnlp.meta.nnzh)
+function batch_hess_structure(bnlp::AbstractBatchNLPModel{T,S}) where {T, S}
+  hrows = Vector{Int}(undef, bnlp.meta.nnzh)
+  hcols = Vector{Int}(undef, bnlp.meta.nnzh)
   batch_hess_structure!(bnlp, hrows, hcols)
   return hrows, hcols
 end
