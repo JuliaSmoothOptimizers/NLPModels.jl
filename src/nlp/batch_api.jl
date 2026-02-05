@@ -94,10 +94,10 @@ function batch_jac_structure! end
 
 This function is only available if `bnlp.meta.jac_available` is set to `true`.
 """
-function batch_jac_coord(bnlp::AbstractBatchNLPModel, bx::AbstractVector, bjvals::AbstractVector)
+function batch_jac_coord(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractVector) where {T, S}
   @lencheck (bnlp.meta.nvar * bnlp.meta.nbatch) bx
-  @lencheck (bnlp.meta.nnzj * bnlp.meta.nbatch) bjvals
-  batch_jac_coord!(bnlp, bx, bjbvals)
+  bjvals = S(undef, bnlp.meta.nnzj * bnlp.meta.nbatch)
+  batch_jac_coord!(bnlp, bx, bjvals)
   return bjvals
 end
 
@@ -204,9 +204,10 @@ function batch_hprod(
   bobj_weight::AbstractVector,
 ) where {T, S}
   @lencheck (bnlp.meta.nvar * bnlp.meta.nbatch) bx bv
+  @lencheck (bnlp.meta.ncon * bnlp.meta.nbatch) by
   @lencheck bnlp.meta.nbatch bobj_weight
   bHv = S(undef, bnlp.meta.nvar * bnlp.meta.nbatch)
-  batch_hprod!(bnlp, bx, bv, bHv, bobj_weight)
+  batch_hprod!(bnlp, bx, by, bv, bobj_weight, bHv)
   return bHv
 end
 
