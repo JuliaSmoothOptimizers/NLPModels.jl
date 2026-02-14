@@ -12,6 +12,7 @@ export jth_hprod, jth_hprod!, ghjvprod, ghjvprod!
 export hess_structure!, hess_structure, hess_coord!, hess_coord
 export hess, hprod, hprod!, hess_op, hess_op!
 export varscale, lagscale, conscale
+export jac_dense!, hess_dense!
 
 """
     f = obj(nlp, x)
@@ -178,7 +179,7 @@ end
     (rows,cols) = jac_structure(nlp)
 
 Return the structure of the constraints Jacobian in sparse coordinate format.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_structure(nlp::AbstractNLPModel)
   rows = Vector{Int}(undef, nlp.meta.nnzj)
@@ -190,7 +191,7 @@ end
     jac_structure!(nlp, rows, cols)
 
 Return the structure of the constraints Jacobian in sparse coordinate format in place.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_structure!(
   nlp::AbstractNLPModel,
@@ -227,7 +228,7 @@ end
     (rows,cols) = jac_lin_structure(nlp)
 
 Return the structure of the linear constraints Jacobian in sparse coordinate format.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_lin_structure(nlp::AbstractNLPModel)
   rows = Vector{Int}(undef, nlp.meta.lin_nnzj)
@@ -239,7 +240,7 @@ end
     jac_lin_structure!(nlp, rows, cols)
 
 Return the structure of the linear constraints Jacobian in sparse coordinate format in place.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_lin_structure! end
 
@@ -247,7 +248,7 @@ function jac_lin_structure! end
     (rows,cols) = jac_nln_structure(nlp)
 
 Return the structure of the nonlinear constraints Jacobian in sparse coordinate format.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_nln_structure(nlp::AbstractNLPModel)
   rows = Vector{Int}(undef, nlp.meta.nln_nnzj)
@@ -259,15 +260,15 @@ end
     jac_nln_structure!(nlp, rows, cols)
 
 Return the structure of the nonlinear constraints Jacobian in sparse coordinate format in place.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_nln_structure! end
 
 """
     vals = jac_coord!(nlp, x, vals)
 
-Evaluate ``J(x)``, the constraints Jacobian at `x` in sparse coordinate format, rewriting `vals`.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+Evaluate ``J(x)``, the constraints Jacobian at `x` in sparse coordinate format, overwriting `vals`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVector)
   @lencheck nlp.meta.nvar x
@@ -296,7 +297,7 @@ end
     vals = jac_coord(nlp, x)
 
 Evaluate ``J(x)``, the constraints Jacobian at `x` in sparse coordinate format.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -305,10 +306,18 @@ function jac_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
 end
 
 """
+    Jx = jac_dense!(nlp, x, Jx)
+
+Evaluate ``J(x)``, the constraints Jacobian at `x` in dense format, overwriting `Jx`.
+This function is only available when `nlp.meta.jac_available` is set to `true` and `nlp.meta.sparse_jacobian` is set to `false`.
+"""
+function jac_dense! end
+
+"""
     Jx = jac(nlp, x)
 
 Evaluate ``J(x)``, the constraints Jacobian at `x` as a sparse matrix.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac(nlp::AbstractNLPModel, x::AbstractVector)
   @lencheck nlp.meta.nvar x
@@ -321,7 +330,7 @@ end
     vals = jac_lin_coord!(nlp, x, vals)
 
 Evaluate ``J(x)``, the linear constraints Jacobian at `x` in sparse coordinate format, overwriting `vals`.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_lin_coord! end
 
@@ -329,7 +338,7 @@ function jac_lin_coord! end
     vals = jac_lin_coord(nlp, x)
 
 Evaluate ``J(x)``, the linear constraints Jacobian at `x` in sparse coordinate format.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_lin_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -341,7 +350,7 @@ end
     Jx = jac_lin(nlp, x)
 
 Evaluate ``J(x)``, the linear constraints Jacobian at `x` as a sparse matrix.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_lin(nlp::AbstractNLPModel, x::AbstractVector)
   @lencheck nlp.meta.nvar x
@@ -354,7 +363,7 @@ end
     vals = jac_nln_coord!(nlp, x, vals)
 
 Evaluate ``J(x)``, the nonlinear constraints Jacobian at `x` in sparse coordinate format, overwriting `vals`.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_nln_coord! end
 
@@ -362,7 +371,7 @@ function jac_nln_coord! end
     vals = jac_nln_coord(nlp, x)
 
 Evaluate ``J(x)``, the nonlinear constraints Jacobian at `x` in sparse coordinate format.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_nln_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -374,7 +383,7 @@ end
     Jx = jac_nln(nlp, x)
 
 Evaluate ``J(x)``, the nonlinear constraints Jacobian at `x` as a sparse matrix.
-This function is only available if `nlp.meta.jac_available` is set to `true`.
+This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_nln(nlp::AbstractNLPModel, x::AbstractVector)
   @lencheck nlp.meta.nvar x
@@ -953,6 +962,7 @@ end
 
 Evaluate the Hessian of j-th constraint at `x` in sparse coordinate format.
 Only the lower triangle is returned.
+This function is only available when `nlp.meta.sparse_hessian` is set to `true`.
 """
 function jth_hess_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector, j::Integer) where {T, S}
   @lencheck nlp.meta.nvar x
@@ -964,8 +974,9 @@ end
 """
     vals = jth_hess_coord!(nlp, x, j, vals)
 
-Evaluate the Hessian of j-th constraint at `x` in sparse coordinate format, with `vals` of
-length `nlp.meta.nnzh`, in place. Only the lower triangle is returned.
+Evaluate the Hessian of j-th constraint at `x` in sparse coordinate format, with `vals` of length `nlp.meta.nnzh`, in place.
+Only the lower triangle is returned.
+This function is only available when `nlp.meta.sparse_hessian` is set to `true`.
 """
 function jth_hess_coord! end
 
@@ -975,6 +986,7 @@ function jth_hess_coord! end
 Evaluate the Hessian of j-th constraint at `x` as a sparse matrix with
 the same sparsity pattern as the Lagrangian Hessian.
 A `Symmetric` object wrapping the lower triangle is returned.
+This function is only available when `nlp.meta.sparse_hessian` is set to `true`.
 """
 function jth_hess(nlp::AbstractNLPModel, x::AbstractVector, j::Integer)
   @lencheck nlp.meta.nvar x
@@ -1036,7 +1048,7 @@ function ghjvprod! end
     (rows,cols) = hess_structure(nlp)
 
 Return the structure of the Lagrangian Hessian in sparse coordinate format.
-This function is only available if `nlp.meta.hess_available` is set to `true`.
+This function is only available when both `nlp.meta.hess_available` and `nlp.meta.sparse_hessian` are set to `true`.
 """
 function hess_structure(nlp::AbstractNLPModel)
   rows = Vector{Int}(undef, nlp.meta.nnzh)
@@ -1048,7 +1060,7 @@ end
     hess_structure!(nlp, rows, cols)
 
 Return the structure of the Lagrangian Hessian in sparse coordinate format in place.
-This function is only available if `nlp.meta.hess_available` is set to `true`.
+This function is only available when both `nlp.meta.hess_available` and `nlp.meta.sparse_hessian` are set to `true`.
 """
 function hess_structure! end
 
@@ -1059,7 +1071,7 @@ Evaluate the objective Hessian at `x` in sparse coordinate format,
 with objective function scaled by `obj_weight`, i.e.,
 $(OBJECTIVE_HESSIAN), overwriting `vals`.
 Only the lower triangle is returned.
-This function is only available if `nlp.meta.hess_available` is set to `true`.
+This function is only available when both `nlp.meta.hess_available` and `nlp.meta.sparse_hessian` are set to `true`.
 """
 function hess_coord!(
   nlp::AbstractNLPModel{T, S},
@@ -1080,7 +1092,7 @@ Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format,
 with objective function scaled by `obj_weight`, i.e.,
 $(LAGRANGIAN_HESSIAN), overwriting `vals`.
 Only the lower triangle is returned.
-This function is only available if `nlp.meta.hess_available` is set to `true`.
+This function is only available when both `nlp.meta.hess_available` and `nlp.meta.sparse_hessian` are set to `true`.
 """
 function hess_coord! end
 
@@ -1091,7 +1103,7 @@ Evaluate the objective Hessian at `x` in sparse coordinate format,
 with objective function scaled by `obj_weight`, i.e.,
 $(OBJECTIVE_HESSIAN).
 Only the lower triangle is returned.
-This function is only available if `nlp.meta.hess_available` is set to `true`.
+This function is only available when both `nlp.meta.hess_available` and `nlp.meta.sparse_hessian` are set to `true`.
 """
 function hess_coord(
   nlp::AbstractNLPModel{T, S},
@@ -1110,7 +1122,7 @@ Evaluate the Lagrangian Hessian at `(x,y)` in sparse coordinate format,
 with objective function scaled by `obj_weight`, i.e.,
 $(LAGRANGIAN_HESSIAN).
 Only the lower triangle is returned.
-This function is only available if `nlp.meta.hess_available` is set to `true`.
+This function is only available when both `nlp.meta.hess_available` and `nlp.meta.sparse_hessian` are set to `true`.
 """
 function hess_coord(
   nlp::AbstractNLPModel{T, S},
@@ -1131,7 +1143,7 @@ Evaluate the objective Hessian at `x` as a sparse matrix,
 with objective function scaled by `obj_weight`, i.e.,
 $(OBJECTIVE_HESSIAN).
 A `Symmetric` object wrapping the lower triangle is returned.
-This function is only available if `nlp.meta.hess_available` is set to `true`.
+This function is only available when both `nlp.meta.hess_available` and `nlp.meta.sparse_hessian` are set to `true`.
 """
 function hess(
   nlp::AbstractNLPModel{T, S},
@@ -1145,13 +1157,24 @@ function hess(
 end
 
 """
+    Hx = hess_dense!(nlp, x, Hx; obj_weight=1.0)
+    Hx = hess_dense!(nlp, x, y, Hx; obj_weight=1.0)
+
+The first method evaluates ``H(x)``, the Hessian of the objective at `x` in dense format, overwriting `Hx`.
+The second method evaluates ``H(x,y)``, the Hessian of the Lagrangian at `(x,y)` in dense format, overwriting `Hx`.
+Only the lower triangular part of `Hx` needs to be filled.
+This function is only available when `nlp.meta.hess_available` is set to `true` and `nlp.meta.sparse_hessian` is set to `false`.
+"""
+function hess_dense! end
+
+"""
     Hx = hess(nlp, x, y; obj_weight=1.0)
 
 Evaluate the Lagrangian Hessian at `(x,y)` as a sparse matrix,
 with objective function scaled by `obj_weight`, i.e.,
 $(LAGRANGIAN_HESSIAN).
 A `Symmetric` object wrapping the lower triangle is returned.
-This function is only available if `nlp.meta.hess_available` is set to `true`.
+This function is only available when both `nlp.meta.hess_available` and `nlp.meta.sparse_hessian` are set to `true`.
 """
 function hess(
   nlp::AbstractNLPModel{T, S},

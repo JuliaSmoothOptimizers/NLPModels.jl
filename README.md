@@ -70,7 +70,7 @@ If Jacobian-vector products can be computed more efficiently than by evaluating 
 
 The following method is defined if second-order derivatives are available:
 
-* `hess(model, x, y)`: evaluate *∇²L(x,y)*, the Hessian of the Lagrangian at `x` and `y`
+* `hess(model, x, y)`: evaluate *∇²L(x,y)*, the Hessian of the Lagrangian at `x` and `y` as a sparse matrix
 
 If Hessian-vector products can be computed more efficiently than by evaluating the Hessian explicitly, the following method may be implemented:
 
@@ -111,16 +111,18 @@ Attribute          | Type          | Notes
 `jfree`            | `Vector{Int}` | indices of "free" constraints (there shouldn't be any)
 `jinf`             | `Vector{Int}` | indices of the visibly infeasible constraints
 `nnzo`             | `Int`         | number of nonzeros in the gradient
-`nnzj`             | `Int`         | number of nonzeros in the sparse Jacobian
-`lin_nnzj`         | `Int`         | number of nonzeros in the sparse linear constraints Jacobian
-`nln_nnzj`         | `Int`         | number of nonzeros in the sparse nonlinear constraints Jacobian
-`nnzh`             | `Int`         | number of nonzeros in the lower triangular part of the sparse Hessian of the Lagrangian
+`nnzj`             | `Int`         | number of nonzeros in the Jacobian
+`lin_nnzj`         | `Int`         | number of nonzeros in the linear constraints Jacobian
+`nln_nnzj`         | `Int`         | number of nonzeros in the nonlinear constraints Jacobian
+`nnzh`             | `Int`         | number of nonzeros in the lower triangular part of the Hessian of the Lagrangian
 `minimize`         | `Bool`        | true if `optimize == minimize`
 `islp`             | `Bool`        | true if the problem is a linear program
 `name`             | `String`      | problem name
+`sparse_jacobian`  | `Bool`        | true if the Jacobian of the constraints is sparse
+`sparse_hessian`   | `Bool`        | true if the Hessian of the Lagrangian is sparse
 `grad_available`   | `Bool`        | true if the gradient of the objective is available
-`jac_available`    | `Bool`        | true if the sparse Jacobian of the constraints is available
-`hess_available`   | `Bool`        | true if the sparse Hessian of the Lagrangian is available
+`jac_available`    | `Bool`        | true if the Jacobian of the constraints is available
+`hess_available`   | `Bool`        | true if the Hessian of the Lagrangian is available
 `jprod_available`  | `Bool`        | true if the Jacobian-vector product `J * v` is available
 `jtprod_available` | `Bool`        | true if the transpose Jacobian-vector product `J' * v` is available
 `hprod_available`  | `Bool`        | true if the Hessian-vector product of the Lagrangian `H * v` is available
