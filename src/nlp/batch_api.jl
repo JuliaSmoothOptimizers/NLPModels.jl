@@ -7,6 +7,7 @@ export batch_jac_structure, batch_jac_structure!
 export batch_hess_structure, batch_hess_structure!
 export batch_jac_coord, batch_jac_coord!
 export batch_hess_coord, batch_hess_coord!
+export batch_jac_dense!, batch_hess_dense!
 export batch_jprod, batch_jprod!
 export batch_jtprod, batch_jtprod!
 export batch_hprod, batch_hprod!
@@ -109,6 +110,13 @@ This function is only available if `bnlp.meta.jac_available` is set to `true`.
 function batch_jac_coord! end
 
 """
+    bJx = batch_jac_dense!(bnlp, bx, bJx)
+
+This function is only available if `bnlp.meta.jac_available` is set to `true`.
+"""
+function batch_jac_dense! end
+
+"""
     bJv = batch_jprod(bnlp, bx, bv)
 
 This function is only available if `bnlp.meta.jprod_available` is set to `true`.
@@ -190,6 +198,13 @@ end
 This function is only available if `bnlp.meta.hess_available` is set to `true`.
 """
 function batch_hess_coord! end
+
+"""
+    bHx = batch_hess_dense!(bnlp, bx, by, bHx, bobj_weight)
+
+This function is only available when `bnlp.meta.hess_available` is set to `true`.
+"""
+function batch_hess_dense! end
 
 """
     bHv = batch_hprod(bnlp, bx, by, bv, bobj_weight)
