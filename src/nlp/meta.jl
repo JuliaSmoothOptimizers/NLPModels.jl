@@ -51,6 +51,8 @@ The following keyword arguments are accepted:
 - `minimize`: true if optimize == minimize
 - `islp`: true if the problem is a linear program
 - `name`: problem name
+- `variable_bounds_analysis`: whether to compute the partition of variables into fixed, lower-bounded, upper-bounded, range-bounded, free, and trivially infeasible sets
+- `constraint_bounds_analysis`: whether to compute the partition of constraints into equality, lower-bounded, upper-bounded, range-bounded, free, and trivially infeasible sets
 - `sparse_jacobian`: indicates whether the Jacobian of the constraints is sparse
 - `sparse_hessian`: indicates whether the Hessian of the Lagrangian is sparse
 - `grad_available`: indicates whether the gradient of the objective is available
@@ -77,6 +79,9 @@ The following keyword arguments are accepted:
 - `nlin`: number of linear constraints
 - `nnln`: number of nonlinear general constraints
 - `nln`: indices of nonlinear constraints
+
+The attributes `ifix`, `ilow`, `iupp`, `irng`, `ifree`, and `iinf` are not computed if `variable_bounds_analysis` is set to `false`.
+The attributes `jfix`, `jlow`, `jupp`, `jrng`, `jfree`, and `jinf` are not computed if `constraint_bounds_analysis` is set to `false`.
 """
 struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
   nvar::Int
@@ -123,6 +128,9 @@ struct NLPModelMeta{T, S} <: AbstractNLPModelMeta{T, S}
   islp::Bool
   name::String
 
+  variable_bounds_analysis::Bool
+  constraint_bounds_analysis::Bool
+
   sparse_jacobian::Bool
   sparse_hessian::Bool
 
@@ -155,6 +163,8 @@ function NLPModelMeta{T, S}(
   minimize::Bool = true,
   islp::Bool = false,
   name = "Generic",
+  variable_bounds_analysis::Bool = true,
+  constraint_bounds_analysis::Bool = true,
   sparse_jacobian::Bool = true,
   sparse_hessian::Bool = true,
   grad_available::Bool = true,
@@ -173,14 +183,23 @@ function NLPModelMeta{T, S}(
   @rangecheck 1 ncon lin
   @assert nnzj == lin_nnzj + nln_nnzj
 
-  ifix = findall(lvar .== uvar)
-  ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf)))
-  iupp = findall((lvar .== T(-Inf)) .& (uvar .< T(Inf)))
-  irng = findall((lvar .> T(-Inf)) .& (uvar .< T(Inf)) .& (lvar .< uvar))
-  ifree = findall((lvar .== T(-Inf)) .& (uvar .== T(Inf)))
-  iinf = findall(lvar .> uvar)
+  if variable_bounds_analysis
+    ifix = findall(lvar .== uvar)
+    ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf)))
+    iupp = findall((lvar .== T(-Inf)) .& (uvar .< T(Inf)))
+    irng = findall((lvar .> T(-Inf)) .& (uvar .< T(Inf)) .& (lvar .< uvar))
+    ifree = findall((lvar .== T(-Inf)) .& (uvar .== T(Inf)))
+    iinf = findall(lvar .> uvar)
+  else
+    ifix = Int[]
+    ilow = Int[]
+    iupp = Int[]
+    irng = Int[]
+    ifree = Int[]
+    iinf = Int[]
+  end
 
-  if ncon > 0
+  if (ncon > 0) && constraint_bounds_analysis
     jfix = findall(lcon .== ucon)
     jlow = findall((lcon .> T(-Inf)) .& (ucon .== T(Inf)))
     jupp = findall((lcon .== T(-Inf)) .& (ucon .< T(Inf)))
@@ -236,6 +255,8 @@ function NLPModelMeta{T, S}(
     minimize,
     islp,
     name,
+    variable_bounds_analysis,
+    constraint_bounds_analysis,
     sparse_jacobian,
     sparse_hessian,
     grad_available,
@@ -272,8 +293,10 @@ function NLPModelMeta(
   minimize::Bool = meta.minimize,
   islp::Bool = meta.islp,
   name = meta.name,
-  sparse_jacobian::Bool = true,
-  sparse_hessian::Bool = true,
+  variable_bounds_analysis::Bool = meta.variable_bounds_analysis,
+  constraint_bounds_analysis::Bool = meta.constraint_bounds_analysis,
+  sparse_jacobian::Bool = meta.sparse_jacobian,
+  sparse_hessian::Bool = meta.sparse_hessian,
   grad_available::Bool = meta.grad_available,
   jac_available::Bool = meta.jac_available,
   hess_available::Bool = meta.hess_available,
@@ -302,6 +325,8 @@ function NLPModelMeta(
     minimize = minimize,
     islp = islp,
     name = name,
+    variable_bounds_analysis = variable_bounds_analysis,
+    constraint_bounds_analysis = constraint_bounds_analysis,
     sparse_jacobian = sparse_jacobian,
     sparse_hessian = sparse_hessian,
     grad_available = grad_available,
