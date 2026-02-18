@@ -30,16 +30,16 @@
     ]
     bobj_weight = [1.0, 1.0, 1.0]
 
-    bf = batch_obj(bnlp, bx)
-    bg = batch_grad(bnlp, bx)
-    bc = batch_cons(bnlp, bx)
-    bjvals = batch_jac_coord(bnlp, bx)
-    bhvals = batch_hess_coord(bnlp, bx, by, bobj_weight)
-    bJv = batch_jprod(bnlp, bx, bx)
-    bJtv = batch_jtprod(bnlp, bx, by)
-    bHv = batch_hprod(bnlp, bx, by, bx, bobj_weight)
-    jrows, jcols = batch_jac_structure(bnlp)
-    hrows, hcols = batch_hess_structure(bnlp)
+    bf = obj(bnlp, bx)
+    bg = grad(bnlp, bx)
+    bc = cons(bnlp, bx)
+    bjvals = jac_coord(bnlp, bx)
+    bhvals = hess_coord(bnlp, bx, by, bobj_weight)
+    bJv = jprod(bnlp, bx, bx)
+    bJtv = jtprod(bnlp, bx, by)
+    bHv = hprod(bnlp, bx, by, bx, bobj_weight)
+    jrows, jcols = jac_structure(bnlp)
+    hrows, hcols = hess_structure(bnlp)
 
     for i in 1:3
         @test bf[i] == obj(models[i], xs[i])
