@@ -14,9 +14,10 @@ x₀ = [2.0, 2.0].
 mutable struct SimpleNLPModel{T, S} <: AbstractNLPModel{T, S}
   meta::NLPModelMeta{T, S}
   counters::Counters
+  p::T
 end
 
-function SimpleNLPModel(::Type{T}) where {T}
+function SimpleNLPModel(::Type{T}; p = T(4)) where {T}
   meta = NLPModelMeta(
     2,
     nnzh = 2,
@@ -32,10 +33,10 @@ function SimpleNLPModel(::Type{T}) where {T}
     nln_nnzj = 2,
   )
 
-  return SimpleNLPModel(meta, Counters())
+  return SimpleNLPModel(meta, Counters(), T(p))
 end
 
-SimpleNLPModel() = SimpleNLPModel(Float64)
+SimpleNLPModel(; p = 4.0) = SimpleNLPModel(Float64; p = p)
 
 function NLPModels.obj(nlp::SimpleNLPModel, x::AbstractVector)
   @lencheck 2 x
@@ -73,7 +74,7 @@ function NLPModels.hess_coord!(
   @lencheck 2 x y vals
   increment!(nlp, :neval_hess)
   vals .= 2obj_weight
-  vals[1] -= y[2] / 2
+  vals[1] -= 2y[2] / nlp.p
   vals[2] -= 2y[2]
   return vals
 end
@@ -89,7 +90,7 @@ function NLPModels.hprod!(
   @lencheck 2 x y v Hv
   increment!(nlp, :neval_hprod)
   Hv .= 2obj_weight * v
-  Hv[1] -= y[2] * v[1] / 2
+  Hv[1] -= (2y[2] / nlp.p) * v[1]
   Hv[2] -= 2y[2] * v[2]
   return Hv
 end
@@ -98,7 +99,7 @@ function NLPModels.cons_nln!(nlp::SimpleNLPModel, x::AbstractVector, cx::Abstrac
   @lencheck 2 x
   @lencheck 1 cx
   increment!(nlp, :neval_cons_nln)
-  cx .= [-x[1]^2 / 4 - x[2]^2 + 1]
+  cx .= [-x[1]^2 / nlp.p - x[2]^2 + 1]
   return cx
 end
 
@@ -135,7 +136,7 @@ end
 function NLPModels.jac_nln_coord!(nlp::SimpleNLPModel, x::AbstractVector, vals::AbstractVector)
   @lencheck 2 x vals
   increment!(nlp, :neval_jac_nln)
-  vals .= [-x[1] / 2, -2 * x[2]]
+  vals .= [-2 * x[1] / nlp.p, -2 * x[2]]
   return vals
 end
 
@@ -155,7 +156,7 @@ function NLPModels.jprod_nln!(
   @lencheck 2 x v
   @lencheck 1 Jv
   increment!(nlp, :neval_jprod_nln)
-  Jv .= [-x[1] * v[1] / 2 - 2 * x[2] * v[2]]
+  Jv .= [-(2 * x[1] / nlp.p) * v[1] - 2 * x[2] * v[2]]
   return Jv
 end
 
@@ -181,7 +182,7 @@ function NLPModels.jtprod_nln!(
   @lencheck 2 x Jtv
   @lencheck 1 v
   increment!(nlp, :neval_jtprod_nln)
-  Jtv .= [-x[1] * v[1] / 2; -2 * x[2] * v[1]]
+  Jtv .= [-(2 * x[1] / nlp.p) * v[1]; -2 * x[2] * v[1]]
   return Jtv
 end
 
@@ -209,7 +210,7 @@ function NLPModels.jth_hess_coord!(
   if j == 1
     vals .= 0
   elseif j == 2
-    vals[1] = -1 / 2
+    vals[1] = -2 / nlp.p
     vals[2] = -2
   end
   return vals
@@ -227,7 +228,7 @@ function NLPModels.jth_hprod!(
   if j == 1
     Hv .= 0
   elseif j == 2
-    Hv[1] = -v[1] / 2
+    Hv[1] = -(2 / nlp.p) * v[1]
     Hv[2] = -2v[2]
   end
   return Hv
@@ -243,6 +244,121 @@ function NLPModels.ghjvprod!(
   @lencheck nlp.meta.nvar x g v
   @lencheck nlp.meta.ncon gHv
   increment!(nlp, :neval_hprod)
-  gHv .= [T(0); -g[1] * v[1] / 2 - 2 * g[2] * v[2]]
+  gHv .= [T(0); -(2 * g[1] / nlp.p) * v[1] - 2 * g[2] * v[2]]
   return gHv
+end
+
+mutable struct BatchSimpleNLPModel{T,S} <: AbstractBatchNLPModel{T,S}
+    meta::BatchNLPModelMeta{T,S}
+    models::Vector{SimpleNLPModel{T,S}}
+end
+
+function BatchSimpleNLPModel(ps::Vector{T}) where T
+    return BatchSimpleNLPModel(
+        BatchNLPModelMeta{T, Vector{T}}(
+            length(ps),
+            2;
+            nnzh = 2,
+            ncon = 2,
+            lvar = zeros(T, 2),
+            uvar = ones(T, 2),
+            x0 = [T(2.0); T(2.0)],
+            lcon = [zero(T); zero(T)],
+            ucon = [zero(T); T(Inf)],
+            name = "Simple NLP Model",
+            # lin = [1],
+            # lin_nnzj = 2,
+            # nln_nnzj = 2,
+            nnzj=4,
+        ),
+        [SimpleNLPModel(; p = p) for p in ps]
+    )
+end
+
+function _slice(buffer, idx, single_length)
+    # buffer[(idx - 1) * single_length : idx * single_length]
+    unsafe_wrap(typeof(buffer), pointer(buffer, (idx - 1) * single_length + 1), single_length)
+end
+
+function NLPModels.obj!(bnlp::BatchSimpleNLPModel{T,S}, bx, bf) where {T,S}
+    for (i, nlp) in enumerate(bnlp.models)
+        bxi = _slice(bx, i, bnlp.meta.nvar)
+        bf[i] = NLPModels.obj(nlp, bxi)
+    end
+    return bf
+end
+
+function NLPModels.grad!(bnlp::BatchSimpleNLPModel{T,S}, bx, bg) where {T,S}
+    for (i, nlp) in enumerate(bnlp.models)
+        bxi = _slice(bx, i, bnlp.meta.nvar)
+        bgi = _slice(bg, i, bnlp.meta.nvar)
+        NLPModels.grad!(nlp, bxi, bgi)
+    end
+    return bg
+end
+
+function NLPModels.cons!(bnlp::BatchSimpleNLPModel{T,S}, bx, bc) where {T,S}
+    for (i, nlp) in enumerate(bnlp.models)
+        bxi = _slice(bx, i, bnlp.meta.nvar)
+        bci = _slice(bc, i, bnlp.meta.ncon)
+        NLPModels.cons!(nlp, bxi, bci)
+    end
+    return bc
+end
+
+NLPModels.jac_structure!(bnlp, jrows, jcols) = NLPModels.jac_structure!(bnlp.models[1], jrows, jcols)
+
+function NLPModels.jac_coord!(bnlp::BatchSimpleNLPModel{T,S}, bx, bjvals) where {T,S}
+    for (i, nlp) in enumerate(bnlp.models)
+        bxi = _slice(bx, i, bnlp.meta.nvar)
+        bjvalsi = _slice(bjvals, i, bnlp.meta.nnzj)
+        NLPModels.jac_coord!(nlp, bxi, bjvalsi)
+    end
+    return bjvals
+end
+
+function NLPModels.jprod!(bnlp::BatchSimpleNLPModel{T,S}, bx, bv, bJv) where {T,S}
+    for (i, nlp) in enumerate(bnlp.models)
+        bxi = _slice(bx, i, bnlp.meta.nvar)
+        bvi = _slice(bv, i, bnlp.meta.nvar)
+        bJvi = _slice(bJv, i, bnlp.meta.ncon)
+        NLPModels.jprod!(nlp, bxi, bvi, bJvi)
+    end
+    return bJv
+end
+
+function NLPModels.jtprod!(bnlp::BatchSimpleNLPModel{T,S}, bx, bv, bJtv) where {T,S}
+    for (i, nlp) in enumerate(bnlp.models)
+        bxi = _slice(bx, i, bnlp.meta.nvar)
+        bvi = _slice(bv, i, bnlp.meta.ncon)
+        bJtvi = _slice(bJtv, i, bnlp.meta.nvar)
+        NLPModels.jtprod!(nlp, bxi, bvi, bJtvi)
+    end
+    return bJtv
+end
+
+NLPModels.hess_structure!(bnlp, jrows, jcols) = NLPModels.hess_structure!(bnlp.models[1], jrows, jcols)
+
+
+function NLPModels.hess_coord!(bnlp::BatchSimpleNLPModel{T,S}, bx, by, bobj_weight, bhvals) where {T,S}
+    for (i, nlp) in enumerate(bnlp.models)
+        bxi = _slice(bx, i, bnlp.meta.nvar)
+        byi = _slice(by, i, bnlp.meta.ncon)
+        bobj_weighti = bobj_weight[i]
+        bhvalsi = _slice(bhvals, i, bnlp.meta.nnzh)
+        NLPModels.hess_coord!(nlp, bxi, byi, bhvalsi; obj_weight=bobj_weighti)
+    end
+    return bhvals
+end
+
+function NLPModels.hprod!(bnlp::BatchSimpleNLPModel{T,S}, bx, by, bv, bobj_weight, bHv) where {T,S}
+    for (i, nlp) in enumerate(bnlp.models)
+        bxi = _slice(bx, i, bnlp.meta.nvar)
+        byi = _slice(by, i, bnlp.meta.ncon)
+        bvi = _slice(bv, i, bnlp.meta.nvar)
+        bobj_weighti = bobj_weight[i]
+        bHvi = _slice(bHv, i, bnlp.meta.nvar)
+        NLPModels.hprod!(nlp, bxi, byi, bvi, bHvi; obj_weight = bobj_weighti)
+    end
+    return bHv
 end

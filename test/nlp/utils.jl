@@ -2,7 +2,7 @@ mutable struct SuperNLPModel{T, S} <: AbstractNLPModel{T, S}
   model
 end
 
-@testset "Testing @lencheck e @rangecheck" begin
+@testset "Testing @lencheck and @rangecheck" begin
   x = zeros(2)
   @lencheck 2 x
   @test_throws DimensionError @lencheck 1 x
