@@ -55,48 +55,19 @@ The following keyword arguments are accepted:
 - `jprod_available`: indicates whether the Jacobian-vector product `J * v` is available
 - `jtprod_available`: indicates whether the transpose Jacobian-vector product `J' * v` is available
 - `hprod_available`: indicates whether the Hessian-vector product of the Lagrangian `H * v` is available
-
-`BatchNLPModelMeta` also contains the following attributes, which are computed from the variables above:
-- `nbatch`: number of models
-- `nvar`: number of variables
-- `ifix`: indices of fixed variables
-- `ilow`: indices of variables with lower bound only
-- `iupp`: indices of variables with upper bound only
-- `irng`: indices of variables with lower and upper bound (range)
-- `ifree`: indices of free variables
-- `iinf`: indices of visibly infeasible bounds
-- `jfix`: indices of equality constraints
-- `jlow`: indices of constraints of the form c(x) ≥ cl
-- `jupp`: indices of constraints of the form c(x) ≤ cu
-- `jrng`: indices of constraints of the form cl ≤ c(x) ≤ cu
-- `jfree`: indices of "free" constraints (there shouldn't be any)
-- `jinf`: indices of the visibly infeasible constraints
 """
 struct BatchNLPModelMeta{T, S} <: AbstractBatchNLPModelMeta{T, S}
   nbatch::Int
+
   nvar::Int
   x0::S
   lvar::S
   uvar::S
 
-  ifix::Vector{Int}
-  ilow::Vector{Int}
-  iupp::Vector{Int}
-  irng::Vector{Int}
-  ifree::Vector{Int}
-  iinf::Vector{Int}
-
   ncon::Int
   y0::S
   lcon::S
   ucon::S
-
-  jfix::Vector{Int}
-  jlow::Vector{Int}
-  jupp::Vector{Int}
-  jrng::Vector{Int}
-  jfree::Vector{Int}
-  jinf::Vector{Int}
 
   nnzj::Int
   nnzh::Int
@@ -140,31 +111,8 @@ function BatchNLPModelMeta{T, S}(
   jtprod_available::Bool = (ncon > 0),
   hprod_available::Bool = true,
 ) where {T, S}
-  if (nvar < 1) || (ncon < 0) || (nnzj < 0) || (nnzh < 0)
+  if (nbatch < 1) || (nvar < 1) || (ncon < 0) || (nnzj < 0) || (nnzh < 0)
     error("Nonsensical dimensions")
-  end
-
-  ifix = findall(lvar .== uvar)
-  ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf)))
-  iupp = findall((lvar .== T(-Inf)) .& (uvar .< T(Inf)))
-  irng = findall((lvar .> T(-Inf)) .& (uvar .< T(Inf)) .& (lvar .< uvar))
-  ifree = findall((lvar .== T(-Inf)) .& (uvar .== T(Inf)))
-  iinf = findall(lvar .> uvar)
-
-  if ncon > 0
-    jfix = findall(lcon .== ucon)
-    jlow = findall((lcon .> T(-Inf)) .& (ucon .== T(Inf)))
-    jupp = findall((lcon .== T(-Inf)) .& (ucon .< T(Inf)))
-    jrng = findall((lcon .> T(-Inf)) .& (ucon .< T(Inf)) .& (lcon .< ucon))
-    jfree = findall((lcon .== T(-Inf)) .& (ucon .== T(Inf)))
-    jinf = findall(lcon .> ucon)
-  else
-    jfix = Int[]
-    jlow = Int[]
-    jupp = Int[]
-    jrng = Int[]
-    jfree = Int[]
-    jinf = Int[]
   end
 
   BatchNLPModelMeta{T, S}(
@@ -173,22 +121,10 @@ function BatchNLPModelMeta{T, S}(
     x0,
     lvar,
     uvar,
-    ifix,
-    ilow,
-    iupp,
-    irng,
-    ifree,
-    iinf,
     ncon,
     y0,
     lcon,
     ucon,
-    jfix,
-    jlow,
-    jupp,
-    jrng,
-    jfree,
-    jinf,
     nnzj,
     nnzh,
     minimize,
