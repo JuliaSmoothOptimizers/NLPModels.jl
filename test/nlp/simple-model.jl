@@ -275,12 +275,12 @@ function BatchSimpleNLPModel(ps::Vector{T}) where T
     )
 end
 
-function _slice(batch_buffer, batch_idx, single_length)
-    # batch_buffer[(batch_idx - 1) * single_length : batch_idx * single_length]
-    unsafe_wrap(typeof(batch_buffer), pointer(batch_buffer, (batch_idx - 1) * single_length + 1), single_length)
+function _slice(buffer, idx, single_length)
+    # buffer[(idx - 1) * single_length : idx * single_length]
+    unsafe_wrap(typeof(buffer), pointer(buffer, (idx - 1) * single_length + 1), single_length)
 end
 
-function NLPModels.batch_obj!(bnlp::BatchSimpleNLPModel{T,S}, bx, bf) where {T,S}
+function NLPModels.obj!(bnlp::BatchSimpleNLPModel{T,S}, bx, bf) where {T,S}
     for (i, nlp) in enumerate(bnlp.models)
         bxi = _slice(bx, i, bnlp.meta.nvar)
         bf[i] = NLPModels.obj(nlp, bxi)
@@ -288,7 +288,7 @@ function NLPModels.batch_obj!(bnlp::BatchSimpleNLPModel{T,S}, bx, bf) where {T,S
     return bf
 end
 
-function NLPModels.batch_grad!(bnlp::BatchSimpleNLPModel{T,S}, bx, bg) where {T,S}
+function NLPModels.grad!(bnlp::BatchSimpleNLPModel{T,S}, bx, bg) where {T,S}
     for (i, nlp) in enumerate(bnlp.models)
         bxi = _slice(bx, i, bnlp.meta.nvar)
         bgi = _slice(bg, i, bnlp.meta.nvar)
@@ -297,7 +297,7 @@ function NLPModels.batch_grad!(bnlp::BatchSimpleNLPModel{T,S}, bx, bg) where {T,
     return bg
 end
 
-function NLPModels.batch_cons!(bnlp::BatchSimpleNLPModel{T,S}, bx, bc) where {T,S}
+function NLPModels.cons!(bnlp::BatchSimpleNLPModel{T,S}, bx, bc) where {T,S}
     for (i, nlp) in enumerate(bnlp.models)
         bxi = _slice(bx, i, bnlp.meta.nvar)
         bci = _slice(bc, i, bnlp.meta.ncon)
@@ -306,9 +306,9 @@ function NLPModels.batch_cons!(bnlp::BatchSimpleNLPModel{T,S}, bx, bc) where {T,
     return bc
 end
 
-NLPModels.batch_jac_structure!(bnlp, jrows, jcols) = NLPModels.jac_structure!(bnlp.models[1], jrows, jcols)
+NLPModels.jac_structure!(bnlp, jrows, jcols) = NLPModels.jac_structure!(bnlp.models[1], jrows, jcols)
 
-function NLPModels.batch_jac_coord!(bnlp::BatchSimpleNLPModel{T,S}, bx, bjvals) where {T,S}
+function NLPModels.jac_coord!(bnlp::BatchSimpleNLPModel{T,S}, bx, bjvals) where {T,S}
     for (i, nlp) in enumerate(bnlp.models)
         bxi = _slice(bx, i, bnlp.meta.nvar)
         bjvalsi = _slice(bjvals, i, bnlp.meta.nnzj)
@@ -317,7 +317,7 @@ function NLPModels.batch_jac_coord!(bnlp::BatchSimpleNLPModel{T,S}, bx, bjvals) 
     return bjvals
 end
 
-function NLPModels.batch_jprod!(bnlp::BatchSimpleNLPModel{T,S}, bx, bv, bJv) where {T,S}
+function NLPModels.jprod!(bnlp::BatchSimpleNLPModel{T,S}, bx, bv, bJv) where {T,S}
     for (i, nlp) in enumerate(bnlp.models)
         bxi = _slice(bx, i, bnlp.meta.nvar)
         bvi = _slice(bv, i, bnlp.meta.nvar)
@@ -327,7 +327,7 @@ function NLPModels.batch_jprod!(bnlp::BatchSimpleNLPModel{T,S}, bx, bv, bJv) whe
     return bJv
 end
 
-function NLPModels.batch_jtprod!(bnlp::BatchSimpleNLPModel{T,S}, bx, bv, bJtv) where {T,S}
+function NLPModels.jtprod!(bnlp::BatchSimpleNLPModel{T,S}, bx, bv, bJtv) where {T,S}
     for (i, nlp) in enumerate(bnlp.models)
         bxi = _slice(bx, i, bnlp.meta.nvar)
         bvi = _slice(bv, i, bnlp.meta.ncon)
@@ -337,10 +337,10 @@ function NLPModels.batch_jtprod!(bnlp::BatchSimpleNLPModel{T,S}, bx, bv, bJtv) w
     return bJtv
 end
 
-NLPModels.batch_hess_structure!(bnlp, jrows, jcols) = NLPModels.hess_structure!(bnlp.models[1], jrows, jcols)
+NLPModels.hess_structure!(bnlp, jrows, jcols) = NLPModels.hess_structure!(bnlp.models[1], jrows, jcols)
 
 
-function NLPModels.batch_hess_coord!(bnlp::BatchSimpleNLPModel{T,S}, bx, by, bobj_weight, bhvals) where {T,S}
+function NLPModels.hess_coord!(bnlp::BatchSimpleNLPModel{T,S}, bx, by, bobj_weight, bhvals) where {T,S}
     for (i, nlp) in enumerate(bnlp.models)
         bxi = _slice(bx, i, bnlp.meta.nvar)
         byi = _slice(by, i, bnlp.meta.ncon)
@@ -351,7 +351,7 @@ function NLPModels.batch_hess_coord!(bnlp::BatchSimpleNLPModel{T,S}, bx, by, bob
     return bhvals
 end
 
-function NLPModels.batch_hprod!(bnlp::BatchSimpleNLPModel{T,S}, bx, by, bv, bobj_weight, bHv) where {T,S}
+function NLPModels.hprod!(bnlp::BatchSimpleNLPModel{T,S}, bx, by, bv, bobj_weight, bHv) where {T,S}
     for (i, nlp) in enumerate(bnlp.models)
         bxi = _slice(bx, i, bnlp.meta.nvar)
         byi = _slice(by, i, bnlp.meta.ncon)
