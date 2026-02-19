@@ -22,11 +22,11 @@ end
 
 Returns whether the problem has bounds on the variables.
 """
-function has_bounds(meta::AbstractNLPModelMeta{T}) where T
+function has_bounds(meta::AbstractNLPModelMeta)
     if meta.variable_bounds_analysis
         return length(meta.ifree) < meta.nvar
     else
-        return !all(lv -> lv == T(-Inf), meta.lvar) || !all(uv -> uv == T(Inf), meta.uvar)
+        return !all(lv -> isinf(lv), meta.lvar) || !all(uv -> isinf(uv), meta.uvar)
     end
 end
 
