@@ -113,6 +113,8 @@ Attribute          | Type          | Notes
 `minimize`         | `Bool`        | true if `optimize == minimize`
 `islp`             | `Bool`        | true if the problem is a linear program
 `name`             | `String`      | problem name
+`variable_bounds_analysis` | `Bool` | true if the partition of variables into fixed, lower-bounded, upper-bounded, range-bounded, free, and trivially infeasible sets is computed
+`constraint_bounds_analysis`| `Bool` | true if the partition of constraints into equality, lower-bounded, upper-bounded, range-bounded, free, and trivially infeasible sets is computed
 `sparse_jacobian`  | `Bool`        | true if the Jacobian of the constraints is sparse
 `sparse_hessian`   | `Bool`        | true if the Hessian of the Lagrangian is sparse
 `grad_available`   | `Bool`        | true if the gradient of the objective is available
