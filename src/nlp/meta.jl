@@ -164,7 +164,7 @@ function NLPModelMeta{T, S}(
   islp::Bool = false,
   name = "Generic",
   variable_bounds_analysis::Bool = false,
-  constraint_bounds_analysis::Bool = false,
+  constraint_bounds_analysis::Bool = true,
   sparse_jacobian::Bool = true,
   sparse_hessian::Bool = true,
   grad_available::Bool = true,
