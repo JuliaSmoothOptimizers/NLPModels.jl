@@ -23,11 +23,11 @@ end
 Returns whether the problem has bounds on the variables.
 """
 function has_bounds(meta::AbstractNLPModelMeta)
-    if meta.variable_bounds_analysis
-        return length(meta.ifree) < meta.nvar
-    else
-        return !all(lv -> isinf(lv), meta.lvar) || !all(uv -> isinf(uv), meta.uvar)
-    end
+  if meta.variable_bounds_analysis
+    return length(meta.ifree) < meta.nvar
+  else
+    return !all(lv -> isinf(lv), meta.lvar) || !all(uv -> isinf(uv), meta.uvar)
+  end
 end
 
 """
@@ -62,11 +62,11 @@ Returns whether the problem's constraints are all equalities.
 Unconstrained problems return false.
 """
 function equality_constrained(meta::AbstractNLPModelMeta)
-    if meta.constraint_bounds_analysis
-        return (meta.ncon > 0) && (length(meta.jfix) == meta.ncon)
-    else
-        return (meta.ncon > 0) && all(x -> x[1] == x[2], zip(meta.lcon, meta.ucon))
-    end
+  if meta.constraint_bounds_analysis
+    return (meta.ncon > 0) && (length(meta.jfix) == meta.ncon)
+  else
+    return (meta.ncon > 0) && all(x -> x[1] == x[2], zip(meta.lcon, meta.ucon))
+  end
 end
 
 """
@@ -77,11 +77,11 @@ Returns whether the problem's constraints are all inequalities.
 Unconstrained problems return true.
 """
 function inequality_constrained(meta::AbstractNLPModelMeta)
-    if meta.constraint_bounds_analysis
-        return (meta.ncon > 0) && (length(meta.jfix) == 0)
-    else
-        return (meta.ncon > 0) && all(x -> x[1] != x[2], zip(meta.lcon, meta.ucon))
-    end
+  if meta.constraint_bounds_analysis
+    return (meta.ncon > 0) && (length(meta.jfix) == 0)
+  else
+    return (meta.ncon > 0) && all(x -> x[1] != x[2], zip(meta.lcon, meta.ucon))
+  end
 end
 
 """
@@ -91,11 +91,11 @@ Returns whether the problem has constraints and at least one of them is an equal
 Unconstrained problems return false.
 """
 function has_equalities(meta::AbstractNLPModelMeta)
-    if meta.constraint_bounds_analysis
-        return (meta.ncon > 0) && (length(meta.jfix) > 0)
-    else
-        return (meta.ncon > 0) && !all(x -> x[1] != x[2], zip(meta.lcon, meta.ucon))
-    end
+  if meta.constraint_bounds_analysis
+    return (meta.ncon > 0) && (length(meta.jfix) > 0)
+  else
+    return (meta.ncon > 0) && !all(x -> x[1] != x[2], zip(meta.lcon, meta.ucon))
+  end
 end
 
 """
@@ -105,11 +105,11 @@ Returns whether the problem has constraints and at least one of them is an inequ
 Unconstrained problems return false.
 """
 function has_inequalities(meta::AbstractNLPModelMeta)
-    if meta.constraint_bounds_analysis
-        return (meta.ncon > 0) && (meta.ncon > length(meta.jfix))
-    else
-        return (meta.ncon > 0) && !all(x -> x[1] == x[2], zip(meta.lcon, meta.ucon))
-    end
+  if meta.constraint_bounds_analysis
+    return (meta.ncon > 0) && (meta.ncon > length(meta.jfix))
+  else
+    return (meta.ncon > 0) && !all(x -> x[1] == x[2], zip(meta.lcon, meta.ucon))
+  end
 end
 
 for meth in [
