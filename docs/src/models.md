@@ -9,7 +9,7 @@ If you want to create your own interface, check these [Guidelines](@ref).
 
 - [NLPModelsModifiers.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsModifiers.jl):
   Models that modify existing models.
-  For instance, creating slack variables, or moving constraints into the objective functions, or using Quasi-Newton LBFSG approximations to the Hessian.
+  For instance, creating slack variables, or moving constraints into the objective functions, or using Quasi-Newton LBFGS approximations to the Hessian.
 - [ADNLPModels.jl](https://github.com/JuliaSmoothOptimizers/ADNLPModels.jl):
   Models with automatic differentiation.
 - [CUTEst.jl](https://github.com/JuliaSmoothOptimizers/CUTEst.jl):
