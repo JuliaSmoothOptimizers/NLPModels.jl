@@ -52,7 +52,8 @@ unconstrained(meta::AbstractNLPModelMeta) = (get_ncon(meta) == 0) && !has_bounds
 
 Returns whether the problem's constraints are known to be all linear.
 """
-linearly_constrained(meta::AbstractNLPModelMeta) = (get_ncon(meta) > 0) && (get_nlin(meta) == get_ncon(meta))
+linearly_constrained(meta::AbstractNLPModelMeta) =
+  (get_ncon(meta) > 0) && (get_nlin(meta) == get_ncon(meta))
 
 """
     equality_constrained(nlp)
