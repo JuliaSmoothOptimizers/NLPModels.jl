@@ -86,7 +86,14 @@ struct BatchNLPModelMeta{T, S} <: AbstractBatchNLPModelMeta{T, S}
   jtprod_available::Bool
   hprod_available::Bool
 end
-
+for field in fieldnames(BatchNLPModelMeta)
+  meth = Symbol("get_", field)
+  @eval begin
+    $meth(meta::AbstractBatchNLPModelMeta) = getproperty(meta, $(QuoteNode(field)))
+  end
+  @eval $meth(bnlp::AbstractBatchNLPModel) = $meth(bnlp.meta)
+  @eval export $meth
+end
 function BatchNLPModelMeta{T, S}(
   nbatch::Int,
   nvar::Int;
