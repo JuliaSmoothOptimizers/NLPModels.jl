@@ -15,19 +15,19 @@ nonlinear optimization problems sharing the same structure.
 
 Each batch contains `nbatch` independent NLP models of the form:
 
-    optimize    objᵢ(xᵢ)
-    subject to  lvarᵢ ≤    xᵢ    ≤ uvarᵢ
-                lconᵢ ≤ consᵢ(xᵢ) ≤ uconᵢ
+    optimize    objᵢ(x)
+    subject to  lvarᵢ ≤    x     ≤ uvarᵢ
+                lconᵢ ≤ consᵢ(x) ≤ uconᵢ
 
 for i = 1, ..., nbatch.
 
-Each model variable vector `xᵢ` has dimension `nvar`, and constraint vector
-`consᵢ(xᵢ)` has dimension `ncon`.
+Each model variable vector `x` has dimension `nvar`, and constraint vector
+`consᵢ(x)` has dimension `ncon`.
 
-All batch data are stored in concatenated vectors of length:
+All batch data are stored in matrices of size:
 
-- `nvar * nbatch` for variables and bounds (`x0`, `lvar`, `uvar`)
-- `ncon * nbatch` for constraints and multipliers (`y0`, `lcon`, `ucon`)
+- `(nvar, nbatch)` for variables and bounds (`x0`, `lvar`, `uvar`)
+- `(ncon, nbatch)` for constraints and multipliers (`y0`, `lcon`, `ucon`)
 
 ---
 
@@ -36,17 +36,17 @@ All batch data are stored in concatenated vectors of length:
 Create a `BatchNLPModelMeta` with `nbatch` models, each having `nvar` variables.
 The following keyword arguments are accepted:
 - `x0`: initial guess
-- `lvar`: vector of lower bounds
-- `uvar`: vector of upper bounds
+- `lvar`: matrix of lower bounds
+- `uvar`: matrix of upper bounds
 - `ncon`: number of general constraints
 - `y0`: initial Lagrange multipliers
-- `lcon`: vector of constraint lower bounds
-- `ucon`: vector of constraint upper bounds
+- `lcon`: matrix of constraint lower bounds
+- `ucon`: matrix of constraint upper bounds
 - `nnzj`: number of elements needed to store the nonzeros in the sparse Jacobian
 - `nnzh`: number of elements needed to store the nonzeros in the sparse Hessian
 - `minimize`: true if optimize == minimize
-- `islp`: true if the problem is a linear program
-- `name`: problem name
+- `islp`: true if the problems are linear programs
+- `name`: problem name for the batch
 - `sparse_jacobian`: indicates whether the Jacobian of the constraints is sparse
 - `sparse_hessian`: indicates whether the Hessian of the Lagrangian is sparse
 - `grad_available`: indicates whether the gradient of the objective is available
@@ -58,27 +58,21 @@ The following keyword arguments are accepted:
 """
 struct BatchNLPModelMeta{T, S} <: AbstractBatchNLPModelMeta{T, S}
   nbatch::Int
-
   nvar::Int
   x0::S
   lvar::S
   uvar::S
-
   ncon::Int
   y0::S
   lcon::S
   ucon::S
-
   nnzj::Int
   nnzh::Int
-
   minimize::Bool
   islp::Bool
   name::String
-
   sparse_jacobian::Bool
   sparse_hessian::Bool
-
   grad_available::Bool
   jac_available::Bool
   hess_available::Bool
@@ -86,6 +80,7 @@ struct BatchNLPModelMeta{T, S} <: AbstractBatchNLPModelMeta{T, S}
   jtprod_available::Bool
   hprod_available::Bool
 end
+
 for field in fieldnames(BatchNLPModelMeta)
   meth = Symbol("get_", field)
   @eval begin
@@ -94,16 +89,17 @@ for field in fieldnames(BatchNLPModelMeta)
   @eval $meth(bnlp::AbstractBatchNLPModel) = $meth(bnlp.meta)
   @eval export $meth
 end
+
 function BatchNLPModelMeta{T, S}(
   nbatch::Int,
   nvar::Int;
-  x0::S = fill!(S(undef, nvar * nbatch), zero(T)),
-  lvar::S = fill!(S(undef, nvar * nbatch), T(-Inf)),
-  uvar::S = fill!(S(undef, nvar * nbatch), T(Inf)),
+  x0::S = fill!(S(undef, nvar, nbatch), zero(T)),
+  lvar::S = fill!(S(undef, nvar, nbatch), T(-Inf)),
+  uvar::S = fill!(S(undef, nvar, nbatch), T(Inf)),
   ncon::Int = 0,
-  y0::S = fill!(S(undef, ncon * nbatch), zero(T)),
-  lcon::S = fill!(S(undef, ncon * nbatch), T(-Inf)),
-  ucon::S = fill!(S(undef, ncon * nbatch), T(Inf)),
+  y0::S = fill!(S(undef, ncon, nbatch), zero(T)),
+  lcon::S = fill!(S(undef, ncon, nbatch), T(-Inf)),
+  ucon::S = fill!(S(undef, ncon, nbatch), T(Inf)),
   nnzj::Int = nvar * ncon,
   nnzh::Int = nvar * (nvar + 1) ÷ 2,
   minimize::Bool = true,
