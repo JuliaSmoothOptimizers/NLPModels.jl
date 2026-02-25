@@ -17,6 +17,11 @@ function obj(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractMatrix) where {T, S}
   return bf
 end
 
+"""
+    bf = obj!(bnlp, bx)
+"""
+function obj! end
+
 function grad(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractMatrix) where {T, S}
   bg = S(undef, bnlp.meta.nvar, bnlp.meta.nbatch)
   grad!(bnlp, bx, bg)
