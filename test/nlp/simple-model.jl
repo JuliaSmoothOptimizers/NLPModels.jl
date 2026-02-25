@@ -248,87 +248,101 @@ function NLPModels.ghjvprod!(
   return gHv
 end
 
-mutable struct BatchSimpleNLPModel{T,M,S} <: AbstractBatchNLPModel{T,M}
-    meta::BatchNLPModelMeta{T,M}
-    models::Vector{SimpleNLPModel{T,S}}
+mutable struct BatchSimpleNLPModel{T, M, S} <: AbstractBatchNLPModel{T, M}
+  meta::BatchNLPModelMeta{T, M}
+  models::Vector{SimpleNLPModel{T, S}}
 end
 
-function BatchSimpleNLPModel(ps::Vector{T}) where T
-    return BatchSimpleNLPModel(
-        BatchNLPModelMeta{T, Matrix{T}}(
-            length(ps),
-            2;
-            nnzh = 2,
-            ncon = 2,
-            lvar = zeros(T, 1, 2),
-            uvar = ones(T, 1, 2),
-            x0 = [T(2.0) T(2.0);],
-            lcon = [zero(T) zero(T);],
-            ucon = [zero(T) T(Inf);],
-            name = "Batch simple NLP Model",
-            nnzj = 4,
-        ),
-        [SimpleNLPModel(; p = p) for p in ps]
-    )
+function BatchSimpleNLPModel(ps::Vector{T}) where {T}
+  return BatchSimpleNLPModel(
+    BatchNLPModelMeta{T, Matrix{T}}(
+      length(ps),
+      2;
+      nnzh = 2,
+      ncon = 2,
+      lvar = zeros(T, 1, 2),
+      uvar = ones(T, 1, 2),
+      x0 = [T(2.0) T(2.0);],
+      lcon = [zero(T) zero(T);],
+      ucon = [zero(T) T(Inf);],
+      name = "Batch simple NLP Model",
+      nnzj = 4,
+    ),
+    [SimpleNLPModel(; p = p) for p in ps],
+  )
 end
 
 function NLPModels.obj!(bnlp::BatchSimpleNLPModel, bx, bf)
-    for (i, nlp) in enumerate(bnlp.models)
-        bf[i] = NLPModels.obj(nlp, view(bx,:,i))
-    end
-    return bf
+  for (i, nlp) in enumerate(bnlp.models)
+    bf[i] = NLPModels.obj(nlp, view(bx, :, i))
+  end
+  return bf
 end
 
 function NLPModels.grad!(bnlp::BatchSimpleNLPModel, bx, bg)
-    for (i, nlp) in enumerate(bnlp.models)
-        NLPModels.grad!(nlp, view(bx,:,i), view(bg,:,i))
-    end
-    return bg
+  for (i, nlp) in enumerate(bnlp.models)
+    NLPModels.grad!(nlp, view(bx, :, i), view(bg, :, i))
+  end
+  return bg
 end
 
 function NLPModels.cons!(bnlp::BatchSimpleNLPModel, bx, bc)
-    for (i, nlp) in enumerate(bnlp.models)
-        NLPModels.cons!(nlp, view(bx,:,i), view(bc,:,i))
-    end
-    return bc
+  for (i, nlp) in enumerate(bnlp.models)
+    NLPModels.cons!(nlp, view(bx, :, i), view(bc, :, i))
+  end
+  return bc
 end
 
-NLPModels.jac_structure!(bnlp::BatchSimpleNLPModel, jrows, jcols) = NLPModels.jac_structure!(bnlp.models[1], jrows, jcols)
+NLPModels.jac_structure!(bnlp::BatchSimpleNLPModel, jrows, jcols) =
+  NLPModels.jac_structure!(bnlp.models[1], jrows, jcols)
 
 function NLPModels.jac_coord!(bnlp::BatchSimpleNLPModel, bx, bjvals)
-    for (i, nlp) in enumerate(bnlp.models)
-        NLPModels.jac_coord!(nlp, view(bx,:,i), view(bjvals,:,i))
-    end
-    return bjvals
+  for (i, nlp) in enumerate(bnlp.models)
+    NLPModels.jac_coord!(nlp, view(bx, :, i), view(bjvals, :, i))
+  end
+  return bjvals
 end
 
 function NLPModels.jprod!(bnlp::BatchSimpleNLPModel, bx, bv, bJv)
-    for (i, nlp) in enumerate(bnlp.models)
-        NLPModels.jprod!(nlp, view(bx,:,i), view(bv,:,i), view(bJv,:,i))
-    end
-    return bJv
+  for (i, nlp) in enumerate(bnlp.models)
+    NLPModels.jprod!(nlp, view(bx, :, i), view(bv, :, i), view(bJv, :, i))
+  end
+  return bJv
 end
 
 function NLPModels.jtprod!(bnlp::BatchSimpleNLPModel, bx, bv, bJtv)
-    for (i, nlp) in enumerate(bnlp.models)
-        NLPModels.jtprod!(nlp, view(bx,:,i), view(bv,:,i), view(bJtv,:,i))
-    end
-    return bJtv
+  for (i, nlp) in enumerate(bnlp.models)
+    NLPModels.jtprod!(nlp, view(bx, :, i), view(bv, :, i), view(bJtv, :, i))
+  end
+  return bJtv
 end
 
-NLPModels.hess_structure!(bnlp::BatchSimpleNLPModel, jrows, jcols) = NLPModels.hess_structure!(bnlp.models[1], jrows, jcols)
-
+NLPModels.hess_structure!(bnlp::BatchSimpleNLPModel, jrows, jcols) =
+  NLPModels.hess_structure!(bnlp.models[1], jrows, jcols)
 
 function NLPModels.hess_coord!(bnlp::BatchSimpleNLPModel, bx, by, bobj_weight, bhvals)
-    for (i, nlp) in enumerate(bnlp.models)
-        NLPModels.hess_coord!(nlp, view(bx,:,i), view(by,:,i), view(bhvals,:,i); obj_weight = bobj_weight[i])
-    end
-    return bhvals
+  for (i, nlp) in enumerate(bnlp.models)
+    NLPModels.hess_coord!(
+      nlp,
+      view(bx, :, i),
+      view(by, :, i),
+      view(bhvals, :, i);
+      obj_weight = bobj_weight[i],
+    )
+  end
+  return bhvals
 end
 
 function NLPModels.hprod!(bnlp::BatchSimpleNLPModel, bx, by, bv, bobj_weight, bHv)
-    for (i, nlp) in enumerate(bnlp.models)
-        NLPModels.hprod!(nlp, view(bx,:,i), view(by,:,i), view(bv,:,i), view(bHv,:,i); obj_weight = bobj_weight[i])
-    end
-    return bHv
+  for (i, nlp) in enumerate(bnlp.models)
+    NLPModels.hprod!(
+      nlp,
+      view(bx, :, i),
+      view(by, :, i),
+      view(bv, :, i),
+      view(bHv, :, i);
+      obj_weight = bobj_weight[i],
+    )
+  end
+  return bHv
 end
