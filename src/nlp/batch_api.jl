@@ -11,7 +11,6 @@ and the sparsity patterns of the Jacobian and the Hessian of the Lagrangian are 
 """
 abstract type AbstractBatchNLPModel{T, S} end
 
-
 function obj(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractMatrix) where {T, S}
   bf = S(undef, 1, bnlp.meta.nbatch) |> vec
   obj!(bnlp, bx, bf)
