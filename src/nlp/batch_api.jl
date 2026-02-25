@@ -47,13 +47,21 @@ function jac_coord(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractMatrix) where 
   return bjvals
 end
 
-function jprod(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractMatrix, bv::AbstractMatrix) where {T, S}
+function jprod(
+  bnlp::AbstractBatchNLPModel{T, S},
+  bx::AbstractMatrix,
+  bv::AbstractMatrix,
+) where {T, S}
   bJv = S(undef, bnlp.meta.ncon, bnlp.meta.nbatch)
   jprod!(bnlp, bx, bv, bJv)
   return bJv
 end
 
-function jtprod(bnlp::AbstractBatchNLPModel{T, S}, bx::AbstractMatrix, bv::AbstractMatrix) where {T, S}
+function jtprod(
+  bnlp::AbstractBatchNLPModel{T, S},
+  bx::AbstractMatrix,
+  bv::AbstractMatrix,
+) where {T, S}
   bJtv = S(undef, bnlp.meta.nvar, bnlp.meta.nbatch)
   jtprod!(bnlp, bx, bv, bJtv)
   return bJtv
