@@ -48,6 +48,7 @@ Evaluate ``c(x)``, the constraints at `x`.
 """
 function cons(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_constrained(nlp)
   c = S(undef, nlp.meta.ncon)
   return cons!(nlp, x, c)
 end
@@ -60,6 +61,7 @@ Evaluate ``c(x)``, the constraints at `x` in place.
 function cons!(nlp::AbstractNLPModel, x::AbstractVector, cx::AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon cx
+  check_constrained(nlp)
   increment!(nlp, :neval_cons)
   if nlp.meta.nlin > 0
     if nlp.meta.nnln == 0
@@ -85,6 +87,7 @@ Evaluate the linear constraints at `x`.
 """
 function cons_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_linearly_constrained(nlp)
   c = S(undef, nlp.meta.nlin)
   return cons_lin!(nlp, x, c)
 end
@@ -103,6 +106,7 @@ Evaluate the nonlinear constraints at `x`.
 """
 function cons_nln(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_nonlinearly_constrained(nlp)
   c = S(undef, nlp.meta.nnln)
   return cons_nln!(nlp, x, c)
 end
@@ -133,6 +137,7 @@ Evaluate ``f(x)`` and ``c(x)`` at `x`.
 """
 function objcons(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_constrained(nlp)
   c = S(undef, nlp.meta.ncon)
   return objcons!(nlp, x, c)
 end
@@ -145,6 +150,7 @@ Evaluate ``f(x)`` and ``c(x)`` at `x`. `c` is overwritten with the value of ``c(
 function objcons!(nlp::AbstractNLPModel, x::AbstractVector, c::AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon c
+  check_constrained(nlp)
   f = obj(nlp, x)
   cons!(nlp, x, c)
   return f, c
@@ -182,6 +188,7 @@ Return the structure of the constraints Jacobian in sparse coordinate format.
 This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_structure(nlp::AbstractNLPModel)
+  check_constrained(nlp)
   rows = Vector{Int}(undef, nlp.meta.nnzj)
   cols = Vector{Int}(undef, nlp.meta.nnzj)
   jac_structure!(nlp, rows, cols)
@@ -198,6 +205,7 @@ function jac_structure!(
   rows::AbstractVector{T},
   cols::AbstractVector{T},
 ) where {T}
+  check_constrained(nlp)
   @lencheck nlp.meta.nnzj rows cols
   lin_ind = 1:(nlp.meta.lin_nnzj)
   if nlp.meta.nlin > 0
@@ -231,6 +239,7 @@ Return the structure of the linear constraints Jacobian in sparse coordinate for
 This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_lin_structure(nlp::AbstractNLPModel)
+  check_linearly_constrained(nlp)
   rows = Vector{Int}(undef, nlp.meta.lin_nnzj)
   cols = Vector{Int}(undef, nlp.meta.lin_nnzj)
   jac_lin_structure!(nlp, rows, cols)
@@ -251,6 +260,7 @@ Return the structure of the nonlinear constraints Jacobian in sparse coordinate 
 This function is only available when both `nlp.meta.jac_available` and `nlp.meta.sparse_jacobian` are set to `true`.
 """
 function jac_nln_structure(nlp::AbstractNLPModel)
+  check_nonlinearly_constrained(nlp)
   rows = Vector{Int}(undef, nlp.meta.nln_nnzj)
   cols = Vector{Int}(undef, nlp.meta.nln_nnzj)
   jac_nln_structure!(nlp, rows, cols)
@@ -273,6 +283,7 @@ This function is only available when both `nlp.meta.jac_available` and `nlp.meta
 function jac_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVector)
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nnzj vals
+  check_constrained(nlp)
   increment!(nlp, :neval_jac)
   if nlp.meta.nlin > 0
     if nlp.meta.nnln == 0
@@ -301,6 +312,7 @@ This function is only available when both `nlp.meta.jac_available` and `nlp.meta
 """
 function jac_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_constrained(nlp)
   vals = S(undef, nlp.meta.nnzj)
   return jac_coord!(nlp, x, vals)
 end
@@ -321,6 +333,7 @@ This function is only available when both `nlp.meta.jac_available` and `nlp.meta
 """
 function jac(nlp::AbstractNLPModel, x::AbstractVector)
   @lencheck nlp.meta.nvar x
+  check_constrained(nlp)
   rows, cols = jac_structure(nlp)
   vals = jac_coord(nlp, x)
   sparse(rows, cols, vals, nlp.meta.ncon, nlp.meta.nvar)
@@ -342,6 +355,7 @@ This function is only available when both `nlp.meta.jac_available` and `nlp.meta
 """
 function jac_lin_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_linearly_constrained(nlp)
   vals = S(undef, nlp.meta.lin_nnzj)
   return jac_lin_coord!(nlp, x, vals)
 end
@@ -354,6 +368,7 @@ This function is only available when both `nlp.meta.jac_available` and `nlp.meta
 """
 function jac_lin(nlp::AbstractNLPModel, x::AbstractVector)
   @lencheck nlp.meta.nvar x
+  check_linearly_constrained(nlp)
   rows, cols = jac_lin_structure(nlp)
   vals = jac_lin_coord(nlp, x)
   sparse(rows, cols, vals, nlp.meta.nlin, nlp.meta.nvar)
@@ -375,6 +390,7 @@ This function is only available when both `nlp.meta.jac_available` and `nlp.meta
 """
 function jac_nln_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_nonlinearly_constrained(nlp)
   vals = S(undef, nlp.meta.nln_nnzj)
   return jac_nln_coord!(nlp, x, vals)
 end
@@ -387,6 +403,7 @@ This function is only available when both `nlp.meta.jac_available` and `nlp.meta
 """
 function jac_nln(nlp::AbstractNLPModel, x::AbstractVector)
   @lencheck nlp.meta.nvar x
+  check_nonlinearly_constrained(nlp)
   rows, cols = jac_nln_structure(nlp)
   vals = jac_nln_coord(nlp, x)
   sparse(rows, cols, vals, nlp.meta.nnln, nlp.meta.nvar)
@@ -400,6 +417,7 @@ This function is only available if `nlp.meta.jprod_available` is set to `true`.
 """
 function jprod(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x v
+  check_constrained(nlp)
   Jv = S(undef, nlp.meta.ncon)
   return jprod!(nlp, x, v, Jv)
 end
@@ -413,6 +431,7 @@ This function is only available if `nlp.meta.jprod_available` is set to `true`.
 function jprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv::AbstractVector)
   @lencheck nlp.meta.nvar x v
   @lencheck nlp.meta.ncon Jv
+  check_constrained(nlp)
   increment!(nlp, :neval_jprod)
   if nlp.meta.nlin > 0
     if nlp.meta.nnln == 0
@@ -448,6 +467,7 @@ function jprod!(
   @lencheck nlp.meta.nnzj rows cols vals
   @lencheck nlp.meta.nvar v
   @lencheck nlp.meta.ncon Jv
+  check_constrained(nlp)
   increment!(nlp, :neval_jprod)
   coo_prod!(rows, cols, vals, v, Jv)
 end
@@ -460,6 +480,7 @@ This function is only available if `nlp.meta.jprod_available` is set to `true`.
 """
 function jprod_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x v
+  check_linearly_constrained(nlp)
   Jv = S(undef, nlp.meta.nlin)
   return jprod_lin!(nlp, x, v, Jv)
 end
@@ -489,6 +510,7 @@ function jprod_lin!(
   @lencheck nlp.meta.lin_nnzj rows cols vals
   @lencheck nlp.meta.nvar v
   @lencheck nlp.meta.nlin Jv
+  check_linearly_constrained(nlp)
   increment!(nlp, :neval_jprod_lin)
   coo_prod!(rows, cols, vals, v, Jv)
 end
@@ -501,6 +523,7 @@ This function is only available if `nlp.meta.jprod_available` is set to `true`.
 """
 function jprod_nln(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x v
+  check_nonlinearly_constrained(nlp)
   Jv = S(undef, nlp.meta.nnln)
   return jprod_nln!(nlp, x, v, Jv)
 end
@@ -530,6 +553,7 @@ function jprod_nln!(
   @lencheck nlp.meta.nln_nnzj rows cols vals
   @lencheck nlp.meta.nvar v
   @lencheck nlp.meta.nnln Jv
+  check_nonlinearly_constrained(nlp)
   increment!(nlp, :neval_jprod_nln)
   coo_prod!(rows, cols, vals, v, Jv)
 end
@@ -543,6 +567,7 @@ This function is only available if `nlp.meta.jtprod_available` is set to `true`.
 function jtprod(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon v
+  check_constrained(nlp)
   Jtv = S(undef, nlp.meta.nvar)
   return jtprod!(nlp, x, v, Jtv)
 end
@@ -557,6 +582,7 @@ This function is only available if `nlp.meta.jtprod_available` is set to `true`.
 function jtprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jtv::AbstractVector)
   @lencheck nlp.meta.nvar x Jtv
   @lencheck nlp.meta.ncon v
+  check_constrained(nlp)
   increment!(nlp, :neval_jtprod)
   if nlp.meta.nnln == 0
     (nlp.meta.nlin > 0) && jtprod_lin!(nlp, x, v, Jtv)
@@ -594,6 +620,7 @@ function jtprod!(
   @lencheck nlp.meta.nnzj rows cols vals
   @lencheck nlp.meta.ncon v
   @lencheck nlp.meta.nvar Jtv
+  check_constrained(nlp)
   increment!(nlp, :neval_jtprod)
   coo_prod!(cols, rows, vals, v, Jtv)
 end
@@ -607,6 +634,7 @@ This function is only available if `nlp.meta.jtprod_available` is set to `true`.
 function jtprod_lin(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nlin v
+  check_linearly_constrained(nlp)
   Jtv = S(undef, nlp.meta.nvar)
   return jtprod_lin!(nlp, x, v, Jtv)
 end
@@ -637,6 +665,7 @@ function jtprod_lin!(
   @lencheck nlp.meta.lin_nnzj rows cols vals
   @lencheck nlp.meta.nlin v
   @lencheck nlp.meta.nvar Jtv
+  check_linearly_constrained(nlp)
   increment!(nlp, :neval_jtprod_lin)
   coo_prod!(cols, rows, vals, v, Jtv)
 end
@@ -650,6 +679,7 @@ This function is only available if `nlp.meta.jtprod_available` is set to `true`.
 function jtprod_nln(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.nnln v
+  check_nonlinearly_constrained(nlp)
   Jtv = S(undef, nlp.meta.nvar)
   return jtprod_nln!(nlp, x, v, Jtv)
 end
@@ -680,6 +710,7 @@ function jtprod_nln!(
   @lencheck nlp.meta.nln_nnzj rows cols vals
   @lencheck nlp.meta.nnln v
   @lencheck nlp.meta.nvar Jtv
+  check_nonlinearly_constrained(nlp)
   increment!(nlp, :neval_jtprod_nln)
   coo_prod!(cols, rows, vals, v, Jtv)
 end
@@ -693,6 +724,7 @@ This function is only available if both `nlp.meta.jprod_available` and `nlp.meta
 """
 function jac_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_constrained(nlp)
   Jv = S(undef, nlp.meta.ncon)
   Jtv = S(undef, nlp.meta.nvar)
   return jac_op!(nlp, x, Jv, Jtv)
@@ -714,6 +746,7 @@ function jac_op!(
 ) where {T, S}
   @lencheck nlp.meta.nvar x Jtv
   @lencheck nlp.meta.ncon Jv
+  check_constrained(nlp)
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
     jprod!(nlp, x, v, Jv)
     if β == 0
@@ -754,6 +787,7 @@ function jac_op!(
   @lencheck nlp.meta.nnzj rows cols vals
   @lencheck nlp.meta.ncon Jv
   @lencheck nlp.meta.nvar Jtv
+  check_constrained(nlp)
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
     jprod!(nlp, rows, cols, vals, v, Jv)
     if β == 0
@@ -784,6 +818,7 @@ This function is only available if both `nlp.meta.jprod_available` and `nlp.meta
 """
 function jac_lin_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_linearly_constrained(nlp)
   Jv = S(undef, nlp.meta.nlin)
   Jtv = S(undef, nlp.meta.nvar)
   return jac_lin_op!(nlp, x, Jv, Jtv)
@@ -805,6 +840,7 @@ function jac_lin_op!(
 ) where {T, S}
   @lencheck nlp.meta.nvar x Jtv
   @lencheck nlp.meta.nlin Jv
+  check_linearly_constrained(nlp)
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
     jprod_lin!(nlp, x, v, Jv)
     if β == 0
@@ -845,6 +881,7 @@ function jac_lin_op!(
   @lencheck nlp.meta.lin_nnzj rows cols vals
   @lencheck nlp.meta.nlin Jv
   @lencheck nlp.meta.nvar Jtv
+  check_linearly_constrained(nlp)
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
     jprod_lin!(nlp, rows, cols, vals, v, Jv)
     if β == 0
@@ -875,6 +912,7 @@ This function is only available if both `nlp.meta.jprod_available` and `nlp.meta
 """
 function jac_nln_op(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
+  check_nonlinearly_constrained(nlp)
   Jv = S(undef, nlp.meta.nnln)
   Jtv = S(undef, nlp.meta.nvar)
   return jac_nln_op!(nlp, x, Jv, Jtv)
@@ -896,6 +934,7 @@ function jac_nln_op!(
 ) where {T, S}
   @lencheck nlp.meta.nvar x Jtv
   @lencheck nlp.meta.nnln Jv
+  check_nonlinearly_constrained(nlp)
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
     jprod_nln!(nlp, x, v, Jv)
     if β == 0
@@ -936,6 +975,7 @@ function jac_nln_op!(
   @lencheck nlp.meta.nln_nnzj rows cols vals
   @lencheck nlp.meta.nnln Jv
   @lencheck nlp.meta.nvar Jtv
+  check_nonlinearly_constrained(nlp)
   prod! = @closure (res, v, α, β) -> begin # res = α * J * v + β * res
     jprod_nln!(nlp, rows, cols, vals, v, Jv)
     if β == 0
@@ -967,6 +1007,7 @@ This function is only available when `nlp.meta.sparse_hessian` is set to `true`.
 function jth_hess_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector, j::Integer) where {T, S}
   @lencheck nlp.meta.nvar x
   @rangecheck 1 nlp.meta.ncon j
+  check_constrained(nlp)
   vals = S(undef, nlp.meta.nnzh)
   return jth_hess_coord!(nlp, x, j, vals)
 end
@@ -991,6 +1032,7 @@ This function is only available when `nlp.meta.sparse_hessian` is set to `true`.
 function jth_hess(nlp::AbstractNLPModel, x::AbstractVector, j::Integer)
   @lencheck nlp.meta.nvar x
   @rangecheck 1 nlp.meta.ncon j
+  check_constrained(nlp)
   rows, cols = hess_structure(nlp)
   vals = jth_hess_coord(nlp, x, j)
   return Symmetric(sparse(rows, cols, vals, nlp.meta.nvar, nlp.meta.nvar), :L)
@@ -1009,6 +1051,7 @@ function jth_hprod(
 ) where {T, S}
   @lencheck nlp.meta.nvar x v
   @rangecheck 1 nlp.meta.ncon j
+  check_constrained(nlp)
   Hv = S(undef, nlp.meta.nvar)
   return jth_hprod!(nlp, x, v, j, Hv)
 end
@@ -1033,6 +1076,7 @@ function ghjvprod(
   v::AbstractVector,
 ) where {T, S}
   @lencheck nlp.meta.nvar x g v
+  check_constrained(nlp)
   gHv = S(undef, nlp.meta.ncon)
   return ghjvprod!(nlp, x, g, v, gHv)
 end
@@ -1132,6 +1176,7 @@ function hess_coord(
 ) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
+  check_constrained(nlp)
   vals = S(undef, nlp.meta.nnzh)
   return hess_coord!(nlp, x, y, vals; obj_weight = obj_weight)
 end
@@ -1184,6 +1229,7 @@ function hess(
 ) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
+  check_constrained(nlp)
   rows, cols = hess_structure(nlp)
   vals = hess_coord(nlp, x, y, obj_weight = obj_weight)
   Symmetric(sparse(rows, cols, vals, nlp.meta.nvar, nlp.meta.nvar), :L)
@@ -1225,6 +1271,7 @@ function hprod(
 ) where {T, S}
   @lencheck nlp.meta.nvar x v
   @lencheck nlp.meta.ncon y
+  check_constrained(nlp)
   Hv = S(undef, nlp.meta.nvar)
   return hprod!(nlp, x, y, v, Hv; obj_weight = obj_weight)
 end
@@ -1316,6 +1363,7 @@ function hess_op(
 ) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
+  check_constrained(nlp)
   Hv = S(undef, nlp.meta.nvar)
   return hess_op!(nlp, x, y, Hv, obj_weight = obj_weight)
 end
@@ -1402,6 +1450,7 @@ function hess_op!(
 ) where {T, S}
   @lencheck nlp.meta.nvar x Hv
   @lencheck nlp.meta.ncon y
+  check_constrained(nlp)
   prod! = @closure (res, v, α, β) -> begin
     hprod!(nlp, x, y, v, Hv; obj_weight = obj_weight)
     if β == 0
