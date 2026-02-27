@@ -147,4 +147,4 @@ end
 
 Element type of `nlp.meta.x0`.
 """
-Base.eltype(nlp::AbstractNLPModel{T, S}) where {T, S} = eltype(nlp.meta.x0)
+Base.eltype(nlp::AbstractNLPModel{T, S}) where {T, S} = eltype(get_x0(nlp))
