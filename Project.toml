@@ -12,7 +12,7 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 [compat]
 FastClosures = "0.3.0"
 LinearAlgebra = "1.10"
-LinearOperators = "2"
+LinearOperators = "2.13"
 Printf = "1.10"
 SparseArrays = "1.10"
 Test = "1.10"
