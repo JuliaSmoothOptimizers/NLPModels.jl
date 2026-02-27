@@ -732,7 +732,7 @@ function jac_op!(
     end
     return res
   end
-  return LinearOperator{T}(nlp.meta.ncon, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
+  return LinearOperator{T,S}(nlp.meta.ncon, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
 
 """
@@ -772,7 +772,7 @@ function jac_op!(
     end
     return res
   end
-  return LinearOperator{T}(nlp.meta.ncon, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
+  return LinearOperator{T,S}(nlp.meta.ncon, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
 
 """
@@ -823,7 +823,7 @@ function jac_lin_op!(
     end
     return res
   end
-  return LinearOperator{T}(nlp.meta.nlin, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
+  return LinearOperator{T,S}(nlp.meta.nlin, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
 
 """
@@ -863,7 +863,7 @@ function jac_lin_op!(
     end
     return res
   end
-  return LinearOperator{T}(nlp.meta.nlin, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
+  return LinearOperator{T,S}(nlp.meta.nlin, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
 
 """
@@ -914,7 +914,7 @@ function jac_nln_op!(
     end
     return res
   end
-  return LinearOperator{T}(nlp.meta.nnln, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
+  return LinearOperator{T,S}(nlp.meta.nnln, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
 
 """
@@ -954,7 +954,7 @@ function jac_nln_op!(
     end
     return res
   end
-  return LinearOperator{T}(nlp.meta.nnln, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
+  return LinearOperator{T,S}(nlp.meta.nnln, nlp.meta.nvar, false, false, prod!, ctprod!, ctprod!)
 end
 
 """
@@ -1347,7 +1347,7 @@ function hess_op!(
     end
     return res
   end
-  return LinearOperator{T}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
+  return LinearOperator{T,S}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
 end
 
 """
@@ -1379,7 +1379,7 @@ function hess_op!(
     end
     return res
   end
-  return LinearOperator{T}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
+  return LinearOperator{T,S}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
 end
 
 """
@@ -1411,7 +1411,7 @@ function hess_op!(
     end
     return res
   end
-  return LinearOperator{T}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
+  return LinearOperator{T,S}(nlp.meta.nvar, nlp.meta.nvar, true, true, prod!, prod!, prod!)
 end
 
 """
