@@ -52,8 +52,8 @@ Return the structure of the constraints Jacobian wrt parameters in sparse coordi
 This function is only available if `nlp.pmeta.jac_param_available` is set to `true`.
 """
 function jac_param_structure(nlp::AbstractNLPModel)
-  rows = Vector{Int}(undef, nlp.pmeta.nnzj)
-  cols = Vector{Int}(undef, nlp.pmeta.nnzj)
+  rows = Vector{Int}(undef, nlp.pmeta.nnzjp)
+  cols = Vector{Int}(undef, nlp.pmeta.nnzjp)
   jac_param_structure!(nlp, rows, cols)
 end
 
@@ -81,7 +81,7 @@ This function is only available if `nlp.pmeta.jac_param_available` is set to `tr
 """
 function jac_param_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
-  vals = S(undef, nlp.pmeta.nnzj)
+  vals = S(undef, nlp.pmeta.nnzjp)
   return jac_param_coord!(nlp, x, vals)
 end
 
@@ -134,8 +134,8 @@ Return the structure of the Lagrangian variable-parameter Hessian in sparse coor
 This function is only available if `nlp.pmeta.hess_param_available` is set to `true`.
 """
 function hess_param_structure(nlp::AbstractNLPModel)
-  rows = Vector{Int}(undef, nlp.pmeta.nnzh)
-  cols = Vector{Int}(undef, nlp.pmeta.nnzh)
+  rows = Vector{Int}(undef, nlp.pmeta.nnzhp)
+  cols = Vector{Int}(undef, nlp.pmeta.nnzhp)
   hess_param_structure!(nlp, rows, cols)
 end
 
@@ -161,7 +161,7 @@ function hess_param_coord!(
   obj_weight::Real = one(T),
 ) where {T, S}
   @lencheck nlp.meta.nvar x
-  @lencheck nlp.pmeta.nnzh vals
+  @lencheck nlp.pmeta.nnzhp vals
   y = fill!(S(undef, nlp.meta.ncon), 0)
   hess_param_coord!(nlp, x, y, vals, obj_weight = obj_weight)
 end
@@ -188,7 +188,7 @@ function hess_param_coord(
   obj_weight::Real = one(T),
 ) where {T, S}
   @lencheck nlp.meta.nvar x
-  vals = S(undef, nlp.pmeta.nnzh)
+  vals = S(undef, nlp.pmeta.nnzhp)
   return hess_param_coord!(nlp, x, vals; obj_weight = obj_weight)
 end
 
@@ -207,7 +207,7 @@ function hess_param_coord(
 ) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
-  vals = S(undef, nlp.pmeta.nnzh)
+  vals = S(undef, nlp.pmeta.nnzhp)
   return hess_param_coord!(nlp, x, y, vals; obj_weight = obj_weight)
 end
 
@@ -315,8 +315,8 @@ function hptprod! end
 Return the structure of the constraint lower bound Jacobian wrt parameters in sparse coordinate format.
 """
 function lcon_jac_param_structure(nlp::AbstractNLPModel)
-  rows = Vector{Int}(undef, nlp.pmeta.nnzjlcon)
-  cols = Vector{Int}(undef, nlp.pmeta.nnzjlcon)
+  rows = Vector{Int}(undef, nlp.pmeta.nnzjplcon)
+  cols = Vector{Int}(undef, nlp.pmeta.nnzjplcon)
   lcon_jac_param_structure!(nlp, rows, cols)
 end
 
@@ -335,7 +335,7 @@ function lcon_jac_param_coord! end
 Evaluate the lower constraint-bound Jacobian wrt parameters in sparse coordinate format.
 """
 function lcon_jac_param_coord(nlp::AbstractNLPModel{T, S}) where {T, S}
-  vals = S(undef, nlp.pmeta.nnzjlcon)
+  vals = S(undef, nlp.pmeta.nnzjplcon)
   return lcon_jac_param_coord!(nlp, vals)
 end
 
@@ -371,8 +371,8 @@ function lcon_jptprod! end
 Return the structure of the constraint upper bound Jacobian wrt parameters in sparse coordinate format.
 """
 function ucon_jac_param_structure(nlp::AbstractNLPModel)
-  rows = Vector{Int}(undef, nlp.pmeta.nnzjucon)
-  cols = Vector{Int}(undef, nlp.pmeta.nnzjucon)
+  rows = Vector{Int}(undef, nlp.pmeta.nnzjpucon)
+  cols = Vector{Int}(undef, nlp.pmeta.nnzjpucon)
   ucon_jac_param_structure!(nlp, rows, cols)
 end
 
@@ -391,7 +391,7 @@ function ucon_jac_param_coord! end
 Evaluate the upper constraint-bound Jacobian wrt parameters in sparse coordinate format.
 """
 function ucon_jac_param_coord(nlp::AbstractNLPModel{T, S}) where {T, S}
-  vals = S(undef, nlp.pmeta.nnzjucon)
+  vals = S(undef, nlp.pmeta.nnzjpucon)
   return ucon_jac_param_coord!(nlp, vals)
 end
 
@@ -427,8 +427,8 @@ function ucon_jptprod! end
 Return the structure of the variable lower bound Jacobian wrt parameters in sparse coordinate format.
 """
 function lvar_jac_param_structure(nlp::AbstractNLPModel)
-  rows = Vector{Int}(undef, nlp.pmeta.nnzjlvar)
-  cols = Vector{Int}(undef, nlp.pmeta.nnzjlvar)
+  rows = Vector{Int}(undef, nlp.pmeta.nnzjplvar)
+  cols = Vector{Int}(undef, nlp.pmeta.nnzjplvar)
   lvar_jac_param_structure!(nlp, rows, cols)
 end
 
@@ -447,7 +447,7 @@ function lvar_jac_param_coord! end
 Evaluate the lower variable-bound Jacobian wrt parameters in sparse coordinate format.
 """
 function lvar_jac_param_coord(nlp::AbstractNLPModel{T, S}) where {T, S}
-  vals = S(undef, nlp.pmeta.nnzjlvar)
+  vals = S(undef, nlp.pmeta.nnzjplvar)
   return lvar_jac_param_coord!(nlp, vals)
 end
 
@@ -483,8 +483,8 @@ function lvar_jptprod! end
 Return the structure of the variable upper bound Jacobian wrt parameters in sparse coordinate format.
 """
 function uvar_jac_param_structure(nlp::AbstractNLPModel)
-  rows = Vector{Int}(undef, nlp.pmeta.nnzjuvar)
-  cols = Vector{Int}(undef, nlp.pmeta.nnzjuvar)
+  rows = Vector{Int}(undef, nlp.pmeta.nnzjpuvar)
+  cols = Vector{Int}(undef, nlp.pmeta.nnzjpuvar)
   uvar_jac_param_structure!(nlp, rows, cols)
 end
 
@@ -503,7 +503,7 @@ function uvar_jac_param_coord! end
 Evaluate the upper variable-bound Jacobian wrt parameters in sparse coordinate format.
 """
 function uvar_jac_param_coord(nlp::AbstractNLPModel{T, S}) where {T, S}
-  vals = S(undef, nlp.pmeta.nnzjuvar)
+  vals = S(undef, nlp.pmeta.nnzjpuvar)
   return uvar_jac_param_coord!(nlp, vals)
 end
 

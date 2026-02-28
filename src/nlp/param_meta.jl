@@ -2,12 +2,12 @@ export ParametricNLPModelMeta
 
 struct ParametricNLPModelMeta
     nparam::Int
-    nnzj::Int      # ∇ₚ g
-    nnzh::Int      # ∇ₚ (∇ₓ L)
-    nnzjlcon::Int  # ∇ₚ lcon
-    nnzjucon::Int  # ∇ₚ ucon
-    nnzjlvar::Int  # ∇ₚ lvar
-    nnzjuvar::Int  # ∇ₚ uvar
+    nnzjp::Int      # ∇ₚ g
+    nnzhp::Int      # ∇ₚ (∇ₓ L)
+    nnzjplcon::Int  # ∇ₚ lcon
+    nnzjpucon::Int  # ∇ₚ ucon
+    nnzjplvar::Int  # ∇ₚ lvar
+    nnzjpuvar::Int  # ∇ₚ uvar
     grad_param_available::Bool
     jac_param_available::Bool
     hess_param_available::Bool
@@ -34,18 +34,18 @@ for field in fieldnames(ParametricNLPModelMeta)
   @eval begin
     $meth(meta::ParametricNLPModelMeta) = getproperty(meta, $(QuoteNode(field)))
   end
-  @eval $meth(bnlp::AbstractNLPModel) = $meth(bnlp.meta)
+  @eval $meth(bnlp::AbstractNLPModel) = $meth(bnlp.pmeta)
   @eval export $meth
 end
 
 function ParametricNLPModelMeta(;
     nparam::Int = 0,
-    nnzj::Int = 0,
-    nnzh::Int = 0,
-    nnzjlcon::Int = 0,
-    nnzjucon::Int = 0,
-    nnzjlvar::Int = 0,
-    nnzjuvar::Int = 0,
+    nnzjp::Int = 0,
+    nnzhp::Int = 0,
+    nnzjplcon::Int = 0,
+    nnzjpucon::Int = 0,
+    nnzjplvar::Int = 0,
+    nnzjpuvar::Int = 0,
     grad_param_available::Bool = false,
     jac_param_available::Bool = false,
     hess_param_available::Bool = false,
@@ -67,7 +67,7 @@ function ParametricNLPModelMeta(;
     uvar_jptprod_available::Bool = false,
 )
     return ParametricNLPModelMeta(
-        nparam, nnzj, nnzh, nnzjlcon, nnzjucon, nnzjlvar, nnzjuvar,
+        nparam, nnzjp, nnzhp, nnzjplcon, nnzjpucon, nnzjplvar, nnzjpuvar,
         grad_param_available, jac_param_available, hess_param_available,
         jpprod_available, jptprod_available, hpprod_available, hptprod_available,
         lcon_jac_available, ucon_jac_available, lvar_jac_available, uvar_jac_available,
