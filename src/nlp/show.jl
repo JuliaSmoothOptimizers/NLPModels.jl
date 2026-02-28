@@ -70,25 +70,25 @@ Describe `meta` for the `show` function.
 """
 function lines_of_description(m::M) where {M <: AbstractNLPModelMeta}
   V = [
-    length(m.ifree),
-    length(m.ilow),
-    length(m.iupp),
-    length(m.irng),
-    length(m.ifix),
-    length(m.iinf),
+    length(get_ifree(m)),
+    length(get_ilow(m)),
+    length(get_iupp(m)),
+    length(get_irng(m)),
+    length(get_ifix(m)),
+    length(get_iinf(m)),
   ]
   V = [sum(V); V]
   S = ["All variables", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
   varlines = lines_of_hist(S, V)
-  push!(varlines, sparsityline("nnzh", m.nnzh, m.nvar * (m.nvar + 1) / 2))
+  push!(varlines, sparsityline("nnzh", get_nnzh(m), get_nvar(m) * (get_nvar(m) + 1) / 2))
 
   V = [
-    length(m.jfree),
-    length(m.jlow),
-    length(m.jupp),
-    length(m.jrng),
-    length(m.jfix),
-    length(m.jinf),
+    length(get_jfree(m)),
+    length(get_jlow(m)),
+    length(get_jupp(m)),
+    length(get_jrng(m)),
+    length(get_jfix(m)),
+    length(get_jinf(m)),
   ]
   V = [sum(V); V]
   S = ["All constraints", "free", "lower", "upper", "low/upp", "fixed", "infeas"]
@@ -97,17 +97,17 @@ function lines_of_description(m::M) where {M <: AbstractNLPModelMeta}
   append!(
     conlines,
     [
-      histline("linear", m.nlin, m.ncon),
-      histline("nonlinear", m.nnln, m.ncon),
-      sparsityline("nnzj", m.nnzj, m.nvar * m.ncon),
+      histline("linear", get_nlin(m), get_ncon(m)),
+      histline("nonlinear", get_nnln(m), get_ncon(m)),
+      sparsityline("nnzj", get_nnzj(m), get_nvar(m) * get_ncon(m)),
     ],
   )
 
   if :lin_nnzj in fieldnames(M)
-    push!(conlines, sparsityline("lin_nnzj", m.lin_nnzj, m.nlin * m.nvar))
+    push!(conlines, sparsityline("lin_nnzj", get_lin_nnzj(m), get_nlin(m) * get_nvar(m)))
   end
   if :nln_nnzj in fieldnames(M)
-    push!(conlines, sparsityline("nln_nnzj", m.nln_nnzj, m.nnln * m.nvar))
+    push!(conlines, sparsityline("nln_nnzj", get_nln_nnzj(m), get_nnln(m) * get_nvar(m)))
   end
 
   append!(varlines, repeat([" "^length(varlines[1])], length(conlines) - length(varlines)))
@@ -117,7 +117,7 @@ function lines_of_description(m::M) where {M <: AbstractNLPModelMeta}
 end
 
 function Base.show(io::IO, m::AbstractNLPModelMeta)
-  println(io, "  Problem name: $(m.name)")
+  println(io, "  Problem name: $(get_name(m))")
   lines = lines_of_description(m)
   println(io, join(lines, "\n") * "\n")
 end
