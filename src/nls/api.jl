@@ -217,7 +217,7 @@ function jac_op_residual!(
     end
     return res
   end
-  return LinearOperator{T,S}(
+  return LinearOperator{T, S}(
     nls_meta(nls).nequ,
     nls_meta(nls).nvar,
     false,
@@ -264,7 +264,7 @@ function jac_op_residual!(
     end
     return res
   end
-  return LinearOperator{T,S}(
+  return LinearOperator{T, S}(
     nls_meta(nls).nequ,
     nls_meta(nls).nvar,
     false,
@@ -449,7 +449,15 @@ function hess_op_residual!(
     end
     return res
   end
-  return LinearOperator{T,S}(nls_meta(nls).nvar, nls_meta(nls).nvar, true, true, prod!, prod!, prod!)
+  return LinearOperator{T, S}(
+    nls_meta(nls).nvar,
+    nls_meta(nls).nvar,
+    true,
+    true,
+    prod!,
+    prod!,
+    prod!,
+  )
 end
 
 """
