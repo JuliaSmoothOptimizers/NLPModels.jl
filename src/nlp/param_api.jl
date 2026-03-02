@@ -29,11 +29,11 @@ export grad_param, grad_param!,
     g = grad_param(nlp, x)
 
 Evaluate `∇ₚf(x)`, the gradient of the objective function at `x` wrt parameters.
-This function is only available if `nlp.pmeta.grad_param_available` is set to `true`.
+This function is only available if `nlp.meta.grad_param_available` is set to `true`.
 """
 function grad_param(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
-  g = S(undef, nlp.pmeta.nparam)
+  g = S(undef, nlp.meta.nparam)
   return grad_param!(nlp, x, g)
 end
 
@@ -41,7 +41,7 @@ end
     g = grad_param!(nlp, x, g)
 
 Evaluate `∇ₚf(x)`, the gradient of the objective function at `x` wrt parameters in place.
-This function is only available if `nlp.pmeta.grad_param_available` is set to `true`.
+This function is only available if `nlp.meta.grad_param_available` is set to `true`.
 """
 function grad_param! end
 
@@ -49,11 +49,11 @@ function grad_param! end
     (rows, cols) = jac_param_structure(nlp)
 
 Return the structure of the constraints Jacobian wrt parameters in sparse coordinate format.
-This function is only available if `nlp.pmeta.jac_param_available` is set to `true`.
+This function is only available if `nlp.meta.jac_param_available` is set to `true`.
 """
 function jac_param_structure(nlp::AbstractNLPModel)
-  rows = Vector{Int}(undef, nlp.pmeta.nnzjp)
-  cols = Vector{Int}(undef, nlp.pmeta.nnzjp)
+  rows = Vector{Int}(undef, nlp.nnzjp)
+  cols = Vector{Int}(undef, nlp.nnzjp)
   jac_param_structure!(nlp, rows, cols)
 end
 
@@ -61,7 +61,7 @@ end
     jac_param_structure!(nlp, rows, cols)
 
 Return the structure of the constraints Jacobian wrt parameters in sparse coordinate format in place.
-This function is only available if `nlp.pmeta.jac_param_available` is set to `true`.
+This function is only available if `nlp.meta.jac_param_available` is set to `true`.
 """
 function jac_param_structure! end
 
@@ -69,7 +69,7 @@ function jac_param_structure! end
     vals = jac_param_coord!(nlp, x, vals)
 
 Evaluate ``Jₚ(x)``, the constraints Jacobian wrt parameters at `x` in sparse coordinate format, rewriting `vals`.
-This function is only available if `nlp.pmeta.jac_param_available` is set to `true`.
+This function is only available if `nlp.meta.jac_param_available` is set to `true`.
 """
 function jac_param_coord! end
 
@@ -77,11 +77,11 @@ function jac_param_coord! end
     vals = jac_param_coord(nlp, x)
 
 Evaluate ``Jₚ(x)``, the constraints Jacobian wrt parameters at `x` in sparse coordinate format.
-This function is only available if `nlp.pmeta.jac_param_available` is set to `true`.
+This function is only available if `nlp.meta.jac_param_available` is set to `true`.
 """
 function jac_param_coord(nlp::AbstractNLPModel{T, S}, x::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
-  vals = S(undef, nlp.pmeta.nnzjp)
+  vals = S(undef, nlp.nnzjp)
   return jac_param_coord!(nlp, x, vals)
 end
 
@@ -89,11 +89,11 @@ end
     Jv = jpprod(nlp, x, v)
 
 Evaluate ``Jₚ(x)v``, the parametric Jacobian-vector product at `x`.
-This function is only available if `nlp.pmeta.jpprod_available` is set to `true`.
+This function is only available if `nlp.meta.jpprod_available` is set to `true`.
 """
 function jpprod(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
-  @lencheck nlp.pmeta.nparam v
+  @lencheck nlp.meta.nparam v
   Jv = S(undef, nlp.meta.ncon)
   return jpprod!(nlp, x, v, Jv)
 end
@@ -102,7 +102,7 @@ end
     Jv = jpprod!(nlp, x, v, Jv)
 
 Evaluate ``Jₚ(x)v``, the parametric Jacobian-vector product at `x` in place.
-This function is only available if `nlp.pmeta.jpprod_available` is set to `true`.
+This function is only available if `nlp.meta.jpprod_available` is set to `true`.
 """
 function jpprod! end
 
@@ -110,12 +110,12 @@ function jpprod! end
     Jtv = jptprod(nlp, x, v)
 
 Evaluate ``Jₚ(x)ᵀv``, the parametric Jacobian-transpose vector product at `x`.
-This function is only available if `nlp.pmeta.jptprod_available` is set to `true`.
+This function is only available if `nlp.meta.jptprod_available` is set to `true`.
 """
 function jptprod(nlp::AbstractNLPModel{T, S}, x::AbstractVector, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon v
-  Jtv = S(undef, nlp.pmeta.nparam)
+  Jtv = S(undef, nlp.meta.nparam)
   return jptprod!(nlp, x, v, Jtv)
 end
 
@@ -123,7 +123,7 @@ end
     Jtv = jptprod!(nlp, x, v, Jtv)
 
 Evaluate ``Jₚ(x)ᵀv``, the parametric Jacobian-transpose vector product at `x` in place.
-This function is only available if `nlp.pmeta.jptprod_available` is set to `true`.
+This function is only available if `nlp.meta.jptprod_available` is set to `true`.
 """
 function jptprod! end
 
@@ -131,11 +131,11 @@ function jptprod! end
     (rows, cols) = hess_param_structure(nlp)
 
 Return the structure of the Lagrangian variable-parameter Hessian in sparse coordinate format.
-This function is only available if `nlp.pmeta.hess_param_available` is set to `true`.
+This function is only available if `nlp.meta.hess_param_available` is set to `true`.
 """
 function hess_param_structure(nlp::AbstractNLPModel)
-  rows = Vector{Int}(undef, nlp.pmeta.nnzhp)
-  cols = Vector{Int}(undef, nlp.pmeta.nnzhp)
+  rows = Vector{Int}(undef, nlp.meta.nnzhp)
+  cols = Vector{Int}(undef, nlp.meta.nnzhp)
   hess_param_structure!(nlp, rows, cols)
 end
 
@@ -143,7 +143,7 @@ end
     hess_param_structure!(nlp, rows, cols)
 
 Return the structure of the Lagrangian variable-parameter Hessian in sparse coordinate format in place.
-This function is only available if `nlp.pmeta.hess_param_available` is set to `true`.
+This function is only available if `nlp.meta.hess_param_available` is set to `true`.
 """
 function hess_param_structure! end
 
@@ -152,7 +152,7 @@ function hess_param_structure! end
 
 Evaluate the variable-parameter objective Hessian at `x` in sparse coordinate format,
 with objective function scaled by `obj_weight`, overwriting `vals`.
-This function is only available if `nlp.pmeta.hess_param_available` is set to `true`.
+This function is only available if `nlp.meta.hess_param_available` is set to `true`.
 """
 function hess_param_coord!(
   nlp::AbstractNLPModel{T, S},
@@ -161,7 +161,7 @@ function hess_param_coord!(
   obj_weight::Real = one(T),
 ) where {T, S}
   @lencheck nlp.meta.nvar x
-  @lencheck nlp.pmeta.nnzhp vals
+  @lencheck nlp.meta.nnzhp vals
   y = fill!(S(undef, nlp.meta.ncon), 0)
   hess_param_coord!(nlp, x, y, vals, obj_weight = obj_weight)
 end
@@ -171,7 +171,7 @@ end
 
 Evaluate the Lagrangian variable-parameter Hessian at `(x,y)` in sparse coordinate format,
 with objective function scaled by `obj_weight`, overwriting `vals`.
-This function is only available if `nlp.pmeta.hess_param_available` is set to `true`.
+This function is only available if `nlp.meta.hess_param_available` is set to `true`.
 """
 function hess_param_coord! end
 
@@ -180,7 +180,7 @@ function hess_param_coord! end
 
 Evaluate the variable-parameter objective Hessian at `x` in sparse coordinate format,
 with objective function scaled by `obj_weight`.
-This function is only available if `nlp.pmeta.hess_param_available` is set to `true`.
+This function is only available if `nlp.meta.hess_param_available` is set to `true`.
 """
 function hess_param_coord(
   nlp::AbstractNLPModel{T, S},
@@ -188,7 +188,7 @@ function hess_param_coord(
   obj_weight::Real = one(T),
 ) where {T, S}
   @lencheck nlp.meta.nvar x
-  vals = S(undef, nlp.pmeta.nnzhp)
+  vals = S(undef, nlp.meta.nnzhp)
   return hess_param_coord!(nlp, x, vals; obj_weight = obj_weight)
 end
 
@@ -197,7 +197,7 @@ end
 
 Evaluate the Lagrangian variable-parameter Hessian at `(x,y)` in sparse coordinate format,
 with objective function scaled by `obj_weight`.
-This function is only available if `nlp.pmeta.hess_param_available` is set to `true`.
+This function is only available if `nlp.meta.hess_param_available` is set to `true`.
 """
 function hess_param_coord(
   nlp::AbstractNLPModel{T, S},
@@ -207,7 +207,7 @@ function hess_param_coord(
 ) where {T, S}
   @lencheck nlp.meta.nvar x
   @lencheck nlp.meta.ncon y
-  vals = S(undef, nlp.pmeta.nnzhp)
+  vals = S(undef, nlp.meta.nnzhp)
   return hess_param_coord!(nlp, x, y, vals; obj_weight = obj_weight)
 end
 
@@ -216,7 +216,7 @@ end
 
 Evaluate the product of the objective variable-parameter Hessian at `x` with the vector `v`,
 with objective function scaled by `obj_weight`.
-This function is only available if `nlp.pmeta.hpprod_available` is set to `true`.
+This function is only available if `nlp.meta.hpprod_available` is set to `true`.
 """
 function hpprod(
   nlp::AbstractNLPModel{T, S},
@@ -225,7 +225,7 @@ function hpprod(
   obj_weight::Real = one(T),
 ) where {T, S}
   @lencheck nlp.meta.nvar x
-  @lencheck nlp.pmeta.nparam v
+  @lencheck nlp.meta.nparam v
   Hv = S(undef, nlp.meta.nvar)
   return hpprod!(nlp, x, v, Hv; obj_weight = obj_weight)
 end
@@ -235,7 +235,7 @@ end
 
 Evaluate the product of the Lagrangian variable-parameter Hessian at `(x,y)` with the vector `v`,
 with objective function scaled by `obj_weight`.
-This function is only available if `nlp.pmeta.hpprod_available` is set to `true`.
+This function is only available if `nlp.meta.hpprod_available` is set to `true`.
 """
 function hpprod(
   nlp::AbstractNLPModel{T, S},
@@ -245,7 +245,7 @@ function hpprod(
   obj_weight::Real = one(T),
 ) where {T, S}
   @lencheck nlp.meta.nvar x
-  @lencheck nlp.pmeta.nparam v
+  @lencheck nlp.meta.nparam v
   @lencheck nlp.meta.ncon y
   Hv = S(undef, nlp.meta.nvar)
   return hpprod!(nlp, x, y, v, Hv; obj_weight = obj_weight)
@@ -256,7 +256,7 @@ end
 
 Evaluate the product of the objective variable-parameter Hessian at `x` with the vector `v` in
 place, with objective function scaled by `obj_weight`.
-This function is only available if `nlp.pmeta.hpprod_available` is set to `true`.
+This function is only available if `nlp.meta.hpprod_available` is set to `true`.
 """
 function hpprod!(
   nlp::AbstractNLPModel{T, S},
@@ -266,7 +266,7 @@ function hpprod!(
   obj_weight::Real = one(T),
 ) where {T, S}
   @lencheck nlp.meta.nvar x Hv
-  @lencheck nlp.pmeta.nparam v
+  @lencheck nlp.meta.nparam v
   y = fill!(S(undef, nlp.meta.ncon), 0)
   hpprod!(nlp, x, y, v, Hv, obj_weight = obj_weight)
 end
@@ -276,7 +276,7 @@ end
 
 Evaluate the product of the Lagrangian variable-parameter Hessian at `(x,y)` with the vector `v` in
 place, with objective function scaled by `obj_weight`.
-This function is only available if `nlp.pmeta.hpprod_available` is set to `true`.
+This function is only available if `nlp.meta.hpprod_available` is set to `true`.
 """
 function hpprod! end
 
@@ -285,7 +285,7 @@ function hpprod! end
 
 Evaluate the product of the Lagrangian variable-parameter Hessian transpose at `(x,y)` with `v`,
 with objective function scaled by `obj_weight`.
-This function is only available if `nlp.pmeta.hptprod_available` is set to `true`.
+This function is only available if `nlp.meta.hptprod_available` is set to `true`.
 """
 function hptprod(
   nlp::AbstractNLPModel{T, S},
@@ -296,7 +296,7 @@ function hptprod(
 ) where {T, S}
   @lencheck nlp.meta.nvar x v
   @lencheck nlp.meta.ncon y
-  Htv = S(undef, nlp.pmeta.nparam)
+  Htv = S(undef, nlp.meta.nparam)
   return hptprod!(nlp, x, y, v, Htv; obj_weight = obj_weight)
 end
 
@@ -305,7 +305,7 @@ end
 
 Evaluate the product of the Lagrangian variable-parameter Hessian transpose at `(x,y)` with `v` in
 place, with objective function scaled by `obj_weight`.
-This function is only available if `nlp.pmeta.hptprod_available` is set to `true`.
+This function is only available if `nlp.meta.hptprod_available` is set to `true`.
 """
 function hptprod! end
 
@@ -315,8 +315,8 @@ function hptprod! end
 Return the structure of the constraint lower bound Jacobian wrt parameters in sparse coordinate format.
 """
 function lcon_jac_param_structure(nlp::AbstractNLPModel)
-  rows = Vector{Int}(undef, nlp.pmeta.nnzjplcon)
-  cols = Vector{Int}(undef, nlp.pmeta.nnzjplcon)
+  rows = Vector{Int}(undef, nlp.nnzjplcon)
+  cols = Vector{Int}(undef, nlp.nnzjplcon)
   lcon_jac_param_structure!(nlp, rows, cols)
 end
 
@@ -335,7 +335,7 @@ function lcon_jac_param_coord! end
 Evaluate the lower constraint-bound Jacobian wrt parameters in sparse coordinate format.
 """
 function lcon_jac_param_coord(nlp::AbstractNLPModel{T, S}) where {T, S}
-  vals = S(undef, nlp.pmeta.nnzjplcon)
+  vals = S(undef, nlp.nnzjplcon)
   return lcon_jac_param_coord!(nlp, vals)
 end
 
@@ -345,7 +345,7 @@ end
 Evaluate `∇ₚlcon ⋅ v`, the lower constraint-bound Jacobian product.
 """
 function lcon_jpprod(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
-  @lencheck nlp.pmeta.nparam v
+  @lencheck nlp.meta.nparam v
   Jv = S(undef, nlp.meta.ncon)
   return lcon_jpprod!(nlp, v, Jv)
 end
@@ -359,7 +359,7 @@ Evaluate `∇ₚlconᵀ ⋅ v`, the lower constraint-bound Jacobian transpose pr
 """
 function lcon_jptprod(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.ncon v
-  Jtv = S(undef, nlp.pmeta.nparam)
+  Jtv = S(undef, nlp.meta.nparam)
   return lcon_jptprod!(nlp, v, Jtv)
 end
 
@@ -371,8 +371,8 @@ function lcon_jptprod! end
 Return the structure of the constraint upper bound Jacobian wrt parameters in sparse coordinate format.
 """
 function ucon_jac_param_structure(nlp::AbstractNLPModel)
-  rows = Vector{Int}(undef, nlp.pmeta.nnzjpucon)
-  cols = Vector{Int}(undef, nlp.pmeta.nnzjpucon)
+  rows = Vector{Int}(undef, nlp.nnzjpucon)
+  cols = Vector{Int}(undef, nlp.nnzjpucon)
   ucon_jac_param_structure!(nlp, rows, cols)
 end
 
@@ -391,7 +391,7 @@ function ucon_jac_param_coord! end
 Evaluate the upper constraint-bound Jacobian wrt parameters in sparse coordinate format.
 """
 function ucon_jac_param_coord(nlp::AbstractNLPModel{T, S}) where {T, S}
-  vals = S(undef, nlp.pmeta.nnzjpucon)
+  vals = S(undef, nlp.nnzjpucon)
   return ucon_jac_param_coord!(nlp, vals)
 end
 
@@ -401,7 +401,7 @@ end
 Evaluate `∇ₚucon ⋅ v`, the upper constraint-bound Jacobian product.
 """
 function ucon_jpprod(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
-  @lencheck nlp.pmeta.nparam v
+  @lencheck nlp.meta.nparam v
   Jv = S(undef, nlp.meta.ncon)
   return ucon_jpprod!(nlp, v, Jv)
 end
@@ -415,7 +415,7 @@ Evaluate `∇ₚuconᵀ ⋅ v`, the upper constraint-bound Jacobian transpose pr
 """
 function ucon_jptprod(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.ncon v
-  Jtv = S(undef, nlp.pmeta.nparam)
+  Jtv = S(undef, nlp.meta.nparam)
   return ucon_jptprod!(nlp, v, Jtv)
 end
 
@@ -427,8 +427,8 @@ function ucon_jptprod! end
 Return the structure of the variable lower bound Jacobian wrt parameters in sparse coordinate format.
 """
 function lvar_jac_param_structure(nlp::AbstractNLPModel)
-  rows = Vector{Int}(undef, nlp.pmeta.nnzjplvar)
-  cols = Vector{Int}(undef, nlp.pmeta.nnzjplvar)
+  rows = Vector{Int}(undef, nlp.nnzjplvar)
+  cols = Vector{Int}(undef, nlp.nnzjplvar)
   lvar_jac_param_structure!(nlp, rows, cols)
 end
 
@@ -447,7 +447,7 @@ function lvar_jac_param_coord! end
 Evaluate the lower variable-bound Jacobian wrt parameters in sparse coordinate format.
 """
 function lvar_jac_param_coord(nlp::AbstractNLPModel{T, S}) where {T, S}
-  vals = S(undef, nlp.pmeta.nnzjplvar)
+  vals = S(undef, nlp.nnzjplvar)
   return lvar_jac_param_coord!(nlp, vals)
 end
 
@@ -457,7 +457,7 @@ end
 Evaluate `∇ₚlvar ⋅ v`, the lower variable-bound Jacobian product.
 """
 function lvar_jpprod(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
-  @lencheck nlp.pmeta.nparam v
+  @lencheck nlp.meta.nparam v
   Jv = S(undef, nlp.meta.nvar)
   return lvar_jpprod!(nlp, v, Jv)
 end
@@ -471,7 +471,7 @@ Evaluate `∇ₚlvarᵀ ⋅ v`, the lower variable-bound Jacobian transpose prod
 """
 function lvar_jptprod(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar v
-  Jtv = S(undef, nlp.pmeta.nparam)
+  Jtv = S(undef, nlp.meta.nparam)
   return lvar_jptprod!(nlp, v, Jtv)
 end
 
@@ -483,8 +483,8 @@ function lvar_jptprod! end
 Return the structure of the variable upper bound Jacobian wrt parameters in sparse coordinate format.
 """
 function uvar_jac_param_structure(nlp::AbstractNLPModel)
-  rows = Vector{Int}(undef, nlp.pmeta.nnzjpuvar)
-  cols = Vector{Int}(undef, nlp.pmeta.nnzjpuvar)
+  rows = Vector{Int}(undef, nlp.nnzjpuvar)
+  cols = Vector{Int}(undef, nlp.nnzjpuvar)
   uvar_jac_param_structure!(nlp, rows, cols)
 end
 
@@ -503,7 +503,7 @@ function uvar_jac_param_coord! end
 Evaluate the upper variable-bound Jacobian wrt parameters in sparse coordinate format.
 """
 function uvar_jac_param_coord(nlp::AbstractNLPModel{T, S}) where {T, S}
-  vals = S(undef, nlp.pmeta.nnzjpuvar)
+  vals = S(undef, nlp.nnzjpuvar)
   return uvar_jac_param_coord!(nlp, vals)
 end
 
@@ -513,7 +513,7 @@ end
 Evaluate `∇ₚuvar ⋅ v`, the upper variable-bound Jacobian product.
 """
 function uvar_jpprod(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
-  @lencheck nlp.pmeta.nparam v
+  @lencheck nlp.meta.nparam v
   Jv = S(undef, nlp.meta.nvar)
   return uvar_jpprod!(nlp, v, Jv)
 end
@@ -527,7 +527,7 @@ Evaluate `∇ₚuvarᵀ ⋅ v`, the upper variable-bound Jacobian transpose prod
 """
 function uvar_jptprod(nlp::AbstractNLPModel{T, S}, v::AbstractVector) where {T, S}
   @lencheck nlp.meta.nvar v
-  Jtv = S(undef, nlp.pmeta.nparam)
+  Jtv = S(undef, nlp.meta.nparam)
   return uvar_jptprod!(nlp, v, Jtv)
 end
 
