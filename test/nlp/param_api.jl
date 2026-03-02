@@ -18,19 +18,19 @@
   nlp = SimpleParamNLPModel()
   @test eltype(nlp) == Float64
 
-  n = nlp.meta.nvar
-  m = nlp.meta.ncon
-  np = nlp.meta.nparam
+  n = get_nvar(nlp)
+  m = get_ncon(nlp)
+  np = get_nparam(nlp)
   p1, p2 = nlp.ps
 
   @test np == 2
-  @test nlp.meta.nnzjp    == 1
-  @test nlp.meta.nnzhp    == 3
-  @test nlp.meta.nnzgp    == 2
-  @test nlp.meta.nnzjplcon == 1
-  @test nlp.meta.nnzjpucon == 1
-  @test nlp.meta.nnzjplvar == 2
-  @test nlp.meta.nnzjpuvar == 2
+  @test get_nnzjp(nlp)    == 1
+  @test get_nnzhp(nlp)    == 3
+  @test get_nnzgp(nlp)    == 2
+  @test get_nnzjplcon(nlp) == 1
+  @test get_nnzjpucon(nlp) == 1
+  @test get_nnzjplvar(nlp) == 2
+  @test get_nnzjpuvar(nlp) == 2
 
   x = [1.0, 2.0]
   y = [0.5]
@@ -55,7 +55,7 @@
     vals_exact = [x[2]]
     vals = jac_param_coord(nlp, x)
     @test vals ≈ vals_exact
-    vals2 = zeros(nlp.meta.nnzjp)
+    vals2 = zeros(get_nnzjp(nlp))
     @test jac_param_coord!(nlp, x, vals2) ≈ vals_exact
     @test vals2 ≈ vals_exact
   end
@@ -91,7 +91,7 @@
     vals_w = hess_param_coord(nlp, x, y; obj_weight = σ)
     @test vals_w ≈ [-2σ, y[1], -2σ]
 
-    vals2 = zeros(nlp.meta.nnzhp)
+    vals2 = zeros(get_nnzhp(nlp))
     @test hess_param_coord!(nlp, x, y, vals2; obj_weight = σ) ≈ [-2σ, y[1], -2σ]
     @test vals2 ≈ [-2σ, y[1], -2σ]
   end
@@ -122,7 +122,7 @@
 
     vals = lcon_jac_param_coord(nlp)
     @test vals ≈ [-1.0]
-    vals2 = zeros(nlp.meta.nnzjplcon)
+    vals2 = zeros(get_nnzjplcon(nlp))
     @test lcon_jac_param_coord!(nlp, vals2) ≈ [-1.0]
 
     # ∂lcon/∂p = [[0, -1]],  Jv = [0, -1] * v_p = -v_p[2]
@@ -145,7 +145,7 @@
 
     vals = ucon_jac_param_coord(nlp)
     @test vals ≈ [1.0]
-    vals2 = zeros(nlp.meta.nnzjpucon)
+    vals2 = zeros(get_nnzjpucon(nlp))
     @test ucon_jac_param_coord!(nlp, vals2) ≈ [1.0]
 
     # ∂ucon/∂p = [[0, 1]],  Jv = v_p[2]
@@ -168,7 +168,7 @@
 
     vals = lvar_jac_param_coord(nlp)
     @test vals ≈ [-1.0, -1.0]
-    vals2 = zeros(nlp.meta.nnzjplvar)
+    vals2 = zeros(get_nnzjplvar(nlp))
     @test lvar_jac_param_coord!(nlp, vals2) ≈ [-1.0, -1.0]
 
     # ∂lvar/∂p = -I₂,  Jv = -v_p
@@ -189,7 +189,7 @@
 
     vals = uvar_jac_param_coord(nlp)
     @test vals ≈ [1.0, 1.0]
-    vals2 = zeros(nlp.meta.nnzjpuvar)
+    vals2 = zeros(get_nnzjpuvar(nlp))
     @test uvar_jac_param_coord!(nlp, vals2) ≈ [1.0, 1.0]
 
     # ∂uvar/∂p = I₂,  Jv = v_p
@@ -205,16 +205,16 @@
 
   @testset "non-parametric behavior" begin
     plain = SimpleNLPModel()
-    @test plain.meta.nparam    == 0
-    @test plain.meta.nnzjp     == 0
-    @test plain.meta.nnzhp     == 0
-    @test plain.meta.nnzgp     == 0
-    @test plain.meta.nnzjplcon == 0
-    @test plain.meta.nnzjpucon == 0
-    @test plain.meta.nnzjplvar == 0
-    @test plain.meta.nnzjpuvar == 0
-    @test !plain.meta.grad_param_available
-    @test !plain.meta.jac_param_available
-    @test !plain.meta.hess_param_available
+    @test get_nparam(plain)    == 0
+    @test get_nnzjp(plain)     == 0
+    @test get_nnzhp(plain)     == 0
+    @test get_nnzgp(plain)     == 0
+    @test get_nnzjplcon(plain) == 0
+    @test get_nnzjpucon(plain) == 0
+    @test get_nnzjplvar(plain) == 0
+    @test get_nnzjpuvar(plain) == 0
+    @test !get_grad_param_available(plain)
+    @test !get_jac_param_available(plain)
+    @test !get_hess_param_available(plain)
   end
 end
