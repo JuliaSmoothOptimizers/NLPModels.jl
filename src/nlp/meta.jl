@@ -231,7 +231,8 @@ function NLPModelMeta{T, S}(
   lvar_jptprod_available::Bool = false,
   uvar_jptprod_available::Bool = false,
 ) where {T, S}
-  if (nvar < 1) || (ncon < 0) || (nnzj < 0) || (nnzh < 0)
+  if (nvar < 1) || (ncon < 0) || (nnzj < 0) || (nnzh < 0) || (nparam < 0) || (nnzjp < 0) || (nnzhp < 0) || (nnzgp < 0) ||
+     (nnzjplcon < 0) || (nnzjpucon < 0) || (nnzjplvar < 0) || (nnzjpuvar < 0)
     error("Nonsensical dimensions")
   end
 

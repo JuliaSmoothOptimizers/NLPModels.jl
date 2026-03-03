@@ -1,5 +1,13 @@
-@testset "A problem with zero variables doesn't make sense." begin
+@testset "Sanity checks" begin
   @test_throws ErrorException NLPModelMeta(0)
+  @test_throws ErrorException NLPModelMeta(2; nparam = -1)
+  @test_throws ErrorException NLPModelMeta(2; nnzjp = -1)
+  @test_throws ErrorException NLPModelMeta(2; nnzhp = -1)
+  @test_throws ErrorException NLPModelMeta(2; nnzgp = -1)
+  @test_throws ErrorException NLPModelMeta(2; nnzjplcon = -1)
+  @test_throws ErrorException NLPModelMeta(2; nnzjpucon = -1)
+  @test_throws ErrorException NLPModelMeta(2; nnzjplvar = -1)
+  @test_throws ErrorException NLPModelMeta(2; nnzjpuvar = -1)
 end
 
 @testset "Meta copier." begin
