@@ -17,6 +17,7 @@ makedocs(
     "Tools" => "tools.md",
     "API" => "api.md",
     "Batch API" => "batch_api.md",
+    "Parametric API" => "param_api.md",
     "Internals" => "internals.md",
     "Reference" => "reference.md",
   ],
