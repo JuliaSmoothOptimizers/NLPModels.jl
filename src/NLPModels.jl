@@ -44,4 +44,6 @@ end
 include("nlp/batch_api.jl")
 include("nlp/batch_meta.jl")
 
+include("nlp/param_api.jl")
+
 end # module
