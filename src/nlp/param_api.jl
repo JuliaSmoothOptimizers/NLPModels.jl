@@ -1,4 +1,5 @@
-export grad_param, grad_param!,
+export set_param_values!, get_param_values,
+    grad_param, grad_param!,
     jac_param_structure, jac_param_structure!,
     jac_param_coord, jac_param_coord!,
     jpprod, jpprod!,
@@ -24,6 +25,19 @@ export grad_param, grad_param!,
     uvar_jpprod, uvar_jpprod!,
     uvar_jptprod, uvar_jptprod!
 
+"""
+    p = get_param_values(nlp)
+
+Get the current parameter values from `nlp`.
+"""
+function get_param_values end
+
+"""
+    set_param_values!(nlp, p)
+
+Set the current parameter values to `p`.
+"""
+function set_param_values! end
 
 """
     g = grad_param(nlp, x)
