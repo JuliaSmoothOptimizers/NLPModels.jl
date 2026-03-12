@@ -162,7 +162,7 @@ macro default_counters(Model, inner, excluded = :())
     ex.args,
     :(
       Base.getproperty(nlp::$(esc(Model)), s::Symbol) =
-        (s == :counters ? nlp.$inner.counters : getfield(nlp, s))
+        (s == :counters ? get_counters(nlp.$inner) : getfield(nlp, s))
     ),
   )
   ex

@@ -1,7 +1,7 @@
 function Base.show(io::IO, nls::AbstractNLSModel)
   show_header(io, nls)
   show(io, nls.meta, nls.nls_meta)
-  show(io, nls.counters)
+  show(io, get_counters(nls))
 end
 
 """

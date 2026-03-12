@@ -11,7 +11,7 @@ show_header(io::IO, nlp::AbstractNLPModel) = println(io, typeof(nlp))
 function Base.show(io::IO, nlp::AbstractNLPModel)
   show_header(io, nlp)
   show(io, nlp.meta)
-  show(io, nlp.counters)
+  show(io, get_counters(nlp))
 end
 
 """
