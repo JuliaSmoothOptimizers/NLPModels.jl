@@ -18,9 +18,10 @@ end
 end
 
 @testset "Increase coverage of default_NLPcounters" begin
-  @default_counters SuperNLPModel model
+  @default_counters SuperNLPModel model (neval_hprod,)
   nlp = SuperNLPModel{Float64, Vector{Float64}}(SimpleNLPModel())
   increment!(nlp, :neval_obj)
   @test neval_obj(nlp.model) == 1
   @test nlp.counters == nlp.model.counters
+  @test neval_hprod(nlp) == 0  # because counters are forwarded, even though neval_hprod has not been forwarded
 end
