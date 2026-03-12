@@ -51,7 +51,7 @@ function sum_counters(c::NLSCounters)
   end
   return s
 end
-sum_counters(nls::AbstractNLSModel) = sum_counters(nls.counters)
+sum_counters(nls::AbstractNLSModel) = sum_counters(get_counters(nls))
 
 for counter in fieldnames(NLSCounters)
   counter == :counters && continue
@@ -61,14 +61,14 @@ for counter in fieldnames(NLSCounters)
 
     Get the number of `$(split("$($counter)", "_")[2])` evaluations.
     """
-    $counter(nls::AbstractNLSModel) = nls.counters.$counter
+    $counter(nls::AbstractNLSModel) = get_counters(nls).$counter
     export $counter
   end
 end
 
 for counter in fieldnames(Counters)
   @eval begin
-    $counter(nls::AbstractNLSModel) = nls.counters.counters.$counter
+    $counter(nls::AbstractNLSModel) = get_counters(nls).counters.$counter
     export $counter
   end
 end
@@ -84,16 +84,16 @@ end
 
 for fun in fieldnames(NLSCounters)
   fun == :counters && continue
-  @eval increment!(nls::AbstractNLSModel, ::Val{$(Meta.quot(fun))}) = nls.counters.$fun += 1
+  @eval increment!(nls::AbstractNLSModel, ::Val{$(Meta.quot(fun))}) = get_counters(nls).$fun += 1
 end
 
 for fun in fieldnames(Counters)
   @eval $NLPModels.increment!(nls::AbstractNLSModel, ::Val{$(Meta.quot(fun))}) =
-    nls.counters.counters.$fun += 1
+    get_counters(nls).counters.$fun += 1
 end
 
 function LinearOperators.reset!(nls::AbstractNLSModel)
-  reset!(nls.counters)
+  reset!(get_counters(nls))
   return nls
 end
 

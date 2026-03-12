@@ -22,6 +22,6 @@ end
   nlp = SuperNLPModel{Float64, Vector{Float64}}(SimpleNLPModel())
   increment!(nlp, :neval_obj)
   @test neval_obj(nlp.model) == 1
-  @test nlp.counters == nlp.model.counters
+  @test get_counters(nlp) == get_counters(nlp.model)
   @test neval_hprod(nlp) == 0  # because counters are forwarded, even though neval_hprod has not been forwarded
 end

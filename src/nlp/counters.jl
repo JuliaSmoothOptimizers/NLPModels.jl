@@ -1,4 +1,4 @@
-export Counters, sum_counters, increment!, decrement!, reset!
+export Counters, get_counters, sum_counters, increment!, decrement!, reset!
 
 """
     Counters
@@ -39,6 +39,18 @@ mutable struct Counters
 end
 
 # simple default API for retrieving counters
+
+# For backward compatibility.
+# In the future, forcing this method to raise an error if not implemented
+# would be more robust.
+"""
+        get_counters(nlp)
+
+Return the `Counters` struct associated with `nlp`.
+By default, this is `nlp.counters`, but it can be overridden in concrete models.
+"""
+get_counters(nlp::AbstractNLPModel) = nlp.counters
+
 for counter in fieldnames(Counters)
   @eval begin
     """
@@ -46,7 +58,7 @@ for counter in fieldnames(Counters)
 
     Get the number of `$(split("$($counter)", "_")[2])` evaluations.
     """
-    $counter(nlp::AbstractNLPModel) = nlp.counters.$counter
+    $counter(nlp::AbstractNLPModel) = get_counters(nlp).$counter
     export $counter
   end
 end
@@ -61,7 +73,7 @@ Increment counter `s` of problem `nlp`.
 end
 
 for fun in fieldnames(Counters)
-  @eval increment!(nlp::AbstractNLPModel, ::Val{$(Meta.quot(fun))}) = nlp.counters.$fun += 1
+  @eval increment!(nlp::AbstractNLPModel, ::Val{$(Meta.quot(fun))}) = get_counters(nlp).$fun += 1
 end
 
 """
@@ -70,7 +82,8 @@ end
 Decrement counter `s` of problem `nlp`.
 """
 function decrement!(nlp::AbstractNLPModel, s::Symbol)
-  setproperty!(nlp.counters, s, getproperty(nlp.counters, s) - 1)
+  counters = get_counters(nlp)
+  setproperty!(counters, s, getproperty(counters, s) - 1)
 end
 
 """
@@ -92,7 +105,7 @@ end
 
 Sum all counters of problem `nlp` except `cons`, `jac`, `jprod` and `jtprod`.
 """
-sum_counters(nlp::AbstractNLPModel) = sum_counters(nlp.counters)
+sum_counters(nlp::AbstractNLPModel) = sum_counters(get_counters(nlp))
 
 """
     reset!(counters)
@@ -112,7 +125,7 @@ end
 Reset evaluation count and model data (if appropriate) in `nlp`.
 """
 function LinearOperators.reset!(nlp::AbstractNLPModel)
-  reset!(nlp.counters)
+  reset!(get_counters(nlp))
   reset_data!(nlp)
   return nlp
 end
