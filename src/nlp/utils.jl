@@ -116,13 +116,39 @@ function coo_sym_prod!(
 end
 
 """
-    @default_counters Model inner
+    @default_counters Model inner [excluded]
 
 Define functions relating counters of `Model` to counters of `Model.inner`.
+Any function listed in `excluded` (which is an empty list by default), will
+not be forwarded.
+
+Examples:
+
+    @default_counters MyModel inner (sum_counters, neval_hprod,)
+    @default_counters MyModel inner (neval_hprod,)
+
+Excluding a method from forwarding allows the user to redefine it without
+overwriting an existing method. Note that a generic method will still be
+defined as, e.g.,
+
+    neval_hprod(model) = model.inner.counters.neval_hprod
+
+because the `counters` attribute itself is forwarded by `@default_counters`.
 """
-macro default_counters(Model, inner)
+macro default_counters(Model, inner, excluded = :())
+
+  # Normalize excluded to a set of symbols
+  excluded_set = if excluded == :()
+    Set{Symbol}()
+  elseif excluded isa Expr && excluded.head == :tuple
+    Set{Symbol}([excluded.args...])
+  else
+    throw(ArgumentError("`@default_counters`: third argument must be a tuple of functions"))
+  end
+
   ex = Expr(:block)
   for foo in fieldnames(Counters) ∪ [:sum_counters]
+    Symbol(foo) in excluded_set && continue
     push!(ex.args, :(NLPModels.$foo(nlp::$(esc(Model))) = $foo(nlp.$inner)))
   end
   push!(ex.args, :(NLPModels.reset!(nlp::$(esc(Model))) = begin
