@@ -61,20 +61,8 @@ function cons!(nlp::AbstractNLPModel, x::AbstractVector, cx::AbstractVector)
   @lencheck get_nvar(nlp.meta) x
   @lencheck get_ncon(nlp.meta) cx
   increment!(nlp, :neval_cons)
-  if get_nlin(nlp.meta) > 0
-    if get_nnln(nlp.meta) == 0
-      cons_lin!(nlp, x, cx)
-    else
-      cons_lin!(nlp, x, view(cx, get_lin(nlp.meta)))
-    end
-  end
-  if get_nnln(nlp.meta) > 0
-    if get_nlin(nlp.meta) == 0
-      cons_nln!(nlp, x, cx)
-    else
-      cons_nln!(nlp, x, view(cx, get_nln(nlp.meta)))
-    end
-  end
+  get_nlin(nlp.meta) > 0 && cons_lin!(nlp, x, view(cx, get_lin(nlp.meta)))
+  get_nnln(nlp.meta) > 0 && cons_nln!(nlp, x, view(cx, get_nln(nlp.meta)))
   return cx
 end
 
@@ -275,20 +263,12 @@ function jac_coord!(nlp::AbstractNLPModel, x::AbstractVector, vals::AbstractVect
   @lencheck get_nnzj(nlp.meta) vals
   increment!(nlp, :neval_jac)
   if get_nlin(nlp.meta) > 0
-    if get_nnln(nlp.meta) == 0
-      jac_lin_coord!(nlp, x, vals)
-    else
-      lin_ind = 1:(get_lin_nnzj(nlp.meta))
-      jac_lin_coord!(nlp, x, view(vals, lin_ind))
-    end
+    lin_ind = 1:(get_lin_nnzj(nlp.meta))
+    jac_lin_coord!(nlp, x, view(vals, lin_ind))
   end
   if get_nnln(nlp.meta) > 0
-    if get_nlin(nlp.meta) == 0
-      jac_nln_coord!(nlp, x, vals)
-    else
-      nln_ind = (get_lin_nnzj(nlp.meta) + 1):(get_lin_nnzj(nlp.meta) + get_nln_nnzj(nlp.meta))
-      jac_nln_coord!(nlp, x, view(vals, nln_ind))
-    end
+    nln_ind = (get_lin_nnzj(nlp.meta) + 1):(get_lin_nnzj(nlp.meta) + get_nln_nnzj(nlp.meta))
+    jac_nln_coord!(nlp, x, view(vals, nln_ind))
   end
   return vals
 end
