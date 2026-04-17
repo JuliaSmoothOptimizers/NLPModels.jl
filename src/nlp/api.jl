@@ -414,20 +414,8 @@ function jprod!(nlp::AbstractNLPModel, x::AbstractVector, v::AbstractVector, Jv:
   @lencheck get_nvar(nlp.meta) x v
   @lencheck get_ncon(nlp.meta) Jv
   increment!(nlp, :neval_jprod)
-  if get_nlin(nlp.meta) > 0
-    if get_nnln(nlp.meta) == 0
-      jprod_lin!(nlp, x, v, Jv)
-    else
-      jprod_lin!(nlp, x, v, view(Jv, get_lin(nlp.meta)))
-    end
-  end
-  if get_nnln(nlp.meta) > 0
-    if get_nlin(nlp.meta) == 0
-      jprod_nln!(nlp, x, v, Jv)
-    else
-      jprod_nln!(nlp, x, v, view(Jv, get_nln(nlp.meta)))
-    end
-  end
+  get_nlin(nlp.meta) > 0 && jprod_lin!(nlp, x, v, view(Jv, get_lin(nlp.meta)))
+  get_nnln(nlp.meta) > 0 && jprod_nln!(nlp, x, v, view(Jv, get_nln(nlp.meta)))
   return Jv
 end
 
