@@ -184,12 +184,15 @@ function NLPModelMeta{T, S}(
   @assert nnzj == lin_nnzj + nln_nnzj
 
   if variable_bounds_analysis
-    ifix = findall(lvar .== uvar)
-    ilow = findall((lvar .> T(-Inf)) .& (uvar .== T(Inf)))
-    iupp = findall((lvar .== T(-Inf)) .& (uvar .< T(Inf)))
-    irng = findall((lvar .> T(-Inf)) .& (uvar .< T(Inf)) .& (lvar .< uvar))
-    ifree = findall((lvar .== T(-Inf)) .& (uvar .== T(Inf)))
-    iinf = findall(lvar .> uvar)
+    # Bound partitions are host metadata, even when the bounds live on a GPU.
+    lvar_host = convert(Vector{T}, lvar)
+    uvar_host = convert(Vector{T}, uvar)
+    ifix = findall(lvar_host .== uvar_host)
+    ilow = findall((lvar_host .> T(-Inf)) .& (uvar_host .== T(Inf)))
+    iupp = findall((lvar_host .== T(-Inf)) .& (uvar_host .< T(Inf)))
+    irng = findall((lvar_host .> T(-Inf)) .& (uvar_host .< T(Inf)) .& (lvar_host .< uvar_host))
+    ifree = findall((lvar_host .== T(-Inf)) .& (uvar_host .== T(Inf)))
+    iinf = findall(lvar_host .> uvar_host)
   else
     ifix = Int[]
     ilow = Int[]
@@ -200,12 +203,14 @@ function NLPModelMeta{T, S}(
   end
 
   if (ncon > 0) && constraint_bounds_analysis
-    jfix = findall(lcon .== ucon)
-    jlow = findall((lcon .> T(-Inf)) .& (ucon .== T(Inf)))
-    jupp = findall((lcon .== T(-Inf)) .& (ucon .< T(Inf)))
-    jrng = findall((lcon .> T(-Inf)) .& (ucon .< T(Inf)) .& (lcon .< ucon))
-    jfree = findall((lcon .== T(-Inf)) .& (ucon .== T(Inf)))
-    jinf = findall(lcon .> ucon)
+    lcon_host = convert(Vector{T}, lcon)
+    ucon_host = convert(Vector{T}, ucon)
+    jfix = findall(lcon_host .== ucon_host)
+    jlow = findall((lcon_host .> T(-Inf)) .& (ucon_host .== T(Inf)))
+    jupp = findall((lcon_host .== T(-Inf)) .& (ucon_host .< T(Inf)))
+    jrng = findall((lcon_host .> T(-Inf)) .& (ucon_host .< T(Inf)) .& (lcon_host .< ucon_host))
+    jfree = findall((lcon_host .== T(-Inf)) .& (ucon_host .== T(Inf)))
+    jinf = findall(lcon_host .> ucon_host)
   else
     jfix = Int[]
     jlow = Int[]
